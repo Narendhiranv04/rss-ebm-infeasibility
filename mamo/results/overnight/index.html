@@ -1,0 +1,824 @@
+<!doctype html><meta charset="utf-8"><title>Overnight benchmark</title>
+<style>
+body{font:14px system-ui,sans-serif;margin:0 auto;max-width:1400px;padding:16px;color:#0b0b0b;background:#fcfcfb}
+h1,h2,h3{font-weight:600} .muted{color:#52514e}
+table.t{border-collapse:collapse;margin:8px 0 16px;font-size:13px} .t th,.t td{padding:4px 10px;border-bottom:1px solid #e4e2dc;text-align:right}
+.t th:first-child,.t td:first-child{text-align:left}
+.grid{display:flex;flex-wrap:wrap;gap:12px} figure{margin:0;max-width:100%} figure img{max-width:100%;border:1px solid #e4e2dc}
+figcaption{font-size:12px;color:#52514e;max-width:560px}
+</style>
+<h1>Overnight benchmark: OoI retrieval in six environments, 900 s budget</h1>
+<p class="muted">Experiment <code>20261024-234342_overnight-900s</code>. Every method on every problem with 900 s of planning
+(3x the papers' 300 s); a solved plan counts only if it also retrieves the OoI when replayed from the initial
+scene. Success within shorter budgets comes from the same runs (the search does not depend on the budget).</p>
+<h2>Success within each budget</h2><table class="dataframe t">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>runs</th>
+      <th>&lt;= 60 s</th>
+      <th>&lt;= 120 s</th>
+      <th>&lt;= 300 s</th>
+      <th>&lt;= 600 s</th>
+      <th>&lt;= 900 s</th>
+    </tr>
+    <tr>
+      <th>method</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>M4M</th>
+      <td>53</td>
+      <td>16</td>
+      <td>20</td>
+      <td>20</td>
+      <td>20</td>
+      <td>20</td>
+    </tr>
+    <tr>
+      <th>E-M4M</th>
+      <td>53</td>
+      <td>21</td>
+      <td>24</td>
+      <td>24</td>
+      <td>24</td>
+      <td>26</td>
+    </tr>
+    <tr>
+      <th>I-M4M</th>
+      <td>53</td>
+      <td>23</td>
+      <td>24</td>
+      <td>27</td>
+      <td>28</td>
+      <td>28</td>
+    </tr>
+    <tr>
+      <th>I-M4M-PnP</th>
+      <td>53</td>
+      <td>21</td>
+      <td>25</td>
+      <td>26</td>
+      <td>28</td>
+      <td>28</td>
+    </tr>
+    <tr>
+      <th>Lazy I-M4M</th>
+      <td>53</td>
+      <td>23</td>
+      <td>25</td>
+      <td>26</td>
+      <td>26</td>
+      <td>26</td>
+    </tr>
+    <tr>
+      <th>Lazy I-M4M-PnP</th>
+      <td>53</td>
+      <td>22</td>
+      <td>25</td>
+      <td>29</td>
+      <td>30</td>
+      <td>31</td>
+    </tr>
+    <tr>
+      <th>DOGAR</th>
+      <td>53</td>
+      <td>7</td>
+      <td>7</td>
+      <td>9</td>
+      <td>9</td>
+      <td>11</td>
+    </tr>
+    <tr>
+      <th>DOGAR (uniform)</th>
+      <td>53</td>
+      <td>3</td>
+      <td>6</td>
+      <td>6</td>
+      <td>8</td>
+      <td>11</td>
+    </tr>
+  </tbody>
+</table>
+<img src="budget_300_vs_900.png" style="max-width:720px;width:100%">
+<h2>Per environment (300 s -> 900 s)</h2><table class="dataframe t">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>M4M</th>
+      <th>E-M4M</th>
+      <th>I-M4M</th>
+      <th>I-M4M-PnP</th>
+      <th>Lazy I-M4M</th>
+      <th>Lazy I-M4M-PnP</th>
+      <th>DOGAR</th>
+      <th>DOGAR (uniform)</th>
+    </tr>
+    <tr>
+      <th>environment (300 s -&gt; 900 s)</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Reference shelf (M4M)</th>
+      <td>6 -&gt; 6 / 9</td>
+      <td>6 -&gt; 6 / 9</td>
+      <td>7 -&gt; 7 / 9</td>
+      <td>6 -&gt; 6 / 9</td>
+      <td>7 -&gt; 7 / 9</td>
+      <td>7 -&gt; 7 / 9</td>
+      <td>2 -&gt; 2 / 9</td>
+      <td>2 -&gt; 2 / 9</td>
+    </tr>
+    <tr>
+      <th>Open tabletop</th>
+      <td>0 -&gt; 0 / 9</td>
+      <td>1 -&gt; 1 / 9</td>
+      <td>1 -&gt; 1 / 9</td>
+      <td>1 -&gt; 2 / 9</td>
+      <td>1 -&gt; 1 / 9</td>
+      <td>1 -&gt; 2 / 9</td>
+      <td>0 -&gt; 0 / 9</td>
+      <td>0 -&gt; 0 / 9</td>
+    </tr>
+    <tr>
+      <th>Confined shelf</th>
+      <td>5 -&gt; 5 / 9</td>
+      <td>6 -&gt; 6 / 9</td>
+      <td>6 -&gt; 6 / 9</td>
+      <td>5 -&gt; 5 / 9</td>
+      <td>6 -&gt; 6 / 9</td>
+      <td>6 -&gt; 6 / 9</td>
+      <td>2 -&gt; 2 / 9</td>
+      <td>1 -&gt; 3 / 9</td>
+    </tr>
+    <tr>
+      <th>Multi-level shelf</th>
+      <td>4 -&gt; 4 / 9</td>
+      <td>5 -&gt; 6 / 9</td>
+      <td>5 -&gt; 6 / 9</td>
+      <td>5 -&gt; 6 / 9</td>
+      <td>5 -&gt; 5 / 9</td>
+      <td>6 -&gt; 6 / 9</td>
+      <td>2 -&gt; 3 / 9</td>
+      <td>1 -&gt; 3 / 9</td>
+    </tr>
+    <tr>
+      <th>Access-19</th>
+      <td>0 -&gt; 0 / 8</td>
+      <td>0 -&gt; 0 / 8</td>
+      <td>0 -&gt; 0 / 8</td>
+      <td>3 -&gt; 3 / 8</td>
+      <td>0 -&gt; 0 / 8</td>
+      <td>3 -&gt; 3 / 8</td>
+      <td>0 -&gt; 0 / 8</td>
+      <td>0 -&gt; 0 / 8</td>
+    </tr>
+    <tr>
+      <th>3D stacking</th>
+      <td>5 -&gt; 5 / 9</td>
+      <td>6 -&gt; 7 / 9</td>
+      <td>8 -&gt; 8 / 9</td>
+      <td>6 -&gt; 6 / 9</td>
+      <td>7 -&gt; 7 / 9</td>
+      <td>6 -&gt; 7 / 9</td>
+      <td>3 -&gt; 4 / 9</td>
+      <td>2 -&gt; 3 / 9</td>
+    </tr>
+  </tbody>
+</table>
+<img src="anytime_by_environment.png" style="width:100%">
+<h2>Per difficulty (300 s -> 900 s)</h2><table class="dataframe t">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>M4M</th>
+      <th>E-M4M</th>
+      <th>I-M4M</th>
+      <th>I-M4M-PnP</th>
+      <th>Lazy I-M4M</th>
+      <th>Lazy I-M4M-PnP</th>
+      <th>DOGAR</th>
+      <th>DOGAR (uniform)</th>
+    </tr>
+    <tr>
+      <th>difficulty (300 s -&gt; 900 s)</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>easy</th>
+      <td>11 -&gt; 11 / 18</td>
+      <td>13 -&gt; 13 / 18</td>
+      <td>13 -&gt; 13 / 18</td>
+      <td>15 -&gt; 16 / 18</td>
+      <td>12 -&gt; 12 / 18</td>
+      <td>14 -&gt; 15 / 18</td>
+      <td>8 -&gt; 9 / 18</td>
+      <td>6 -&gt; 11 / 18</td>
+    </tr>
+    <tr>
+      <th>medium</th>
+      <td>7 -&gt; 7 / 18</td>
+      <td>10 -&gt; 11 / 18</td>
+      <td>10 -&gt; 11 / 18</td>
+      <td>10 -&gt; 11 / 18</td>
+      <td>11 -&gt; 11 / 18</td>
+      <td>12 -&gt; 12 / 18</td>
+      <td>1 -&gt; 2 / 18</td>
+      <td>0 -&gt; 0 / 18</td>
+    </tr>
+    <tr>
+      <th>hard</th>
+      <td>2 -&gt; 2 / 17</td>
+      <td>1 -&gt; 2 / 17</td>
+      <td>4 -&gt; 4 / 17</td>
+      <td>1 -&gt; 1 / 17</td>
+      <td>3 -&gt; 3 / 17</td>
+      <td>3 -&gt; 4 / 17</td>
+      <td>0 -&gt; 0 / 17</td>
+      <td>0 -&gt; 0 / 17</td>
+    </tr>
+  </tbody>
+</table>
+<img src="anytime_by_difficulty.png" style="width:100%">
+<h2>Planning time and failures</h2><table class="dataframe t">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>solved</th>
+      <th>median planning time (s)</th>
+      <th>solved after 300 s</th>
+    </tr>
+    <tr>
+      <th>method</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>M4M</th>
+      <td>20</td>
+      <td>19</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>E-M4M</th>
+      <td>26</td>
+      <td>25</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>I-M4M</th>
+      <td>28</td>
+      <td>26</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>I-M4M-PnP</th>
+      <td>28</td>
+      <td>18</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>Lazy I-M4M</th>
+      <td>26</td>
+      <td>17</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>Lazy I-M4M-PnP</th>
+      <td>31</td>
+      <td>19</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>DOGAR</th>
+      <td>11</td>
+      <td>20</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>DOGAR (uniform)</th>
+      <td>11</td>
+      <td>101</td>
+      <td>5</td>
+    </tr>
+  </tbody>
+</table><table class="dataframe t">
+  <thead>
+    <tr style="text-align: right;">
+      <th>method</th>
+      <th>M4M</th>
+      <th>E-M4M</th>
+      <th>I-M4M</th>
+      <th>I-M4M-PnP</th>
+      <th>Lazy I-M4M</th>
+      <th>Lazy I-M4M-PnP</th>
+      <th>DOGAR</th>
+      <th>DOGAR (uniform)</th>
+    </tr>
+    <tr>
+      <th>unsolved: reason</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>CBS failed</th>
+      <td>15</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>CRASH</th>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>OPEN exhausted</th>
+      <td>0</td>
+      <td>21</td>
+      <td>20</td>
+      <td>15</td>
+      <td>21</td>
+      <td>15</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>budget exhausted</th>
+      <td>15</td>
+      <td>4</td>
+      <td>4</td>
+      <td>5</td>
+      <td>5</td>
+      <td>5</td>
+      <td>37</td>
+      <td>41</td>
+    </tr>
+    <tr>
+      <th>no MAPF-suggested push left</th>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>no retrieval trajectory without movables</th>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>plan failed on replay</th>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+      <td>3</td>
+      <td>0</td>
+      <td>1</td>
+      <td>5</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+<h2>Reference shelf (M4M)</h2><p class='muted'>The M4M / E-M4M papers&#x27; shelf (reference scenes, 5-15 movables).</p><h3>Problems (task: retrieve the yellow OoI)</h3><div class='grid'>
+<figure><img src='scenes/reference_shelf/plan_100086_SCENE.gif' loading='lazy'><figcaption><b>plan_100086_SCENE</b> (easy): retrieve the OoI; 1 movable(s) in its retrieval path. Solved by: not in the benchmark sample</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_100086_SCENE_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_100103_SCENE.gif' loading='lazy'><figcaption><b>plan_100103_SCENE</b> (easy): retrieve the OoI; 1 movable(s) in its retrieval path. Solved by: DOGAR 6 s, Lazy I-M4M 10 s, Lazy I-M4M-PnP 10 s, M4M 12 s, E-M4M 12 s, I-M4M-PnP 13 s, I-M4M 13 s, DOGAR (uniform) 30 s</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_100103_SCENE_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_100149_SCENE.gif' loading='lazy'><figcaption><b>plan_100149_SCENE</b> (easy): retrieve the OoI; 1 movable(s) in its retrieval path. Solved by: not in the benchmark sample</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_100149_SCENE_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_200012_SCENE.gif' loading='lazy'><figcaption><b>plan_200012_SCENE</b> (easy): retrieve the OoI; 1 movable(s) in its retrieval path. Solved by: not in the benchmark sample</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_200012_SCENE_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_200041_SCENE.gif' loading='lazy'><figcaption><b>plan_200041_SCENE</b> (easy): retrieve the OoI; 1 movable(s) in its retrieval path. Solved by: not in the benchmark sample</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_200041_SCENE_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_200067_SCENE.gif' loading='lazy'><figcaption><b>plan_200067_SCENE</b> (easy): retrieve the OoI; 1 movable(s) in its retrieval path. Solved by: not in the benchmark sample</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_200067_SCENE_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_200097_SCENE.gif' loading='lazy'><figcaption><b>plan_200097_SCENE</b> (easy): retrieve the OoI; 1 movable(s) in its retrieval path. Solved by: not in the benchmark sample</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_200097_SCENE_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_300076_SCENE.gif' loading='lazy'><figcaption><b>plan_300076_SCENE</b> (easy): retrieve the OoI; 1 movable(s) in its retrieval path. Solved by: Lazy I-M4M-PnP 19 s, I-M4M-PnP 22 s, I-M4M 23 s, Lazy I-M4M 24 s, M4M 29 s, E-M4M 42 s</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_300076_SCENE_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_300131_SCENE.gif' loading='lazy'><figcaption><b>plan_300131_SCENE</b> (easy): retrieve the OoI; 1 movable(s) in its retrieval path. Solved by: DOGAR 11 s, Lazy I-M4M 13 s, I-M4M 27 s, E-M4M 28 s, Lazy I-M4M-PnP 31 s, M4M 31 s, I-M4M-PnP 32 s, DOGAR (uniform) 101 s</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_300131_SCENE_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_300151_SCENE.gif' loading='lazy'><figcaption><b>plan_300151_SCENE</b> (easy): retrieve the OoI; 1 movable(s) in its retrieval path. Solved by: not in the benchmark sample</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_300151_SCENE_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_200068_SCENE.gif' loading='lazy'><figcaption><b>plan_200068_SCENE</b> (medium): retrieve the OoI; 2 movable(s) in its retrieval path. Solved by: not in the benchmark sample</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_200068_SCENE_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_200126_SCENE.gif' loading='lazy'><figcaption><b>plan_200126_SCENE</b> (medium): retrieve the OoI; 0 movable(s) in its retrieval path. Solved by: none</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_200126_SCENE_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_200147_SCENE.gif' loading='lazy'><figcaption><b>plan_200147_SCENE</b> (medium): retrieve the OoI; 2 movable(s) in its retrieval path. Solved by: not in the benchmark sample</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_200147_SCENE_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_300000_SCENE.gif' loading='lazy'><figcaption><b>plan_300000_SCENE</b> (medium): retrieve the OoI; 2 movable(s) in its retrieval path. Solved by: not in the benchmark sample</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_300000_SCENE_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_300013_SCENE.gif' loading='lazy'><figcaption><b>plan_300013_SCENE</b> (medium): retrieve the OoI; 3 movable(s) in its retrieval path. Solved by: not in the benchmark sample</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_300013_SCENE_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_300017_SCENE.gif' loading='lazy'><figcaption><b>plan_300017_SCENE</b> (medium): retrieve the OoI; 2 movable(s) in its retrieval path. Solved by: not in the benchmark sample</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_300017_SCENE_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_300048_SCENE.gif' loading='lazy'><figcaption><b>plan_300048_SCENE</b> (medium): retrieve the OoI; 3 movable(s) in its retrieval path. Solved by: not in the benchmark sample</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_300048_SCENE_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_300058_SCENE.gif' loading='lazy'><figcaption><b>plan_300058_SCENE</b> (medium): retrieve the OoI; 2 movable(s) in its retrieval path. Solved by: E-M4M 12 s, I-M4M 12 s, Lazy I-M4M 14 s, I-M4M-PnP 21 s, M4M 25 s, Lazy I-M4M-PnP 79 s</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_300058_SCENE_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_300066_SCENE.gif' loading='lazy'><figcaption><b>plan_300066_SCENE</b> (medium): retrieve the OoI; 2 movable(s) in its retrieval path. Solved by: E-M4M 17 s, Lazy I-M4M-PnP 21 s, I-M4M 28 s, I-M4M-PnP 41 s, Lazy I-M4M 50 s</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_300066_SCENE_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_300128_SCENE.gif' loading='lazy'><figcaption><b>plan_300128_SCENE</b> (medium): retrieve the OoI; 2 movable(s) in its retrieval path. Solved by: not in the benchmark sample</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_300128_SCENE_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_200056_SCENE.gif' loading='lazy'><figcaption><b>plan_200056_SCENE</b> (hard): retrieve the OoI; 3 movable(s) in its retrieval path. Solved by: not in the benchmark sample</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_200056_SCENE_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_200093_SCENE.gif' loading='lazy'><figcaption><b>plan_200093_SCENE</b> (hard): retrieve the OoI; 4 movable(s) in its retrieval path. Solved by: Lazy I-M4M-PnP 170 s, Lazy I-M4M 192 s, I-M4M 209 s</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_200093_SCENE_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_300003_SCENE.gif' loading='lazy'><figcaption><b>plan_300003_SCENE</b> (hard): retrieve the OoI; 4 movable(s) in its retrieval path. Solved by: not in the benchmark sample</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_300003_SCENE_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_300005_SCENE.gif' loading='lazy'><figcaption><b>plan_300005_SCENE</b> (hard): retrieve the OoI; 0 movable(s) in its retrieval path. Solved by: not in the benchmark sample</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_300005_SCENE_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_300052_SCENE.gif' loading='lazy'><figcaption><b>plan_300052_SCENE</b> (hard): retrieve the OoI; 3 movable(s) in its retrieval path. Solved by: not in the benchmark sample</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_300052_SCENE_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_300089_SCENE.gif' loading='lazy'><figcaption><b>plan_300089_SCENE</b> (hard): retrieve the OoI; 3 movable(s) in its retrieval path. Solved by: not in the benchmark sample</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_300089_SCENE_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_300119_SCENE.gif' loading='lazy'><figcaption><b>plan_300119_SCENE</b> (hard): retrieve the OoI; 3 movable(s) in its retrieval path. Solved by: not in the benchmark sample</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_300119_SCENE_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_300164_SCENE.gif' loading='lazy'><figcaption><b>plan_300164_SCENE</b> (hard): retrieve the OoI; 3 movable(s) in its retrieval path. Solved by: I-M4M 26 s, Lazy I-M4M 31 s, M4M 36 s, I-M4M-PnP 65 s, Lazy I-M4M-PnP 71 s, E-M4M 113 s</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_300164_SCENE_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_300176_SCENE.gif' loading='lazy'><figcaption><b>plan_300176_SCENE</b> (hard): retrieve the OoI; 4 movable(s) in its retrieval path. Solved by: M4M 66 s</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_300176_SCENE_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_300189_SCENE.gif' loading='lazy'><figcaption><b>plan_300189_SCENE</b> (hard): retrieve the OoI; 4 movable(s) in its retrieval path. Solved by: not in the benchmark sample</figcaption></figure>
+<figure><img src='scenes/reference_shelf/plan_300189_SCENE_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+</div><h3>Solutions (replays)</h3><div class='grid'>
+<figure><img src='solutions/reference_shelf/plan_100103_SCENE__m4m.gif' loading='lazy'><figcaption>M4M - plan_100103_SCENE (easy), planned in 12 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/reference_shelf/plan_100103_SCENE__em4m.gif' loading='lazy'><figcaption>E-M4M - plan_100103_SCENE (easy), planned in 12 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/reference_shelf/plan_100103_SCENE__im4m.gif' loading='lazy'><figcaption>I-M4M - plan_100103_SCENE (easy), planned in 13 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/reference_shelf/plan_100103_SCENE__im4m_pnp.gif' loading='lazy'><figcaption>I-M4M-PnP - plan_100103_SCENE (easy), planned in 13 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/reference_shelf/plan_100103_SCENE__lazy_im4m.gif' loading='lazy'><figcaption>Lazy I-M4M - plan_100103_SCENE (easy), planned in 10 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/reference_shelf/plan_100103_SCENE__lazy_im4m_pnp.gif' loading='lazy'><figcaption>Lazy I-M4M-PnP - plan_100103_SCENE (easy), planned in 10 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/reference_shelf/plan_100103_SCENE__dogar.gif' loading='lazy'><figcaption>DOGAR - plan_100103_SCENE (easy), planned in 6 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/reference_shelf/plan_100103_SCENE__dogar_uniform.gif' loading='lazy'><figcaption>DOGAR (uniform) - plan_100103_SCENE (easy), planned in 30 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/reference_shelf/plan_300076_SCENE__m4m.gif' loading='lazy'><figcaption>M4M - plan_300076_SCENE (easy), planned in 29 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/reference_shelf/plan_300076_SCENE__em4m.gif' loading='lazy'><figcaption>E-M4M - plan_300076_SCENE (easy), planned in 42 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/reference_shelf/plan_300076_SCENE__im4m.gif' loading='lazy'><figcaption>I-M4M - plan_300076_SCENE (easy), planned in 23 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/reference_shelf/plan_300076_SCENE__im4m_pnp.gif' loading='lazy'><figcaption>I-M4M-PnP - plan_300076_SCENE (easy), planned in 22 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/reference_shelf/plan_300076_SCENE__lazy_im4m.gif' loading='lazy'><figcaption>Lazy I-M4M - plan_300076_SCENE (easy), planned in 24 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/reference_shelf/plan_300076_SCENE__lazy_im4m_pnp.gif' loading='lazy'><figcaption>Lazy I-M4M-PnP - plan_300076_SCENE (easy), planned in 19 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/reference_shelf/plan_300131_SCENE__m4m.gif' loading='lazy'><figcaption>M4M - plan_300131_SCENE (easy), planned in 31 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/reference_shelf/plan_300131_SCENE__em4m.gif' loading='lazy'><figcaption>E-M4M - plan_300131_SCENE (easy), planned in 28 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/reference_shelf/plan_300131_SCENE__im4m.gif' loading='lazy'><figcaption>I-M4M - plan_300131_SCENE (easy), planned in 27 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/reference_shelf/plan_300131_SCENE__im4m_pnp.gif' loading='lazy'><figcaption>I-M4M-PnP - plan_300131_SCENE (easy), planned in 32 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/reference_shelf/plan_300131_SCENE__lazy_im4m.gif' loading='lazy'><figcaption>Lazy I-M4M - plan_300131_SCENE (easy), planned in 13 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/reference_shelf/plan_300131_SCENE__lazy_im4m_pnp.gif' loading='lazy'><figcaption>Lazy I-M4M-PnP - plan_300131_SCENE (easy), planned in 31 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/reference_shelf/plan_300131_SCENE__dogar.gif' loading='lazy'><figcaption>DOGAR - plan_300131_SCENE (easy), planned in 11 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/reference_shelf/plan_300131_SCENE__dogar_uniform.gif' loading='lazy'><figcaption>DOGAR (uniform) - plan_300131_SCENE (easy), planned in 101 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/reference_shelf/plan_200126_SCENE__dogar.gif' loading='lazy'><figcaption>DOGAR - plan_200126_SCENE (medium), planned in 407 s, replay FAILED</figcaption></figure>
+<figure><img src='solutions/reference_shelf/plan_300058_SCENE__m4m.gif' loading='lazy'><figcaption>M4M - plan_300058_SCENE (medium), planned in 25 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/reference_shelf/plan_300058_SCENE__em4m.gif' loading='lazy'><figcaption>E-M4M - plan_300058_SCENE (medium), planned in 12 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/reference_shelf/plan_300058_SCENE__im4m.gif' loading='lazy'><figcaption>I-M4M - plan_300058_SCENE (medium), planned in 12 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/reference_shelf/plan_300058_SCENE__im4m_pnp.gif' loading='lazy'><figcaption>I-M4M-PnP - plan_300058_SCENE (medium), planned in 21 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/reference_shelf/plan_300058_SCENE__lazy_im4m.gif' loading='lazy'><figcaption>Lazy I-M4M - plan_300058_SCENE (medium), planned in 14 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/reference_shelf/plan_300058_SCENE__lazy_im4m_pnp.gif' loading='lazy'><figcaption>Lazy I-M4M-PnP - plan_300058_SCENE (medium), planned in 79 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/reference_shelf/plan_300066_SCENE__em4m.gif' loading='lazy'><figcaption>E-M4M - plan_300066_SCENE (medium), planned in 17 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/reference_shelf/plan_300066_SCENE__im4m.gif' loading='lazy'><figcaption>I-M4M - plan_300066_SCENE (medium), planned in 28 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/reference_shelf/plan_300066_SCENE__im4m_pnp.gif' loading='lazy'><figcaption>I-M4M-PnP - plan_300066_SCENE (medium), planned in 41 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/reference_shelf/plan_300066_SCENE__lazy_im4m.gif' loading='lazy'><figcaption>Lazy I-M4M - plan_300066_SCENE (medium), planned in 50 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/reference_shelf/plan_300066_SCENE__lazy_im4m_pnp.gif' loading='lazy'><figcaption>Lazy I-M4M-PnP - plan_300066_SCENE (medium), planned in 21 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/reference_shelf/plan_300066_SCENE__dogar.gif' loading='lazy'><figcaption>DOGAR - plan_300066_SCENE (medium), planned in 140 s, replay FAILED</figcaption></figure>
+<figure><img src='solutions/reference_shelf/plan_200093_SCENE__em4m.gif' loading='lazy'><figcaption>E-M4M - plan_200093_SCENE (hard), planned in 393 s, replay FAILED</figcaption></figure>
+<figure><img src='solutions/reference_shelf/plan_200093_SCENE__im4m.gif' loading='lazy'><figcaption>I-M4M - plan_200093_SCENE (hard), planned in 209 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/reference_shelf/plan_200093_SCENE__im4m_pnp.gif' loading='lazy'><figcaption>I-M4M-PnP - plan_200093_SCENE (hard), planned in 247 s, replay FAILED</figcaption></figure>
+<figure><img src='solutions/reference_shelf/plan_200093_SCENE__lazy_im4m.gif' loading='lazy'><figcaption>Lazy I-M4M - plan_200093_SCENE (hard), planned in 192 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/reference_shelf/plan_200093_SCENE__lazy_im4m_pnp.gif' loading='lazy'><figcaption>Lazy I-M4M-PnP - plan_200093_SCENE (hard), planned in 170 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/reference_shelf/plan_300164_SCENE__m4m.gif' loading='lazy'><figcaption>M4M - plan_300164_SCENE (hard), planned in 36 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/reference_shelf/plan_300164_SCENE__em4m.gif' loading='lazy'><figcaption>E-M4M - plan_300164_SCENE (hard), planned in 113 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/reference_shelf/plan_300164_SCENE__im4m.gif' loading='lazy'><figcaption>I-M4M - plan_300164_SCENE (hard), planned in 26 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/reference_shelf/plan_300164_SCENE__im4m_pnp.gif' loading='lazy'><figcaption>I-M4M-PnP - plan_300164_SCENE (hard), planned in 65 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/reference_shelf/plan_300164_SCENE__lazy_im4m.gif' loading='lazy'><figcaption>Lazy I-M4M - plan_300164_SCENE (hard), planned in 31 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/reference_shelf/plan_300164_SCENE__lazy_im4m_pnp.gif' loading='lazy'><figcaption>Lazy I-M4M-PnP - plan_300164_SCENE (hard), planned in 71 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/reference_shelf/plan_300176_SCENE__m4m.gif' loading='lazy'><figcaption>M4M - plan_300176_SCENE (hard), planned in 66 s, replayed OK</figcaption></figure>
+</div>
+<h2>Open tabletop</h2><p class='muted'>40x28 cm table, 10x7 cells of 40 mm, thin / medium / thick cylinders.</p><h3>Problems (task: retrieve the yellow OoI)</h3><div class='grid'>
+<figure><img src='scenes/open_tabletop/open_tabletop_retrieve_easy_0000.gif' loading='lazy'><figcaption><b>open_tabletop_retrieve_easy_0000</b> (easy): retrieve the OoI; 1 movable(s) in its retrieval path. Solved by: Lazy I-M4M-PnP 323 s, I-M4M-PnP 423 s</figcaption></figure>
+<figure><img src='scenes/open_tabletop/open_tabletop_retrieve_easy_0000_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/open_tabletop/open_tabletop_retrieve_easy_0001.gif' loading='lazy'><figcaption><b>open_tabletop_retrieve_easy_0001</b> (easy): retrieve the OoI; 1 movable(s) in its retrieval path. Solved by: E-M4M 1 s, I-M4M 1 s, Lazy I-M4M 1 s, I-M4M-PnP 1 s, Lazy I-M4M-PnP 1 s</figcaption></figure>
+<figure><img src='scenes/open_tabletop/open_tabletop_retrieve_easy_0001_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/open_tabletop/open_tabletop_retrieve_easy_0002.gif' loading='lazy'><figcaption><b>open_tabletop_retrieve_easy_0002</b> (easy): retrieve the OoI; 2 movable(s) in its retrieval path. Solved by: none</figcaption></figure>
+<figure><img src='scenes/open_tabletop/open_tabletop_retrieve_easy_0002_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/open_tabletop/open_tabletop_retrieve_easy_0003.gif' loading='lazy'><figcaption><b>open_tabletop_retrieve_easy_0003</b> (easy): retrieve the OoI; 1 movable(s) in its retrieval path. Solved by: not in the benchmark sample</figcaption></figure>
+<figure><img src='scenes/open_tabletop/open_tabletop_retrieve_easy_0003_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/open_tabletop/open_tabletop_retrieve_medium_0000.gif' loading='lazy'><figcaption><b>open_tabletop_retrieve_medium_0000</b> (medium): retrieve the OoI; 11 movable(s) in its retrieval path. Solved by: none</figcaption></figure>
+<figure><img src='scenes/open_tabletop/open_tabletop_retrieve_medium_0000_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/open_tabletop/open_tabletop_retrieve_medium_0001.gif' loading='lazy'><figcaption><b>open_tabletop_retrieve_medium_0001</b> (medium): retrieve the OoI; 3 movable(s) in its retrieval path. Solved by: none</figcaption></figure>
+<figure><img src='scenes/open_tabletop/open_tabletop_retrieve_medium_0001_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/open_tabletop/open_tabletop_retrieve_medium_0002.gif' loading='lazy'><figcaption><b>open_tabletop_retrieve_medium_0002</b> (medium): retrieve the OoI; 2 movable(s) in its retrieval path. Solved by: none</figcaption></figure>
+<figure><img src='scenes/open_tabletop/open_tabletop_retrieve_medium_0002_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/open_tabletop/open_tabletop_retrieve_medium_0003.gif' loading='lazy'><figcaption><b>open_tabletop_retrieve_medium_0003</b> (medium): retrieve the OoI; 2 movable(s) in its retrieval path. Solved by: not in the benchmark sample</figcaption></figure>
+<figure><img src='scenes/open_tabletop/open_tabletop_retrieve_medium_0003_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/open_tabletop/open_tabletop_retrieve_hard_0000.gif' loading='lazy'><figcaption><b>open_tabletop_retrieve_hard_0000</b> (hard): retrieve the OoI; 3 movable(s) in its retrieval path. Solved by: none</figcaption></figure>
+<figure><img src='scenes/open_tabletop/open_tabletop_retrieve_hard_0000_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/open_tabletop/open_tabletop_retrieve_hard_0001.gif' loading='lazy'><figcaption><b>open_tabletop_retrieve_hard_0001</b> (hard): retrieve the OoI; 5 movable(s) in its retrieval path. Solved by: none</figcaption></figure>
+<figure><img src='scenes/open_tabletop/open_tabletop_retrieve_hard_0001_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/open_tabletop/open_tabletop_retrieve_hard_0002.gif' loading='lazy'><figcaption><b>open_tabletop_retrieve_hard_0002</b> (hard): retrieve the OoI; 8 movable(s) in its retrieval path. Solved by: none</figcaption></figure>
+<figure><img src='scenes/open_tabletop/open_tabletop_retrieve_hard_0002_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/open_tabletop/open_tabletop_retrieve_hard_0003.gif' loading='lazy'><figcaption><b>open_tabletop_retrieve_hard_0003</b> (hard): retrieve the OoI; 9 movable(s) in its retrieval path. Solved by: not in the benchmark sample</figcaption></figure>
+<figure><img src='scenes/open_tabletop/open_tabletop_retrieve_hard_0003_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+</div><h3>Solutions (replays)</h3><div class='grid'>
+<figure><img src='solutions/open_tabletop/open_tabletop_retrieve_easy_0000__im4m_pnp.gif' loading='lazy'><figcaption>I-M4M-PnP - open_tabletop_retrieve_easy_0000 (easy), planned in 423 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/open_tabletop/open_tabletop_retrieve_easy_0000__lazy_im4m_pnp.gif' loading='lazy'><figcaption>Lazy I-M4M-PnP - open_tabletop_retrieve_easy_0000 (easy), planned in 323 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/open_tabletop/open_tabletop_retrieve_easy_0001__m4m.gif' loading='lazy'><figcaption>M4M - open_tabletop_retrieve_easy_0001 (easy), planned in 1 s, replay FAILED</figcaption></figure>
+<figure><img src='solutions/open_tabletop/open_tabletop_retrieve_easy_0001__em4m.gif' loading='lazy'><figcaption>E-M4M - open_tabletop_retrieve_easy_0001 (easy), planned in 1 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/open_tabletop/open_tabletop_retrieve_easy_0001__im4m.gif' loading='lazy'><figcaption>I-M4M - open_tabletop_retrieve_easy_0001 (easy), planned in 1 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/open_tabletop/open_tabletop_retrieve_easy_0001__im4m_pnp.gif' loading='lazy'><figcaption>I-M4M-PnP - open_tabletop_retrieve_easy_0001 (easy), planned in 1 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/open_tabletop/open_tabletop_retrieve_easy_0001__lazy_im4m.gif' loading='lazy'><figcaption>Lazy I-M4M - open_tabletop_retrieve_easy_0001 (easy), planned in 1 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/open_tabletop/open_tabletop_retrieve_easy_0001__lazy_im4m_pnp.gif' loading='lazy'><figcaption>Lazy I-M4M-PnP - open_tabletop_retrieve_easy_0001 (easy), planned in 1 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/open_tabletop/open_tabletop_retrieve_easy_0002__im4m_pnp.gif' loading='lazy'><figcaption>I-M4M-PnP - open_tabletop_retrieve_easy_0002 (easy), planned in 186 s, replay FAILED</figcaption></figure>
+<figure><img src='solutions/open_tabletop/open_tabletop_retrieve_easy_0002__lazy_im4m_pnp.gif' loading='lazy'><figcaption>Lazy I-M4M-PnP - open_tabletop_retrieve_easy_0002 (easy), planned in 240 s, replay FAILED</figcaption></figure>
+</div>
+<h2>Confined shelf</h2><p class='muted'>Cubicle 79x44x34 cm open at the front, 9x4 cells of 70 mm, bottle-sized cylinders.</p><h3>Problems (task: retrieve the yellow OoI)</h3><div class='grid'>
+<figure><img src='scenes/confined_shelf/confined_shelf_retrieve_easy_0000.gif' loading='lazy'><figcaption><b>confined_shelf_retrieve_easy_0000</b> (easy): retrieve the OoI; 1 movable(s) in its retrieval path. Solved by: Lazy I-M4M-PnP 8 s, I-M4M-PnP 9 s, Lazy I-M4M 9 s, M4M 11 s, E-M4M 19 s, I-M4M 20 s, DOGAR 42 s, DOGAR (uniform) 68 s</figcaption></figure>
+<figure><img src='scenes/confined_shelf/confined_shelf_retrieve_easy_0000_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/confined_shelf/confined_shelf_retrieve_easy_0001.gif' loading='lazy'><figcaption><b>confined_shelf_retrieve_easy_0001</b> (easy): retrieve the OoI; 1 movable(s) in its retrieval path. Solved by: M4M 5 s, Lazy I-M4M-PnP 5 s, I-M4M-PnP 6 s, Lazy I-M4M 18 s, DOGAR 20 s, I-M4M 23 s, E-M4M 23 s, DOGAR (uniform) 715 s</figcaption></figure>
+<figure><img src='scenes/confined_shelf/confined_shelf_retrieve_easy_0001_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/confined_shelf/confined_shelf_retrieve_easy_0002.gif' loading='lazy'><figcaption><b>confined_shelf_retrieve_easy_0002</b> (easy): retrieve the OoI; 1 movable(s) in its retrieval path. Solved by: I-M4M-PnP 5 s, Lazy I-M4M 6 s, Lazy I-M4M-PnP 7 s, E-M4M 15 s, I-M4M 15 s, M4M 16 s, DOGAR (uniform) 571 s</figcaption></figure>
+<figure><img src='scenes/confined_shelf/confined_shelf_retrieve_easy_0002_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/confined_shelf/confined_shelf_retrieve_easy_0003.gif' loading='lazy'><figcaption><b>confined_shelf_retrieve_easy_0003</b> (easy): retrieve the OoI; 1 movable(s) in its retrieval path. Solved by: not in the benchmark sample</figcaption></figure>
+<figure><img src='scenes/confined_shelf/confined_shelf_retrieve_easy_0003_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/confined_shelf/confined_shelf_retrieve_medium_0000.gif' loading='lazy'><figcaption><b>confined_shelf_retrieve_medium_0000</b> (medium): retrieve the OoI; 2 movable(s) in its retrieval path. Solved by: Lazy I-M4M 25 s, I-M4M 50 s, I-M4M-PnP 65 s, E-M4M 72 s, Lazy I-M4M-PnP 188 s</figcaption></figure>
+<figure><img src='scenes/confined_shelf/confined_shelf_retrieve_medium_0000_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/confined_shelf/confined_shelf_retrieve_medium_0001.gif' loading='lazy'><figcaption><b>confined_shelf_retrieve_medium_0001</b> (medium): retrieve the OoI; 2 movable(s) in its retrieval path. Solved by: Lazy I-M4M 40 s, E-M4M 54 s, I-M4M 54 s, M4M 78 s, Lazy I-M4M-PnP 219 s</figcaption></figure>
+<figure><img src='scenes/confined_shelf/confined_shelf_retrieve_medium_0001_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/confined_shelf/confined_shelf_retrieve_medium_0002.gif' loading='lazy'><figcaption><b>confined_shelf_retrieve_medium_0002</b> (medium): retrieve the OoI; 2 movable(s) in its retrieval path. Solved by: M4M 22 s, Lazy I-M4M-PnP 22 s, Lazy I-M4M 35 s, I-M4M 40 s, E-M4M 41 s, I-M4M-PnP 97 s</figcaption></figure>
+<figure><img src='scenes/confined_shelf/confined_shelf_retrieve_medium_0002_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/confined_shelf/confined_shelf_retrieve_medium_0003.gif' loading='lazy'><figcaption><b>confined_shelf_retrieve_medium_0003</b> (medium): retrieve the OoI; 2 movable(s) in its retrieval path. Solved by: not in the benchmark sample</figcaption></figure>
+<figure><img src='scenes/confined_shelf/confined_shelf_retrieve_medium_0003_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/confined_shelf/confined_shelf_retrieve_hard_0000.gif' loading='lazy'><figcaption><b>confined_shelf_retrieve_hard_0000</b> (hard): retrieve the OoI; 6 movable(s) in its retrieval path. Solved by: none</figcaption></figure>
+<figure><img src='scenes/confined_shelf/confined_shelf_retrieve_hard_0000_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/confined_shelf/confined_shelf_retrieve_hard_0001.gif' loading='lazy'><figcaption><b>confined_shelf_retrieve_hard_0001</b> (hard): retrieve the OoI; 4 movable(s) in its retrieval path. Solved by: none</figcaption></figure>
+<figure><img src='scenes/confined_shelf/confined_shelf_retrieve_hard_0001_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/confined_shelf/confined_shelf_retrieve_hard_0002.gif' loading='lazy'><figcaption><b>confined_shelf_retrieve_hard_0002</b> (hard): retrieve the OoI; 3 movable(s) in its retrieval path. Solved by: none</figcaption></figure>
+<figure><img src='scenes/confined_shelf/confined_shelf_retrieve_hard_0002_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/confined_shelf/confined_shelf_retrieve_hard_0003.gif' loading='lazy'><figcaption><b>confined_shelf_retrieve_hard_0003</b> (hard): retrieve the OoI; 6 movable(s) in its retrieval path. Solved by: not in the benchmark sample</figcaption></figure>
+<figure><img src='scenes/confined_shelf/confined_shelf_retrieve_hard_0003_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+</div><h3>Solutions (replays)</h3><div class='grid'>
+<figure><img src='solutions/confined_shelf/confined_shelf_retrieve_easy_0000__m4m.gif' loading='lazy'><figcaption>M4M - confined_shelf_retrieve_easy_0000 (easy), planned in 11 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/confined_shelf/confined_shelf_retrieve_easy_0000__em4m.gif' loading='lazy'><figcaption>E-M4M - confined_shelf_retrieve_easy_0000 (easy), planned in 19 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/confined_shelf/confined_shelf_retrieve_easy_0000__im4m.gif' loading='lazy'><figcaption>I-M4M - confined_shelf_retrieve_easy_0000 (easy), planned in 20 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/confined_shelf/confined_shelf_retrieve_easy_0000__im4m_pnp.gif' loading='lazy'><figcaption>I-M4M-PnP - confined_shelf_retrieve_easy_0000 (easy), planned in 9 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/confined_shelf/confined_shelf_retrieve_easy_0000__lazy_im4m.gif' loading='lazy'><figcaption>Lazy I-M4M - confined_shelf_retrieve_easy_0000 (easy), planned in 9 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/confined_shelf/confined_shelf_retrieve_easy_0000__lazy_im4m_pnp.gif' loading='lazy'><figcaption>Lazy I-M4M-PnP - confined_shelf_retrieve_easy_0000 (easy), planned in 8 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/confined_shelf/confined_shelf_retrieve_easy_0000__dogar.gif' loading='lazy'><figcaption>DOGAR - confined_shelf_retrieve_easy_0000 (easy), planned in 42 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/confined_shelf/confined_shelf_retrieve_easy_0000__dogar_uniform.gif' loading='lazy'><figcaption>DOGAR (uniform) - confined_shelf_retrieve_easy_0000 (easy), planned in 68 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/confined_shelf/confined_shelf_retrieve_easy_0001__m4m.gif' loading='lazy'><figcaption>M4M - confined_shelf_retrieve_easy_0001 (easy), planned in 5 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/confined_shelf/confined_shelf_retrieve_easy_0001__em4m.gif' loading='lazy'><figcaption>E-M4M - confined_shelf_retrieve_easy_0001 (easy), planned in 23 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/confined_shelf/confined_shelf_retrieve_easy_0001__im4m.gif' loading='lazy'><figcaption>I-M4M - confined_shelf_retrieve_easy_0001 (easy), planned in 23 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/confined_shelf/confined_shelf_retrieve_easy_0001__im4m_pnp.gif' loading='lazy'><figcaption>I-M4M-PnP - confined_shelf_retrieve_easy_0001 (easy), planned in 6 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/confined_shelf/confined_shelf_retrieve_easy_0001__lazy_im4m.gif' loading='lazy'><figcaption>Lazy I-M4M - confined_shelf_retrieve_easy_0001 (easy), planned in 18 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/confined_shelf/confined_shelf_retrieve_easy_0001__lazy_im4m_pnp.gif' loading='lazy'><figcaption>Lazy I-M4M-PnP - confined_shelf_retrieve_easy_0001 (easy), planned in 5 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/confined_shelf/confined_shelf_retrieve_easy_0001__dogar.gif' loading='lazy'><figcaption>DOGAR - confined_shelf_retrieve_easy_0001 (easy), planned in 20 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/confined_shelf/confined_shelf_retrieve_easy_0001__dogar_uniform.gif' loading='lazy'><figcaption>DOGAR (uniform) - confined_shelf_retrieve_easy_0001 (easy), planned in 715 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/confined_shelf/confined_shelf_retrieve_easy_0002__m4m.gif' loading='lazy'><figcaption>M4M - confined_shelf_retrieve_easy_0002 (easy), planned in 16 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/confined_shelf/confined_shelf_retrieve_easy_0002__em4m.gif' loading='lazy'><figcaption>E-M4M - confined_shelf_retrieve_easy_0002 (easy), planned in 15 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/confined_shelf/confined_shelf_retrieve_easy_0002__im4m.gif' loading='lazy'><figcaption>I-M4M - confined_shelf_retrieve_easy_0002 (easy), planned in 15 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/confined_shelf/confined_shelf_retrieve_easy_0002__im4m_pnp.gif' loading='lazy'><figcaption>I-M4M-PnP - confined_shelf_retrieve_easy_0002 (easy), planned in 5 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/confined_shelf/confined_shelf_retrieve_easy_0002__lazy_im4m.gif' loading='lazy'><figcaption>Lazy I-M4M - confined_shelf_retrieve_easy_0002 (easy), planned in 6 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/confined_shelf/confined_shelf_retrieve_easy_0002__lazy_im4m_pnp.gif' loading='lazy'><figcaption>Lazy I-M4M-PnP - confined_shelf_retrieve_easy_0002 (easy), planned in 7 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/confined_shelf/confined_shelf_retrieve_easy_0002__dogar.gif' loading='lazy'><figcaption>DOGAR - confined_shelf_retrieve_easy_0002 (easy), planned in 6 s, replay FAILED</figcaption></figure>
+<figure><img src='solutions/confined_shelf/confined_shelf_retrieve_easy_0002__dogar_uniform.gif' loading='lazy'><figcaption>DOGAR (uniform) - confined_shelf_retrieve_easy_0002 (easy), planned in 571 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/confined_shelf/confined_shelf_retrieve_medium_0000__em4m.gif' loading='lazy'><figcaption>E-M4M - confined_shelf_retrieve_medium_0000 (medium), planned in 72 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/confined_shelf/confined_shelf_retrieve_medium_0000__im4m.gif' loading='lazy'><figcaption>I-M4M - confined_shelf_retrieve_medium_0000 (medium), planned in 50 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/confined_shelf/confined_shelf_retrieve_medium_0000__im4m_pnp.gif' loading='lazy'><figcaption>I-M4M-PnP - confined_shelf_retrieve_medium_0000 (medium), planned in 65 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/confined_shelf/confined_shelf_retrieve_medium_0000__lazy_im4m.gif' loading='lazy'><figcaption>Lazy I-M4M - confined_shelf_retrieve_medium_0000 (medium), planned in 25 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/confined_shelf/confined_shelf_retrieve_medium_0000__lazy_im4m_pnp.gif' loading='lazy'><figcaption>Lazy I-M4M-PnP - confined_shelf_retrieve_medium_0000 (medium), planned in 188 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/confined_shelf/confined_shelf_retrieve_medium_0001__m4m.gif' loading='lazy'><figcaption>M4M - confined_shelf_retrieve_medium_0001 (medium), planned in 78 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/confined_shelf/confined_shelf_retrieve_medium_0001__em4m.gif' loading='lazy'><figcaption>E-M4M - confined_shelf_retrieve_medium_0001 (medium), planned in 54 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/confined_shelf/confined_shelf_retrieve_medium_0001__im4m.gif' loading='lazy'><figcaption>I-M4M - confined_shelf_retrieve_medium_0001 (medium), planned in 54 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/confined_shelf/confined_shelf_retrieve_medium_0001__lazy_im4m.gif' loading='lazy'><figcaption>Lazy I-M4M - confined_shelf_retrieve_medium_0001 (medium), planned in 40 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/confined_shelf/confined_shelf_retrieve_medium_0001__lazy_im4m_pnp.gif' loading='lazy'><figcaption>Lazy I-M4M-PnP - confined_shelf_retrieve_medium_0001 (medium), planned in 219 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/confined_shelf/confined_shelf_retrieve_medium_0002__m4m.gif' loading='lazy'><figcaption>M4M - confined_shelf_retrieve_medium_0002 (medium), planned in 22 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/confined_shelf/confined_shelf_retrieve_medium_0002__em4m.gif' loading='lazy'><figcaption>E-M4M - confined_shelf_retrieve_medium_0002 (medium), planned in 41 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/confined_shelf/confined_shelf_retrieve_medium_0002__im4m.gif' loading='lazy'><figcaption>I-M4M - confined_shelf_retrieve_medium_0002 (medium), planned in 40 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/confined_shelf/confined_shelf_retrieve_medium_0002__im4m_pnp.gif' loading='lazy'><figcaption>I-M4M-PnP - confined_shelf_retrieve_medium_0002 (medium), planned in 97 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/confined_shelf/confined_shelf_retrieve_medium_0002__lazy_im4m.gif' loading='lazy'><figcaption>Lazy I-M4M - confined_shelf_retrieve_medium_0002 (medium), planned in 35 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/confined_shelf/confined_shelf_retrieve_medium_0002__lazy_im4m_pnp.gif' loading='lazy'><figcaption>Lazy I-M4M-PnP - confined_shelf_retrieve_medium_0002 (medium), planned in 22 s, replayed OK</figcaption></figure>
+</div>
+<h2>Multi-level shelf</h2><p class='muted'>Open shelf: floor bays and two decks 24 cm apart, boxes 6x6x9 cm.</p><h3>Problems (task: retrieve the yellow OoI)</h3><div class='grid'>
+<figure><img src='scenes/multi_level_shelf/multi_level_shelf_retrieve_easy_0000.gif' loading='lazy'><figcaption><b>multi_level_shelf_retrieve_easy_0000</b> (easy): retrieve the OoI; 1 movable(s) in its retrieval path. Solved by: Lazy I-M4M-PnP 4 s, I-M4M-PnP 4 s, M4M 32 s, E-M4M 34 s, I-M4M 35 s, DOGAR (uniform) 699 s, DOGAR 766 s</figcaption></figure>
+<figure><img src='scenes/multi_level_shelf/multi_level_shelf_retrieve_easy_0000_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/multi_level_shelf/multi_level_shelf_retrieve_easy_0001.gif' loading='lazy'><figcaption><b>multi_level_shelf_retrieve_easy_0001</b> (easy): retrieve the OoI; 1 movable(s) in its retrieval path. Solved by: DOGAR 6 s, E-M4M 7 s, I-M4M 7 s, DOGAR (uniform) 8 s, Lazy I-M4M-PnP 8 s, Lazy I-M4M 10 s, M4M 15 s, I-M4M-PnP 15 s</figcaption></figure>
+<figure><img src='scenes/multi_level_shelf/multi_level_shelf_retrieve_easy_0001_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/multi_level_shelf/multi_level_shelf_retrieve_easy_0002.gif' loading='lazy'><figcaption><b>multi_level_shelf_retrieve_easy_0002</b> (easy): retrieve the OoI; 1 movable(s) in its retrieval path. Solved by: Lazy I-M4M-PnP 5 s, I-M4M-PnP 5 s, E-M4M 47 s, I-M4M 48 s, Lazy I-M4M 65 s, DOGAR 127 s, DOGAR (uniform) 748 s</figcaption></figure>
+<figure><img src='scenes/multi_level_shelf/multi_level_shelf_retrieve_easy_0002_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/multi_level_shelf/multi_level_shelf_retrieve_easy_0003.gif' loading='lazy'><figcaption><b>multi_level_shelf_retrieve_easy_0003</b> (easy): retrieve the OoI; 2 movable(s) in its retrieval path. Solved by: not in the benchmark sample</figcaption></figure>
+<figure><img src='scenes/multi_level_shelf/multi_level_shelf_retrieve_easy_0003_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/multi_level_shelf/multi_level_shelf_retrieve_medium_0000.gif' loading='lazy'><figcaption><b>multi_level_shelf_retrieve_medium_0000</b> (medium): retrieve the OoI; 2 movable(s) in its retrieval path. Solved by: Lazy I-M4M 42 s, Lazy I-M4M-PnP 45 s, I-M4M-PnP 63 s, M4M 85 s, E-M4M 116 s, I-M4M 346 s</figcaption></figure>
+<figure><img src='scenes/multi_level_shelf/multi_level_shelf_retrieve_medium_0000_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/multi_level_shelf/multi_level_shelf_retrieve_medium_0001.gif' loading='lazy'><figcaption><b>multi_level_shelf_retrieve_medium_0001</b> (medium): retrieve the OoI; 2 movable(s) in its retrieval path. Solved by: M4M 13 s, I-M4M 15 s, E-M4M 15 s, Lazy I-M4M-PnP 15 s, I-M4M-PnP 19 s, Lazy I-M4M 84 s</figcaption></figure>
+<figure><img src='scenes/multi_level_shelf/multi_level_shelf_retrieve_medium_0001_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/multi_level_shelf/multi_level_shelf_retrieve_medium_0002.gif' loading='lazy'><figcaption><b>multi_level_shelf_retrieve_medium_0002</b> (medium): retrieve the OoI; 3 movable(s) in its retrieval path. Solved by: Lazy I-M4M 34 s, I-M4M 72 s, Lazy I-M4M-PnP 137 s, I-M4M-PnP 348 s, E-M4M 731 s</figcaption></figure>
+<figure><img src='scenes/multi_level_shelf/multi_level_shelf_retrieve_medium_0002_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/multi_level_shelf/multi_level_shelf_retrieve_medium_0003.gif' loading='lazy'><figcaption><b>multi_level_shelf_retrieve_medium_0003</b> (medium): retrieve the OoI; 2 movable(s) in its retrieval path. Solved by: not in the benchmark sample</figcaption></figure>
+<figure><img src='scenes/multi_level_shelf/multi_level_shelf_retrieve_medium_0003_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/multi_level_shelf/multi_level_shelf_retrieve_hard_0000.gif' loading='lazy'><figcaption><b>multi_level_shelf_retrieve_hard_0000</b> (hard): retrieve the OoI; 3 movable(s) in its retrieval path. Solved by: none</figcaption></figure>
+<figure><img src='scenes/multi_level_shelf/multi_level_shelf_retrieve_hard_0000_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/multi_level_shelf/multi_level_shelf_retrieve_hard_0001.gif' loading='lazy'><figcaption><b>multi_level_shelf_retrieve_hard_0001</b> (hard): retrieve the OoI; 7 movable(s) in its retrieval path. Solved by: none</figcaption></figure>
+<figure><img src='scenes/multi_level_shelf/multi_level_shelf_retrieve_hard_0001_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/multi_level_shelf/multi_level_shelf_retrieve_hard_0002.gif' loading='lazy'><figcaption><b>multi_level_shelf_retrieve_hard_0002</b> (hard): retrieve the OoI; 7 movable(s) in its retrieval path. Solved by: none</figcaption></figure>
+<figure><img src='scenes/multi_level_shelf/multi_level_shelf_retrieve_hard_0002_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/multi_level_shelf/multi_level_shelf_retrieve_hard_0003.gif' loading='lazy'><figcaption><b>multi_level_shelf_retrieve_hard_0003</b> (hard): retrieve the OoI; 5 movable(s) in its retrieval path. Solved by: not in the benchmark sample</figcaption></figure>
+<figure><img src='scenes/multi_level_shelf/multi_level_shelf_retrieve_hard_0003_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+</div><h3>Solutions (replays)</h3><div class='grid'>
+<figure><img src='solutions/multi_level_shelf/multi_level_shelf_retrieve_easy_0000__m4m.gif' loading='lazy'><figcaption>M4M - multi_level_shelf_retrieve_easy_0000 (easy), planned in 32 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/multi_level_shelf/multi_level_shelf_retrieve_easy_0000__em4m.gif' loading='lazy'><figcaption>E-M4M - multi_level_shelf_retrieve_easy_0000 (easy), planned in 34 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/multi_level_shelf/multi_level_shelf_retrieve_easy_0000__im4m.gif' loading='lazy'><figcaption>I-M4M - multi_level_shelf_retrieve_easy_0000 (easy), planned in 35 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/multi_level_shelf/multi_level_shelf_retrieve_easy_0000__im4m_pnp.gif' loading='lazy'><figcaption>I-M4M-PnP - multi_level_shelf_retrieve_easy_0000 (easy), planned in 4 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/multi_level_shelf/multi_level_shelf_retrieve_easy_0000__lazy_im4m_pnp.gif' loading='lazy'><figcaption>Lazy I-M4M-PnP - multi_level_shelf_retrieve_easy_0000 (easy), planned in 4 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/multi_level_shelf/multi_level_shelf_retrieve_easy_0000__dogar.gif' loading='lazy'><figcaption>DOGAR - multi_level_shelf_retrieve_easy_0000 (easy), planned in 766 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/multi_level_shelf/multi_level_shelf_retrieve_easy_0000__dogar_uniform.gif' loading='lazy'><figcaption>DOGAR (uniform) - multi_level_shelf_retrieve_easy_0000 (easy), planned in 699 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/multi_level_shelf/multi_level_shelf_retrieve_easy_0001__m4m.gif' loading='lazy'><figcaption>M4M - multi_level_shelf_retrieve_easy_0001 (easy), planned in 15 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/multi_level_shelf/multi_level_shelf_retrieve_easy_0001__em4m.gif' loading='lazy'><figcaption>E-M4M - multi_level_shelf_retrieve_easy_0001 (easy), planned in 7 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/multi_level_shelf/multi_level_shelf_retrieve_easy_0001__im4m.gif' loading='lazy'><figcaption>I-M4M - multi_level_shelf_retrieve_easy_0001 (easy), planned in 7 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/multi_level_shelf/multi_level_shelf_retrieve_easy_0001__im4m_pnp.gif' loading='lazy'><figcaption>I-M4M-PnP - multi_level_shelf_retrieve_easy_0001 (easy), planned in 15 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/multi_level_shelf/multi_level_shelf_retrieve_easy_0001__lazy_im4m.gif' loading='lazy'><figcaption>Lazy I-M4M - multi_level_shelf_retrieve_easy_0001 (easy), planned in 10 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/multi_level_shelf/multi_level_shelf_retrieve_easy_0001__lazy_im4m_pnp.gif' loading='lazy'><figcaption>Lazy I-M4M-PnP - multi_level_shelf_retrieve_easy_0001 (easy), planned in 8 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/multi_level_shelf/multi_level_shelf_retrieve_easy_0001__dogar.gif' loading='lazy'><figcaption>DOGAR - multi_level_shelf_retrieve_easy_0001 (easy), planned in 6 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/multi_level_shelf/multi_level_shelf_retrieve_easy_0001__dogar_uniform.gif' loading='lazy'><figcaption>DOGAR (uniform) - multi_level_shelf_retrieve_easy_0001 (easy), planned in 8 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/multi_level_shelf/multi_level_shelf_retrieve_easy_0002__em4m.gif' loading='lazy'><figcaption>E-M4M - multi_level_shelf_retrieve_easy_0002 (easy), planned in 47 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/multi_level_shelf/multi_level_shelf_retrieve_easy_0002__im4m.gif' loading='lazy'><figcaption>I-M4M - multi_level_shelf_retrieve_easy_0002 (easy), planned in 48 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/multi_level_shelf/multi_level_shelf_retrieve_easy_0002__im4m_pnp.gif' loading='lazy'><figcaption>I-M4M-PnP - multi_level_shelf_retrieve_easy_0002 (easy), planned in 5 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/multi_level_shelf/multi_level_shelf_retrieve_easy_0002__lazy_im4m.gif' loading='lazy'><figcaption>Lazy I-M4M - multi_level_shelf_retrieve_easy_0002 (easy), planned in 65 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/multi_level_shelf/multi_level_shelf_retrieve_easy_0002__lazy_im4m_pnp.gif' loading='lazy'><figcaption>Lazy I-M4M-PnP - multi_level_shelf_retrieve_easy_0002 (easy), planned in 5 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/multi_level_shelf/multi_level_shelf_retrieve_easy_0002__dogar.gif' loading='lazy'><figcaption>DOGAR - multi_level_shelf_retrieve_easy_0002 (easy), planned in 127 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/multi_level_shelf/multi_level_shelf_retrieve_easy_0002__dogar_uniform.gif' loading='lazy'><figcaption>DOGAR (uniform) - multi_level_shelf_retrieve_easy_0002 (easy), planned in 748 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/multi_level_shelf/multi_level_shelf_retrieve_medium_0000__m4m.gif' loading='lazy'><figcaption>M4M - multi_level_shelf_retrieve_medium_0000 (medium), planned in 85 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/multi_level_shelf/multi_level_shelf_retrieve_medium_0000__em4m.gif' loading='lazy'><figcaption>E-M4M - multi_level_shelf_retrieve_medium_0000 (medium), planned in 116 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/multi_level_shelf/multi_level_shelf_retrieve_medium_0000__im4m.gif' loading='lazy'><figcaption>I-M4M - multi_level_shelf_retrieve_medium_0000 (medium), planned in 346 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/multi_level_shelf/multi_level_shelf_retrieve_medium_0000__im4m_pnp.gif' loading='lazy'><figcaption>I-M4M-PnP - multi_level_shelf_retrieve_medium_0000 (medium), planned in 63 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/multi_level_shelf/multi_level_shelf_retrieve_medium_0000__lazy_im4m.gif' loading='lazy'><figcaption>Lazy I-M4M - multi_level_shelf_retrieve_medium_0000 (medium), planned in 42 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/multi_level_shelf/multi_level_shelf_retrieve_medium_0000__lazy_im4m_pnp.gif' loading='lazy'><figcaption>Lazy I-M4M-PnP - multi_level_shelf_retrieve_medium_0000 (medium), planned in 45 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/multi_level_shelf/multi_level_shelf_retrieve_medium_0001__m4m.gif' loading='lazy'><figcaption>M4M - multi_level_shelf_retrieve_medium_0001 (medium), planned in 13 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/multi_level_shelf/multi_level_shelf_retrieve_medium_0001__em4m.gif' loading='lazy'><figcaption>E-M4M - multi_level_shelf_retrieve_medium_0001 (medium), planned in 15 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/multi_level_shelf/multi_level_shelf_retrieve_medium_0001__im4m.gif' loading='lazy'><figcaption>I-M4M - multi_level_shelf_retrieve_medium_0001 (medium), planned in 15 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/multi_level_shelf/multi_level_shelf_retrieve_medium_0001__im4m_pnp.gif' loading='lazy'><figcaption>I-M4M-PnP - multi_level_shelf_retrieve_medium_0001 (medium), planned in 19 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/multi_level_shelf/multi_level_shelf_retrieve_medium_0001__lazy_im4m.gif' loading='lazy'><figcaption>Lazy I-M4M - multi_level_shelf_retrieve_medium_0001 (medium), planned in 84 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/multi_level_shelf/multi_level_shelf_retrieve_medium_0001__lazy_im4m_pnp.gif' loading='lazy'><figcaption>Lazy I-M4M-PnP - multi_level_shelf_retrieve_medium_0001 (medium), planned in 15 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/multi_level_shelf/multi_level_shelf_retrieve_medium_0002__em4m.gif' loading='lazy'><figcaption>E-M4M - multi_level_shelf_retrieve_medium_0002 (medium), planned in 731 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/multi_level_shelf/multi_level_shelf_retrieve_medium_0002__im4m.gif' loading='lazy'><figcaption>I-M4M - multi_level_shelf_retrieve_medium_0002 (medium), planned in 72 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/multi_level_shelf/multi_level_shelf_retrieve_medium_0002__im4m_pnp.gif' loading='lazy'><figcaption>I-M4M-PnP - multi_level_shelf_retrieve_medium_0002 (medium), planned in 348 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/multi_level_shelf/multi_level_shelf_retrieve_medium_0002__lazy_im4m.gif' loading='lazy'><figcaption>Lazy I-M4M - multi_level_shelf_retrieve_medium_0002 (medium), planned in 34 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/multi_level_shelf/multi_level_shelf_retrieve_medium_0002__lazy_im4m_pnp.gif' loading='lazy'><figcaption>Lazy I-M4M-PnP - multi_level_shelf_retrieve_medium_0002 (medium), planned in 137 s, replayed OK</figcaption></figure>
+</div>
+<h2>Access-19</h2><p class='muted'>Dense bookcase, 5x7 cells per level, boxes 3x3x10 cm in a fixed pattern; OoI deep inside.</p><h3>Problems (task: retrieve the yellow OoI)</h3><div class='grid'>
+<figure><img src='scenes/access19/access19_retrieve_easy_0000.gif' loading='lazy'><figcaption><b>access19_retrieve_easy_0000</b> (easy): retrieve the OoI; 2 movable(s) in its retrieval path. Solved by: Lazy I-M4M-PnP 21 s, I-M4M-PnP 23 s</figcaption></figure>
+<figure><img src='scenes/access19/access19_retrieve_easy_0000_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/access19/access19_retrieve_easy_0001.gif' loading='lazy'><figcaption><b>access19_retrieve_easy_0001</b> (easy): retrieve the OoI; 1 movable(s) in its retrieval path. Solved by: I-M4M-PnP 7 s, Lazy I-M4M-PnP 7 s</figcaption></figure>
+<figure><img src='scenes/access19/access19_retrieve_easy_0001_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/access19/access19_retrieve_easy_0002.gif' loading='lazy'><figcaption><b>access19_retrieve_easy_0002</b> (easy): retrieve the OoI; 3 movable(s) in its retrieval path. Solved by: none</figcaption></figure>
+<figure><img src='scenes/access19/access19_retrieve_easy_0002_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/access19/access19_retrieve_easy_0003.gif' loading='lazy'><figcaption><b>access19_retrieve_easy_0003</b> (easy): retrieve the OoI; 2 movable(s) in its retrieval path. Solved by: not in the benchmark sample</figcaption></figure>
+<figure><img src='scenes/access19/access19_retrieve_easy_0003_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/access19/access19_retrieve_medium_0000.gif' loading='lazy'><figcaption><b>access19_retrieve_medium_0000</b> (medium): retrieve the OoI; 2 movable(s) in its retrieval path. Solved by: none</figcaption></figure>
+<figure><img src='scenes/access19/access19_retrieve_medium_0000_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/access19/access19_retrieve_medium_0001.gif' loading='lazy'><figcaption><b>access19_retrieve_medium_0001</b> (medium): retrieve the OoI; 2 movable(s) in its retrieval path. Solved by: Lazy I-M4M-PnP 12 s, I-M4M-PnP 16 s</figcaption></figure>
+<figure><img src='scenes/access19/access19_retrieve_medium_0001_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/access19/access19_retrieve_medium_0002.gif' loading='lazy'><figcaption><b>access19_retrieve_medium_0002</b> (medium): retrieve the OoI; 6 movable(s) in its retrieval path. Solved by: none</figcaption></figure>
+<figure><img src='scenes/access19/access19_retrieve_medium_0002_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/access19/access19_retrieve_medium_0003.gif' loading='lazy'><figcaption><b>access19_retrieve_medium_0003</b> (medium): retrieve the OoI; 2 movable(s) in its retrieval path. Solved by: not in the benchmark sample</figcaption></figure>
+<figure><img src='scenes/access19/access19_retrieve_medium_0003_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/access19/access19_retrieve_hard_0002.gif' loading='lazy'><figcaption><b>access19_retrieve_hard_0002</b> (hard): retrieve the OoI; 7 movable(s) in its retrieval path. Solved by: none</figcaption></figure>
+<figure><img src='scenes/access19/access19_retrieve_hard_0002_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/access19/access19_retrieve_hard_0003.gif' loading='lazy'><figcaption><b>access19_retrieve_hard_0003</b> (hard): retrieve the OoI; 7 movable(s) in its retrieval path. Solved by: none</figcaption></figure>
+<figure><img src='scenes/access19/access19_retrieve_hard_0003_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+</div><h3>Solutions (replays)</h3><div class='grid'>
+<figure><img src='solutions/access19/access19_retrieve_easy_0000__im4m_pnp.gif' loading='lazy'><figcaption>I-M4M-PnP - access19_retrieve_easy_0000 (easy), planned in 23 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/access19/access19_retrieve_easy_0000__lazy_im4m_pnp.gif' loading='lazy'><figcaption>Lazy I-M4M-PnP - access19_retrieve_easy_0000 (easy), planned in 21 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/access19/access19_retrieve_easy_0001__im4m_pnp.gif' loading='lazy'><figcaption>I-M4M-PnP - access19_retrieve_easy_0001 (easy), planned in 7 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/access19/access19_retrieve_easy_0001__lazy_im4m_pnp.gif' loading='lazy'><figcaption>Lazy I-M4M-PnP - access19_retrieve_easy_0001 (easy), planned in 7 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/access19/access19_retrieve_medium_0001__im4m_pnp.gif' loading='lazy'><figcaption>I-M4M-PnP - access19_retrieve_medium_0001 (medium), planned in 16 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/access19/access19_retrieve_medium_0001__lazy_im4m_pnp.gif' loading='lazy'><figcaption>Lazy I-M4M-PnP - access19_retrieve_medium_0001 (medium), planned in 12 s, replayed OK</figcaption></figure>
+</div>
+<h2>3D stacking</h2><p class='muted'>Parts table in front of the arm (stack table behind), 10x10 cells of 30 mm, blocks grasped from above.</p><h3>Problems (task: retrieve the yellow OoI)</h3><div class='grid'>
+<figure><img src='scenes/stacking/stacking_retrieve_easy_0000.gif' loading='lazy'><figcaption><b>stacking_retrieve_easy_0000</b> (easy): retrieve the OoI; 1 movable(s) in its retrieval path. Solved by: Lazy I-M4M 5 s, I-M4M 53 s, E-M4M 53 s, DOGAR (uniform) 76 s, M4M 119 s, I-M4M-PnP 286 s</figcaption></figure>
+<figure><img src='scenes/stacking/stacking_retrieve_easy_0000_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/stacking/stacking_retrieve_easy_0001.gif' loading='lazy'><figcaption><b>stacking_retrieve_easy_0001</b> (easy): retrieve the OoI; 1 movable(s) in its retrieval path. Solved by: Lazy I-M4M 1 s, I-M4M-PnP 1 s, E-M4M 1 s, I-M4M 1 s, Lazy I-M4M-PnP 1 s, M4M 1 s, DOGAR (uniform) 4 s, DOGAR 4 s</figcaption></figure>
+<figure><img src='scenes/stacking/stacking_retrieve_easy_0001_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/stacking/stacking_retrieve_easy_0002.gif' loading='lazy'><figcaption><b>stacking_retrieve_easy_0002</b> (easy): retrieve the OoI; 1 movable(s) in its retrieval path. Solved by: E-M4M 1 s, I-M4M 1 s, I-M4M-PnP 1 s, Lazy I-M4M-PnP 1 s, M4M 1 s, Lazy I-M4M 1 s, DOGAR 19 s, DOGAR (uniform) 335 s</figcaption></figure>
+<figure><img src='scenes/stacking/stacking_retrieve_easy_0002_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/stacking/stacking_retrieve_easy_0003.gif' loading='lazy'><figcaption><b>stacking_retrieve_easy_0003</b> (easy): retrieve the OoI; 1 movable(s) in its retrieval path. Solved by: not in the benchmark sample</figcaption></figure>
+<figure><img src='scenes/stacking/stacking_retrieve_easy_0003_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/stacking/stacking_retrieve_medium_0000.gif' loading='lazy'><figcaption><b>stacking_retrieve_medium_0000</b> (medium): retrieve the OoI; 2 movable(s) in its retrieval path. Solved by: Lazy I-M4M-PnP 1 s, I-M4M 1 s, M4M 1 s, E-M4M 1 s, I-M4M-PnP 1 s, Lazy I-M4M 1 s, DOGAR 223 s</figcaption></figure>
+<figure><img src='scenes/stacking/stacking_retrieve_medium_0000_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/stacking/stacking_retrieve_medium_0001.gif' loading='lazy'><figcaption><b>stacking_retrieve_medium_0001</b> (medium): retrieve the OoI; 2 movable(s) in its retrieval path. Solved by: Lazy I-M4M-PnP 1 s, M4M 1 s, E-M4M 1 s, I-M4M 1 s, Lazy I-M4M 1 s, I-M4M-PnP 1 s</figcaption></figure>
+<figure><img src='scenes/stacking/stacking_retrieve_medium_0001_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/stacking/stacking_retrieve_medium_0002.gif' loading='lazy'><figcaption><b>stacking_retrieve_medium_0002</b> (medium): retrieve the OoI; 2 movable(s) in its retrieval path. Solved by: I-M4M 27 s, E-M4M 28 s, Lazy I-M4M-PnP 35 s, I-M4M-PnP 39 s, Lazy I-M4M 56 s, DOGAR 822 s</figcaption></figure>
+<figure><img src='scenes/stacking/stacking_retrieve_medium_0002_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/stacking/stacking_retrieve_medium_0003.gif' loading='lazy'><figcaption><b>stacking_retrieve_medium_0003</b> (medium): retrieve the OoI; 2 movable(s) in its retrieval path. Solved by: not in the benchmark sample</figcaption></figure>
+<figure><img src='scenes/stacking/stacking_retrieve_medium_0003_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/stacking/stacking_retrieve_hard_0000.gif' loading='lazy'><figcaption><b>stacking_retrieve_hard_0000</b> (hard): retrieve the OoI; 3 movable(s) in its retrieval path. Solved by: Lazy I-M4M-PnP 61 s, I-M4M 237 s</figcaption></figure>
+<figure><img src='scenes/stacking/stacking_retrieve_hard_0000_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/stacking/stacking_retrieve_hard_0001.gif' loading='lazy'><figcaption><b>stacking_retrieve_hard_0001</b> (hard): retrieve the OoI; 3 movable(s) in its retrieval path. Solved by: none</figcaption></figure>
+<figure><img src='scenes/stacking/stacking_retrieve_hard_0001_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/stacking/stacking_retrieve_hard_0002.gif' loading='lazy'><figcaption><b>stacking_retrieve_hard_0002</b> (hard): retrieve the OoI; 3 movable(s) in its retrieval path. Solved by: Lazy I-M4M 16 s, I-M4M 162 s, E-M4M 831 s, Lazy I-M4M-PnP 832 s</figcaption></figure>
+<figure><img src='scenes/stacking/stacking_retrieve_hard_0002_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+<figure><img src='scenes/stacking/stacking_retrieve_hard_0003.gif' loading='lazy'><figcaption><b>stacking_retrieve_hard_0003</b> (hard): retrieve the OoI; 3 movable(s) in its retrieval path. Solved by: not in the benchmark sample</figcaption></figure>
+<figure><img src='scenes/stacking/stacking_retrieve_hard_0003_2d.png' loading='lazy' style='max-width:520px'><figcaption>top view (purple/red = NGR)</figcaption></figure>
+</div><h3>Solutions (replays)</h3><div class='grid'>
+<figure><img src='solutions/stacking/stacking_retrieve_easy_0000__m4m.gif' loading='lazy'><figcaption>M4M - stacking_retrieve_easy_0000 (easy), planned in 119 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/stacking/stacking_retrieve_easy_0000__em4m.gif' loading='lazy'><figcaption>E-M4M - stacking_retrieve_easy_0000 (easy), planned in 53 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/stacking/stacking_retrieve_easy_0000__im4m.gif' loading='lazy'><figcaption>I-M4M - stacking_retrieve_easy_0000 (easy), planned in 53 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/stacking/stacking_retrieve_easy_0000__im4m_pnp.gif' loading='lazy'><figcaption>I-M4M-PnP - stacking_retrieve_easy_0000 (easy), planned in 286 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/stacking/stacking_retrieve_easy_0000__lazy_im4m.gif' loading='lazy'><figcaption>Lazy I-M4M - stacking_retrieve_easy_0000 (easy), planned in 5 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/stacking/stacking_retrieve_easy_0000__dogar.gif' loading='lazy'><figcaption>DOGAR - stacking_retrieve_easy_0000 (easy), planned in 10 s, replay FAILED</figcaption></figure>
+<figure><img src='solutions/stacking/stacking_retrieve_easy_0000__dogar_uniform.gif' loading='lazy'><figcaption>DOGAR (uniform) - stacking_retrieve_easy_0000 (easy), planned in 76 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/stacking/stacking_retrieve_easy_0001__m4m.gif' loading='lazy'><figcaption>M4M - stacking_retrieve_easy_0001 (easy), planned in 1 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/stacking/stacking_retrieve_easy_0001__em4m.gif' loading='lazy'><figcaption>E-M4M - stacking_retrieve_easy_0001 (easy), planned in 1 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/stacking/stacking_retrieve_easy_0001__im4m.gif' loading='lazy'><figcaption>I-M4M - stacking_retrieve_easy_0001 (easy), planned in 1 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/stacking/stacking_retrieve_easy_0001__im4m_pnp.gif' loading='lazy'><figcaption>I-M4M-PnP - stacking_retrieve_easy_0001 (easy), planned in 1 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/stacking/stacking_retrieve_easy_0001__lazy_im4m.gif' loading='lazy'><figcaption>Lazy I-M4M - stacking_retrieve_easy_0001 (easy), planned in 1 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/stacking/stacking_retrieve_easy_0001__lazy_im4m_pnp.gif' loading='lazy'><figcaption>Lazy I-M4M-PnP - stacking_retrieve_easy_0001 (easy), planned in 1 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/stacking/stacking_retrieve_easy_0001__dogar.gif' loading='lazy'><figcaption>DOGAR - stacking_retrieve_easy_0001 (easy), planned in 4 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/stacking/stacking_retrieve_easy_0001__dogar_uniform.gif' loading='lazy'><figcaption>DOGAR (uniform) - stacking_retrieve_easy_0001 (easy), planned in 4 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/stacking/stacking_retrieve_easy_0002__m4m.gif' loading='lazy'><figcaption>M4M - stacking_retrieve_easy_0002 (easy), planned in 1 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/stacking/stacking_retrieve_easy_0002__em4m.gif' loading='lazy'><figcaption>E-M4M - stacking_retrieve_easy_0002 (easy), planned in 1 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/stacking/stacking_retrieve_easy_0002__im4m.gif' loading='lazy'><figcaption>I-M4M - stacking_retrieve_easy_0002 (easy), planned in 1 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/stacking/stacking_retrieve_easy_0002__im4m_pnp.gif' loading='lazy'><figcaption>I-M4M-PnP - stacking_retrieve_easy_0002 (easy), planned in 1 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/stacking/stacking_retrieve_easy_0002__lazy_im4m.gif' loading='lazy'><figcaption>Lazy I-M4M - stacking_retrieve_easy_0002 (easy), planned in 1 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/stacking/stacking_retrieve_easy_0002__lazy_im4m_pnp.gif' loading='lazy'><figcaption>Lazy I-M4M-PnP - stacking_retrieve_easy_0002 (easy), planned in 1 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/stacking/stacking_retrieve_easy_0002__dogar.gif' loading='lazy'><figcaption>DOGAR - stacking_retrieve_easy_0002 (easy), planned in 19 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/stacking/stacking_retrieve_easy_0002__dogar_uniform.gif' loading='lazy'><figcaption>DOGAR (uniform) - stacking_retrieve_easy_0002 (easy), planned in 335 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/stacking/stacking_retrieve_medium_0000__m4m.gif' loading='lazy'><figcaption>M4M - stacking_retrieve_medium_0000 (medium), planned in 1 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/stacking/stacking_retrieve_medium_0000__em4m.gif' loading='lazy'><figcaption>E-M4M - stacking_retrieve_medium_0000 (medium), planned in 1 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/stacking/stacking_retrieve_medium_0000__im4m.gif' loading='lazy'><figcaption>I-M4M - stacking_retrieve_medium_0000 (medium), planned in 1 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/stacking/stacking_retrieve_medium_0000__im4m_pnp.gif' loading='lazy'><figcaption>I-M4M-PnP - stacking_retrieve_medium_0000 (medium), planned in 1 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/stacking/stacking_retrieve_medium_0000__lazy_im4m.gif' loading='lazy'><figcaption>Lazy I-M4M - stacking_retrieve_medium_0000 (medium), planned in 1 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/stacking/stacking_retrieve_medium_0000__lazy_im4m_pnp.gif' loading='lazy'><figcaption>Lazy I-M4M-PnP - stacking_retrieve_medium_0000 (medium), planned in 1 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/stacking/stacking_retrieve_medium_0000__dogar.gif' loading='lazy'><figcaption>DOGAR - stacking_retrieve_medium_0000 (medium), planned in 223 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/stacking/stacking_retrieve_medium_0001__m4m.gif' loading='lazy'><figcaption>M4M - stacking_retrieve_medium_0001 (medium), planned in 1 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/stacking/stacking_retrieve_medium_0001__em4m.gif' loading='lazy'><figcaption>E-M4M - stacking_retrieve_medium_0001 (medium), planned in 1 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/stacking/stacking_retrieve_medium_0001__im4m.gif' loading='lazy'><figcaption>I-M4M - stacking_retrieve_medium_0001 (medium), planned in 1 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/stacking/stacking_retrieve_medium_0001__im4m_pnp.gif' loading='lazy'><figcaption>I-M4M-PnP - stacking_retrieve_medium_0001 (medium), planned in 1 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/stacking/stacking_retrieve_medium_0001__lazy_im4m.gif' loading='lazy'><figcaption>Lazy I-M4M - stacking_retrieve_medium_0001 (medium), planned in 1 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/stacking/stacking_retrieve_medium_0001__lazy_im4m_pnp.gif' loading='lazy'><figcaption>Lazy I-M4M-PnP - stacking_retrieve_medium_0001 (medium), planned in 1 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/stacking/stacking_retrieve_medium_0001__dogar.gif' loading='lazy'><figcaption>DOGAR - stacking_retrieve_medium_0001 (medium), planned in 83 s, replay FAILED</figcaption></figure>
+<figure><img src='solutions/stacking/stacking_retrieve_medium_0001__dogar_uniform.gif' loading='lazy'><figcaption>DOGAR (uniform) - stacking_retrieve_medium_0001 (medium), planned in 267 s, replay FAILED</figcaption></figure>
+<figure><img src='solutions/stacking/stacking_retrieve_medium_0002__em4m.gif' loading='lazy'><figcaption>E-M4M - stacking_retrieve_medium_0002 (medium), planned in 28 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/stacking/stacking_retrieve_medium_0002__im4m.gif' loading='lazy'><figcaption>I-M4M - stacking_retrieve_medium_0002 (medium), planned in 27 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/stacking/stacking_retrieve_medium_0002__im4m_pnp.gif' loading='lazy'><figcaption>I-M4M-PnP - stacking_retrieve_medium_0002 (medium), planned in 39 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/stacking/stacking_retrieve_medium_0002__lazy_im4m.gif' loading='lazy'><figcaption>Lazy I-M4M - stacking_retrieve_medium_0002 (medium), planned in 56 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/stacking/stacking_retrieve_medium_0002__lazy_im4m_pnp.gif' loading='lazy'><figcaption>Lazy I-M4M-PnP - stacking_retrieve_medium_0002 (medium), planned in 35 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/stacking/stacking_retrieve_medium_0002__dogar.gif' loading='lazy'><figcaption>DOGAR - stacking_retrieve_medium_0002 (medium), planned in 822 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/stacking/stacking_retrieve_hard_0000__im4m.gif' loading='lazy'><figcaption>I-M4M - stacking_retrieve_hard_0000 (hard), planned in 237 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/stacking/stacking_retrieve_hard_0000__im4m_pnp.gif' loading='lazy'><figcaption>I-M4M-PnP - stacking_retrieve_hard_0000 (hard), planned in 200 s, replay FAILED</figcaption></figure>
+<figure><img src='solutions/stacking/stacking_retrieve_hard_0000__lazy_im4m_pnp.gif' loading='lazy'><figcaption>Lazy I-M4M-PnP - stacking_retrieve_hard_0000 (hard), planned in 61 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/stacking/stacking_retrieve_hard_0002__em4m.gif' loading='lazy'><figcaption>E-M4M - stacking_retrieve_hard_0002 (hard), planned in 831 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/stacking/stacking_retrieve_hard_0002__im4m.gif' loading='lazy'><figcaption>I-M4M - stacking_retrieve_hard_0002 (hard), planned in 162 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/stacking/stacking_retrieve_hard_0002__lazy_im4m.gif' loading='lazy'><figcaption>Lazy I-M4M - stacking_retrieve_hard_0002 (hard), planned in 16 s, replayed OK</figcaption></figure>
+<figure><img src='solutions/stacking/stacking_retrieve_hard_0002__lazy_im4m_pnp.gif' loading='lazy'><figcaption>Lazy I-M4M-PnP - stacking_retrieve_hard_0002 (hard), planned in 832 s, replayed OK</figcaption></figure>
+</div>

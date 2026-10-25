@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mamo"
+version = "0.1.0"
+description = "M4M, E-M4M, I-M4M and DOGAR in MuJoCo and Python with an xArm7, plus a benchmark tool"
+requires-python = ">=3.10"
+dependencies = ["mujoco>=3.17", "numpy>=1.24", "scipy>=1.10", "matplotlib>=3.7", "imageio>=2.30"]
+
+[project.optional-dependencies]
+app = ["streamlit>=1.35", "pandas>=2.0", "plotly>=5.0", "pillow"]
+
+[tool.setuptools.packages.find]
+include = ["mamo*"]
+
+[tool.setuptools.package-data]
+mamo = ["assets/xarm7/*.xml", "assets/xarm7/assets/*.stl"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
