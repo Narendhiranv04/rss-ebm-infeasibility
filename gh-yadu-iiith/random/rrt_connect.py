@@ -61,24 +61,18 @@ class RRTConnect:
     max_iters / max_time : budgets
     try_direct  : first test the straight start->goal segment (off by default, so the trees
                   are always grown -- shortcutting straightens an easy path afterwards anyway)
-    project     : optional q -> q' (or None).  Applied to every new node: this turns the planner
-                  into a constrained one (CBiRRT-style) -- project() pulls the node back onto the
-                  constraint manifold, e.g. "hand orientation stays level".
-    sampler     : optional () -> q (or None) replacing uniform joint-space sampling, e.g. to draw
-                  configurations that already satisfy the constraint.
     """
 
     def __init__(self, is_free, edge_free, lower, upper, step=0.3, max_iters=5000, max_time=10.0,
-                 try_direct=False, seed=None, project=None, sampler=None):
+                 try_direct=False, seed=None):
         self.is_free, self.edge_free = is_free, edge_free
         self.lo, self.hi = np.asarray(lower, float), np.asarray(upper, float)
         self.step, self.max_iters, self.max_time = step, max_iters, max_time
         self.try_direct = try_direct
-        self.project, self.sampler = project, sampler
         self.rng = np.random.default_rng(seed)
         self.stats = {}
 
-    def _extend(self, T, q_target, project_reached=True):
+    def _extend(self, T, q_target):
         """One step of tree T toward q_target."""
         i = T.nearest(q_target)
         d = np.linalg.norm(q_target - T.Q[i])
@@ -86,30 +80,25 @@ class RRTConnect:
             q_new, status = q_target, REACHED
         else:
             q_new, status = T.Q[i] + (q_target - T.Q[i]) * (self.step / d), ADVANCED
-        if self.project is not None and (status == ADVANCED or project_reached):
-            q_new = self.project(q_new)
-            if q_new is None:
-                return TRAPPED, -1
         if not self.is_free(q_new) or not self.edge_free(T.Q[i], q_new):
             return TRAPPED, -1
         return status, T.add(q_new, i)
 
-    def _connect(self, T, q_target, max_steps=200):
+    def _connect(self, T, q_target):
         """Greedily extend T toward q_target until it is reached or blocked."""
-        for _ in range(max_steps):          # (cap: with projection a step can fail to make progress)
-            status, k = self._extend(T, q_target, project_reached=False)
+        while True:
+            status, k = self._extend(T, q_target)
             if status != ADVANCED:
                 return status, k
-        return TRAPPED, -1
 
     def plan(self, q_start, q_goal):
         t0 = time.time()
         start, goal = np.asarray(q_start, float), np.asarray(q_goal, float)
         self.stats = dict(iters=0, nodes=2, time=0.0, direct=False)
         if not self.is_free(start):
-            raise RuntimeError("RRT-Connect: start configuration is in collision (or violates the constraint)")
+            raise RuntimeError("RRT-Connect: start configuration is in collision")
         if not self.is_free(goal):
-            raise RuntimeError("RRT-Connect: goal configuration is in collision (or violates the constraint)")
+            raise RuntimeError("RRT-Connect: goal configuration is in collision")
         if self.try_direct and self.edge_free(start, goal):
             self.stats.update(direct=True, time=time.time() - t0)
             return [start, goal]
@@ -122,10 +111,7 @@ class RRTConnect:
             if time.time() - t0 > self.max_time:
                 break
             A, B = trees[a], trees[1 - a]
-            q_rand = self.sampler() if self.sampler is not None else self.rng.uniform(self.lo, self.hi)
-            if q_rand is None:
-                continue
-            status, k = self._extend(A, q_rand)
+            status, k = self._extend(A, self.rng.uniform(self.lo, self.hi))
             if status != TRAPPED:
                 status_b, j = self._connect(B, A.Q[k])
                 if status_b == REACHED:                  # A[k] and B[j] are the same configuration

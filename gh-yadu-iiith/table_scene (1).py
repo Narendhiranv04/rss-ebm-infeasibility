@@ -73,14 +73,14 @@ TARGET = dict(shape="cylinder", size=0.020, height=0.16, color="green")   # size
 OBSTACLES = [                       # any number; shape "box" | "cylinder"; colour name, "#rrggbb" or "r g b a"
     dict(cell=(0, 7), shape="box",      size=0.014, height=0.15, color="blue"),
     dict(cell=(1, 6), shape="box",      size=0.014, height=0.17, color="yellow"),
-    dict(cell=(0, 5), shape="box",      size=0.016, height=0.16, color="red"),
-   dict(cell=(3, 6), shape="box",      size=0.015, height=0.15, color="blue"),
-    dict(cell=(4, 5), shape="box",      size=0.014, height=0.18, color="blue"),
-    dict(cell=(1, 5), shape="box",      size=0.014, height=0.18, color="blue"),
-    dict(cell=(2, 5), shape="box",      size=0.014, height=0.18, color="blue"),
-    dict(cell=(3, 5), shape="box",      size=0.014, height=0.18, color="blue"),
-    dict(cell=(0, 5), shape="box",      size=0.014, height=0.18, color="blue"),
-    #dict(cell=(5, 5), shape="box",      size=0.014, height=0.18, color="blue"),
+   dict(cell=(0, 5), shape="box",      size=0.016, height=0.16, color="red"),
+   # dict(cell=(3, 6), shape="box",      size=0.015, height=0.15, color="blue"),
+   # dict(cell=(4, 5), shape="box",      size=0.014, height=0.18, color="blue"),
+   # dict(cell=(1, 5), shape="box",      size=0.014, height=0.18, color="blue"),
+   # dict(cell=(2, 5), shape="box",      size=0.014, height=0.18, color="blue"),
+    #dict(cell=(3, 5), shape="box",      size=0.014, height=0.18, color="blue"),
+    #dict(cell=(0, 5), shape="box",      size=0.014, height=0.18, color="blue"),
+   # dict(cell=(5, 5), shape="box",      size=0.014, height=0.18, color="blue"),
     #dict(cell=(6, 5), shape="box",      size=0.014, height=0.18, color="blue"),
 ]
 

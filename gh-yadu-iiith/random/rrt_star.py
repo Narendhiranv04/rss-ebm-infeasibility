@@ -60,8 +60,6 @@ class MujocoCollisionChecker:
         self.is_hand = np.array([gb[g] in hand_bodies for g in range(model.ngeom)])
         self.role = self.base_role.copy()
         self.ignored = np.zeros(model.ngeom, dtype=bool)
-        self.constraint = None        # optional callable(MjData) -> bool; False = state invalid
-                                      # (e.g. 'hand stays level'); used by constrained planning
         self._attached = []           # list of (geom_id, p_rel, R_rel) in grasp-site frame
         self.n_checks = 0
 
@@ -117,8 +115,6 @@ class MujocoCollisionChecker:
             for g, p_rel, R_rel in self._attached:
                 d.geom_xpos[g] = ps + Rs @ p_rel
                 d.geom_xmat[g] = (Rs @ R_rel).ravel()
-        if self.constraint is not None and not self.constraint(d):
-            return np.ones(1, dtype=bool)          # violates the constraint -> not free
         mujoco.mj_collision(m, d)
         if d.ncon == 0:
             return np.zeros(0, dtype=bool)
