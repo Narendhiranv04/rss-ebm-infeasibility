@@ -1,0 +1,489 @@
+{
+ "alt_parking": {
+  "o00": [
+   [
+    2,
+    7
+   ],
+   [
+    2,
+    2
+   ],
+   [
+    2,
+    0
+   ],
+   [
+    1,
+    7
+   ],
+   [
+    2,
+    1
+   ]
+  ],
+  "o01": [
+   [
+    2,
+    7
+   ],
+   [
+    3,
+    3
+   ],
+   [
+    2,
+    1
+   ],
+   [
+    4,
+    3
+   ],
+   [
+    2,
+    2
+   ]
+  ]
+ },
+ "budget": {
+  "pool_cap": 6,
+  "rrt_max_iters": 5000,
+  "seq_tries": 8
+ },
+ "cell_convention": "table_scene (row, col), 0-based, row 0 nearest the robot; centre = (x0 + (r-3.5)*pitch, (c-3.5)*pitch)",
+ "construction": {
+  "method": "bd_3dt"
+ },
+ "domain": "3dt",
+ "empty_table_T_solve": {
+  "feasible_azimuths": [
+   135.0,
+   270.0,
+   90.0,
+   315.0
+  ]
+ },
+ "generator_version_plus": "BD_GEN_V1+ROUTE_V2",
+ "geometry": {
+  "azimuths": 8,
+  "lift": 0.025,
+  "pitch": 0.07,
+  "table_z": 0.08,
+  "tilts": [
+   90.0
+  ],
+  "x0": 0.4
+ },
+ "goal": [
+  4,
+  6
+ ],
+ "greedy_blockers": [],
+ "ids": {
+  "config_hash": "146b8c974abc1669",
+  "construction_seed": 2232883353,
+  "generator_version": "BD_GEN_V1",
+  "label_protocol": "BD_BINARY_BUDGET_V1",
+  "parent_family_id": "fam-31e152c891",
+  "robot_protocol": "XARM7_TABLE_SIDEGRASP_V1:e3bd244fff22",
+  "root_id": "3dt-plus3dt-w0053-s011",
+  "teacher_version": "BD3DT_TEACHER_V1:table_scene.plan_pick_place(first feasible side grasp, RRT max_iters=5000, no wall-clock)+MuJoCo run_plan",
+  "variant_id": "orig"
+ },
+ "independent_moves": true,
+ "initial_cells": {
+  "o00": [
+   2,
+   5
+  ],
+  "o01": [
+   2,
+   6
+  ],
+  "t0": [
+   1,
+   4
+  ]
+ },
+ "intended_blockers": [],
+ "labels": {
+  "B": [
+   {
+    "failed_step": null,
+    "final_cells": {
+     "o00": [
+      2,
+      5
+     ],
+     "o01": [
+      2,
+      6
+     ],
+     "t0": [
+      4,
+      6
+     ]
+    },
+    "n_actions": 1,
+    "negative_kind": null,
+    "reason": "executed",
+    "role": "minimal",
+    "sequence": [],
+    "steps": [
+     {
+      "azimuth": 270.0,
+      "dest": [
+       4,
+       6
+      ],
+      "end_cell": [
+       4,
+       6
+      ],
+      "grasp_id": 3,
+      "object": "t0",
+      "ok": true,
+      "pushed": [],
+      "tried": 4,
+      "z_err": -0.00010839873025068891
+     }
+    ],
+    "witnesses": [
+     "be71a89175c600338ac6e102"
+    ],
+    "y": 1
+   },
+   {
+    "excess_actions": null,
+    "failed_step": 0,
+    "grasp_reasons": {
+     "0": "free move: RRT-Connect: goal configuration is in collision",
+     "1": "the arm / hand would hit t0 near [0.237 0.047 0.153]",
+     "2": "the arm / hand would hit o01 near [0.237 0.163 0.153]",
+     "3": "the arm / hand would hit t0 near [0.295 0.005 0.153]",
+     "4": "the arm / hand would hit o01 near [0.295 0.155 0.153]",
+     "5": "the arm / hand would hit o01 near [0.282 0.111 0.178]",
+     "6": "hover pose [0.387 0.197 0.153] is out of reach",
+     "7": "hover pose [0.425 0.105 0.153] is out of reach"
+    },
+    "hit_objects": [
+     "o01",
+     "t0"
+    ],
+    "n_actions": 2,
+    "negative_kind": "NO_PLAN_FOUND",
+    "reason": "no feasible side grasp",
+    "role": "noop_irrelevant",
+    "sequence": [
+     [
+      "o00",
+      [
+       1,
+       7
+      ]
+     ]
+    ],
+    "steps": [
+     {
+      "dest": [
+       1,
+       7
+      ],
+      "grasp_reasons": {
+       "0": "free move: RRT-Connect: goal configuration is in collision",
+       "1": "the arm / hand would hit t0 near [0.237 0.047 0.153]",
+       "2": "the arm / hand would hit o01 near [0.237 0.163 0.153]",
+       "3": "the arm / hand would hit t0 near [0.295 0.005 0.153]",
+       "4": "the arm / hand would hit o01 near [0.295 0.155 0.153]",
+       "5": "the arm / hand would hit o01 near [0.282 0.111 0.178]",
+       "6": "hover pose [0.387 0.197 0.153] is out of reach",
+       "7": "hover pose [0.425 0.105 0.153] is out of reach"
+      },
+      "object": "o00",
+      "ok": false,
+      "tried": 8
+     }
+    ],
+    "tried": 8,
+    "witnesses": [],
+    "y": 0
+   }
+  ],
+  "D": [
+   {
+    "azimuth": 270.0,
+    "edit": {
+     "o00": [
+      1,
+      7
+     ]
+    },
+    "grasp_id": 3,
+    "negative_kind": null,
+    "query_kind": "SCENE_TARGET_ONLY",
+    "reason": "grasp 3",
+    "tried": 4,
+    "witness": "4888047e5c67a6c83734c6ed",
+    "y": 1
+   },
+   {
+    "azimuth": 135.0,
+    "edit": {
+     "o01": [
+      4,
+      3
+     ]
+    },
+    "grasp_id": 2,
+    "negative_kind": null,
+    "query_kind": "SCENE_TARGET_ONLY",
+    "reason": "grasp 2",
+    "tried": 3,
+    "witness": "05ec7336ca89201d785dbc24",
+    "y": 1
+   }
+  ],
+  "blocker": {
+   "blocker_supervision_valid": false,
+   "clearing_sets_reachable": {},
+   "full_lattice": false,
+   "mask": null,
+   "minimal_sets": [
+    [
+     "o00"
+    ],
+    [
+     "o01"
+    ]
+   ],
+   "relocation_queries": {
+    "feasible": 0,
+    "queries": 0
+   },
+   "scope": [
+    "o00",
+    "o01"
+   ],
+   "sequence_tries": 0,
+   "why_invalid": "FEASIBLE_ORIGINAL"
+  },
+  "edits_evaluated": 2,
+  "original": {
+   "azimuth": 270.0,
+   "grasp_id": 3,
+   "negative_kind": null,
+   "reason": "grasp 3",
+   "tried": 4,
+   "witness": "be71a89175c600338ac6e102",
+   "y": 1
+  }
+ },
+ "mechanism_pools": {
+  "grasp": [
+   [
+    0,
+    5
+   ],
+   [
+    1,
+    3
+   ],
+   [
+    1,
+    5
+   ],
+   [
+    2,
+    3
+   ],
+   [
+    1,
+    2
+   ],
+   [
+    1,
+    6
+   ],
+   [
+    0,
+    3
+   ],
+   [
+    0,
+    4
+   ],
+   [
+    2,
+    4
+   ],
+   [
+    2,
+    5
+   ]
+  ],
+  "place": [
+   [
+    3,
+    7
+   ],
+   [
+    4,
+    5
+   ],
+   [
+    4,
+    7
+   ],
+   [
+    5,
+    5
+   ],
+   [
+    4,
+    4
+   ],
+   [
+    3,
+    5
+   ],
+   [
+    3,
+    6
+   ],
+   [
+    5,
+    6
+   ],
+   [
+    5,
+    7
+   ]
+  ],
+  "transfer": [
+   [
+    2,
+    4
+   ],
+   [
+    2,
+    5
+   ],
+   [
+    3,
+    5
+   ],
+   [
+    3,
+    6
+   ],
+   [
+    2,
+    3
+   ],
+   [
+    3,
+    4
+   ],
+   [
+    2,
+    6
+   ],
+   [
+    1,
+    5
+   ],
+   [
+    4,
+    5
+   ],
+   [
+    3,
+    7
+   ]
+  ]
+ },
+ "n_movable": 2,
+ "objects": [
+  {
+   "color": "green",
+   "height": 0.1590955212220858,
+   "id": "t0",
+   "shape": "cylinder",
+   "size": 0.01942143539260313
+  },
+  {
+   "color": "red",
+   "height": 0.08527224061526315,
+   "id": "o00",
+   "shape": "box",
+   "size": 0.012616549188595217
+  },
+  {
+   "color": "blue",
+   "height": 0.1638050068761423,
+   "id": "o01",
+   "shape": "cylinder",
+   "size": 0.014364756407909423
+  }
+ ],
+ "observed": 0,
+ "parking": {
+  "o00": [
+   [
+    1,
+    7
+   ],
+   [
+    4,
+    3
+   ],
+   [
+    2,
+    2
+   ]
+  ],
+  "o01": [
+   [
+    4,
+    3
+   ],
+   [
+    5,
+    3
+   ],
+   [
+    5,
+    4
+   ]
+  ]
+ },
+ "roles": {
+  "o00": "distractor:near_path",
+  "o01": "distractor:near_path"
+ },
+ "source_files": {
+  "random/rrt_connect.py": "01972f63842d",
+  "random/rrt_star.py": "bc46b48d5e68",
+  "table_scene (1).py": "c33574c07d6f"
+ },
+ "spec": {
+  "K": 0,
+  "displacement": "medium",
+  "distractor_role": "near_path",
+  "distractors": "1-2",
+  "mechanism": "place",
+  "parking": "multiple",
+  "source": "near",
+  "start_pose": "home"
+ },
+ "target_src": [
+  1,
+  4
+ ],
+ "teacher_calls": {
+  "execute": 2,
+  "plan": 3
+ },
+ "teacher_wall_s": 4.282390117645264,
+ "verified_K": 0
+}

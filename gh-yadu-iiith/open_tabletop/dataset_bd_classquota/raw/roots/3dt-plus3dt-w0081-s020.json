@@ -1,0 +1,1252 @@
+{
+ "alt_parking": {
+  "o00": [
+   [
+    1,
+    1
+   ],
+   [
+    1,
+    6
+   ],
+   [
+    7,
+    0
+   ],
+   [
+    1,
+    5
+   ],
+   [
+    2,
+    7
+   ]
+  ],
+  "o01": [
+   [
+    1,
+    0
+   ],
+   [
+    1,
+    5
+   ],
+   [
+    1,
+    6
+   ],
+   [
+    6,
+    5
+   ],
+   [
+    7,
+    0
+   ]
+  ],
+  "o02": [
+   [
+    2,
+    5
+   ],
+   [
+    2,
+    7
+   ],
+   [
+    6,
+    5
+   ],
+   [
+    7,
+    0
+   ]
+  ],
+  "o03": [
+   [
+    6,
+    2
+   ],
+   [
+    7,
+    3
+   ],
+   [
+    6,
+    5
+   ],
+   [
+    7,
+    0
+   ],
+   [
+    7,
+    4
+   ]
+  ],
+  "o04": [
+   [
+    1,
+    5
+   ],
+   [
+    6,
+    5
+   ],
+   [
+    7,
+    0
+   ],
+   [
+    7,
+    1
+   ],
+   [
+    7,
+    2
+   ]
+  ],
+  "o05": [
+   [
+    7,
+    2
+   ],
+   [
+    7,
+    0
+   ],
+   [
+    1,
+    6
+   ],
+   [
+    6,
+    5
+   ],
+   [
+    6,
+    7
+   ]
+  ],
+  "o06": [
+   [
+    7,
+    0
+   ],
+   [
+    7,
+    4
+   ],
+   [
+    7,
+    6
+   ],
+   [
+    7,
+    3
+   ],
+   [
+    6,
+    5
+   ]
+  ]
+ },
+ "budget": {
+  "pool_cap": 6,
+  "rrt_max_iters": 5000,
+  "seq_tries": 8
+ },
+ "cell_convention": "table_scene (row, col), 0-based, row 0 nearest the robot; centre = (x0 + (r-3.5)*pitch, (c-3.5)*pitch)",
+ "construction": {
+  "K_by_construction": 3,
+  "attempts": 2,
+  "blocking_cells": {
+   "2,3": [
+    135.0,
+    225.0
+   ],
+   "2,4": [
+    135.0,
+    225.0
+   ],
+   "3,0": [
+    225.0,
+    270.0
+   ],
+   "3,1": [
+    135.0,
+    225.0,
+    270.0
+   ],
+   "3,2": [
+    135.0,
+    225.0,
+    270.0
+   ],
+   "3,5": [
+    135.0,
+    225.0,
+    270.0
+   ],
+   "3,6": [
+    135.0,
+    225.0
+   ],
+   "3,7": [
+    135.0
+   ],
+   "4,0": [
+    225.0,
+    270.0
+   ],
+   "4,2": [
+    135.0,
+    225.0,
+    270.0
+   ],
+   "4,3": [
+    135.0,
+    225.0,
+    270.0
+   ],
+   "4,4": [
+    135.0,
+    225.0,
+    270.0
+   ],
+   "4,5": [
+    135.0,
+    225.0,
+    270.0
+   ],
+   "4,7": [
+    135.0
+   ],
+   "5,0": [
+    270.0
+   ],
+   "5,1": [
+    270.0
+   ],
+   "5,2": [
+    270.0
+   ],
+   "5,5": [
+    270.0
+   ]
+  },
+  "method": "route",
+  "search": "exact_cover"
+ },
+ "domain": "3dt",
+ "empty_table_T_solve": {
+  "feasible_azimuths": [
+   225.0,
+   135.0,
+   270.0
+  ]
+ },
+ "generator_version_plus": "BD_GEN_V1+ROUTE_V11",
+ "geometry": {
+  "azimuths": 8,
+  "lift": 0.025,
+  "pitch": 0.07,
+  "table_z": 0.08,
+  "tilts": [
+   90.0
+  ],
+  "x0": 0.4
+ },
+ "goal": [
+  4,
+  1
+ ],
+ "grasp_azimuths": 8,
+ "greedy_blockers": [
+  {
+   "blocks_azimuths": [
+    135.0,
+    225.0
+   ],
+   "cell": [
+    2,
+    3
+   ],
+   "necessary_by_construction": true
+  },
+  {
+   "blocks_azimuths": [
+    135.0,
+    225.0,
+    270.0
+   ],
+   "cell": [
+    3,
+    1
+   ],
+   "necessary_by_construction": true
+  },
+  {
+   "blocks_azimuths": [
+    135.0,
+    225.0,
+    270.0
+   ],
+   "cell": [
+    4,
+    4
+   ],
+   "necessary_by_construction": true
+  },
+  {
+   "blocks_azimuths": [
+    270.0
+   ],
+   "cell": [
+    5,
+    0
+   ],
+   "necessary_by_construction": true
+  }
+ ],
+ "ids": {
+  "config_hash": "146b8c974abc1669",
+  "construction_seed": 3755955168,
+  "generator_version": "BD_GEN_V1",
+  "label_protocol": "BD_BINARY_BUDGET_V1",
+  "parent_family_id": "fam-ccd928f4e5",
+  "robot_protocol": "XARM7_TABLE_SIDEGRASP_V1:e3bd244fff22",
+  "root_id": "3dt-plus3dt-w0081-s020",
+  "teacher_version": "BD3DT_TEACHER_V1:table_scene.plan_pick_place(first feasible side grasp, RRT max_iters=5000, no wall-clock)+MuJoCo run_plan",
+  "variant_id": "orig"
+ },
+ "independent_moves": true,
+ "initial_cells": {
+  "o00": [
+   2,
+   3
+  ],
+  "o01": [
+   3,
+   1
+  ],
+  "o02": [
+   4,
+   4
+  ],
+  "o03": [
+   5,
+   0
+  ],
+  "o04": [
+   2,
+   0
+  ],
+  "o05": [
+   6,
+   3
+  ],
+  "o06": [
+   6,
+   1
+  ],
+  "t0": [
+   4,
+   6
+  ]
+ },
+ "intended_blockers": [
+  "o00",
+  "o01",
+  "o02",
+  "o03"
+ ],
+ "labels": {
+  "B": [
+   {
+    "excess_actions": null,
+    "failed_step": 0,
+    "grasp_reasons": {
+     "0": "free move: RRT-Connect: goal configuration is in collision",
+     "1": "the arm / hand would hit o00 near [ 0.322 -0.128  0.211]",
+     "2": "free move: RRT-Connect: goal configuration is in collision",
+     "3": "the arm / hand would hit o01 near [ 0.297 -0.145  0.211]",
+     "4": "free move: RRT-Connect: goal configuration is in collision",
+     "5": "hover pose [ 0.295 -0.375  0.186] is out of reach",
+     "6": "hover pose [ 0.425 -0.245  0.186] is out of reach",
+     "7": "hover pose [ 0.387 -0.337  0.186] is out of reach"
+    },
+    "hit_objects": [
+     "o00",
+     "o01"
+    ],
+    "n_actions": 6,
+    "negative_kind": "NO_PLAN_FOUND",
+    "reason": "no feasible side grasp",
+    "role": "redundant+1",
+    "sequence": [
+     [
+      "o04",
+      [
+       1,
+       5
+      ]
+     ],
+     [
+      "o00",
+      [
+       1,
+       1
+      ]
+     ],
+     [
+      "o01",
+      [
+       1,
+       0
+      ]
+     ],
+     [
+      "o02",
+      [
+       2,
+       5
+      ]
+     ],
+     [
+      "o03",
+      [
+       6,
+       2
+      ]
+     ]
+    ],
+    "steps": [
+     {
+      "dest": [
+       1,
+       5
+      ],
+      "grasp_reasons": {
+       "0": "free move: RRT-Connect: goal configuration is in collision",
+       "1": "the arm / hand would hit o00 near [ 0.322 -0.128  0.211]",
+       "2": "free move: RRT-Connect: goal configuration is in collision",
+       "3": "the arm / hand would hit o01 near [ 0.297 -0.145  0.211]",
+       "4": "free move: RRT-Connect: goal configuration is in collision",
+       "5": "hover pose [ 0.295 -0.375  0.186] is out of reach",
+       "6": "hover pose [ 0.425 -0.245  0.186] is out of reach",
+       "7": "hover pose [ 0.387 -0.337  0.186] is out of reach"
+      },
+      "object": "o04",
+      "ok": false,
+      "tried": 8
+     }
+    ],
+    "tried": 8,
+    "witnesses": [],
+    "y": 0
+   },
+   {
+    "excess_actions": null,
+    "failed_step": 0,
+    "grasp_reasons": {
+     "0": "free move: RRT-Connect: goal configuration is in collision",
+     "1": "the arm / hand would hit o00 near [ 0.322 -0.128  0.211]",
+     "2": "free move: RRT-Connect: goal configuration is in collision",
+     "3": "the arm / hand would hit o01 near [ 0.297 -0.145  0.211]",
+     "4": "free move: RRT-Connect: goal configuration is in collision",
+     "5": "hover pose [ 0.295 -0.375  0.186] is out of reach",
+     "6": "hover pose [ 0.425 -0.245  0.186] is out of reach",
+     "7": "hover pose [ 0.387 -0.337  0.186] is out of reach"
+    },
+    "hit_objects": [
+     "o00",
+     "o01"
+    ],
+    "n_actions": 2,
+    "negative_kind": "NO_PLAN_FOUND",
+    "reason": "no feasible side grasp",
+    "role": "noop_irrelevant",
+    "sequence": [
+     [
+      "o04",
+      [
+       1,
+       5
+      ]
+     ]
+    ],
+    "steps": [
+     {
+      "dest": [
+       1,
+       5
+      ],
+      "grasp_reasons": {
+       "0": "free move: RRT-Connect: goal configuration is in collision",
+       "1": "the arm / hand would hit o00 near [ 0.322 -0.128  0.211]",
+       "2": "free move: RRT-Connect: goal configuration is in collision",
+       "3": "the arm / hand would hit o01 near [ 0.297 -0.145  0.211]",
+       "4": "free move: RRT-Connect: goal configuration is in collision",
+       "5": "hover pose [ 0.295 -0.375  0.186] is out of reach",
+       "6": "hover pose [ 0.425 -0.245  0.186] is out of reach",
+       "7": "hover pose [ 0.387 -0.337  0.186] is out of reach"
+      },
+      "object": "o04",
+      "ok": false,
+      "tried": 8
+     }
+    ],
+    "tried": 8,
+    "witnesses": [],
+    "y": 0
+   },
+   {
+    "excess_actions": null,
+    "failed_step": 2,
+    "grasp_reasons": {
+     "0": "free move: RRT-Connect: goal configuration is in collision",
+     "1": "free move: RRT-Connect: goal configuration is in collision",
+     "2": "the arm / hand would hit o00 near [0.391 0.079 0.241]",
+     "3": "free move: RRT-Connect: goal configuration is in collision",
+     "4": "the arm / hand would hit o00 near [0.435 0.145 0.241]",
+     "5": "hover pose [ 0.527 -0.057  0.241] is out of reach",
+     "6": "hover pose [0.527 0.127 0.241] is out of reach",
+     "7": "hover pose [0.565 0.035 0.241] is out of reach"
+    },
+    "hit_objects": [
+     "o00"
+    ],
+    "n_actions": 5,
+    "negative_kind": "NO_PLAN_FOUND",
+    "reason": "no feasible side grasp",
+    "role": "wrong_destination",
+    "sequence": [
+     [
+      "o00",
+      [
+       4,
+       5
+      ]
+     ],
+     [
+      "o01",
+      [
+       1,
+       0
+      ]
+     ],
+     [
+      "o02",
+      [
+       2,
+       5
+      ]
+     ],
+     [
+      "o03",
+      [
+       6,
+       2
+      ]
+     ]
+    ],
+    "steps": [
+     {
+      "azimuth": 135.0,
+      "dest": [
+       4,
+       5
+      ],
+      "end_cell": [
+       4,
+       5
+      ],
+      "grasp_id": 1,
+      "object": "o00",
+      "ok": true,
+      "pushed": [],
+      "tried": 2,
+      "z_err": -0.00010775542021634887
+     },
+     {
+      "azimuth": 180.0,
+      "dest": [
+       1,
+       0
+      ],
+      "end_cell": [
+       1,
+       0
+      ],
+      "grasp_id": 1,
+      "object": "o01",
+      "ok": true,
+      "pushed": [],
+      "tried": 2,
+      "z_err": -0.00010775542021612683
+     },
+     {
+      "dest": [
+       2,
+       5
+      ],
+      "grasp_reasons": {
+       "0": "free move: RRT-Connect: goal configuration is in collision",
+       "1": "free move: RRT-Connect: goal configuration is in collision",
+       "2": "the arm / hand would hit o00 near [0.391 0.079 0.241]",
+       "3": "free move: RRT-Connect: goal configuration is in collision",
+       "4": "the arm / hand would hit o00 near [0.435 0.145 0.241]",
+       "5": "hover pose [ 0.527 -0.057  0.241] is out of reach",
+       "6": "hover pose [0.527 0.127 0.241] is out of reach",
+       "7": "hover pose [0.565 0.035 0.241] is out of reach"
+      },
+      "object": "o02",
+      "ok": false,
+      "tried": 8
+     }
+    ],
+    "tried": 8,
+    "witnesses": [
+     "606412ade1a30aa2f1dc7c26",
+     "e08f6b45611ca41ef5016e11"
+    ],
+    "y": 0
+   },
+   {
+    "excess_actions": null,
+    "failed_step": 0,
+    "grasp_reasons": {
+     "0": "free move: RRT-Connect: goal configuration is in collision",
+     "1": "free move: RRT-Connect: goal configuration is in collision",
+     "2": "free move: RRT-Connect: goal configuration is in collision",
+     "3": "the arm / hand would hit o06 near [ 0.575 -0.105  0.243]",
+     "4": "hover pose [ 0.597 -0.153  0.226] is out of reach",
+     "5": "hover pose [ 0.505 -0.375  0.226] is out of reach",
+     "6": "hover pose [ 0.635 -0.245  0.226] is out of reach",
+     "7": "hover pose [ 0.597 -0.337  0.226] is out of reach"
+    },
+    "hit_objects": [
+     "o06"
+    ],
+    "n_actions": 5,
+    "negative_kind": "NO_PLAN_FOUND",
+    "reason": "no feasible side grasp",
+    "role": "wrong_order",
+    "sequence": [
+     [
+      "o03",
+      [
+       6,
+       2
+      ]
+     ],
+     [
+      "o02",
+      [
+       2,
+       5
+      ]
+     ],
+     [
+      "o01",
+      [
+       1,
+       0
+      ]
+     ],
+     [
+      "o00",
+      [
+       1,
+       1
+      ]
+     ]
+    ],
+    "steps": [
+     {
+      "dest": [
+       6,
+       2
+      ],
+      "grasp_reasons": {
+       "0": "free move: RRT-Connect: goal configuration is in collision",
+       "1": "free move: RRT-Connect: goal configuration is in collision",
+       "2": "free move: RRT-Connect: goal configuration is in collision",
+       "3": "the arm / hand would hit o06 near [ 0.575 -0.105  0.243]",
+       "4": "hover pose [ 0.597 -0.153  0.226] is out of reach",
+       "5": "hover pose [ 0.505 -0.375  0.226] is out of reach",
+       "6": "hover pose [ 0.635 -0.245  0.226] is out of reach",
+       "7": "hover pose [ 0.597 -0.337  0.226] is out of reach"
+      },
+      "object": "o03",
+      "ok": false,
+      "tried": 8
+     }
+    ],
+    "tried": 8,
+    "witnesses": [],
+    "y": 0
+   }
+  ],
+  "D": [
+   {
+    "edit": {
+     "o00": [
+      1,
+      1
+     ]
+    },
+    "grasp_reasons": {
+     "0": "the arm / hand would hit o02 near [0.396 0.098 0.215]",
+     "1": "the arm / hand would hit o02 near [0.391 0.131 0.19 ]",
+     "2": "the arm / hand would hit o02 near [0.367 0.013 0.215]",
+     "3": "free move: RRT-Connect: goal configuration is in collision",
+     "4": "hover pose [0.435 0.305 0.19 ] is out of reach",
+     "5": "hover pose [0.527 0.083 0.19 ] is out of reach",
+     "6": "hover pose [0.527 0.267 0.19 ] is out of reach",
+     "7": "hover pose [0.565 0.175 0.19 ] is out of reach"
+    },
+    "hit_objects": [
+     "o02"
+    ],
+    "negative_kind": "NO_PLAN_FOUND",
+    "query_kind": "SCENE_TARGET_ONLY",
+    "reason": "no feasible side grasp",
+    "tried": 8,
+    "witness": null,
+    "y": 0
+   },
+   {
+    "edit": {
+     "o01": [
+      1,
+      0
+     ]
+    },
+    "grasp_reasons": {
+     "0": "the arm / hand would hit o02 near [0.396 0.098 0.215]",
+     "1": "free move: RRT-Connect: goal configuration is in collision",
+     "2": "the arm / hand would hit o02 near [0.367 0.012 0.215]",
+     "3": "the arm / hand would hit o02 near [0.435 0.055 0.19 ]",
+     "4": "hover pose [0.435 0.305 0.19 ] is out of reach",
+     "5": "hover pose [0.527 0.083 0.19 ] is out of reach",
+     "6": "hover pose [0.527 0.267 0.19 ] is out of reach",
+     "7": "hover pose [0.565 0.175 0.19 ] is out of reach"
+    },
+    "hit_objects": [
+     "o02"
+    ],
+    "negative_kind": "NO_PLAN_FOUND",
+    "query_kind": "SCENE_TARGET_ONLY",
+    "reason": "no feasible side grasp",
+    "tried": 8,
+    "witness": null,
+    "y": 0
+   },
+   {
+    "edit": {
+     "o02": [
+      2,
+      5
+     ]
+    },
+    "grasp_reasons": {
+     "0": "free move: RRT-Connect: goal configuration is in collision",
+     "1": "free move: RRT-Connect: goal configuration is in collision",
+     "2": "the arm / hand would hit o02 near [0.435 0.07  0.215]",
+     "3": "free move: RRT-Connect: goal configuration is in collision",
+     "4": "hover pose [0.435 0.305 0.19 ] is out of reach",
+     "5": "hover pose [0.527 0.083 0.19 ] is out of reach",
+     "6": "hover pose [0.527 0.267 0.19 ] is out of reach",
+     "7": "hover pose [0.565 0.175 0.19 ] is out of reach"
+    },
+    "hit_objects": [
+     "o02"
+    ],
+    "negative_kind": "NO_PLAN_FOUND",
+    "query_kind": "SCENE_TARGET_ONLY",
+    "reason": "no feasible side grasp",
+    "tried": 8,
+    "witness": null,
+    "y": 0
+   },
+   {
+    "edit": {
+     "o03": [
+      6,
+      2
+     ]
+    },
+    "grasp_reasons": {
+     "0": "the arm / hand would hit o02 near [0.396 0.098 0.215]",
+     "1": "free move: RRT-Connect: goal configuration is in collision",
+     "2": "the arm / hand would hit o02 near [0.367 0.013 0.215]",
+     "3": "free move: RRT-Connect: goal configuration is in collision",
+     "4": "hover pose [0.435 0.305 0.19 ] is out of reach",
+     "5": "hover pose [0.527 0.083 0.19 ] is out of reach",
+     "6": "hover pose [0.527 0.267 0.19 ] is out of reach",
+     "7": "hover pose [0.565 0.175 0.19 ] is out of reach"
+    },
+    "hit_objects": [
+     "o02"
+    ],
+    "negative_kind": "NO_PLAN_FOUND",
+    "query_kind": "SCENE_TARGET_ONLY",
+    "reason": "no feasible side grasp",
+    "tried": 8,
+    "witness": null,
+    "y": 0
+   },
+   {
+    "edit": {
+     "o04": [
+      1,
+      5
+     ]
+    },
+    "grasp_reasons": {
+     "0": "free move: RRT-Connect: goal configuration is in collision",
+     "1": "free move: RRT-Connect: goal configuration is in collision",
+     "2": "the arm / hand would hit o04 near [0.37  0.053 0.215]",
+     "3": "free move: RRT-Connect: goal configuration is in collision",
+     "4": "hover pose [0.435 0.305 0.19 ] is out of reach",
+     "5": "hover pose [0.527 0.083 0.19 ] is out of reach",
+     "6": "hover pose [0.527 0.267 0.19 ] is out of reach",
+     "7": "hover pose [0.565 0.175 0.19 ] is out of reach"
+    },
+    "hit_objects": [
+     "o04"
+    ],
+    "negative_kind": "NO_PLAN_FOUND",
+    "query_kind": "SCENE_TARGET_ONLY",
+    "reason": "no feasible side grasp",
+    "tried": 8,
+    "witness": null,
+    "y": 0
+   },
+   {
+    "edit": {
+     "o05": [
+      7,
+      2
+     ]
+    },
+    "grasp_reasons": {
+     "0": "the arm / hand would hit o02 near [0.396 0.098 0.215]",
+     "1": "free move: RRT-Connect: goal configuration is in collision",
+     "2": "the arm / hand would hit o02 near [0.367 0.013 0.215]",
+     "3": "free move: RRT-Connect: goal configuration is in collision",
+     "4": "hover pose [0.435 0.305 0.19 ] is out of reach",
+     "5": "hover pose [0.527 0.083 0.19 ] is out of reach",
+     "6": "hover pose [0.527 0.267 0.19 ] is out of reach",
+     "7": "hover pose [0.565 0.175 0.19 ] is out of reach"
+    },
+    "hit_objects": [
+     "o02"
+    ],
+    "negative_kind": "NO_PLAN_FOUND",
+    "query_kind": "SCENE_TARGET_ONLY",
+    "reason": "no feasible side grasp",
+    "tried": 8,
+    "witness": null,
+    "y": 0
+   },
+   {
+    "edit": {
+     "o06": [
+      7,
+      0
+     ]
+    },
+    "grasp_reasons": {
+     "0": "the arm / hand would hit o02 near [0.396 0.098 0.215]",
+     "1": "free move: RRT-Connect: goal configuration is in collision",
+     "2": "the arm / hand would hit o02 near [0.367 0.013 0.215]",
+     "3": "free move: RRT-Connect: goal configuration is in collision",
+     "4": "hover pose [0.435 0.305 0.19 ] is out of reach",
+     "5": "hover pose [0.527 0.083 0.19 ] is out of reach",
+     "6": "hover pose [0.527 0.267 0.19 ] is out of reach",
+     "7": "hover pose [0.565 0.175 0.19 ] is out of reach"
+    },
+    "hit_objects": [
+     "o02"
+    ],
+    "negative_kind": "NO_PLAN_FOUND",
+    "query_kind": "SCENE_TARGET_ONLY",
+    "reason": "no feasible side grasp",
+    "tried": 8,
+    "witness": null,
+    "y": 0
+   },
+   {
+    "azimuth": 270.0,
+    "edit": {
+     "o00": [
+      1,
+      1
+     ],
+     "o01": [
+      1,
+      0
+     ],
+     "o02": [
+      2,
+      5
+     ],
+     "o03": [
+      6,
+      2
+     ]
+    },
+    "grasp_id": 3,
+    "negative_kind": null,
+    "query_kind": "SCENE_TARGET_ONLY",
+    "reason": "grasp 3",
+    "tried": 4,
+    "witness": "ac89d307ee12e46a5932f22b",
+    "y": 1
+   }
+  ],
+  "blocker": {
+   "blocker_supervision_valid": true,
+   "clearing_sets_reachable": {
+    "1": [],
+    "2": [],
+    "3": [],
+    "4": []
+   },
+   "full_lattice": true,
+   "mask": {
+    "o00": 0,
+    "o01": 1,
+    "o02": 1,
+    "o03": 1,
+    "o04": 0,
+    "o05": 0
+   },
+   "minimal_sets": [
+    [
+     "o01",
+     "o02",
+     "o03"
+    ]
+   ],
+   "relocation_queries": {
+    "feasible": 15,
+    "queries": 49
+   },
+   "scope": [
+    "o00",
+    "o01",
+    "o02",
+    "o03",
+    "o04",
+    "o05"
+   ],
+   "sequence_tries": 0,
+   "why_invalid": null
+  },
+  "edits_evaluated": 64,
+  "original": {
+   "grasp_reasons": {
+    "0": "the arm / hand would hit o02 near [0.396 0.098 0.215]",
+    "1": "free move: RRT-Connect: goal configuration is in collision",
+    "2": "the arm / hand would hit o02 near [0.367 0.013 0.215]",
+    "3": "free move: RRT-Connect: goal configuration is in collision",
+    "4": "hover pose [0.435 0.305 0.19 ] is out of reach",
+    "5": "hover pose [0.527 0.083 0.19 ] is out of reach",
+    "6": "hover pose [0.527 0.267 0.19 ] is out of reach",
+    "7": "hover pose [0.565 0.175 0.19 ] is out of reach"
+   },
+   "hit_objects": [
+    "o02"
+   ],
+   "negative_kind": "NO_PLAN_FOUND",
+   "reason": "no feasible side grasp",
+   "tried": 8,
+   "witness": null,
+   "y": 0
+  }
+ },
+ "mechanism_pools": {
+  "grasp": [
+   [
+    4,
+    4
+   ]
+  ],
+  "place": [
+   [
+    2,
+    3
+   ],
+   [
+    3,
+    1
+   ],
+   [
+    5,
+    0
+   ]
+  ],
+  "route": [
+   [
+    2,
+    3
+   ],
+   [
+    2,
+    4
+   ],
+   [
+    3,
+    0
+   ],
+   [
+    3,
+    1
+   ],
+   [
+    3,
+    2
+   ],
+   [
+    3,
+    5
+   ],
+   [
+    3,
+    6
+   ],
+   [
+    3,
+    7
+   ],
+   [
+    4,
+    0
+   ],
+   [
+    4,
+    2
+   ],
+   [
+    4,
+    3
+   ],
+   [
+    4,
+    4
+   ],
+   [
+    4,
+    5
+   ],
+   [
+    4,
+    7
+   ],
+   [
+    5,
+    0
+   ],
+   [
+    5,
+    1
+   ],
+   [
+    5,
+    2
+   ],
+   [
+    5,
+    5
+   ],
+   [
+    5,
+    6
+   ],
+   [
+    5,
+    7
+   ]
+  ],
+  "transfer": [
+   [
+    3,
+    1
+   ],
+   [
+    4,
+    4
+   ]
+  ]
+ },
+ "n_movable": 7,
+ "objects": [
+  {
+   "color": "green",
+   "height": 0.12189230972817124,
+   "id": "t0",
+   "shape": "cylinder",
+   "size": 0.01725598799280283
+  },
+  {
+   "color": "red",
+   "height": 0.17822362383138637,
+   "id": "o00",
+   "shape": "box",
+   "size": 0.013862843451906486
+  },
+  {
+   "color": "blue",
+   "height": 0.148980574319143,
+   "id": "o01",
+   "shape": "box",
+   "size": 0.015993056875567256
+  },
+  {
+   "color": "orange",
+   "height": 0.1732180182940492,
+   "id": "o02",
+   "shape": "box",
+   "size": 0.015859790761992086
+  },
+  {
+   "color": "purple",
+   "height": 0.15815967848186113,
+   "id": "o03",
+   "shape": "box",
+   "size": 0.01450517869672729
+  },
+  {
+   "color": "yellow",
+   "height": 0.11802958697318561,
+   "id": "o04",
+   "shape": "box",
+   "size": 0.013544439602341798
+  },
+  {
+   "color": "#30b0c0",
+   "height": 0.1177957420158231,
+   "id": "o05",
+   "shape": "box",
+   "size": 0.012096660145598957
+  },
+  {
+   "color": "#c06090",
+   "height": 0.1302583905369658,
+   "id": "o06",
+   "shape": "cylinder",
+   "size": 0.01588372967670389
+  }
+ ],
+ "observed": "NONE",
+ "parking": {
+  "o00": [
+   [
+    1,
+    1
+   ],
+   [
+    1,
+    6
+   ]
+  ],
+  "o01": [
+   [
+    1,
+    0
+   ],
+   [
+    1,
+    5
+   ]
+  ],
+  "o02": [
+   [
+    2,
+    5
+   ],
+   [
+    2,
+    7
+   ]
+  ],
+  "o03": [
+   [
+    6,
+    2
+   ],
+   [
+    7,
+    3
+   ]
+  ],
+  "o04": [
+   [
+    1,
+    5
+   ],
+   [
+    6,
+    5
+   ]
+  ],
+  "o05": [
+   [
+    7,
+    2
+   ],
+   [
+    7,
+    0
+   ]
+  ],
+  "o06": [
+   [
+    7,
+    0
+   ],
+   [
+    7,
+    4
+   ]
+  ]
+ },
+ "roles": {
+  "o00": "intended_blocker",
+  "o01": "intended_blocker",
+  "o02": "intended_blocker",
+  "o03": "intended_blocker",
+  "o04": "distractor:near_goal",
+  "o05": "distractor:near_goal",
+  "o06": "distractor:near_goal"
+ },
+ "source_files": {
+  "random/rrt_connect.py": "01972f63842d",
+  "random/rrt_star.py": "bc46b48d5e68",
+  "table_scene (1).py": "c33574c07d6f"
+ },
+ "spec": {
+  "K": 3,
+  "displacement": "long",
+  "distractor_role": "near_goal",
+  "distractors": "3-4",
+  "mechanism": "grasp",
+  "parking": "limited",
+  "source": "mid",
+  "start_pose": "home"
+ },
+ "target_src": [
+  4,
+  6
+ ],
+ "teacher_calls": {
+  "execute": 6,
+  "plan": 114
+ },
+ "teacher_wall_s": 259.5620496273041,
+ "verified_K": null
+}
