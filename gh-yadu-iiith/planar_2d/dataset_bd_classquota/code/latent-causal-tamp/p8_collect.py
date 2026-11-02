@@ -1,0 +1,140 @@
+"""P8c: two-wave collection of the frozen P8 plan under the unchanged 2D-ABC-OPNEG-v1 policy (after P8a and P8b gates).
+
+Per root the queries run in the plan's outcome-blind priority order (reference, scene edits, then the catalogue priority);
+statically certified queries never call the teacher; a non-VERIFIED reference stops the lineage (unchanged P6/P7 rule);
+per-query cap = min(870, root 650, wave 6,000, aggregate 12,000 remainders). Wave 2 runs only if the predeclared wave-1
+gate on DEVELOPMENT roots passes; sealed test roots contribute only status / integrity counters to the gate.
+"""
+from __future__ import annotations
+
+import json
+import time
+from pathlib import Path
+
+import config as cf
+import d3lite as d3
+import d3lite_run as d3r
+import g4c
+import g4d_run as gr
+import geometry as ge
+import operational_teacher as ot
+import p6_run as p6r
+import p7_collect as p7c
+import p8_scenes as p8
+import sector_cert
+import teacher_pilot as tp
+from scene import scene_from_dict
+
+CAPS = {"teacher_cpu_s": 12000.0, "static_cpu_s": 800.0, "root_cpu_s": 650.0, "wave_cpu_s": 6000.0, "wall_s": 24000.0,
+        "query_cpu_s": 870.0, "query_wall_s": 1800.0, "max_queries": 720, "max_queries_per_root": 20, "workers": 1}
+GATE = ("wave-1 gate on development roots (train + validation): no FATAL / integrity violation; >= 1 decided kappa of each sign; "
+        ">= 1 fully decided multi-action candidate pool per targeted intent; >= 2 roots with two differently-sized VERIFIED repairs; "
+        "(UNKNOWN + NOT_RUN) <= 35 % of planned development queries; budgets held")
+
+
+def gate(plan, records, used) -> dict:
+    dev = {q: r for q, r in records.items() if r["query"]["split"] in ("train", "validation") and r["query"]["batch"] == 1}
+    droots = {k: v for k, v in plan["roots"].items() if v["queries"] and v["split"] in ("train", "validation") and v["batch"] == 1}
+    kap = p6r.kappas({"roots": droots}, dev)
+    pools = d3r.pools({"roots": droots}, dev)
+    multi = {plan["roots"][k]["intent"] for k, v in pools.items() if any(c["complete"] and len(c["sequence"]) >= 2 for c in v["candidates"])}
+    sizes = {}
+    for r in dev.values():
+        if r["teacher_status"] == ot.VERIFIED and r["query"]["kind"] == "ORDERED_TEACHER" and r["query"]["sequence"]:
+            sizes.setdefault(r["query"]["lineage"], set()).add(len(r["query"]["sequence"]))
+    bad = sum(r["teacher_status"] in (ot.UNKNOWN, "NOT_RUN") for r in dev.values())
+    c = {"fatal": any(r["teacher_status"] == "FATAL_CONTRADICTION" for r in records.values()),
+         "kappa_counts": {s: sum(x["kappa"] == s for x in kap) for s in (1, 0, -1)}, "kappa_operational": sum(x["operational"] for x in kap),
+         "multi_action_pool_intents": sorted(multi), "multi_size_roots": sorted(k for k, v in sizes.items() if len(v) >= 2),
+         "unresolved_or_not_run": bad, "planned_dev": len(dev), "budget_held": used <= CAPS["teacher_cpu_s"]}
+    checks = {"integrity": not c["fatal"], "kappa_each_sign": all(c["kappa_counts"][s] >= 1 for s in (1, 0, -1)),
+              "multi_action_pool_per_intent": len(multi) == 3, "two_repair_lengths": len(c["multi_size_roots"]) >= 2,
+              "missingness": bad <= 0.35 * max(1, len(dev)), "budget": c["budget_held"]}
+    return {"rule": GATE, **c, "checks": checks, "pass": all(checks.values())}
+
+
+def run(args) -> int:
+    out, t0, w0 = Path(args.out), time.process_time(), time.time()
+    if (out / "summary.json").exists():
+        raise SystemExit("P8c collection already finished; refusing to overwrite")
+    for g in (args.p8a_gate, args.p8b_gate):
+        if not json.loads(Path(g).read_text()).get("engineering_pass"):
+            raise SystemExit(f"{g} not passed: no P8c collection")
+    cfg, v2, pol = cf.load_config(args.config), cf.load_config_v2(args.config_v2), ot.load_policy(args.policy)
+    if v2["proposal"]["move_cap"] != 4 or ot.config_mismatch(pol, cfg):
+        raise SystemExit("P8c requires the R4 overlay and the unchanged OPNEG-v1 policy/config")
+    robot = ge.make_robot(cfg)
+    out.mkdir(parents=True, exist_ok=True)
+    frozen = {r: gr._sha(Path(r) / "manifest.json") for r in p7c.FROZEN + ("runs/p7/collection",)}
+    calls, ops = sector_cert.guard_and_count()
+    if (out / "plan.json").exists():
+        plan, static, cons = p6r._rd(out / "plan.json"), p6r._rd(out / "static_admission.json")["certificates"], p6r._rd(out / "construction.json")
+    else:
+        known = d3._known(Path("."))
+        for f in ("runs/p5/d3lite/plan.json", "runs/p6/collect/plan.json", "runs/p7/collection/plan.json"):
+            for r in p6r._rd(f)["roots"].values():
+                known.add(g4c.stable_geometry(scene_from_dict(r["scene"]), r["goal_cell"]))
+        roots, ledger, cons = p8.construct(cfg, robot, known)
+        plan = p8.plan(cfg, robot, pol, roots)
+        per = max(sum(q["lineage"] == r["root"] for q in plan["queries"]) for r in roots)
+        if len(plan["queries"]) > CAPS["max_queries"] or per > CAPS["max_queries_per_root"]:
+            raise SystemExit("frozen plan exceeds the authorized query caps")
+        with open(out / "construction_attempts.jsonl", "w") as fh:
+            fh.writelines(json.dumps(x) + "\n" for x in ledger)
+        cf.write_json(out / "construction.json", cons)
+        cf.write_json(out / "plan.json", {**plan, "caps": CAPS, "gate": GATE})
+        c1 = time.process_time()
+        static = tp.static_admission(cfg, robot, plan, use_sector=True)
+        cf.write_json(out / "static_admission.json", {"certificates": static, "cpu_s": round(time.process_time() - c1, 2), "ops": dict(ops)})
+    static_cpu = cons["cpu_s"] + p6r._rd(out / "static_admission.json")["cpu_s"]
+    if static_cpu > CAPS["static_cpu_s"]:
+        raise SystemExit("static construction + admission exceeded 800 CPU-s")
+    paths = {"plan": out / "plan.json", "config": Path(args.config), "config_v2": Path(args.config_v2)}
+    prog = p6r._rd(out / "progress.json") if (out / "progress.json").exists() else {"done": {}, "status": {}, "wall_before_s": 0.0}
+    wall0 = prog["wall_before_s"]
+    used = lambda: sum(d["unit_cpu_s"] + d["coord_cpu_s"] for d in prog["done"].values())  # noqa: E731
+    wall = lambda: wall0 + time.time() - w0  # noqa: E731
+    for wv in (1, 2):
+        if wv == 2:
+            if "wave1" not in prog["status"]:
+                recs = {q["query"]: p6r.judge(static, pol, q, prog["done"].get(q["query"])) for q in plan["queries"]}
+                prog["status"]["wave1"] = gate(plan, recs, used()) | {"cpu_used": round(used(), 2), "wall": round(wall(), 1)}
+                cf.write_json(out / "progress.json", prog)
+            if not prog["status"]["wave1"]["pass"]:
+                break
+        w_used0 = sum(d["unit_cpu_s"] + d["coord_cpu_s"] for d in prog["done"].values() if d["batch"] < wv)
+        for spec in [s for s in p8.ROOTS if s["wave"] == wv]:
+            lin = f"p8_{spec['seed']}"
+            if lin not in {r["lineage"] for r in plan["roots"].values()}:
+                continue
+            for q in sorted([q for q in plan["queries"] if q["lineage"] == lin], key=lambda q: tuple(q["priority"])):
+                qid = q["query"]
+                if qid in prog["done"]:
+                    continue
+                mine = [d for d in prog["done"].values() if d["lineage"] == lin]
+                stop = None
+                if any(d["role"] == "reference" and d["status"] != ot.VERIFIED for d in mine):
+                    stop = "lineage stopped: reference scene has no verified base witness"
+                c1 = time.process_time()
+                cap = min(CAPS["query_cpu_s"], CAPS["root_cpu_s"] - sum(d["unit_cpu_s"] + d["coord_cpu_s"] for d in mine),
+                          CAPS["wave_cpu_s"] - (used() - w_used0), CAPS["teacher_cpu_s"] - used())
+                seeds, uc, qdir = {qid: []}, 0.0, out / "q" / qid.replace(":", "__").replace(">", "-")
+                if stop is None and static.get(qid) is None and qdir.exists():
+                    stop = "interrupted before this query was recorded; never repeated"
+                if stop is None and static.get(qid) is None and cap < pol["policy"]["per_seed_cpu_s"] + pol["policy"]["per_seed_guard_margin_s"] + \
+                        pol["pilot"]["orchestration_reserve_s"]:
+                    stop = f"budget remainder {cap:.0f} CPU-s below one guarded seed attempt"
+                if stop is None and static.get(qid) is None:
+                    seeds, uc = tp.run_rounds(plan, pol, qdir, paths, cfg, v2, robot, static, [qid], cap,
+                                              min(CAPS["query_wall_s"], CAPS["wall_s"] - wall()), seeds)
+                prog["done"][qid] = {"lineage": lin, "batch": wv, "role": q["role"], "stop": stop, "attempts": seeds[qid], "unit_cpu_s": uc,
+                                     "coord_cpu_s": time.process_time() - c1, "censored_twice": p6r.censored_twice(seeds[qid]), "status": None}
+                prog["done"][qid]["status"] = p6r.judge(static, pol, q, prog["done"][qid])["teacher_status"]
+                prog["wall_before_s"] = wall0 + time.time() - w0
+                cf.write_json(out / "progress.json", prog)
+    records = {q["query"]: p6r.judge(static, pol, q, prog["done"].get(q["query"])) for q in plan["queries"]}
+    if "wave1" not in prog["status"]:
+        prog["status"]["wave1"] = gate(plan, records, used())
+    for q in plan["queries"]:
+        q["split"] = plan["roots"][q["root"]]["split"]
+    return p7c.report(out, cfg, plan, pol, records, prog, static_cpu, calls, ops, t0, used(), wall(), frozen)

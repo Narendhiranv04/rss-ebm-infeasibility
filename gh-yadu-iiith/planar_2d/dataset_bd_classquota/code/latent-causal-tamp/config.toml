@@ -1,0 +1,152 @@
+# 2D planar-3R suite configuration (Guide v1.6 §2, §2.1).
+# Every key is validated by scene.load_config; unknown or missing keys fail.
+# Sections for later stages ([geometry], [planner2d], [inference]) are added
+# when their stage arrives, so this file never carries unused parameters.
+
+[suite]
+name = "planar_3r"
+rows = 8
+cols = 8
+pitch_m = 0.08
+obstacle_radius_m = 0.024
+margin_m = 0.005
+num_obstacles = 35
+num_targets = 1
+coordinate_frame = "world_xy_y_back"
+domain_policy = "ALL_SUPPORTED"
+margin_policy = "UNINFLATED_ORACLE_DELTA_ONCE"
+
+# Robot profile: PROVISIONAL guide values. Not collision/reach tested until G1,
+# which must freeze a tested robot_profile_hash before any labels exist.
+[arm2d]
+base_xy_m = [-0.14, 0.32]
+link_lengths_m = [0.42, 0.34, 0.20]
+link_full_widths_m = [0.018, 0.016, 0.014]
+joint_limits_rad = [
+  [-3.14159265, 3.14159265],
+  [-3.14159265, 3.14159265],
+  [-3.14159265, 3.14159265],
+]
+# G1: [0,0,0] crossed the support and came 0.004 m (< delta) from cell 27/35 discs;
+# this folded home lies off the support and clears all 64 cells (see report 0003).
+q_home_rad = [1.5707963267948966, 1.5707963267948966, 1.5707963267948966]
+base_radius_m = 0.018                # provisional colliding fixed base
+joint_housing_radius_m = 0.012       # provisional joint geometry
+self_collision_exclusions = [[0, 1], [1, 2]]
+
+[gripper2d]
+model = "two_finger_side"
+palm_length_m = 0.028                # provisional
+palm_full_width_m = 0.034            # provisional
+finger_length_m = 0.050              # provisional
+finger_thickness_m = 0.007           # provisional
+open_gap_m = 0.070                   # tip-to-tip clear gap; must exceed 2r
+closed_gap_m = 0.046                 # contact model; not a grasp-force claim
+tcp_at_palm_tip = true
+attachment_pose_policy = "validated_contact_at_closure"
+contact_pos_tolerance_m = 0.001
+release_xy_tolerance_m = 0.002
+rail_depth_m = 0.008                 # G1: finger slide rail joining both fingers to the palm
+grasp_center_x_m = 0.032             # G1: object centre ahead of the TCP when grasped
+
+[geometry]
+numeric_margin_band_m = 0.0002
+interval_max_step_rad = 0.02         # sampling aid ONLY (figure traces); not certification
+interval_certifier = "analytic_or_conservative_subdivision"
+certify_max_evals = 4000             # distance evaluations per segment before UNRESOLVED
+
+[planner2d]
+algorithm = "RRT_CONNECT_WITH_FULL_BODY_CALLBACK"   # every tree edge certified (geometry.certify)
+seed = 41
+max_nodes = 4000                     # G2 calibration (report 0005): canonical, deterministic budget;
+                                     # ~2.9x the largest successful G1/G2 search (1387 nodes, ~90/s)
+max_wall_seconds = 300.0             # safety cap only (~6x the node budget's time); results it touches
+                                     # are flagged wall_clock_dependent and never canonical
+extend_step_rad = 0.25
+shortcut_rounds = 150
+pose_step_m = 0.06                   # carry search in held-object pose space: step [m]
+pose_phi_weight_m = 0.1              # metres per radian of tool-axis turn in that metric
+edge_max_evals = 200                 # per search edge; uncertified edges are dropped, never accepted
+
+[skill2d]
+approach_dirs = 24                   # declared grasp set: tool axis every 15 deg, both elbows
+approach_dist_m = 0.06               # pregrasp offset behind the grasp pose
+retreat_dist_m = 0.06
+line_step_m = 0.005                  # IK waypoint spacing on straight approach/retreat lines
+max_ik_jump_rad = 0.1                # larger joint jump between line waypoints = discontinuous IK
+max_plan_failures = 4                # UNRESOLVED connector calls per skill before giving up
+max_direct_pairs = 64                # (pick, place) pairs tried with direct/guide connectors before RRT
+
+[repair2d]
+k_best = 12                          # A0 assignments tried, in nondecreasing moved-object count
+max_orders = 6                       # legal move orders tried per assignment
+max_relocations = 40                 # distinct relocation skills planned per repair search (budget)
+skill_plan_failures = 2              # UNRESOLVED connectors allowed per relocation skill in repair search
+
+# G3.5 primary protocol (Methodology v1.5 §9, Guide v1.7 §2). FROZEN_CONTROL runs (solve,
+# replay) keep their archived semantics and ignore these three sections.
+[protocol]
+name = "INITIAL_SCENE_ONE_SHOT_V1"
+proposal_observation = "INITIAL_ONLY"
+target_feedback_to_selection = false
+target_calls_between_relocations = 0
+target_reference_required = false
+execution_observation = "VALIDATE_OR_ABORT"
+move_once = true
+
+[proposal]
+source = "MANUAL_CASE_CANDIDATES"    # G3.5: hand-authored per query (fixtures.json), ranked by a fixed rule
+budget_cap = 6                       # at most this many moved objects per proposed assignment
+max_candidates_to_verify = 12        # ranked candidates the relocation planner may try before giving up
+include_all_stay = true
+task_score_threshold = 0.5           # deterministic geometric score (goal occupancy); never tuned on outcomes
+
+[target_evaluation]
+when = "AFTER_REPAIR_COMMIT_AND_COMPLETION"
+start_state = "ACHIEVED"
+scope = "COMPLETE_TARGET_SKILL"      # the tested six-phase skill (skill2d budgets), planned afresh
+final_connector = "HOME"             # G3.5 queries (HOME_REQUIRED scope, report 0007); unchanged
+max_queries_per_primary_episode = 1
+end_policy = "SAFE_RETREAT"          # G4A queries: success = goal reached + certified safe retreat
+home_return_diagnostic = true        # HOME return checked separately; never a prerequisite (addendum A1)
+
+# G4A evidence semantics (report 0008).
+[evidence]
+state_pose_uncertainty_m = 0.0       # kinematic benchmark: initial poses are exact (no perception)
+reobserve_pose_tolerance_m = 0.002   # executor accepts an achieved pose within this of the committed one
+
+# G4A automatic candidate generator: geometric B1-style control, not learned.
+[generator]
+name = "B1_GEOMETRIC_V1"
+corridor_m = 0.12                    # task-proximal: within 1.5 cells of the target-goal segment or goal
+destinations_per_object = 2
+seed = 4501                          # diversity draws; combined with a geometry-only scene hash
+broad_draws = 4
+max_raw = 120
+max_static_valid = 12                # including all-stay
+max_moved = 3
+
+# G4A bounded development audit (instruction §6); engineering caps, not statistics.
+[audit4a]
+roots = 20
+pilot_roots = 4
+min_obstacles = 4
+max_obstacles = 8
+queries_per_root = 1
+max_construction_attempts = 100
+max_diagnostic_target_calls = 120
+main_cpu_hours = 4.0
+diagnostic_cpu_hours = 2.0
+workers = 8
+root_seed = 2026101604
+seed_panel_cases = 12
+seed_panel_seeds = 5
+order_panel_cases = 6
+order_panel_orders = 3
+order_panel_seeds = 2
+
+# Rendering of the clean learner observation and the fixed overview axes.
+[render]
+image_px = 320                       # square top-down image over the support; 0.002 m/px
+overview_xlim_m = [-0.85, 0.85]      # fixed for every 2D robot panel; covers every recorded G1 frame
+overview_ylim_m = [-0.50, 1.40]

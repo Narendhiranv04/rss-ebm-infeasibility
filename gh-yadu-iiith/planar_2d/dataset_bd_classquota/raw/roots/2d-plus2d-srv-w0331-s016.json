@@ -1,0 +1,898 @@
+{
+ "alt_parking": {
+  "o00": [
+   47,
+   63
+  ],
+  "o01": [
+   55,
+   63
+  ],
+  "o02": [
+   3,
+   63
+  ],
+  "o03": [
+   7,
+   63
+  ],
+  "o04": [
+   12,
+   63
+  ],
+  "o05": [
+   4,
+   39
+  ],
+  "o06": [
+   6,
+   39
+  ]
+ },
+ "budget": {
+  "admin_cpu_s": 1500.0,
+  "per_query": {
+   "goal_plans": 3,
+   "motion_checks": 150,
+   "online_moves": 8,
+   "transit_plans": 6
+  }
+ },
+ "construction": {
+  "K_static": 2,
+  "attempts": 1,
+  "blockers_only_scene_blocks_T": true,
+  "chase_queries": 0,
+  "extra_blockers": [
+   "o02",
+   "o03",
+   "o04",
+   "o05",
+   "o06"
+  ],
+  "immovable": 0,
+  "method": "exact_cover2d",
+  "must_move": [
+   "o00",
+   "o01"
+  ],
+  "repair_grasps": {
+   "pick": null,
+   "place": [
+    18,
+    -1
+   ]
+  },
+  "split_pick_place": [
+   0,
+   2
+  ],
+  "stats": {
+   "T_blocked_after_repair": 0,
+   "dependent": 0,
+   "distractors": 0,
+   "fix_level": 0,
+   "layouts": 1,
+   "maps": 1,
+   "mover_grasps": 4,
+   "soft": 0,
+   "tried": [
+    "53>22:0+2"
+   ],
+   "witnesses": 22
+  },
+  "unique_repair": false
+ },
+ "domain": "2d",
+ "empty_scene_T_swept": {
+  "approach": [
+   10,
+   16,
+   17,
+   18,
+   26,
+   34,
+   41,
+   42,
+   43,
+   44,
+   52,
+   53
+  ],
+  "carry": [
+   1,
+   2,
+   8,
+   9,
+   10,
+   16,
+   17,
+   18,
+   19,
+   21,
+   22,
+   26,
+   27,
+   28,
+   29,
+   30,
+   34,
+   35,
+   36,
+   37,
+   38,
+   42,
+   43,
+   44,
+   45,
+   46,
+   52,
+   53
+  ],
+  "close_attach": [
+   10,
+   16,
+   17,
+   18,
+   26,
+   34,
+   42,
+   43,
+   52,
+   53
+  ],
+  "pregrasp": [
+   10,
+   16,
+   17,
+   18,
+   19,
+   24,
+   25,
+   26,
+   27,
+   32,
+   33,
+   34,
+   35,
+   40,
+   41,
+   42,
+   43,
+   44,
+   48,
+   49,
+   50,
+   51,
+   52,
+   56,
+   57,
+   58,
+   59,
+   60
+  ],
+  "release": [
+   1,
+   2,
+   8,
+   10,
+   19,
+   21,
+   22,
+   27,
+   28,
+   29,
+   30
+  ],
+  "retreat": [
+   1,
+   2,
+   8,
+   9,
+   10,
+   16,
+   18,
+   19,
+   21,
+   22,
+   27,
+   28,
+   29,
+   30,
+   35
+  ]
+ },
+ "empty_scene_T_witness": "37564661d82d072c69bc2b5c",
+ "fixed_ids": [],
+ "generator_version_plus": "BD_GEN_V1+ROUTE2D_V6",
+ "geometry_impl": "fastgeom1",
+ "goal_cell": 22,
+ "ids": {
+  "config_hash": "90d3eb68e8a42108",
+  "construction_seed": 3650283047,
+  "generator_version": "BD_GEN_V1",
+  "label_protocol": "BD_BINARY_BUDGET_V1",
+  "parent_family_id": "fam-686e302fa5",
+  "robot_protocol": "PLANAR3R_SIDEGRASP_V1:sha256:2d7986761356f926f132f3b7045199a7e2b38a46d1c1516584a1929c3e1ae858",
+  "root_id": "2d-plus2d-srv-w0331-s016",
+  "teacher_version": "BD2D_TEACHER_V1:DetPhysics(P16_FAST,no-library)",
+  "variant_id": "orig"
+ },
+ "independent_moves": true,
+ "intended_blockers": [
+  "o00",
+  "o01",
+  "o02",
+  "o03",
+  "o04",
+  "o05",
+  "o06"
+ ],
+ "labels": {
+  "B": [
+   {
+    "failed_step": null,
+    "n_actions": 3,
+    "negative_kind": null,
+    "reason": "VERIFIED",
+    "role": "minimal",
+    "sequence": [
+     [
+      "o01",
+      55
+     ],
+     [
+      "o00",
+      47
+     ]
+    ],
+    "travel": 3.056881405399849,
+    "witnesses": [
+     "dc5783a4ffa4eedce1a0faab",
+     "45509eb849a0b5bce37cd9aa",
+     "5da5fe125e10f99992bf9fbf"
+    ],
+    "y": 1
+   },
+   {
+    "excess_actions": null,
+    "failed_step": 1,
+    "n_actions": 3,
+    "negative_kind": "CERTIFIED",
+    "reason": "CERTIFIED_INFEASIBLE",
+    "role": "alternative",
+    "sequence": [
+     [
+      "o00",
+      47
+     ],
+     [
+      "o03",
+      7
+     ]
+    ],
+    "travel": null,
+    "witnesses": [],
+    "y": 0
+   },
+   {
+    "excess_actions": 0,
+    "failed_step": null,
+    "n_actions": 3,
+    "negative_kind": null,
+    "reason": "VERIFIED",
+    "role": "wrong_order",
+    "sequence": [
+     [
+      "o00",
+      47
+     ],
+     [
+      "o01",
+      55
+     ]
+    ],
+    "travel": 4.059713931932661,
+    "witnesses": [
+     "aa24123612bb893757c7499f",
+     "64d66d5fd197c00d1f7c69d3",
+     "1d045e8a7b53dee7ffdb4ba0"
+    ],
+    "y": 1
+   },
+   {
+    "excess_actions": null,
+    "failed_step": "target",
+    "n_actions": 2,
+    "negative_kind": "NO_PLAN_FOUND",
+    "reason": "UNKNOWN_PLANNER",
+    "role": "partial",
+    "sequence": [
+     [
+      "o01",
+      55
+     ]
+    ],
+    "travel": null,
+    "witnesses": [],
+    "y": 0
+   },
+   {
+    "excess_actions": 1,
+    "failed_step": null,
+    "n_actions": 4,
+    "negative_kind": null,
+    "reason": "VERIFIED",
+    "role": "redundant+1",
+    "sequence": [
+     [
+      "o02",
+      3
+     ],
+     [
+      "o01",
+      55
+     ],
+     [
+      "o00",
+      47
+     ]
+    ],
+    "travel": 4.686769638050912,
+    "witnesses": [
+     "30eed7d6ad10354489f24e26",
+     "e9f3de9ec77e53c3ae0372fe",
+     "45509eb849a0b5bce37cd9aa",
+     "b960f6d5bb619f691a6e9fe9"
+    ],
+    "y": 1
+   },
+   {
+    "excess_actions": null,
+    "failed_step": "target",
+    "n_actions": 2,
+    "negative_kind": "NO_PLAN_FOUND",
+    "reason": "UNKNOWN_PLANNER",
+    "role": "noop_irrelevant",
+    "sequence": [
+     [
+      "o02",
+      3
+     ]
+    ],
+    "travel": null,
+    "witnesses": [],
+    "y": 0
+   },
+   {
+    "excess_actions": null,
+    "failed_step": 1,
+    "n_actions": 5,
+    "negative_kind": "NO_PLAN_FOUND",
+    "reason": "UNKNOWN_PLANNER",
+    "role": "redundant+2",
+    "sequence": [
+     [
+      "o02",
+      3
+     ],
+     [
+      "o03",
+      7
+     ],
+     [
+      "o01",
+      55
+     ],
+     [
+      "o00",
+      47
+     ]
+    ],
+    "travel": null,
+    "witnesses": [],
+    "y": 0
+   },
+   {
+    "excess_actions": 0,
+    "failed_step": null,
+    "n_actions": 3,
+    "negative_kind": null,
+    "reason": "VERIFIED",
+    "role": "wrong_destination",
+    "sequence": [
+     [
+      "o01",
+      44
+     ],
+     [
+      "o00",
+      47
+     ]
+    ],
+    "travel": 4.755593654166016,
+    "witnesses": [
+     "c2129a22f28be6dd10734ae6",
+     "d361e6061e5b2358f34a135b",
+     "16f842488e8ce228645b0e86"
+    ],
+    "y": 1
+   },
+   {
+    "excess_actions": 0,
+    "failed_step": null,
+    "n_actions": 3,
+    "negative_kind": null,
+    "reason": "VERIFIED",
+    "role": "alternative_destination",
+    "sequence": [
+     [
+      "o01",
+      63
+     ],
+     [
+      "o00",
+      47
+     ]
+    ],
+    "travel": 4.557893873569494,
+    "witnesses": [
+     "c28465fca8375062309d12ab",
+     "5b99098d4ca9a6c669463a21",
+     "04f9a669a54d5bb9b3f2d6de"
+    ],
+    "y": 1
+   }
+  ],
+  "D": [
+   {
+    "edit": {
+     "o00": 47
+    },
+    "negative_kind": "NO_PLAN_FOUND",
+    "query_kind": "SCENE_TARGET_ONLY",
+    "reason": "UNKNOWN_PLANNER",
+    "y": 0
+   },
+   {
+    "edit": {
+     "o01": 55
+    },
+    "negative_kind": "NO_PLAN_FOUND",
+    "query_kind": "SCENE_TARGET_ONLY",
+    "reason": "UNKNOWN_PLANNER",
+    "y": 0
+   },
+   {
+    "edit": {
+     "o02": 3
+    },
+    "negative_kind": "NO_PLAN_FOUND",
+    "query_kind": "SCENE_TARGET_ONLY",
+    "reason": "UNKNOWN_PLANNER",
+    "y": 0
+   },
+   {
+    "edit": {
+     "o03": 7
+    },
+    "negative_kind": "NO_PLAN_FOUND",
+    "query_kind": "SCENE_TARGET_ONLY",
+    "reason": "UNKNOWN_PLANNER",
+    "y": 0
+   },
+   {
+    "edit": {
+     "o04": 12
+    },
+    "negative_kind": "NO_PLAN_FOUND",
+    "query_kind": "SCENE_TARGET_ONLY",
+    "reason": "UNKNOWN_PLANNER",
+    "y": 0
+   },
+   {
+    "edit": {
+     "o05": 4
+    },
+    "negative_kind": "NO_PLAN_FOUND",
+    "query_kind": "SCENE_TARGET_ONLY",
+    "reason": "UNKNOWN_PLANNER",
+    "y": 0
+   },
+   {
+    "edit": {
+     "o06": 6
+    },
+    "negative_kind": "NO_PLAN_FOUND",
+    "query_kind": "SCENE_TARGET_ONLY",
+    "reason": "UNKNOWN_PLANNER",
+    "y": 0
+   },
+   {
+    "edit": {
+     "o00": 47,
+     "o01": 55,
+     "o02": 3,
+     "o03": 7,
+     "o04": 12,
+     "o05": 4,
+     "o06": 6
+    },
+    "negative_kind": null,
+    "query_kind": "SCENE_TARGET_ONLY",
+    "reason": "VERIFIED",
+    "y": 1
+   }
+  ],
+  "blocker": {
+   "audit_subset": false,
+   "blocker_supervision_valid": false,
+   "full_lattice": false,
+   "mask": null,
+   "minimal_sets": [
+    [
+     "o00",
+     "o01"
+    ],
+    [
+     "o00",
+     "o03"
+    ],
+    [
+     "o02",
+     "o03"
+    ],
+    [
+     "o03",
+     "o04"
+    ]
+   ],
+   "monotone": true,
+   "scope": [
+    "o00",
+    "o01",
+    "o02",
+    "o03",
+    "o04"
+   ],
+   "why_invalid": "LATTICE_INCOMPLETE"
+  },
+  "edits_evaluated": 18,
+  "original": {
+   "negative_kind": "NO_PLAN_FOUND",
+   "reason": "UNKNOWN_PLANNER",
+   "y": 0
+  }
+ },
+ "mechanism_pools": {
+  "route": [
+   1,
+   2,
+   8,
+   9,
+   10,
+   16,
+   17,
+   18,
+   19,
+   21,
+   22,
+   24,
+   25,
+   26,
+   27,
+   28,
+   29,
+   30,
+   32,
+   33,
+   34,
+   35,
+   36,
+   37,
+   38,
+   40,
+   41,
+   42,
+   43,
+   44,
+   45,
+   46,
+   48,
+   49,
+   50,
+   51,
+   52,
+   53,
+   56,
+   57,
+   58,
+   59,
+   60,
+   61
+  ]
+ },
+ "n_movable": 7,
+ "observed": 2,
+ "parking": {
+  "o00": [
+   {
+    "cell": 47,
+    "in_target_sweep": false
+   },
+   {
+    "cell": 63,
+    "in_target_sweep": false
+   }
+  ],
+  "o01": [
+   {
+    "cell": 55,
+    "in_target_sweep": false
+   },
+   {
+    "cell": 63,
+    "in_target_sweep": false
+   }
+  ],
+  "o02": [
+   {
+    "cell": 3,
+    "in_target_sweep": false
+   },
+   {
+    "cell": 63,
+    "in_target_sweep": false
+   }
+  ],
+  "o03": [
+   {
+    "cell": 7,
+    "in_target_sweep": false
+   },
+   {
+    "cell": 63,
+    "in_target_sweep": false
+   }
+  ],
+  "o04": [
+   {
+    "cell": 12,
+    "in_target_sweep": false
+   },
+   {
+    "cell": 63,
+    "in_target_sweep": false
+   }
+  ],
+  "o05": [
+   {
+    "cell": 4,
+    "in_target_sweep": false
+   },
+   {
+    "cell": 39,
+    "in_target_sweep": false
+   }
+  ],
+  "o06": [
+   {
+    "cell": 6,
+    "in_target_sweep": false
+   },
+   {
+    "cell": 39,
+    "in_target_sweep": false
+   }
+  ]
+ },
+ "q0": [
+  1.5707963267948966,
+  1.5707963267948966,
+  1.5707963267948966
+ ],
+ "roles": {
+  "o00": "intended_blocker",
+  "o01": "intended_blocker",
+  "o02": "intended_blocker",
+  "o03": "intended_blocker",
+  "o04": "intended_blocker",
+  "o05": "intended_blocker",
+  "o06": "intended_blocker"
+ },
+ "scene": {
+  "action_hash": null,
+  "domain_policy": "ALL_SUPPORTED",
+  "lattice": {
+   "cols": 8,
+   "pitch_m": 0.08,
+   "rows": 8
+  },
+  "legal_cells": [
+   0,
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   13,
+   14,
+   15,
+   16,
+   17,
+   18,
+   19,
+   20,
+   21,
+   22,
+   23,
+   24,
+   25,
+   26,
+   27,
+   28,
+   29,
+   30,
+   31,
+   32,
+   33,
+   34,
+   35,
+   36,
+   37,
+   38,
+   39,
+   40,
+   41,
+   42,
+   43,
+   44,
+   45,
+   46,
+   47,
+   48,
+   49,
+   50,
+   51,
+   52,
+   53,
+   54,
+   55,
+   56,
+   57,
+   58,
+   59,
+   60,
+   61,
+   62,
+   63
+  ],
+  "objects": [
+   {
+    "cell": 30,
+    "id": "o00",
+    "kind": "obstacle",
+    "radius_m": 0.024,
+    "support": "table",
+    "xy_m": [
+     0.52,
+     0.28
+    ]
+   },
+   {
+    "cell": 45,
+    "id": "o01",
+    "kind": "obstacle",
+    "radius_m": 0.024,
+    "support": "table",
+    "xy_m": [
+     0.44,
+     0.44
+    ]
+   },
+   {
+    "cell": 13,
+    "id": "o02",
+    "kind": "obstacle",
+    "radius_m": 0.024,
+    "support": "table",
+    "xy_m": [
+     0.44,
+     0.12
+    ]
+   },
+   {
+    "cell": 21,
+    "id": "o03",
+    "kind": "obstacle",
+    "radius_m": 0.024,
+    "support": "table",
+    "xy_m": [
+     0.44,
+     0.2
+    ]
+   },
+   {
+    "cell": 28,
+    "id": "o04",
+    "kind": "obstacle",
+    "radius_m": 0.024,
+    "support": "table",
+    "xy_m": [
+     0.36,
+     0.28
+    ]
+   },
+   {
+    "cell": 5,
+    "id": "o05",
+    "kind": "obstacle",
+    "radius_m": 0.024,
+    "support": "table",
+    "xy_m": [
+     0.44,
+     0.04
+    ]
+   },
+   {
+    "cell": 20,
+    "id": "o06",
+    "kind": "obstacle",
+    "radius_m": 0.024,
+    "support": "table",
+    "xy_m": [
+     0.36,
+     0.2
+    ]
+   },
+   {
+    "cell": 53,
+    "id": "t0",
+    "kind": "target",
+    "radius_m": 0.024,
+    "support": "table",
+    "xy_m": [
+     0.44,
+     0.52
+    ]
+   }
+  ],
+  "robot": {
+   "attached_id": null,
+   "attachment": "free",
+   "gripper_gap_m": 0.07,
+   "q_rad": [
+    1.5707963267948966,
+    1.5707963267948966,
+    1.5707963267948966
+   ]
+  },
+  "robot_profile_hash": "sha256:2d7986761356f926f132f3b7045199a7e2b38a46d1c1516584a1929c3e1ae858",
+  "root_id": "2d-plus2d-srv-w0331-s016",
+  "variant_id": "orig"
+ },
+ "spec": {
+  "K": 2,
+  "displacement": "medium",
+  "distractor_role": "far",
+  "distractors": "0",
+  "mechanism": "place",
+  "parking": "limited",
+  "source": "mid",
+  "start_pose": "home"
+ },
+ "start_stratum": "S0",
+ "teacher_calls": {
+  "goal": 19,
+  "sequence": 9
+ },
+ "teacher_cpu_s": 538.8920886700007,
+ "verified_K": 2
+}

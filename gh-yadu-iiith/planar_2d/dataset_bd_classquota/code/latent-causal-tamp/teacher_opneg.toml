@@ -1,0 +1,35 @@
+# 2D-ABC-OPNEG-v1: operational-negative teacher policy for NEW development data (G4C-LF-P4).
+# Separately versioned overlay. config.toml / config_v2.toml and every historical label are unchanged.
+# BUDGET_INFEASIBLE = every declared seed attempt of this exact protocol ran to a clean, allowed
+# algorithmic terminal without a complete witness. It is an operational, policy-relative negative,
+# never a proof of physical impossibility (Y_B = 0 does not imply Y* = 0).
+
+[policy]
+policy_id = "2D-ABC-OPNEG-v1"
+seeds = [20261021, 20261022, 20261023]       # literal, frozen before any P4 teacher call
+seed_key = "g4c_lf_p4/{root}/{sig}/seed{seed}"  # RRT seed per connector = planner.call_seed(41, key/label)
+planner_max_nodes = 4000                     # must equal config.toml [planner2d].max_nodes (checked, never overridden)
+max_unresolved_connectors = 4                # must equal config.toml [skill2d].max_plan_failures (checked)
+per_seed_cpu_s = 250.0                       # process-tree guard per seed attempt (a guard hit = censored = UNKNOWN)
+per_seed_guard_margin_s = 10.0
+per_seed_wall_s = 600.0
+per_query_cpu_cancel_s = 870.0
+per_query_cpu_hard_s = 900.0
+per_query_wall_s = 1800.0
+target_success = "GOAL_AND_SAFE_RETREAT"
+short_circuit = ["WITNESS", "CERTIFICATE"]
+budget_negative_weight = 1.0                 # baseline training weight; a down-weight ablation hook only
+allowed_terminals = ["SEARCH_LIMIT_PLAN_FAILURES", "SCHEDULE_COMPLETED_NO_WITNESS_UNCERTIFIED_REJECTIONS",
+                     "SCHEDULE_COMPLETED_NO_WITNESS_WITH_UNRESOLVED_CONNECTORS", "SCHEDULE_COMPLETED_ALL_PAIRS_CERTIFIED_BLOCKED",
+                     "PICK_SCREEN_EXHAUSTED_CERTIFIED", "PICK_SCREEN_EXHAUSTED_UNCERTIFIED",
+                     "PLACE_SCREEN_EXHAUSTED_CERTIFIED", "PLACE_SCREEN_EXHAUSTED_UNCERTIFIED"]
+
+[pilot]
+max_queries = 12
+max_seed_attempts = 36
+max_lineages = 2
+aggregate_cpu_s = 3600.0
+aggregate_wall_s = 7200.0
+static_admission_cpu_s = 120.0
+orchestration_reserve_s = 60.0
+workers = 1

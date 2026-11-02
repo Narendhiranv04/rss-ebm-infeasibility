@@ -1,0 +1,599 @@
+{
+ "alt_parking": {
+  "o00": [
+   47
+  ],
+  "o01": [
+   55
+  ]
+ },
+ "budget": {
+  "admin_cpu_s": 1500.0,
+  "per_query": {
+   "goal_plans": 3,
+   "motion_checks": 150,
+   "online_moves": 8,
+   "transit_plans": 6
+  }
+ },
+ "construction": {
+  "K_static": 2,
+  "attempts": 1,
+  "blockers_only_scene_blocks_T": true,
+  "chase_queries": 0,
+  "extra_blockers": [
+   "o02",
+   "o03",
+   "o04",
+   "o05"
+  ],
+  "immovable": 0,
+  "method": "exact_cover2d",
+  "must_move": [
+   "o00",
+   "o01"
+  ],
+  "repair_grasps": {
+   "pick": [
+    3,
+    -1
+   ],
+   "place": [
+    8,
+    -1
+   ]
+  },
+  "split_pick_place": [
+   1,
+   1
+  ],
+  "stats": {
+   "T_blocked_after_repair": 0,
+   "combo_cross": 24,
+   "dependent": 0,
+   "distractors": 0,
+   "fix_level": 0,
+   "layouts": 1,
+   "maps": 1,
+   "soft": 1,
+   "tried": [
+    "31>45:1+1"
+   ],
+   "witnesses": 58
+  },
+  "unique_repair": false
+ },
+ "domain": "2d",
+ "empty_scene_T_swept": {
+  "approach": [
+   30,
+   31,
+   38,
+   39,
+   40,
+   46,
+   48,
+   49,
+   51,
+   52,
+   53,
+   57,
+   58,
+   59,
+   60
+  ],
+  "carry": [
+   30,
+   31,
+   37,
+   38,
+   39,
+   40,
+   44,
+   45,
+   46,
+   48,
+   49,
+   51,
+   52,
+   53,
+   56,
+   57,
+   58,
+   59,
+   60,
+   61
+  ],
+  "close_attach": [
+   30,
+   31,
+   38,
+   39,
+   40,
+   46,
+   48,
+   49,
+   51,
+   52,
+   53,
+   57,
+   58,
+   59
+  ],
+  "pregrasp": [
+   30,
+   37,
+   38,
+   39,
+   43,
+   44,
+   45,
+   46,
+   48,
+   50,
+   51,
+   52,
+   53,
+   56,
+   57,
+   58,
+   59,
+   60,
+   61
+  ],
+  "release": [
+   44,
+   45,
+   52,
+   53,
+   60
+  ],
+  "retreat": [
+   44,
+   45,
+   52,
+   53,
+   60
+  ]
+ },
+ "empty_scene_T_witness": "a8c2ae883aa8d1908ed93ed4",
+ "fixed_ids": [],
+ "generator_version_plus": "BD_GEN_V1+ROUTE2D_V6",
+ "goal_cell": 45,
+ "ids": {
+  "config_hash": "90d3eb68e8a42108",
+  "construction_seed": 1896676051,
+  "generator_version": "BD_GEN_V1",
+  "label_protocol": "BD_BINARY_BUDGET_V1",
+  "parent_family_id": "fam-093ad21241",
+  "robot_protocol": "PLANAR3R_SIDEGRASP_V1:sha256:2d7986761356f926f132f3b7045199a7e2b38a46d1c1516584a1929c3e1ae858",
+  "root_id": "2d-plus2d-srv-w0204-s006",
+  "teacher_version": "BD2D_TEACHER_V1:DetPhysics(P16_FAST,no-library)",
+  "variant_id": "orig"
+ },
+ "independent_moves": true,
+ "intended_blockers": [
+  "o00",
+  "o01",
+  "o02",
+  "o03",
+  "o04",
+  "o05"
+ ],
+ "labels": {
+  "B": [
+   {
+    "failed_step": null,
+    "n_actions": 3,
+    "negative_kind": null,
+    "reason": "VERIFIED",
+    "role": "minimal",
+    "sequence": [
+     [
+      "o01",
+      55
+     ],
+     [
+      "o00",
+      47
+     ]
+    ],
+    "travel": 2.9193124135990676,
+    "witnesses": [
+     "98b249429306cfa0080dd8bc",
+     "46c4e9eb630586c619f4af27",
+     "3c22ca3f488939085ed9d473"
+    ],
+    "y": 1
+   },
+   {
+    "excess_actions": null,
+    "failed_step": 1,
+    "n_actions": 3,
+    "negative_kind": "CERTIFIED",
+    "reason": "CERTIFIED_INFEASIBLE",
+    "role": "wrong_order",
+    "sequence": [
+     [
+      "o00",
+      47
+     ],
+     [
+      "o01",
+      55
+     ]
+    ],
+    "travel": null,
+    "witnesses": [],
+    "y": 0
+   },
+   {
+    "excess_actions": null,
+    "failed_step": "target",
+    "n_actions": 2,
+    "negative_kind": "CERTIFIED",
+    "reason": "CERTIFIED_INFEASIBLE",
+    "role": "partial",
+    "sequence": [
+     [
+      "o01",
+      55
+     ]
+    ],
+    "travel": null,
+    "witnesses": [],
+    "y": 0
+   },
+   {
+    "excess_actions": 0,
+    "failed_step": null,
+    "n_actions": 3,
+    "negative_kind": null,
+    "reason": "VERIFIED",
+    "role": "wrong_destination",
+    "sequence": [
+     [
+      "o01",
+      22
+     ],
+     [
+      "o00",
+      47
+     ]
+    ],
+    "travel": 2.224609426193563,
+    "witnesses": [
+     "467ea85c01ae18db6a905ed2",
+     "c696586dc60ed7eba60849d4",
+     "5be86699d8ad94e76fb198ff"
+    ],
+    "y": 1
+   }
+  ],
+  "D": [
+   {
+    "edit": {
+     "o00": 47
+    },
+    "negative_kind": "NO_PLAN_FOUND",
+    "query_kind": "SCENE_TARGET_ONLY",
+    "reason": "UNKNOWN_PLANNER",
+    "y": 0
+   },
+   {
+    "edit": {
+     "o01": 55
+    },
+    "negative_kind": "CERTIFIED",
+    "query_kind": "SCENE_TARGET_ONLY",
+    "reason": "CERTIFIED_INFEASIBLE",
+    "y": 0
+   }
+  ],
+  "blocker": {
+   "audit_subset": false,
+   "blocker_supervision_valid": true,
+   "full_lattice": true,
+   "mask": {
+    "o00": 1,
+    "o01": 1
+   },
+   "minimal_sets": [
+    [
+     "o00",
+     "o01"
+    ]
+   ],
+   "monotone": true,
+   "scope": [
+    "o00",
+    "o01"
+   ],
+   "why_invalid": null
+  },
+  "edits_evaluated": 3,
+  "original": {
+   "negative_kind": "CERTIFIED",
+   "reason": "CERTIFIED_INFEASIBLE",
+   "y": 0
+  }
+ },
+ "mechanism_pools": {
+  "route": [
+   11,
+   12,
+   19,
+   20,
+   21,
+   22,
+   27,
+   28,
+   29,
+   30,
+   31,
+   32,
+   34,
+   35,
+   36,
+   37,
+   38,
+   39,
+   40,
+   41,
+   42,
+   43,
+   44,
+   45,
+   46,
+   48,
+   49,
+   50,
+   51,
+   52,
+   53,
+   56,
+   57,
+   58,
+   59,
+   60,
+   61
+  ]
+ },
+ "n_movable": 8,
+ "observed": 2,
+ "parking": {
+  "o00": [
+   {
+    "cell": 47,
+    "in_target_sweep": false
+   }
+  ],
+  "o01": [
+   {
+    "cell": 55,
+    "in_target_sweep": false
+   }
+  ]
+ },
+ "q0": [
+  1.5707963267948966,
+  -1.5707963267948966,
+  -1.5707963267948966
+ ],
+ "roles": {
+  "o00": "intended_blocker",
+  "o01": "intended_blocker",
+  "o02": "intended_blocker",
+  "o03": "intended_blocker",
+  "o04": "intended_blocker",
+  "o05": "intended_blocker",
+  "o06": "distractor:near_goal",
+  "o07": "distractor:near_goal"
+ },
+ "scene": {
+  "action_hash": null,
+  "domain_policy": "ALL_SUPPORTED",
+  "lattice": {
+   "cols": 8,
+   "pitch_m": 0.08,
+   "rows": 8
+  },
+  "legal_cells": [
+   0,
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   13,
+   14,
+   15,
+   16,
+   17,
+   18,
+   19,
+   20,
+   21,
+   22,
+   23,
+   24,
+   25,
+   26,
+   27,
+   28,
+   29,
+   30,
+   31,
+   32,
+   33,
+   34,
+   35,
+   36,
+   37,
+   38,
+   39,
+   40,
+   41,
+   42,
+   43,
+   44,
+   45,
+   46,
+   47,
+   48,
+   49,
+   50,
+   51,
+   52,
+   53,
+   54,
+   55,
+   56,
+   57,
+   58,
+   59,
+   60,
+   61,
+   62,
+   63
+  ],
+  "objects": [
+   {
+    "cell": 30,
+    "id": "o00",
+    "kind": "obstacle",
+    "radius_m": 0.024,
+    "support": "table",
+    "xy_m": [
+     0.52,
+     0.28
+    ]
+   },
+   {
+    "cell": 37,
+    "id": "o01",
+    "kind": "obstacle",
+    "radius_m": 0.024,
+    "support": "table",
+    "xy_m": [
+     0.44,
+     0.36
+    ]
+   },
+   {
+    "cell": 53,
+    "id": "o02",
+    "kind": "obstacle",
+    "radius_m": 0.024,
+    "support": "table",
+    "xy_m": [
+     0.44,
+     0.52
+    ]
+   },
+   {
+    "cell": 6,
+    "id": "o03",
+    "kind": "obstacle",
+    "radius_m": 0.024,
+    "support": "table",
+    "xy_m": [
+     0.52,
+     0.04
+    ]
+   },
+   {
+    "cell": 52,
+    "id": "o04",
+    "kind": "obstacle",
+    "radius_m": 0.024,
+    "support": "table",
+    "xy_m": [
+     0.36,
+     0.52
+    ]
+   },
+   {
+    "cell": 44,
+    "id": "o05",
+    "kind": "obstacle",
+    "radius_m": 0.024,
+    "support": "table",
+    "xy_m": [
+     0.36,
+     0.44
+    ]
+   },
+   {
+    "cell": 62,
+    "id": "o06",
+    "kind": "obstacle",
+    "radius_m": 0.024,
+    "support": "table",
+    "xy_m": [
+     0.52,
+     0.6
+    ]
+   },
+   {
+    "cell": 63,
+    "id": "o07",
+    "kind": "obstacle",
+    "radius_m": 0.024,
+    "support": "table",
+    "xy_m": [
+     0.6,
+     0.6
+    ]
+   },
+   {
+    "cell": 31,
+    "id": "t0",
+    "kind": "target",
+    "radius_m": 0.024,
+    "support": "table",
+    "xy_m": [
+     0.6,
+     0.28
+    ]
+   }
+  ],
+  "robot": {
+   "attached_id": null,
+   "attachment": "free",
+   "gripper_gap_m": 0.07,
+   "q_rad": [
+    1.5707963267948966,
+    -1.5707963267948966,
+    -1.5707963267948966
+   ]
+  },
+  "robot_profile_hash": "sha256:2d7986761356f926f132f3b7045199a7e2b38a46d1c1516584a1929c3e1ae858",
+  "root_id": "2d-plus2d-srv-w0204-s006",
+  "variant_id": "orig"
+ },
+ "spec": {
+  "K": 2,
+  "displacement": "short",
+  "distractor_role": "near_goal",
+  "distractors": "1-2",
+  "mechanism": "mixed",
+  "parking": "one",
+  "source": "far",
+  "start_pose": "nonhome"
+ },
+ "start_stratum": "S1",
+ "teacher_calls": {
+  "goal": 4,
+  "sequence": 5
+ },
+ "teacher_cpu_s": 8.923252372999997,
+ "verified_K": 2
+}
