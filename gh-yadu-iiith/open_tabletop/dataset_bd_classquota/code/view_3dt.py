@@ -96,7 +96,7 @@ def main():
             input("press Enter here to replay the moves ")
         for j, (o, dst) in enumerate(steps):
             say(f"step {j + 1}/{len(steps)}: {'TARGET' if o == 't0' else o} -> {tuple(dst)}  (planning)")
-            p, _ = A.query(e, o, dst)
+            p, _ = A.query(e, o, dst, home=j >= len(steps) - 2)     # ready pose only after the last relocation
             if p is None:
                 say(f"step {j + 1}: no plan found")
                 break

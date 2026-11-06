@@ -57,8 +57,8 @@ def replay(r):
     rec.log()
     rec.t_log = e.data.time
     moves, notes, azimuths = [], [], []
-    for o, dst in plan:
-        p, qi = A.query(e, o, dst)
+    for j, (o, dst) in enumerate(plan):
+        p, qi = A.query(e, o, dst, home=j >= len(plan) - 2)     # ready pose only after the last relocation
         if p is None:
             notes.append(f"{o} -> {dst}: no plan on replay")
             break
@@ -298,7 +298,7 @@ seeds as the labels) and recorded with make_dataset.py's Recorder at `hz` = 50 H
 ## Planned-waypoint witnesses (dataset-bd witnesses/, ragged)
 Witness k: `witness_q[witness_q_start[k]:witness_q_start[k+1]]` (planned joint waypoints, rad) with `witness_segment` (index into
 its phases), `witness_phases[witness_phases_start[k]:...]` (to_hover, open, approach, close, lift, carry, lower, release, retreat,
-to_ready) and `witness_carry_xy[witness_carry_xy_start[k]:...]` (the carried object's route, m). `witness_ids` are the source ids.
+to_ready; a B relocation followed by another relocation ends at the retreat, without to_ready) and `witness_carry_xy[witness_carry_xy_start[k]:...]` (the carried object's route, m). `witness_ids` are the source ids.
 Labels point to witnesses by index (-1 = none): `original_witness` (), `D_witness` (D), `B_witness` (B, 7) one per executed action.
 """
 

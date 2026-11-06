@@ -72,7 +72,7 @@ def one(out, r):
     ok = True
     for j, (o, dst) in enumerate(steps):
         cap[0] = f"{rid}  step {j + 1}/{len(steps)}: {'TARGET' if o == 't0' else o} -> {tuple(dst)}"
-        p, _ = A.query(e, o, dst)
+        p, _ = A.query(e, o, dst, home=j >= len(steps) - 2)     # ready pose only after the last relocation
         if p is None:
             cap[0] += "  (no plan)"
             frames.append(snap(e, rnd, cam, cap[0]))

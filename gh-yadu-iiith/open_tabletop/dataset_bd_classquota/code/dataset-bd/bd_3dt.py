@@ -6,7 +6,9 @@ name has a space, so via importlib) next to the 3D repository's random/ helpers 
 One env per root holds T and every obstacle. A planning query = the scene's own plan_pick_place over its grasp poses in its preference
 order (first feasible wins; nothing moves). A hypothetical D edit teleports the edited obstacles to their parking cells and re-queries
 ONLY the original target T from the ready pose. A B sequence is EXECUTED in MuJoCo (run_plan), step by step from the initial scene; a
-step counts only if the mover ends in its destination cell upright and no other object changed cell. The scene's RRT-Connect wall-clock
+step counts only if the mover ends in its destination cell upright and no other object changed cell. Within a sequence the arm returns
+to the ready pose ONCE, after the last relocation: every earlier relocation ends with the straight retreat from the released object,
+and the next relocation is planned from there (V2; V1 planned and executed the return to ready after every relocation). The scene's RRT-Connect wall-clock
 limits are replaced by its own iteration ceiling (max_iters) so labels do not depend on server load; a per-root administrative wall
 cap lives in bd_run."""
 from __future__ import annotations
@@ -25,7 +27,8 @@ DOMAIN = "3dt"
 RSS3D = os.environ.get("BD_RSS3D_ROOT", "/data/user1/rss_ebm_dataset/src/rss-3d/gh-yadu-iiith")   # yadu/dataset-3d checkout (b3b5b34+)
 SCENE_FILE = "table_scene (1).py"
 RRT_ITERS = 5000
-TEACHER_VERSION = f"BD3DT_TEACHER_V1:table_scene.plan_pick_place(first feasible side grasp, RRT max_iters={RRT_ITERS}, no wall-clock)+MuJoCo run_plan"
+TEACHER_VERSION = (f"BD3DT_TEACHER_V2:table_scene.plan_pick_place(first feasible side grasp, RRT max_iters={RRT_ITERS}, no wall-clock)+MuJoCo run_plan;"
+                   "ready pose once, after the last relocation")
 POOL_CAP, MAX_SEQ_TRIES = 5, 8
 ROWS = {"near": [1, 2], "mid": [3, 4], "far": [5, 6]}
 DISP = {"short": (1, 2), "medium": (3, 4), "long": (5, 7)}
@@ -76,17 +79,35 @@ def build(objs, cells):
                              for o in objs], verbose=False)
 
 
-def query(e, name, dst, seed=0):
-    """Plan name -> dst from the arm's current pose: the scene's grasp poses in its order, first feasible wins. Nothing moves."""
+def retreat_only(e):
+    """The scene's _plan_retreat without its final free move to the ready pose (same straight retreat, same fallbacks)."""
+    def plan(g, q, p, seed=0):
+        for dist in (env()["TS"].PRE_DIST, 0.11, 0.09, 0.07, 0.05):
+            try:
+                return [dict(phase="retreat", kind="cart", q=e.chain(q, p, [p - g["approach"] * dist], g["R"]))]
+            except RuntimeError:
+                if dist == 0.05:
+                    raise
+    return plan
+
+
+def query(e, name, dst, seed=0, home=True):
+    """Plan name -> dst from the arm's current pose: the scene's grasp poses in its order, first feasible wins. Nothing moves.
+    home=False: the plan ends with the retreat from the released object (no free move back to the ready pose)."""
     TS = env()["TS"]
     i = e.obj_id(name)
     e.objects[i]["pos"] = e.obj_pos(i)
     q0, why = e.q_now(), {}
-    for g in TS.grasp_poses(e.objects[i], e.table_z):
-        p = e.plan_pick_place(name, tuple(dst), g, q_start=q0, seed=seed)
-        if p["feasible"]:
-            return p, {"grasp_id": g["id"], "azimuth": g["azimuth_deg"], "tried": len(why) + 1}
-        why[g["id"]] = p["reason"][:90]
+    if not home:
+        e._plan_retreat = retreat_only(e)                # instance attribute: shadows the scene's method for this query only
+    try:
+        for g in TS.grasp_poses(e.objects[i], e.table_z):
+            p = e.plan_pick_place(name, tuple(dst), g, q_start=q0, seed=seed)
+            if p["feasible"]:
+                return p, {"grasp_id": g["id"], "azimuth": g["azimuth_deg"], "tried": len(why) + 1}
+            why[g["id"]] = p["reason"][:90]
+    finally:
+        e.__dict__.pop("_plan_retreat", None)
     return None, {"grasp_reasons": why, "tried": len(why)}
 
 
@@ -248,8 +269,9 @@ def teach(c, store, root_id) -> dict:
         for j, (o, d) in enumerate(list(steps) + [("t0", goal)]):
             calls["execute"] += 1
             before = {n: e.cell_of(n) for n in e.obj_index if n != o}
-            p, qi = query(e, o, d)
-            step = {"object": o, "dest": list(d), **qi}
+            home = j >= len(steps) - 1                            # back to the ready pose only after the last relocation (and after T)
+            p, qi = query(e, o, d, home=home)
+            step = {"object": o, "dest": list(d), "ends_at_ready": home, **qi}
             fail = None
             if p is None:
                 fail = label(None, qi)
@@ -330,10 +352,14 @@ def teach(c, store, root_id) -> dict:
         plans.append(("wrong_order", [(o, park[o]) for o in reversed(ms)]))
     if not minimal and ms:
         plans.append(("intended_union", [(o, park[o]) for o in ms]))
+    skipped = []
     for role, steps in plans[:4]:
+        if len(steps) + 1 > bc.MAX_ACTIONS:           # e.g. redundant+1 over a large intended set when no minimal repair was found
+            skipped.append({"role": role, "reason": f"{len(steps) + 1} actions > {bc.MAX_ACTIONS}", "sequence": [[o, list(d)] for o, d in steps]})
+            continue
         r = seq(steps)
         B.append({**r, "role": role, "excess_actions": (len(steps) - K) if (K is not None and r["y"]) else None})
-    return {"labels": {"original": original, "D": D, "B": B, "blocker": blocker, "edits_evaluated": len(edits)}, "verified_K": K, "teacher_calls": calls,
+    return {"labels": {"original": original, "D": D, "B": B, "B_skipped": skipped, "blocker": blocker, "edits_evaluated": len(edits)}, "verified_K": K, "teacher_calls": calls,
             "teacher_wall_s": time.time() - t0}
 
 
