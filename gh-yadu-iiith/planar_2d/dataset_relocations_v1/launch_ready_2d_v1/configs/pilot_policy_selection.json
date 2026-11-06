@@ -1,0 +1,96 @@
+{
+ "candidates": [
+  8,
+  16,
+  32,
+  64
+ ],
+ "declared": "2026-11-06, before any pilot teacher call",
+ "determinism_gate": "serial (first teacher query per root, B=64) and two 25-worker B=64 runs: identical canonical fingerprints on shared queries; the independent B=8 run equals the nested first-8 accounting; interrupt + resume reproduces the uninterrupted B=8 run",
+ "label_rule": {
+  "consistency": "no 1->0 flip from B to a larger budget (else BLOCKED: inconsistent scheduling)",
+  "max_miss_overall": 0.02,
+  "max_miss_per_stratum": 0.05,
+  "min_positives_for_stratum_test": 20,
+  "miss_fraction": "#(y64=1 and yB=0) / #(y64=1)",
+  "select": "smallest candidate meeting every condition",
+  "strata": {
+   "block": [
+    "root",
+    "prefix1",
+    "prefix2"
+   ],
+   "dest_bin": [
+    "near",
+    "mid",
+    "far",
+    "vacated"
+   ]
+  },
+  "uncertainty": "Wilson 95% interval, reported with every point estimate"
+ },
+ "negative_diversity_gate": {
+  "at": "selected B",
+  "min_classes": 3,
+  "min_label0": 10,
+  "min_lineage_groups": 5,
+  "on_fail": "confidence-quality gate BLOCKED -> NOT_READY_TO_LAUNCH (no post-hoc roster expansion)"
+ },
+ "nested_accounting": "budget B = the first B scheduled pairs of the 64-pair FULL run (same per-pair seeds and counted work); cross-checked by an independently executed B=8 run",
+ "reference": {
+  "coverage": "FULL",
+  "meaning": "pilot comparison reference only; NOT exhaustive physical truth; a 64-pair zero stays policy-limited",
+  "pairs": 64
+ },
+ "roster": {
+  "content": "25 train roots (5 per class, distinct lineage groups), 300 teacher queries + static-ineligible contrasts",
+  "file": "pilot_roster.json",
+  "sha256": "22850b9a4394673e890234dae747cf73dc7ec72803bfced90f4e0de002059989"
+ },
+ "runs": [
+  "pilot_b64_w25_r1",
+  "pilot_b64_w25_r2",
+  "pilot_b64_serial_first",
+  "pilot_b8_w25",
+  "pilot_b8_w25_interrupt (SIGKILL then resume)"
+ ],
+ "safety_gate_25_workers": "both 25-worker 64-pair runs finish without a safety cancel, peak Tctl < 95 C, no memory / swap / disk breach; else NOT_READY_TO_LAUNCH_25_WORKERS",
+ "version": "PILOT_POLICY_SELECTION_V1",
+ "workload_rule": {
+  "disk_budget": "free disk at decision time minus a 1,536 MB reserve (runner cancels below 1,024 MB free)",
+  "ladder": [
+   [
+    "FULL",
+    "Q1"
+   ],
+   [
+    "FIRST_SUCCESS",
+    "Q1"
+   ],
+   [
+    "FULL",
+    "Q2"
+   ],
+   [
+    "FIRST_SUCCESS",
+    "Q2"
+   ],
+   [
+    "FULL",
+    "Q3"
+   ],
+   [
+    "FIRST_SUCCESS",
+    "Q3"
+   ],
+   [
+    "FIRST_SUCCESS",
+    "Q4"
+   ]
+  ],
+  "max_projected_wall_days": 7.0,
+  "production_witness_store_max": 1,
+  "projection": "CPU per query from the 25-worker pilot (screen CPU + per-attempt CPU of the first B pairs, or through the first verified pair for FIRST_SUCCESS), mixed by the quota's block / destination composition; wall = CPU / sustained worker-CPU throughput measured in the 25-worker soak (thermal pauses included); disk = measured packed bytes per query",
+  "select": "first ladder entry inside both limits; none -> NOT_READY_TO_LAUNCH with the required resources"
+ }
+}

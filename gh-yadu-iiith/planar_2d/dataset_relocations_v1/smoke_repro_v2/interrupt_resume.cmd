@@ -1,0 +1,1 @@
+CMD: PYTHONDONTWRITEBYTECODE=1 python placement_smoke.py run /home/naren/Desktop/rss-placement-smoke/gh-yadu-iiith/planar_2d/dataset_relocations_v1/smoke_repro_v2/interrupt_resume 16 physical16 3600   (killed with SIGKILL after >=10 committed records, then the same command again)

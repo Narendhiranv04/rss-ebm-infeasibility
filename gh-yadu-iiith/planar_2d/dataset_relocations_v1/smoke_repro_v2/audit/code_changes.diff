@@ -1,0 +1,1415 @@
+--- audit/previous_code/placement_smoke.py	2026-11-06 18:38:55.856467566 +0530
++++ ../code/placement_smoke.py	2026-11-06 19:52:52.678040865 +0530
+@@ -1,23 +1,27 @@
+-"""Placement-only label sidecar, smoke test (planar 3R arm, 2D class-quota roots). Protocol PLACEMENT_SMOKE_V1.
++"""Placement-only label sidecar, smoke test (planar 3R arm, 2D class-quota roots). Protocol PLACEMENT_SMOKE_V2.
+ 
+-Event V_place(S, o, d): with object o already grasped in scene S (the arm at a declared side-grasp mode, fingers closed on o), can
+-carry -> release -> straight retreat to cell d be certified? It is NOT pick access from home (no pregrasp / approach), not the
+-ordered sequence X, not the target's Y. Everything physical is the dataset teacher's own code (latent-causal-tamp: skill, motion,
+-planner, geometry, config.toml); nothing in dataset_bd_classquota/ is written.
+-
+-  post-grasp modes  skill.directions (24 tool axes x 2 elbows = 48): IK, open-finger grasp pose clear, closure certified
+-                    (skill.screen_pick without its approach line, which belongs to pick access)
+-  place modes       skill.screen_place (48: IK, held pose, release, straight retreat), nominal attachment as in skill.plan_skill
+-  pairs             48 x 48 = 2,304 nominal; a pair with a definitely invalid mode is geometrically rejected; valid pairs are tried
+-                    same-branch first, then by joint distance, at most BUDGET["max_pairs"] carry plans (planner.plan) per query
+-  witness           close_attach -> carry -> release -> retreat, re-certified by motion.certify_trajectory, place error <= tolerance
+-  label             1 = a witness verified; 0 = the declared budget ran without one (never an impossibility proof unless every pair
+-                    was rejected by definite screens: is_certificate); null = not attempted / statically ineligible destination
++Event V_place(S, o, d): object o is ALREADY HELD at its source pose in a declared post-grasp mode; can carry -> release -> local
++retreat to cell d be certified? No pick access (pregrasp, approach, open-finger grasp pose, closure motion), no start or home
++connector, no X, no Y. Physics is the dataset teacher's own code (latent-causal-tamp: skill, motion, planner, geometry,
++config.toml), imported unmodified; nothing in dataset_bd_classquota/ is written.
++
++  held modes   skill.directions (24 tool axes x 2 elbows = 48): exact IK of the held tool-object transform, the contact model of
++               skill.screen_pick (|lateral offset| <= tol, centre within the fingers, closed gap >= closed_gap), and the attached
++               configuration clear in the carry context (robot, held disc, other objects, support). skill.screen_pick itself
++               (approach line, open-finger pose, closure motion) runs as a DIAGNOSTIC only and never vetoes a label.
++  place modes  skill.screen_place with each held mode's own attachment (held_local, gap).
++  pairs        48 x 48 = 2,304; definite screen failures are hard-screened; valid pairs are planned in a fixed order (same elbow
++               branch first, then joint distance, then index), at most WORK["pairs_per_query"] per query.
++  carry plan   planner.plan's direct -> guide -> link-0 certificate, then RRT-Connect with the planner's own spaces, stopped only
++               by counted work: extension attempts (failed ones included), collision evaluations, accepted nodes; shortcutting
++               runs its full fixed number of rounds. Wall time never decides an outcome.
++  witness      carry -> release -> retreat from the held configuration, re-certified phase by phase (verify_witness).
++  label        1 = a verified witness; 0 = the whole declared work policy finished without one (is_certificate only when every
++               pair fell to definite screens); null = ineligible, not attempted, or interrupted by a safety guard.
+ 
+-    python placement_smoke.py serial <out>            # Pass A: one root, one object, one destination, one process
+-    python placement_smoke.py run <out> [workers]     # Pass B: the predeclared roster, resumable, resource-guarded
++    python placement_smoke.py run <out> <workers> <cpus: physical16 | logical28 | serial> [ceiling_s]
+ """
+-import hashlib, json, os, resource, signal, sys, threading, time
++import hashlib, json, math, os, resource, signal, sys, time
+ from multiprocessing import Pool, active_children
+ from pathlib import Path
+ 
+@@ -32,22 +36,33 @@
+ import bd_2d as A, geometry as ge, motion as mo, planner as pn, skill as sk  # noqa: E402
+ from scene import scene_from_dict, scene_hash, substitute_pose  # noqa: E402
+ 
+-SCHEMA = "placement_smoke_v1"
+-BUDGET = {"max_pairs": 8, "pair_max_nodes": 150, "pair_wall_s": 2.0, "query_wall_s": 12.0, "query_hard_s": 40.0, "global_wall_s": 240.0}
+-GUARD = {"min_mem_available_mb": 2048, "max_swap_growth_mb": 512, "max_temp_c": 95.0, "min_disk_free_mb": 1024}
+-CPUS = [c for c in range(32) if c % 16 < 14]             # 28 logical CPUs: cores 0-13 with their SMT siblings 16-29
+-H = lambda s: hashlib.sha256(f"PLACEMENT_SMOKE_V1|{s}".encode()).hexdigest()  # noqa: E731
+-sha_file = lambda p: hashlib.sha256(Path(p).read_bytes()).hexdigest()  # noqa: E731
+-DEFINITE = {"NO_IK", "GRASP_POSE", "CLOSURE", "PLACE_POSE", "RELEASE", "RETREAT"}
++SCHEMA = "placement_smoke_v2"
++WORK = {"pairs_per_query": 8, "rrt_attempts": 1000, "rrt_evals": 20000, "rrt_nodes": 200, "shortcut_rounds": 150}
++SAFETY = {"query_emergency_s": 1800, "temp_warn_c": 85.0, "temp_pause_c": 90.0, "temp_suspend_c": 92.0, "temp_resume_c": 85.0,
++          "temp_cancel_c": 95.0, "temp_cancel_samples": 3,
++          "min_mem_available_mb": 2048, "max_swap_growth_mb": 512, "min_disk_free_mb": 1024}
++CPUSETS = {"serial": [0], "physical16": list(range(16)), "logical28": [c for c in range(32) if c % 16 < 14]}
++EVENT = ("V_place: object already held at its source in a declared post-grasp mode (48 = 24 tool axes x 2 elbows); carry -> "
++         "release -> straight local retreat to the destination cell, certified by the dataset teacher's geometry; no pick access, "
++         "no closure motion, no home or q_ref connector, no target task")
++CAT = {0: "HARD_SCREENED", 1: "SCREEN_INCONCLUSIVE_NOT_PLANNED", 2: "VALID_NOT_PLANNED", 3: "PLANNED_FAILED", 4: "PLANNED_VERIFIED",
++       5: "REUSED_REVERIFIED"}
++H = lambda s: hashlib.sha256(f"PLACEMENT_SMOKE_V1|{s}".encode()).hexdigest()  # noqa: E731   (the frozen roster's hash)
++sha = lambda b: hashlib.sha256(b).hexdigest()  # noqa: E731
++sha_file = lambda p: sha(Path(p).read_bytes())  # noqa: E731
++
++
++class Spent(Exception):
++    pass
+ 
+ 
+ def protocol():
+     G = A.env()
+     src = {f: sha_file(LCT / f)[:16] for f in ("skill.py", "motion.py", "planner.py", "geometry.py", "config.toml")}
+-    p = {"name": "PLACEMENT_SMOKE_V1", "budget": BUDGET, "teacher_config_hash": G["config_hash"], "robot_protocol": G["protocol"],
+-         "teacher_sources": src, "script": sha_file(__file__)[:16]}
+-    return {**p, "placement_protocol_id": hashlib.sha256(json.dumps(p, sort_keys=True).encode()).hexdigest()[:16],
+-            "budget_hash": hashlib.sha256(json.dumps(BUDGET, sort_keys=True).encode()).hexdigest()[:16]}
++    sem = {"name": "PLACEMENT_SMOKE_V2", "event": EVENT, "work": WORK, "teacher_config_hash": G["config_hash"], "robot_protocol": G["protocol"],
++           "teacher_sources": src, "planner_seed": G["cfg"]["planner2d"]["seed"]}
++    return {"placement_protocol_id": sha(json.dumps(sem, sort_keys=True).encode())[:16], "budget_hash": sha(json.dumps(WORK, sort_keys=True).encode())[:16],
++            "semantics": sem, "code_sha": sha_file(__file__)[:16]}
+ 
+ 
+ def load_root(rid):
+@@ -55,10 +70,7 @@
+ 
+ 
+ def roster():
+-    """Predeclared before any teacher call: per class 2, 3, 1, 0 the selected root with the smallest hash among those with >= 2
+-    movable objects (a static property; e.g. the first K0 by hash holds T alone); two objects (the
+-    archived minimal repair's first two, topped up by hash); four destinations each: the archived parking cell and one cell per
+-    distance band (near 1-2, mid 3-4, far >= 5 Chebyshev) outside every historical destination; plus two intermediate queries."""
++    """The frozen PLACEMENT_SMOKE_V1 roster (unchanged code; compared byte-for-byte with roster.json by the checker)."""
+     sel, out = json.loads((DATA / "selected.json").read_text())["selected"], []
+     cheb = lambda a, b: max(abs(a // 8 - b // 8), abs(a % 8 - b % 8))  # noqa: E731
+     for cls in ("2", "3", "1", "0"):
+@@ -84,7 +96,7 @@
+             (a, p), (b, q) = mini[0], mini[1]
+             if cls == "2":
+                 add(b, q, "historical_next_move", [(a, p)])
+-            else:                                           # occupancy change: b to the cell a vacated (statically ineligible at the root)
++            else:
+                 add(b, cells[a], "vacated_by_prefix", [(a, p)])
+                 add(b, cells[a], "vacated_by_prefix")
+     for t in out:
+@@ -92,60 +104,145 @@
+     return out
+ 
+ 
+-def post_grasp(robot, ck0, obj, p):
+-    """skill.screen_pick's grasp-state checks (IK, open-finger pose, closure) without the approach line."""
++def held_modes(robot, scene, obj, p):
++    """The 48 declared post-grasp modes of obj resting at its source: (Candidate, carry Checker for its attachment). A mode is
++    rejected only by its own held geometry: IK, the contact model, or the attached configuration not clear for carrying."""
+     out = []
+     for phi, b in sk.directions(p):
+         c = sk.Candidate(phi, b, "OK")
+-        out.append(c)
+         q = c.q_end = sk._ik(robot, obj.xy_m, (robot.grasp_x, 0.0), phi).get(b)
++        ck = None
+         if q is None:
+             sk._fail(c, "NO_IK", why=mo.NO_IK)
+-            continue
+-        v = ck0[("start", False)].status_at(q, robot.open_gap)
+-        if v.status != ge.CLEAR:
+-            sk._fail(c, "GRASP_POSE", v)
+-            continue
+-        local = ge.tool_local(robot, q, obj.xy_m)
+-        gap = 2 * (obj.radius_m + abs(local[1]))
+-        if abs(local[1]) > p["contact_tol"] or not 0 <= local[0] <= robot.finger_len or gap < robot.closed_gap:
+-            sk._fail(c, "CLOSURE", why="CLOSURE_GEOMETRY")
+-            c.certified = True
+-            continue
+-        v = ge.certify(ck0[("start", True)], q, q, robot.open_gap, gap, p["evals"])
+-        if v.status != ge.CLEAR:
+-            sk._fail(c, "CLOSURE", v)
+-            continue
+-        c.gap, c.local = gap, tuple(local)
++        else:
++            local = ge.tool_local(robot, q, obj.xy_m)
++            gap = 2 * (obj.radius_m + abs(local[1]))
++            if abs(local[1]) > p["contact_tol"] or not 0 <= local[0] <= robot.finger_len or gap < robot.closed_gap:
++                sk._fail(c, "HELD_CONTACT_MODEL", why="CLOSURE_GEOMETRY")
++                c.certified = True
++            else:
++                c.gap, c.local = gap, tuple(local)
++                ck = mo.checkers(robot, scene, obj.id, None, c.local, p["delta"], p["eps"])[("held", False)]
++                v = ck.status_at(q, gap)
++                if v.status != ge.CLEAR:
++                    sk._fail(c, "HELD_STATE", v)
++        out.append(c)
+     return out
+ 
+ 
++def det_rrt(space, za, zb, ck, w):
++    """planner._rrt_connect's extend/connect loop, stopped by counted work only (w: limits in, counters out)."""
++    trees = [{"z": [za], "parent": [-1], "wp": [None]}, {"z": [zb], "parent": [-1], "wp": [None]}]
++    e0 = ck.n_evals
++    count = lambda: len(trees[0]["z"]) + len(trees[1]["z"])  # noqa: E731
++
++    def spent():
++        w["nodes"], w["search_evals"] = count(), ck.n_evals - e0
++        stop = ("NODES" if w["nodes"] >= WORK["rrt_nodes"] else "ATTEMPTS" if w["attempts"] >= WORK["rrt_attempts"]
++                else "EVALS" if w["search_evals"] >= WORK["rrt_evals"] else None)
++        w["stop"] = stop
++        return stop is not None
++
++    def extend(tree, target):
++        w["attempts"] += 1                                # every extension consumes one attempt, failed or not
++        nodes = np.array(tree["z"])
++        i = space.near(nodes, target)
++        new = space.steer(nodes[i], target)
++        wp = space.edge(nodes[i], new)
++        if wp is None:
++            return None
++        tree["z"].append(new), tree["parent"].append(i), tree["wp"].append(wp)
++        return new
++    while not spent():
++        new = extend(trees[0], space.sample())
++        reached = None if new is None else extend(trees[1], new)
++        while reached is not None and not np.array_equal(reached, new) and not spent():
++            reached = extend(trees[1], new)
++        if reached is not None and np.array_equal(reached, new):
++            spent()
++            w["stop"] = "SOLVED"
++            nodes, edges = pn._join(trees, za)
++            e1 = ck.n_evals
++            path, _ = pn._shortcut(space, nodes, edges, WORK["shortcut_rounds"], math.inf)    # all rounds, no clock
++            w["shortcut_evals"] = ck.n_evals - e1
++            return path
++        trees.reverse()
++    return None
++
++
++def plan_carry(ck, qa, qb, gap, cfg, p, key, guide=None, pose=None):
++    """planner.plan with det_rrt in place of its wall-capped RRT. -> (status, path, method, work)."""
++    pc, e0 = cfg["planner2d"], ck.n_evals
++    w = {"attempts": 0, "nodes": 0, "search_evals": 0, "shortcut_evals": 0, "stop": None}
++    if ge.certify(ck, qa, qb, gap, gap, p["evals"]).status == ge.CLEAR:
++        return ge.CLEAR, [qa, qb], "DIRECT", {**w, "pre_evals": ck.n_evals - e0}
++    if guide is not None and np.allclose(guide[0], qa) and np.allclose(guide[-1], qb):
++        path = [qa] + list(guide[1:-1]) + [qb]
++        if mo.certify_chain(ck, path, gap, p["evals"]).status == ge.CLEAR:
++            return ge.CLEAR, path, "GUIDE_LINE", {**w, "pre_evals": ck.n_evals - e0}
++    blocker = pn.link0_sweep_blocker(ck, qa, qb)
++    w["pre_evals"] = ck.n_evals - e0
++    if blocker:
++        return ge.COLLISION, [], f"LINK0_SWEEP:{blocker}", w
++    rng = np.random.default_rng(pn.call_seed(pc["seed"], key))                       # crc32 of the query/mode key
++    if pose is None:
++        space, za, zb, name = pn.JointSpace(ck, gap, pc["edge_max_evals"], rng, pc["extend_step_rad"]), qa, qb, "RRT_JOINT"
++    else:
++        (za, zb, local, branch, step, jump), name = pose, "RRT_OBJECT_POSE"
++        space = pn.PoseSpace(ck, gap, pc["edge_max_evals"], rng, pc["pose_step_m"], pc["pose_phi_weight_m"], local, branch, step, jump)
++        za, zb = np.asarray(za, float), np.asarray(zb, float)
++    path = det_rrt(space, za, zb, ck, w)
++    if path is None:
++        return ge.UNRESOLVED, [], f"WORK_BUDGET_EXHAUSTED:{w['stop']}", w
++    if not (np.allclose(path[0], qa, atol=1e-9) and np.allclose(path[-1], qb, atol=1e-9)):
++        return ge.UNRESOLVED, [], "ENDPOINT_IK_MISMATCH", w
++    return ge.CLEAR, [qa] + path[1:-1] + [qb], name, w
++
++
+ def witness_arrays(robot, oid, pick, path, place):
+     t = mo.Trajectory(oid, held_local=pick.local, place_xy=tuple(ge.tool_point(robot, place.q_end, pick.local)))
+-    t.add(pick.q_end, robot.open_gap, None)
+-    for qs, gap, phase in (([pick.q_end], pick.gap, "close_attach"), (path[1:], pick.gap, "carry"), ([place.q_end], robot.open_gap, "release"),
+-                           (place.line[1:], robot.open_gap, "retreat")):
++    t.add(pick.q_end, pick.gap, None)                    # already held: the record starts attached, fingers closed on o
++    for qs, gap, phase in ((path[1:], pick.gap, "carry"), ([place.q_end], robot.open_gap, "release"), (place.line[1:], robot.open_gap, "retreat")):
+         for q in qs:
+             t.add(q, gap, phase)
+     return t.arrays()
+ 
+ 
+-def save_witness(out, robot, s_hash, oid, arrays, provenance):
+-    """Content-addressed trajectories/<id>.npz: the replayable record plus derived object positions, phase runs and travel."""
++def verify_witness(robot, scene, oid, arr, dest_xy, p):
++    """Phase-aware replay of a placement-only record: carry+ release retreat+, attached exactly while carrying, constant held gap,
++    the object at its source at the start, released at the destination; then motion.certify_trajectory segment by segment."""
++    ph, gap = [str(x) for x in arr["phase"]], np.asarray(arr["gap"])
++    k = ph.index("release") if "release" in ph else -1
++    shape = k > 0 and set(ph[:k]) == {"carry"} and ph[k + 1:] and set(ph[k + 1:]) == {"retreat"} and ph.count("release") == 1
++    held = bool(shape) and np.array_equal(arr["attached"], np.array([x == "carry" for x in ph])) and np.all(gap[:k + 1] == gap[0]) \
++        and gap[0] < robot.open_gap and np.all(gap[k + 1:] == robot.open_gap)
++    err = float(np.linalg.norm(np.asarray(arr["place_xy"]) - dest_xy))
++    try:
++        v = mo.certify_trajectory(robot, scene, oid, arr, p["delta"], p["eps"], p["evals"])
++        cert, why = sum(x.status == ge.CLEAR for x in v), next((f"{i}:{x.status}:{x.pair}" for i, x in enumerate(v) if x.status != ge.CLEAR), None)
++    except ValueError as e:                               # check_record: limits, gaps, attachment, source / place consistency
++        cert, why = 0, f"RECORD:{e}"
++    ok = bool(shape and held and why is None and err <= p["release_tol"])
++    return ok, {"phase_shape": bool(shape), "attachment_and_gaps": bool(held), "segments_certified": int(cert), "segments": len(ph),
++                "first_failure": why, "place_error_m": err, "scope": "PLACEMENT_ONLY_FROM_HELD_STATE"}
++
++
++def save_witness(out, robot, ident, oid, arrays, provenance):
++    """Content-addressed trajectories/<id>.npz; id = sha256(protocol | scene | object | canonical arrays)."""
+     core = {k: np.asarray(v) for k, v in arrays.items()}
+-    h = hashlib.sha256(f"{s_hash}|{oid}".encode())
++    h = hashlib.sha256(ident.encode())
+     for k in sorted(core):
+         h.update(f"{k}|{core[k].dtype.str}|{core[k].shape}".encode() + core[k].tobytes())
+     wid = h.hexdigest()[:24]
+     path = out / "trajectories" / f"{wid}.npz"
+     if not path.exists():
+         ph = [str(x) for x in core["phase"]]
+-        obj = [mo.target_xy(robot, core, ph[max(i - 1, 0)], q, ge.tool_point(robot, core["q"][1], core["held_local"])) for i, q in enumerate(core["q"])]
++        obj = [mo.target_xy(robot, core, ph[max(i - 1, 0)], q, ge.tool_point(robot, core["q"][0], core["held_local"])) for i, q in enumerate(core["q"])]
+         runs = [i for i in range(len(ph)) if i == 0 or ph[i] != ph[i - 1]]
+         extra = {"object_xy": np.array(obj), "waypoint_index": np.arange(len(core["q"])), "phase_run_start": np.array(runs),
+                  "phase_run_name": np.array([ph[i] for i in runs]), "q_start": core["q"][0], "q_end": core["q"][-1],
+-                 "travel_rad": np.float64(np.linalg.norm(np.diff(core["q"], axis=0), axis=1).sum()),
+-                 "scene_hash": np.array(s_hash), "object_id": np.array(oid), "provenance": np.array(json.dumps(provenance, sort_keys=True))}
++                 "travel_rad": np.float64(np.linalg.norm(np.diff(core["q"], axis=0), axis=1).sum()), "identity": np.array(ident),
++                 "object_id": np.array(oid), "provenance": np.array(json.dumps(provenance, sort_keys=True))}
+         path.parent.mkdir(parents=True, exist_ok=True)
+         tmp = path.with_suffix(f".{os.getpid()}.tmp")
+         with open(tmp, "wb") as f:
+@@ -154,38 +251,37 @@
+     return wid
+ 
+ 
+-def reuse(r, task, robot, scene, picks, places, p, cfg):
+-    """An archived B step-1 witness of this exact (root scene, object, destination): its close_attach..retreat suffix, kept only if
+-    its grasp and place configurations are declared modes that pass this protocol's screens and it re-certifies here."""
++def reuse(r, task, robot, scene, picks, places, p):
++    """An archived B witness whose FIRST move is this (root scene, object, destination): its carry..retreat suffix, kept when its
++    start and release configurations are declared modes valid here and verify_witness accepts it."""
+     if task["prefix"]:
+         return None
+     for b in r["labels"]["B"]:
+         if b["sequence"] and b["sequence"][0] == [task["object"], task["dest"]] and b["witnesses"]:
+             z = np.load(DATA / "raw" / "witnesses" / b["witnesses"][0][:2] / f"{b['witnesses'][0]}.npz")
+             ph = [str(x) for x in z["phase"]]
+-            k, end = ph.index("close_attach"), ph.index("retreat") + ph.count("retreat")
++            k, end = ph.index("carry"), len(ph) - ph[::-1].index("retreat")
+             arr = {"q": z["q"][k:end + 1], "gap": z["gap"][k:end + 1], "phase": z["phase"][k:end], "attached": z["attached"][k:end],
+                    "held_local": z["held_local"], "place_xy": z["place_xy"]}
+-            i = next((n for n, c in enumerate(picks) if c.stage == "OK" and np.allclose(c.q_end, arr["q"][1], atol=1e-9)), None)
+-            rel = arr["q"][ph[k:].index("release")]
+-            j = next((n for n, c in enumerate(places) if c.stage == "OK" and np.allclose(c.q_end, rel, atol=1e-9)), None)
+-            v = mo.certify_trajectory(robot, scene, task["object"], arr, p["delta"], p["eps"], p["evals"])
+-            err = float(np.linalg.norm(arr["place_xy"] - np.asarray(scene.lattice.center(task["dest"]))))
+-            ok = i is not None and j is not None and all(x.status == ge.CLEAR for x in v) and err <= p["release_tol"]
+-            return {"archived_witness": b["witnesses"][0], "role": b["role"], "pick": i, "place": j, "recertified": ok, "arrays": arr}
++            i = next((n for n, c in enumerate(picks) if c.stage == "OK" and np.allclose(c.q_end, arr["q"][0], atol=1e-9)), None)
++            rel = arr["q"][[str(x) for x in arr["phase"]].index("release")]
++            j = next((n for n, c in enumerate(places.get(i, [])) if c.stage == "OK" and np.allclose(c.q_end, rel, atol=1e-9)), None)
++            ok, ver = verify_witness(robot, scene, task["object"], arr, np.asarray(scene.lattice.center(task["dest"])), p)
++            return {"archived_witness": b["witnesses"][0], "role": b["role"], "pick": i, "place": j, "reverified": bool(ok and j is not None),
++                    "verification": ver, "arrays": arr}
+     return None
+ 
+ 
+-def _hard(*_):
+-    raise TimeoutError("query hard wall cap")
++def _alarm(*_):
++    raise TimeoutError("QUERY_EMERGENCY_WALL")
+ 
+ 
+ def trial(task, out):
+-    """One placement query -> parts/<trial_id>.json (+ .npz mode arrays, + trajectories). The JSON is written last: its presence
+-    marks a finished query, so a resumed run skips it."""
++    """One placement query -> parts/<trial_id>.json (+ .npz mode arrays, + trajectories); the JSON is written last. A finished or
++    ineligible record is final; an interrupted one (completed=false) is re-run identically on resume."""
+     out, tid = Path(out), task["trial_id"]
+     part = out / "parts" / f"{tid}.json"
+-    if part.exists():
++    if final(part):
+         return json.loads(part.read_text())
+     G, P = A.env(), protocol()
+     cfg, robot = G["cfg"], G["robot"]
+@@ -198,119 +294,129 @@
+     rec = {"schema_version": SCHEMA, "trial_id": tid, "source_root_id": task["root"], "source_root_hash": sha_file(DATA / "raw" / "roots" / f"{task['root']}.json"),
+            "domain": "planar_2d", "split": None, "verified_class": task["cls"], "prefix_key": task["prefix"],
+            "parent_reachability": "HYPOTHETICAL" if task["prefix"] else "ROOT", "hypothetical_scene_hash": s_hash,
+-           "object_id": obj.id, "source_cell": obj.cell, "destination_cell": task["dest"], "dest_tag": task["dest_tag"], "support_id": "table",
+-           "placement_protocol_id": P["placement_protocol_id"], "budget_hash": P["budget_hash"], "teacher_hash": G["config_hash"],
+-           "robot_profile_hash": scene.robot_profile_hash, "seed": cfg["planner2d"]["seed"]}
+-    occ = {o.cell for o in scene.objects}
+-    why = ("DEST_NOT_LEGAL" if task["dest"] not in scene.legal_cells else "DEST_OCCUPIED" if task["dest"] in occ else None)
++           "edited_objects": [o for o, _ in task["prefix"]], "object_id": obj.id, "source_cell": obj.cell, "destination_cell": task["dest"],
++           "dest_tag": task["dest_tag"], "support_id": "table", "placement_protocol_id": P["placement_protocol_id"], "budget_hash": P["budget_hash"],
++           "code_sha": P["code_sha"], "teacher_hash": G["config_hash"], "robot_profile_hash": scene.robot_profile_hash}
++    why = "DEST_NOT_LEGAL" if task["dest"] not in scene.legal_cells else "DEST_OCCUPIED" if task["dest"] in {o.cell for o in scene.objects} else None
+     if why:
+-        rec.update(attempted=False, label=None, excluded=why, witness_refs=[])
+-        return _commit(out, part, rec, None)
++        rec.update(eligible=False, attempted=False, completed=False, label=None, excluded=why, witness_refs=[], safety_interruption=None)
++        return commit(part, rec, None)
+     t0, c0 = time.time(), time.process_time()
+-    signal.signal(signal.SIGALRM, _hard)
+-    signal.alarm(int(BUDGET["query_hard_s"]))
++    signal.signal(signal.SIGALRM, _alarm)
++    signal.alarm(SAFETY["query_emergency_s"])
+     try:
+-        rec.update(_query(task, out, rec, scene, obj, s_hash, r, G, p, t0))
+-    except TimeoutError as e:                             # engineering abort: not a label
+-        rec.update(attempted=False, label=None, engineering_abort=str(e), witness_refs=[])
++        rec.update(query(task, out, rec, scene, obj, r, G, p, P))
++    except TimeoutError as e:                             # emergency only: no observed label
++        rec.update(eligible=True, attempted=True, completed=False, label=None, safety_interruption=str(e), witness_refs=[])
+         rec.pop("_modes", None)
+     finally:
+         signal.alarm(0)
+-    rec.update(wall_s=round(time.time() - t0, 3), cpu_s=round(time.process_time() - c0, 3),
+-               worker_peak_rss_mb=round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024, 1))
+-    return _commit(out, part, rec, rec.pop("_modes", None))
++    rec["volatile"] = {"wall_s": round(time.time() - t0, 3), "cpu_s": round(time.process_time() - c0, 3),
++                       "worker_peak_rss_mb": round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024, 1)}
++    return commit(part, rec, rec.pop("_modes", None))
+ 
+ 
+-def _query(task, out, rec, scene, obj, s_hash, r, G, p, t0):
++def query(task, out, rec, scene, obj, r, G, p, P):
+     cfg, robot = G["cfg"], G["robot"]
+     dxy = np.asarray(scene.lattice.center(task["dest"]))
+-    picks = post_grasp(robot, mo.checkers(robot, scene, obj.id, None, None, p["delta"], p["eps"]), obj, p)
+-    local = (robot.grasp_x, 0.0)
+-    ck = mo.checkers(robot, scene, obj.id, dxy, local, p["delta"], p["eps"])
+-    places = sk.screen_place(robot, ck, dxy, local, 2 * obj.radius_m, p)
++    ck0 = mo.checkers(robot, scene, obj.id, None, None, p["delta"], p["eps"])
++    pick_diag = sk.screen_pick(robot, ck0, obj.xy_m, obj.radius_m, p)             # pick ACCESS, diagnostic only
++    picks = held_modes(robot, scene, obj, p)
++    groups, places, cks = {}, {}, {}
++    for i, c in enumerate(picks):                        # place screens per distinct attachment (held_local, gap)
++        if c.stage == "OK":
++            key = (round(c.local[0], 12), round(c.local[1], 12), round(c.gap, 12))
++            if key not in groups:
++                ck = mo.checkers(robot, scene, obj.id, dxy, c.local, p["delta"], p["eps"])
++                groups[key] = (sk.screen_place(robot, ck, dxy, c.local, c.gap, p), ck)
++            places[i], cks[i] = groups[key]
+     n = len(picks)
+-    cat = np.zeros((n, n), np.int8)                       # 0 geometric reject (definite) 1 screen uncertain 2 untested 3 failed 4 verified
++    cat = np.zeros((n, n), np.int8)
+     for i, a in enumerate(picks):
+-        for j, b in enumerate(places):
+-            bad = [c for c in (a, b) if c.stage != "OK"]
+-            cat[i, j] = 2 if not bad else 0 if any(c.certified for c in bad) else 1
++        for j in range(n):
++            bad = [a] if a.stage != "OK" else [x for x in [places[i][j]] if x.stage != "OK"]
++            cat[i, j] = 2 if not bad else 0 if any(x.certified for x in bad) else 1
+     outcome, attempts, wids = np.full((n, n), -1, np.int8), [], []
+-    old = reuse(r, task, robot, scene, picks, places, p, cfg)
+-    if old and old["recertified"]:
++    ident = lambda: f"{P['placement_protocol_id']}|{rec['robot_profile_hash']}|{rec['hypothetical_scene_hash']}|{obj.id}"  # noqa: E731
++    old = reuse(r, task, robot, scene, picks, places, p)
++    if old and old["reverified"]:
+         i, j = old["pick"], old["place"]
+-        wids.append(save_witness(out, robot, s_hash, obj.id, old["arrays"], {"kind": "REUSED_ARCHIVED_SUFFIX", "archived_witness": old["archived_witness"],
+-                                                                             "archived_role": old["role"], "pick_mode": i, "place_mode": j}))
+-        cat[i, j], outcome[i, j] = 4, 1
+-        attempts.append({"pick": i, "place": j, "method": "REUSED_ARCHIVED_WITNESS_RECERTIFIED", "witness": wids[-1], "seconds": 0.0, "nodes": 0})
+-    pairs = sorted(zip(*np.nonzero(cat == 2)), key=lambda ij: (picks[ij[0]].branch != places[ij[1]].branch,
+-                                                              float(np.linalg.norm(picks[ij[0]].q_end - places[ij[1]].q_end)), int(ij[0]), int(ij[1])))
+-    pcfg = {**cfg["planner2d"], "max_nodes": BUDGET["pair_max_nodes"], "max_wall_seconds": BUDGET["pair_wall_s"]}
+-    cut = False
+-    for i, j in pairs:
+-        i, j = int(i), int(j)
+-        if sum(a["method"] != "REUSED_ARCHIVED_WITNESS_RECERTIFIED" for a in attempts) >= BUDGET["max_pairs"]:
+-            break
+-        if time.time() - t0 + BUDGET["pair_wall_s"] > BUDGET["query_wall_s"]:     # a new pair could not finish inside the cap
+-            cut = True
+-            break
+-        a, b = picks[i], places[j]
++        w = save_witness(out, robot, ident(), obj.id, old["arrays"], {"evidence_source": "REUSED_REVERIFIED", "archived_witness": old["archived_witness"],
++                                                                       "archived_role": old["role"], "held_mode": i, "place_mode": j})
++        wids.append(w)
++        cat[i, j], outcome[i, j] = 5, 1
++        attempts.append({"pick": i, "place": j, "evidence_source": "REUSED_REVERIFIED", "method": "ARCHIVED_SUFFIX", "witness": w,
++                         "verification": old["verification"], "work": None})
++    pairs = sorted(((int(i), int(j)) for i, j in zip(*np.nonzero(cat == 2))),
++                   key=lambda ij: (picks[ij[0]].branch != places[ij[0]][ij[1]].branch, float(np.linalg.norm(picks[ij[0]].q_end - places[ij[0]][ij[1]].q_end)), ij))
++    for i, j in pairs[:WORK["pairs_per_query"]]:
++        a, b = picks[i], places[i][j]
+         guide = pose = None
+         if a.branch == b.branch:
+             guide = mo.carry_line(robot, obj.xy_m, dxy, a.local, a.phi, b.phi, a.branch, p["line_step_m"], p["max_ik_jump_rad"])[0]
+             pose = ((*obj.xy_m, a.phi), (*dxy, b.phi), a.local, a.branch, p["line_step_m"], p["max_ik_jump_rad"])
+-        pl = pn.plan(ck[("held", False)], a.q_end, b.q_end, a.gap, pcfg, p["evals"], f"{rec['trial_id']}/carry{i}.{j}", True, guide, pose)
+-        att = {"pick": i, "place": j, "method": pl.reason, "status": pl.status, "nodes": pl.nodes, "seconds": round(pl.seconds, 3),
+-               "wall_clock_cut": pl.wall_clock_cut}
++        st, path, method, work = plan_carry(cks[i][("held", False)], a.q_end, b.q_end, a.gap, cfg, p, f"{rec['trial_id']}/carry{i}.{j}", guide, pose)
++        att = {"pick": i, "place": j, "evidence_source": "NEW_PLANNED", "method": method, "status": st, "work": work, "certified_blocked": st == ge.COLLISION}
+         ok = False
+-        if pl.status == ge.CLEAR:
+-            arr = witness_arrays(robot, obj.id, a, pl.path, b)
+-            v = mo.certify_trajectory(robot, scene, obj.id, arr, p["delta"], p["eps"], p["evals"])
+-            err = float(np.linalg.norm(arr["place_xy"] - dxy))
+-            ok = all(x.status == ge.CLEAR for x in v) and err <= p["release_tol"]
+-            att.update(replay="CERTIFIED" if ok else "REPLAY_REJECTED", place_error_m=err)
++        if st == ge.CLEAR:
++            arr = witness_arrays(robot, obj.id, a, path, b)
++            ok, att["verification"] = verify_witness(robot, scene, obj.id, arr, dxy, p)
+             if ok:
+-                att["witness"] = save_witness(out, robot, s_hash, obj.id, arr, {"kind": "NEW_VERIFIED", "pick_mode": i, "place_mode": j,
+-                                                                                "carry_method": pl.reason, "trial_id": rec["trial_id"]})
++                att["witness"] = save_witness(out, robot, ident(), obj.id, arr, {"evidence_source": "NEW_PLANNED", "held_mode": i, "place_mode": j,
++                                                                                 "carry_method": method, "trial_id": rec["trial_id"]})
+                 wids.append(att["witness"])
+         cat[i, j], outcome[i, j] = (4, 1) if ok else (3, 0)
+         attempts.append(att)
+-    counts = {"total": n * n, "geometrically_rejected": int((cat == 0).sum()), "screen_uncertain_not_tested": int((cat == 1).sum()),
+-              "valid_not_motion_tested": int((cat == 2).sum()), "motion_attempted": int((cat >= 3).sum()),
+-              "verified_success": int((cat == 4).sum()), "budget_failed": int((cat == 3).sum())}
+-    counts["not_motion_tested"] = counts["screen_uncertain_not_tested"] + counts["valid_not_motion_tested"]
+-    assert counts["total"] == counts["geometrically_rejected"] + counts["not_motion_tested"] + counts["motion_attempted"]
+-    lab = decide(picks, places, counts, attempts, cut)
+-    modes = {"pick_stage": np.array([c.stage for c in picks], "U12"), "pick_definite": np.array([c.certified for c in picks]),
+-             "place_stage": np.array([c.stage for c in places], "U12"), "place_definite": np.array([c.certified for c in places]),
+-             "mode_phi_rad": np.array([c.phi for c in picks]), "mode_branch": np.array([c.branch for c in picks], np.int8),
+-             "pair_category": cat, "attempted_mask": cat >= 3, "pair_outcome": outcome,
++    c = {CAT[k]: int((cat == k).sum()) for k in CAT}
++    m = {"total": n * n, "hard_screened": c["HARD_SCREENED"], "motion_attempted": c["PLANNED_FAILED"] + c["PLANNED_VERIFIED"],
++         "reused_reverified": c["REUSED_REVERIFIED"], "not_motion_attempted": c["SCREEN_INCONCLUSIVE_NOT_PLANNED"] + c["VALID_NOT_PLANNED"],
++         "attempted_success": c["PLANNED_VERIFIED"], "attempted_failure": c["PLANNED_FAILED"], "screen_inconclusive": c["SCREEN_INCONCLUSIVE_NOT_PLANNED"],
++         "valid_not_planned": c["VALID_NOT_PLANNED"], "n_mode_witnesses": c["PLANNED_VERIFIED"] + c["REUSED_REVERIFIED"]}
++    assert m["total"] == m["hard_screened"] + m["motion_attempted"] + m["reused_reverified"] + m["not_motion_attempted"]
++    lab = decide(picks, places, m, attempts)
++    tot = lambda k: sum((a["work"] or {}).get(k, 0) for a in attempts)  # noqa: E731
++    modes = {"held_stage": np.array([x.stage for x in picks], "U20"), "held_definite": np.array([x.certified for x in picks]),
++             "pick_access_stage": np.array([x.stage for x in pick_diag], "U20"),
++             "place_stage": np.array([[x.stage for x in places[i]] if i in places else [""] * n for i in range(n)], "U20"),
++             "mode_phi_rad": np.array([x.phi for x in picks]), "mode_branch": np.array([x.branch for x in picks], np.int8),
++             "pair_category": cat, "attempted_mask": (cat == 3) | (cat == 4), "pair_outcome": outcome,
+              "attempt_pick_place": np.array([[a["pick"], a["place"]] for a in attempts], np.int16).reshape(-1, 2),
+-             "attempt_seconds": np.array([a["seconds"] for a in attempts], np.float32), "attempt_nodes": np.array([a["nodes"] for a in attempts], np.int32)}
+-    return {"attempted": True, **lab, "mode_summary": counts, "pick_modes_valid": sum(c.stage == "OK" for c in picks),
+-            "place_modes_valid": sum(c.stage == "OK" for c in places), "attempts": attempts, "witness_refs": sorted(set(wids)),
+-            "reuse_check": None if old is None else {k: old[k] for k in ("archived_witness", "role", "pick", "place", "recertified")},
+-            "query_wall_cut": cut, "_modes": modes}
+-
+-
+-def decide(picks, places, counts, attempts, cut):
+-    """Operational binary label. 0 is a certificate only when every pair fell to definite screens (scope: declared grasp set)."""
+-    if counts["verified_success"]:
+-        return {"label": 1, "negative_kind": None, "failure_phase": None, "is_certificate": False}
+-    def phase(cs):
+-        bad = [c.stage for c in cs if c.stage != "OK"]
+-        return max(set(bad), key=bad.count) if bad else None
+-    if counts["geometrically_rejected"] == counts["total"]:
+-        stage = "POST_GRASP_STATE" if not any(c.stage == "OK" for c in picks) else phase(places)
+-        return {"label": 0, "negative_kind": "CERTIFIED_SCREEN", "failure_phase": stage, "is_certificate": True}
++             "attempt_rrt_attempts": np.array([(a["work"] or {}).get("attempts", 0) for a in attempts], np.int32),
++             "attempt_evals": np.array([sum((a["work"] or {}).get(k, 0) for k in ("pre_evals", "search_evals", "shortcut_evals")) for a in attempts], np.int64)}
++    return {"eligible": True, "attempted": True, "completed": True, **lab, "safety_interruption": None, "mode_summary": m,
++            "held_modes_valid": sum(x.stage == "OK" for x in picks), "pick_access_modes_ok": sum(x.stage == "OK" for x in pick_diag),
++            "place_screen_groups": len(groups), "attempts": attempts, "witness_refs": list(dict.fromkeys(wids)),
++            "work_budget_consumed": {"pairs_planned": sum(a["evidence_source"] == "NEW_PLANNED" for a in attempts), "rrt_attempts": tot("attempts"),
++                                     "rrt_nodes": tot("nodes"), "evals": tot("pre_evals") + tot("search_evals") + tot("shortcut_evals")},
++            "reuse_check": None if old is None else {k: old[k] for k in ("archived_witness", "role", "pick", "place", "reverified", "verification")},
++            "_modes": modes}
++
++
++def decide(picks, places, m, attempts):
++    """Operational binary label of a completed query; a certificate only when every pair fell to definite screens."""
++    if m["n_mode_witnesses"]:
++        return {"label": 1, "negative_kind": None, "negative_scope": None, "failure_phase": None, "is_certificate": False}
++    if m["hard_screened"] == m["total"]:
++        valid = [i for i, c in enumerate(picks) if c.stage == "OK"]
++        bad = [x.stage for i in valid for x in places[i] if x.stage != "OK"]
++        return {"label": 0, "negative_kind": "CERTIFIED_SCREEN", "negative_scope": "DECLARED_48x48_CATALOGUE_DEFINITE_STATIC_SCREENS",
++                "failure_phase": "HELD_STATE" if not valid else max(set(bad), key=bad.count), "is_certificate": True}
++    scope = f"FINITE_POLICY:{WORK['pairs_per_query']}_PAIRS,PER_PAIR_WORK_BUDGET"
+     if not attempts:
+-        return {"label": 0, "negative_kind": "NO_PLAN_FOUND", "failure_phase": "SCREEN_UNCERTAIN", "is_certificate": False}
+-    left = counts["valid_not_motion_tested"] > 0
+-    replay = any(a.get("replay") == "REPLAY_REJECTED" for a in attempts)
+-    return {"label": 0, "negative_kind": "BUDGET_EXHAUSTED" if left or cut else "SCHEDULE_EXHAUSTED_NO_WITNESS",
+-            "failure_phase": "REPLAY" if replay else "CARRY", "is_certificate": False}
++        return {"label": 0, "negative_kind": "NO_PLAN_FOUND", "negative_scope": scope + ",SCREEN_INCONCLUSIVE", "failure_phase": "SCREEN", "is_certificate": False}
++    replay = any(a.get("verification") and not a.get("witness") for a in attempts)
++    return {"label": 0, "negative_kind": "WORK_BUDGET_EXHAUSTED" if m["valid_not_planned"] else "SCHEDULE_EXHAUSTED_NO_WITNESS",
++            "negative_scope": scope, "failure_phase": "REPLAY" if replay else "CARRY", "is_certificate": False}
++
++
++def final(part):
++    if not part.exists():
++        return False
++    r = json.loads(part.read_text())
++    return bool(r["completed"] or not r["eligible"])
+ 
+ 
+-def _commit(out, part, rec, modes):
++def commit(part, rec, modes):
+     part.parent.mkdir(parents=True, exist_ok=True)
+     if modes is not None:
+         tmp = part.with_suffix(f".{os.getpid()}.npz.tmp")
+@@ -324,79 +430,120 @@
+ 
+ 
+ def sample():
+-    """One resource reading: MemAvailable, swap used, CPU temperature (k10temp), disk free, children's summed RSS / PSS."""
++    """One resource reading: MemAvailable, swap used, CPU temperature (k10temp), load, disk free, children's summed RSS / PSS."""
+     mem = {l.split(":")[0]: int(l.split()[1]) for l in open("/proc/meminfo")}
+     temp = None
+     for hw in Path("/sys/class/hwmon").glob("hwmon*"):
+         if (hw / "name").read_text().strip() == "k10temp":
+             temp = int((hw / "temp1_input").read_text()) / 1000
+     rss = pss = 0
+-    for ch in active_children():
++    kids = active_children()
++    for ch in kids:
+         try:
+             rss += int(next(l for l in open(f"/proc/{ch.pid}/status") if l.startswith("VmRSS")).split()[1])
+             pss += int(next(l for l in open(f"/proc/{ch.pid}/smaps_rollup") if l.startswith("Pss:")).split()[1])
+         except (OSError, StopIteration):
+             pass
+     st = os.statvfs(HERE)
+-    return {"t": time.time(), "mem_available_mb": mem["MemAvailable"] // 1024, "swap_used_mb": (mem["SwapTotal"] - mem["SwapFree"]) // 1024,
+-            "temp_c": temp, "load1": os.getloadavg()[0], "disk_free_mb": st.f_bavail * st.f_frsize // 2 ** 20,
+-            "children": len(active_children()), "children_rss_mb": rss // 1024, "children_pss_mb": pss // 1024}
++    return {"t": round(time.time(), 2), "mem_available_mb": mem["MemAvailable"] // 1024, "swap_used_mb": (mem["SwapTotal"] - mem["SwapFree"]) // 1024,
++            "temp_c": temp, "load1": os.getloadavg()[0], "disk_free_mb": st.f_bavail * st.f_frsize // 2 ** 20, "children": len(kids),
++            "children_rss_mb": rss // 1024, "children_pss_mb": pss // 1024}
+ 
+ 
+-def run(out, workers=28, tasks=None):
+-    """Pass B: the roster in `workers` processes pinned to CPUS, nice 10, one BLAS thread each; a guard samples resources every
+-    second and terminates the pool on a GUARD breach or the global wall cap. Resumable (finished parts are skipped)."""
++def run(out, workers, cpus, ceiling_s, tasks):
++    """The frozen roster on `workers` processes pinned to `cpus` (affinity, nice 10, one BLAS thread each; no cgroup quota). The
++    dispatcher starts a query only below temp_pause_c; at temp_suspend_c every worker is stopped (SIGSTOP) until temp_resume_c
++    (budgets count work, so pausing cannot change an outcome); a safety breach terminates the pool, and every query then in flight
++    is recorded completed=false / label=null (re-run identically on resume). Finished records are never re-run."""
+     out = Path(out).resolve()
+     out.mkdir(parents=True, exist_ok=True)
+-    for t in [*out.glob("parts/*.tmp"), *out.glob("trajectories/*.tmp")]:      # torn writes of an interrupted run
++    for t in [*out.glob("parts/*.tmp"), *out.glob("trajectories/*.tmp")]:      # no worker alive yet: torn writes and orphans go
+         t.unlink()
+     keep = {w for f in out.glob("parts/*.json") for w in json.loads(f.read_text())["witness_refs"]}
+-    for t in out.glob("trajectories/*.npz"):             # witnesses of queries an interrupted run never finished (they re-run)
+-        if t.stem not in keep:
+-            t.unlink()
+-    tasks = tasks or roster()
+-    os.sched_setaffinity(0, CPUS[:workers])
++    orphans = [t for t in out.glob("trajectories/*.npz") if t.stem not in keep]
++    for t in orphans:
++        t.unlink()
++    for k in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS", "NUMEXPR_NUM_THREADS"):
++        os.environ[k] = "1"
++    os.sched_setaffinity(0, cpus)
+     os.nice(10)
+-    t0, r0 = time.time(), resource.getrusage(resource.RUSAGE_CHILDREN)
+-    log, stop, done = [sample()], [], []
++    queue = [t for t in tasks if not final(out / "parts" / f"{t['trial_id']}.json")]
++    todo0 = len(queue)
++    t0, r0, log, stop, hot, inflight, done = time.time(), resource.getrusage(resource.RUSAGE_CHILDREN), [sample()], None, 0, {}, []
+     swap0 = log[0]["swap_used_mb"]
+-    with Pool(workers, maxtasksperchild=4) as pool:
+-        it = pool.imap_unordered(_job, [(t, str(out)) for t in tasks])
+-        while len(done) < len(tasks) and not stop:
++    pool, stopped, events = Pool(workers, maxtasksperchild=4), [], []
++
++    def wake():
++        for pid in stopped:
+             try:
+-                done.append(it.next(timeout=1.0))
+-            except Exception as e:  # noqa: BLE001
+-                if type(e).__name__ != "TimeoutError":
+-                    stop.append(f"ERROR:{type(e).__name__}:{e}")
+-            s = sample()
+-            log.append(s)
+-            stop += [m for m, bad in (("MEMORY", s["mem_available_mb"] < GUARD["min_mem_available_mb"]),
+-                                      ("SWAP", s["swap_used_mb"] - swap0 > GUARD["max_swap_growth_mb"]),
+-                                      ("TEMPERATURE", (s["temp_c"] or 0) > GUARD["max_temp_c"]),
+-                                      ("DISK", s["disk_free_mb"] < GUARD["min_disk_free_mb"]),
+-                                      ("GLOBAL_WALL", time.time() - t0 > BUDGET["global_wall_s"])) if bad]
+-        pool.terminate() if stop else pool.close()
+-        pool.join()
++                os.kill(pid, signal.SIGCONT)
++            except ProcessLookupError:
++                pass
++        stopped.clear()
++    while (queue or inflight) and stop is None:
++        s = sample()
++        log.append(s)
++        tc = s["temp_c"] or 0.0
++        if tc >= SAFETY["temp_suspend_c"] and not stopped:                     # thermal duty cycle: freeze all workers
++            stopped[:] = [ch.pid for ch in active_children()]
++            for pid in stopped:
++                os.kill(pid, signal.SIGSTOP)
++            events.append(["SUSPEND", s["t"], tc])
++        elif stopped and tc <= SAFETY["temp_resume_c"]:
++            wake()
++            events.append(["RESUME", s["t"], tc])
++        s["suspended"] = bool(stopped)
++        hot = hot + 1 if tc >= SAFETY["temp_cancel_c"] else 0
++        stop = next((m for m, bad in (("TEMPERATURE", hot >= SAFETY["temp_cancel_samples"]), ("MEMORY", s["mem_available_mb"] < SAFETY["min_mem_available_mb"]),
++                                      ("SWAP", s["swap_used_mb"] - swap0 > SAFETY["max_swap_growth_mb"]), ("DISK", s["disk_free_mb"] < SAFETY["min_disk_free_mb"]),
++                                      ("RUN_CEILING", time.time() - t0 > ceiling_s)) if bad), None)
++        while stop is None and queue and len(inflight) < workers and tc < SAFETY["temp_pause_c"]:
++            t = queue.pop(0)
++            inflight[t["trial_id"]] = (t, pool.apply_async(trial, (t, str(out))))
++        for tid, (t, ar) in list(inflight.items()):
++            if ar.ready():
++                if not ar.successful():
++                    stop = f"ERROR:{tid}"
++                    try:
++                        ar.get()
++                    except Exception as e:  # noqa: BLE001
++                        stop += f":{type(e).__name__}:{str(e)[:200]}"
++                done.append(tid)
++                del inflight[tid]
++        time.sleep(0.5)
++    wake()                                               # a stopped worker could not receive SIGTERM
++    if stop:
++        pool.terminate()
++    else:
++        pool.close()
++    pool.join()
++    for tid, (t, _) in inflight.items():                 # interrupted by a safety guard: no observed label
++        part = out / "parts" / f"{tid}.json"
++        if not final(part):
++            commit(part, {"schema_version": SCHEMA, "trial_id": tid, "source_root_id": t["root"], "eligible": True, "attempted": True,
++                          "completed": False, "label": None, "safety_interruption": stop, "witness_refs": []}, None)
+     r1 = resource.getrusage(resource.RUSAGE_CHILDREN)
+-    res = {"workers": workers, "cpus": CPUS[:workers], "tasks": len(tasks), "finished": len(done), "stop": stop, "wall_s": round(time.time() - t0, 1),
+-           "children_cpu_s": round(r1.ru_utime + r1.ru_stime - r0.ru_utime - r0.ru_stime, 1), "leftover_children": len(active_children()),
+-           "peak": {k: (min if k in ("mem_available_mb", "disk_free_mb") else max)(s[k] for s in log if s[k] is not None)
+-                    for k in log[0] if k != "t"}, "samples": log}
++    temps = [s["temp_c"] for s in log if s["temp_c"] is not None]
++    res = {"workers": workers, "cpus": cpus, "hard_cpu_quota": False, "enforcement": "sched_setaffinity + fixed process count + nice 10 + 1 BLAS thread",
++           "ceiling_s": ceiling_s, "safety": SAFETY, "tasks": len(tasks), "queued_at_start": todo0,
++           "finished_now": len(done), "interrupted": sorted(inflight), "not_started": [t["trial_id"] for t in queue], "stop": stop,
++           "orphans_removed_at_start": len(orphans), "wall_s": round(time.time() - t0, 1), "children_cpu_s": round(r1.ru_utime + r1.ru_stime - r0.ru_utime - r0.ru_stime, 1),
++           "leftover_children": len(active_children()), "samples_over_warn": sum(x >= SAFETY["temp_warn_c"] for x in temps),
++           "samples_paused": sum(x >= SAFETY["temp_pause_c"] for x in temps), "thermal_events": events,
++           "suspended_s": round(sum(b[1] - a[1] for a, b in zip(events[::2], events[1::2])), 1), "suspensions": len(events[::2]),
++           "peak": {k: (min if k in ("mem_available_mb", "disk_free_mb") else max)(s[k] for s in log if s.get(k) is not None) for k in log[0] if k != "t"},
++           "samples": log}
+     (out / f"run_{int(t0)}.json").write_text(json.dumps(res, indent=1))
+     return res
+ 
+ 
+-def _job(arg):
+-    return trial(*arg)
+-
+-
+ if __name__ == "__main__":
+-    cmd, out = sys.argv[1], Path(sys.argv[2]).resolve() if len(sys.argv) > 2 else None
++    cmd = sys.argv[1]
+     if cmd == "roster":
+         print(json.dumps(roster(), indent=1))
+-    elif cmd == "serial":
+-        r = trial(roster()[0], out)
+-        print(json.dumps({k: v for k, v in r.items() if k != "attempts"}, indent=1))
+     elif cmd == "run":
+-        res = run(out, int(sys.argv[3]) if len(sys.argv) > 3 else 28)
+-        print(json.dumps({k: v for k, v in res.items() if k != "samples"}, indent=1))
++        out, workers, cpus = Path(sys.argv[2]).resolve(), int(sys.argv[3]), CPUSETS[sys.argv[4]]
++        tasks = json.loads((out.parent / "roster.json").read_text())
++        assert tasks == roster(), "frozen roster differs from the roster code"
++        res = run(out, workers, cpus[:workers], float(sys.argv[5]) if len(sys.argv) > 5 else 3600.0, tasks)
++        print(json.dumps({k: v for k, v in res.items() if k not in ("samples", "safety")}, indent=1))
+--- audit/previous_code/placement_smoke_check.py	2026-11-06 18:34:03.892403377 +0530
++++ ../code/placement_smoke_check.py	2026-11-06 20:09:54.982665022 +0530
+@@ -1,207 +1,312 @@
+-"""Assemble, re-open and audit a placement smoke output (placement_smoke.py), and render figures from the saved files only.
++"""Audit, fingerprint, compare and draw placement smoke runs (placement_smoke.py), from the saved files only.
+ 
+-    python placement_smoke_check.py <out>      # records/, modes/, manifest.json, summary.json, verification.json, visuals/
+-
+-Audit: every predeclared query has exactly one finished record; attempted -> binary label, not attempted -> null; a 1 has >= 1
+-witness and a 0 none; pair-category counts reconcile with the mode arrays; every witness file reopens, matches its content id,
+-has no NaN, starts at closure and ends with the retreat, and re-certifies (motion.certify_trajectory) in the scene it was found
+-in; hypothetical scenes re-hash to the recorded value; the original dataset folder is unchanged against git.
++    python placement_smoke_check.py audit <run>                 # records/, modes/, summary.json, verification.json, fingerprint.json
++    python placement_smoke_check.py compare <v2dir> <run>...    # comparisons.json: per-query canonical digests across runs
++    python placement_smoke_check.py visuals <run> <outdir>      # placement maps, mode-category matrix, witness GIF + filmstrip
++    python placement_smoke_check.py integrity <v2dir>           # original dataset and the failed run against their recorded hashes
++
++Canonical fingerprint of a query = sha256 over its record without `volatile` (wall time, CPU, RSS), plus sha256 of every mode array
++(dtype, shape, bytes; not the zip container) and of every referenced witness's arrays. Run order, worker count, PIDs, timing and
++temperature never enter it.
+ """
+ import hashlib, io, json, subprocess, sys
+ from collections import Counter, defaultdict
+ from pathlib import Path
+ 
+ import numpy as np
+-from placement_smoke import A, DATA, ge, mo, sk, H, SCHEMA, load_root, roster, sha_file, scene_from_dict, scene_hash, substitute_pose  # noqa: E402
++import placement_smoke as P  # noqa: E402  (sets sys.path and the teacher folder)
+ 
+ import matplotlib  # noqa: E402
+ matplotlib.use("Agg")
+ import matplotlib.pyplot as plt  # noqa: E402
+-from matplotlib.patches import Rectangle, Circle  # noqa: E402
++from matplotlib.colors import ListedColormap  # noqa: E402
++from matplotlib.patches import Circle, Rectangle  # noqa: E402
+ from PIL import Image  # noqa: E402
+ import viz  # noqa: E402
+ 
+-MODE_KEYS = ("pick_stage", "pick_definite", "place_stage", "place_definite", "mode_phi_rad", "mode_branch", "pair_category",
+-             "attempted_mask", "pair_outcome")
++MODE_KEYS = ("held_stage", "held_definite", "pick_access_stage", "place_stage", "mode_phi_rad", "mode_branch", "pair_category",
++             "attempted_mask", "pair_outcome", "attempt_pick_place", "attempt_rrt_attempts", "attempt_evals")
++CORE = ("q", "gap", "phase", "attached", "held_local", "place_xy")
++
++
++def arr_hash(a):
++    a = np.ascontiguousarray(np.asarray(a))
++    return hashlib.sha256(f"{a.dtype.str}|{a.shape}|".encode() + a.tobytes()).hexdigest()
+ 
+ 
+ def scene_of(rec):
+-    s = scene_from_dict(load_root(rec["source_root_id"])["scene"])
++    s = P.scene_from_dict(P.load_root(rec["source_root_id"])["scene"])
+     for o, c in rec["prefix_key"]:
+-        s = substitute_pose(s, o, c)
++        s = P.substitute_pose(s, o, c)
+     return s
+ 
+ 
+-def assemble(out, tasks):
+-    order = {t["trial_id"]: k for k, t in enumerate(tasks)}
+-    recs = sorted((json.loads(p.read_text()) for p in out.glob("parts/*.json")), key=lambda r: order.get(r["trial_id"], 1e9))
+-    by = defaultdict(list)
+-    for r in recs:
+-        by[r["source_root_id"]].append(r)
+-    for d in ("records", "modes"):
+-        (out / d).mkdir(exist_ok=True)
+-    for rid, rs in by.items():
+-        att = [r for r in rs if r["attempted"]]
+-        for k, r in enumerate(att):
+-            r["modes_index"] = k
+-        (out / "records" / f"{rid}.json").write_text(json.dumps({"schema_version": SCHEMA, "source_root_id": rid,
+-                                                                 "source_root_hash": rs[0]["source_root_hash"], "domain": "planar_2d",
+-                                                                 "split": None, "trials": rs}, indent=1, sort_keys=True))
+-        z = [np.load(out / "parts" / f"{r['trial_id']}.npz") for r in att]
+-        arr = {k: np.stack([x[k] for x in z]) for k in MODE_KEYS}
+-        arr["trial_id"] = np.array([r["trial_id"] for r in att])
+-        arr["attempt_trial"] = np.concatenate([np.full(len(x["attempt_seconds"]), k, np.int16) for k, x in enumerate(z)])
+-        for k in ("attempt_pick_place", "attempt_seconds", "attempt_nodes"):
+-            arr[k] = np.concatenate([x[k] for x in z])
+-        buf = io.BytesIO()
+-        np.savez_compressed(buf, **arr)
+-        (out / "modes" / f"{rid}.npz").write_bytes(buf.getvalue())
+-    return recs
+-
+-
+-def verify(out, tasks, recs):
+-    G = A.env()
+-    robot, p = G["robot"], sk.params(G["cfg"])
++def records(run):
++    tasks = json.loads((run.parent / "roster.json").read_text())
++    got = {json.loads(f.read_text())["trial_id"]: json.loads(f.read_text()) for f in run.glob("parts/*.json")}
++    return tasks, [got[t["trial_id"]] for t in tasks if t["trial_id"] in got]
++
++
++def digest(run, rec):
++    canon = {k: v for k, v in rec.items() if k != "volatile"}
++    extra = {}
++    if (run / "parts" / f"{rec['trial_id']}.npz").exists():
++        z = np.load(run / "parts" / f"{rec['trial_id']}.npz")
++        extra["modes"] = {k: arr_hash(z[k]) for k in MODE_KEYS}
++    extra["witnesses"] = [[w, {k: arr_hash(np.load(run / "trajectories" / f"{w}.npz")[k]) for k in CORE}] for w in rec["witness_refs"]]
++    return hashlib.sha256(json.dumps([canon, extra], sort_keys=True).encode()).hexdigest(), canon, extra
++
++
++def audit(run):
++    run = Path(run).resolve()
++    tasks, recs = records(run)
++    G = P.A.env()
++    robot, p = G["robot"], P.sk.params(G["cfg"])
+     chk, bad = Counter(), []
+ 
+     def ok(name, cond, detail=""):
+         chk[(name, bool(cond))] += 1
+         if not cond:
+             bad.append(f"{name}: {detail}")
+-    ids = [r["trial_id"] for r in recs]
+-    ok("one record per predeclared query", sorted(ids) == sorted(t["trial_id"] for t in tasks), f"{len(ids)} vs {len(tasks)}")
+-    ok("no torn temp files", not list(out.rglob("*.tmp")))
+-    used = set()
++    ok("frozen roster equals the roster code", tasks == P.roster())
++    ok("one record per roster query", len(recs) == len(tasks), f"{len(recs)}/{len(tasks)}")
++    ok("no torn temp files", not list(run.rglob("*.tmp")))
++    refs = set()
+     for r in recs:
+-        ok("schema", r["schema_version"] == SCHEMA)
+-        ok("no UNRESOLVED label", "UNRESOLVED" not in json.dumps([r.get("label"), r.get("negative_kind")]))
+-        if not r["attempted"]:
+-            ok("not attempted -> null", r["label"] is None and (r.get("excluded") or r.get("engineering_abort")) and not r["witness_refs"], r["trial_id"])
+-            if r.get("excluded") == "DEST_OCCUPIED":
+-                ok("excluded cell really occupied", r["destination_cell"] in {o.cell for o in scene_of(r).objects})
++        ok("schema", r["schema_version"] == P.SCHEMA, r["trial_id"])
++        ok("no UNRESOLVED class", "UNRESOLVED" not in json.dumps([r.get("label"), r.get("negative_kind")]))
++        if not r["eligible"]:
++            ok("ineligible -> not attempted, label null", not r["attempted"] and r["label"] is None and r["excluded"] and not r["witness_refs"], r["trial_id"])
++            ok("ineligible destination really occupied", r["excluded"] != "DEST_OCCUPIED" or r["destination_cell"] in {o.cell for o in scene_of(r).objects})
+             continue
+-        ok("attempted -> binary", r["label"] in (0, 1), r["trial_id"])
+-        ok("1 <-> witness", (r["label"] == 1) == bool(r["witness_refs"]) == (r["mode_summary"]["verified_success"] > 0), r["trial_id"])
++        if not r["completed"]:
++            ok("interrupted -> label null with reason", r["label"] is None and r["safety_interruption"] and not r["witness_refs"], r["trial_id"])
++            continue
++        m = r["mode_summary"]
++        ok("completed -> binary label", r["label"] in (0, 1) and r["safety_interruption"] is None, r["trial_id"])
++        ok("1 <-> witness", (r["label"] == 1) == bool(r["witness_refs"]) == (m["n_mode_witnesses"] > 0), r["trial_id"])
+         if r["label"] == 0:
+-            ok("0 has provenance", r["negative_kind"] and r["failure_phase"] and isinstance(r["is_certificate"], bool), r["trial_id"])
+-        m, z = r["mode_summary"], np.load(out / "modes" / f"{r['source_root_id']}.npz")
+-        k = list(z["trial_id"]).index(r["trial_id"])
+-        cat = z["pair_category"][k]
+-        ok("counts reconcile", m["total"] == 2304 == m["geometrically_rejected"] + m["not_motion_tested"] + m["motion_attempted"]
+-           and m["motion_attempted"] == m["verified_success"] + m["budget_failed"], r["trial_id"])
+-        ok("counts match arrays", [m["geometrically_rejected"], m["screen_uncertain_not_tested"], m["valid_not_motion_tested"], m["budget_failed"],
+-                                   m["verified_success"]] == [int((cat == c).sum()) for c in range(5)], r["trial_id"])
+-        ok("attempted_mask exact", np.array_equal(z["attempted_mask"][k], cat >= 3) and np.array_equal(z["pair_outcome"][k] >= 0, cat >= 3))
++            ok("0 carries kind, scope, phase", r["negative_kind"] and r["negative_scope"] and r["failure_phase"] and isinstance(r["is_certificate"], bool))
++        ok("partition reconciles", m["total"] == 2304 == m["hard_screened"] + m["motion_attempted"] + m["reused_reverified"] + m["not_motion_attempted"]
++           and m["motion_attempted"] == m["attempted_success"] + m["attempted_failure"]
++           and m["not_motion_attempted"] == m["screen_inconclusive"] + m["valid_not_planned"], r["trial_id"])
++        z = np.load(run / "parts" / f"{r['trial_id']}.npz")
++        cat = z["pair_category"]
++        ok("counts equal the mode arrays", [m["hard_screened"], m["screen_inconclusive"], m["valid_not_planned"], m["attempted_failure"],
++                                            m["attempted_success"], m["reused_reverified"]] == [int((cat == c).sum()) for c in range(6)], r["trial_id"])
++        ok("attempted_mask and outcomes exact", np.array_equal(z["attempted_mask"], (cat == 3) | (cat == 4))
++           and np.array_equal(z["pair_outcome"] == 1, (cat == 4) | (cat == 5)) and np.array_equal(z["pair_outcome"] == 0, cat == 3), r["trial_id"])
++        ok("held / pick-access counts match arrays", r["held_modes_valid"] == int((z["held_stage"] == "OK").sum())
++           and r["pick_access_modes_ok"] == int((z["pick_access_stage"] == "OK").sum()))
++        ok("planned pairs within the schedule", m["motion_attempted"] <= P.WORK["pairs_per_query"]   # limits are checked before each
++           and all(a["work"]["attempts"] <= P.WORK["rrt_attempts"] + 1 and a["work"]["nodes"] <= P.WORK["rrt_nodes"] + 1  # RRT-Connect step, whose
++                   for a in r["attempts"] if a["work"]))                                                                  # second extension may add one
+         s = scene_of(r)
+-        ok("scene hash", scene_hash(s) == r["hypothetical_scene_hash"], r["trial_id"])
+-        if r["prefix_key"]:
+-            ok("hypothetical differs from root", r["parent_reachability"] == "HYPOTHETICAL"
+-               and scene_hash(scene_from_dict(load_root(r["source_root_id"])["scene"])) != r["hypothetical_scene_hash"])
++        ok("scene hash recomputes", P.scene_hash(s) == r["hypothetical_scene_hash"], r["trial_id"])
++        root_hash = P.scene_hash(P.scene_from_dict(P.load_root(r["source_root_id"])["scene"]))
++        ok("prefix provenance", (r["parent_reachability"] == "HYPOTHETICAL") == bool(r["prefix_key"]) and (root_hash != r["hypothetical_scene_hash"]) == bool(r["prefix_key"]))
+         dxy = np.asarray(s.lattice.center(r["destination_cell"]))
++        listed = [a["witness"] for a in r["attempts"] if a.get("witness")]
++        ok("witness_refs = attempt witnesses in order", r["witness_refs"] == list(dict.fromkeys(listed)), r["trial_id"])
+         for w in r["witness_refs"]:
+-            used.add(w)
+-            f = np.load(out / "trajectories" / f"{w}.npz")
+-            core = {x: f[x] for x in ("q", "gap", "phase", "attached", "held_local", "place_xy")}
+-            h = hashlib.sha256(f"{r['hypothetical_scene_hash']}|{r['object_id']}".encode())
+-            for x in sorted(core):
+-                h.update(f"{x}|{core[x].dtype.str}|{core[x].shape}".encode() + core[x].tobytes())
+-            ok("witness content id", h.hexdigest()[:24] == w, w)
+-            ok("witness finite", all(np.isfinite(f[x]).all() for x in ("q", "gap", "held_local", "place_xy", "object_xy")), w)
+-            ph = [str(x) for x in f["phase"]]
+-            ok("witness phases", ph[0] == "close_attach" and ph[-1] == "retreat" and "carry" in ph and "release" in ph, w)
+-            v = mo.certify_trajectory(robot, s, r["object_id"], core, p["delta"], p["eps"], p["evals"])
+-            ok("witness re-certifies in its scene", all(x.status == ge.CLEAR for x in v), w)
+-            ok("witness ends at destination", np.linalg.norm(f["place_xy"] - dxy) <= p["release_tol"]
++            refs.add(w)
++            f = np.load(run / "trajectories" / f"{w}.npz")
++            core = {k: f[k] for k in CORE}
++            h = hashlib.sha256(str(f["identity"]).encode())
++            for k in sorted(core):
++                h.update(f"{k}|{core[k].dtype.str}|{core[k].shape}".encode() + core[k].tobytes())
++            ok("witness content id", h.hexdigest()[:24] == w and str(f["identity"]).startswith(r["placement_protocol_id"]), w)
++            ok("witness finite", all(np.isfinite(f[k]).all() for k in ("q", "gap", "held_local", "place_xy", "object_xy")), w)
++            good, ver = P.verify_witness(robot, s, r["object_id"], core, dxy, p)
++            ok("witness re-verifies phase by phase in its scene", good, f"{w} {ver}")
++            ok("witness starts at the source and ends at the destination", np.allclose(f["object_xy"][0], s.get(r["object_id"]).xy_m, atol=1e-9)
+                and np.allclose(f["object_xy"][-1], f["place_xy"]), w)
+-    files = sorted(out.glob("trajectories/*.npz"))
+-    ok("no orphan or missing witness", {x.stem for x in files} == used, f"{len(files)} files, {len(used)} referenced")
+-    st = subprocess.run(["git", "status", "--porcelain", "--", str(DATA)], capture_output=True, text=True, cwd=DATA).stdout
+-    ok("original dataset folder unchanged (git)", st.strip() == "", st[:300])
+-    for rid in {r["source_root_id"] for r in recs}:
+-        blob = subprocess.run(["git", "rev-parse", f"HEAD:./raw/roots/{rid}.json"], capture_output=True, text=True, cwd=DATA).stdout.strip()
+-        now = subprocess.run(["git", "hash-object", f"raw/roots/{rid}.json"], capture_output=True, text=True, cwd=DATA).stdout.strip()
+-        ok("source root file equals its git blob", blob == now, rid)
+-    return {"passed": sum(n for (k, v), n in chk.items() if v), "failed": sum(n for (k, v), n in chk.items() if not v),
+-            "checks": sorted({k for k, _ in chk}), "failures": bad}
++            src = json.loads(str(f["provenance"]))["evidence_source"]
++            ok("witness provenance matches its attempt", src in {a["evidence_source"] for a in r["attempts"] if a.get("witness") == w}, w)
++    files = {x.stem for x in run.glob("trajectories/*.npz")}
++    ok("no orphan or missing witness file", files == refs, f"{len(files)} files / {len(refs)} referenced")
++    ver = {"passed": sum(n for (k, v), n in chk.items() if v), "failed": sum(n for (k, v), n in chk.items() if not v), "failures": bad,
++           "checks": sorted({k for k, _ in chk})}
++    comp = [r for r in recs if r["eligible"] and r["completed"]]
++    att = [a for r in comp for a in r["attempts"]]
++    summ = {"queries": len(tasks), "records": len(recs), "ineligible": sum(not r["eligible"] for r in recs),
++            "completed": len(comp), "interrupted": sum(r["eligible"] and not r["completed"] for r in recs),
++            "label_1": sum(r["label"] == 1 for r in comp), "label_0": sum(r["label"] == 0 for r in comp),
++            "negative_kinds": dict(Counter(r["negative_kind"] for r in comp if r["label"] == 0)),
++            "failure_phases": dict(Counter(r["failure_phase"] for r in comp if r["label"] == 0)), "certificates": sum(r["is_certificate"] for r in comp),
++            "modes": {k: sum(r["mode_summary"][k] for r in comp) for k in comp[0]["mode_summary"]} if comp else {},
++            "held_modes_valid": sum(r["held_modes_valid"] for r in comp), "pick_access_modes_ok": sum(r["pick_access_modes_ok"] for r in comp),
++            "pairs_planned": sum(a["evidence_source"] == "NEW_PLANNED" for a in att), "planned_methods": dict(Counter(a["method"].split(":")[0] for a in att)),
++            "rrt_stops": dict(Counter(a["work"]["stop"] for a in att if a["work"] and a["work"]["stop"])),
++            "witness_files": len(files), "new_witnesses": sum(bool(a.get("witness")) and a["evidence_source"] == "NEW_PLANNED" for a in att),
++            "reused_witnesses": sum(a["evidence_source"] == "REUSED_REVERIFIED" for a in att),
++            "work": {k: sum(r["work_budget_consumed"][k] for r in comp) for k in ("rrt_attempts", "rrt_nodes", "evals")},
++            "query_wall_s_max": max((r["volatile"]["wall_s"] for r in comp), default=None), "query_cpu_s_sum": round(sum(r["volatile"]["cpu_s"] for r in comp), 1),
++            "worker_peak_rss_mb_max": max((r["volatile"]["worker_peak_rss_mb"] for r in comp), default=None)}
++    fp = {r["trial_id"]: digest(run, r)[0] for r in recs}
++    fp_all = hashlib.sha256(json.dumps(sorted(fp.items())).encode()).hexdigest()
++    for d in ("records", "modes"):
++        (run / d).mkdir(exist_ok=True)
++    by = defaultdict(list)
++    for r in recs:
++        by[r["source_root_id"]].append(r)
++    for rid, rs in by.items():                           # per-root sidecar files assembled from the per-query commits
++        (run / "records" / f"{rid}.json").write_text(json.dumps({"schema_version": P.SCHEMA, "source_root_id": rid, "split": None, "trials": rs}, indent=1, sort_keys=True))
++        z = [(r["trial_id"], np.load(run / "parts" / f"{r['trial_id']}.npz")) for r in rs if (run / "parts" / f"{r['trial_id']}.npz").exists()]
++        if z:
++            arr = {k: np.stack([x[k] for _, x in z]) for k in MODE_KEYS[:9]}
++            arr["trial_id"] = np.array([t for t, _ in z])
++            arr["attempt_trial"] = np.concatenate([np.full(len(x["attempt_evals"]), i, np.int16) for i, (_, x) in enumerate(z)])
++            for k in MODE_KEYS[9:]:
++                arr[k] = np.concatenate([x[k] for _, x in z])
++            buf = io.BytesIO()
++            np.savez_compressed(buf, **arr)
++            (run / "modes" / f"{rid}.npz").write_bytes(buf.getvalue())
++    for name, obj in (("summary.json", summ), ("verification.json", ver), ("fingerprint.json", {"run_fingerprint": fp_all, "queries": fp})):
++        (run / name).write_text(json.dumps(obj, indent=1, sort_keys=True))
++    return summ, ver, fp_all
++
++
++def compare(v2, runs):
++    """Per-query canonical digests across runs; for a mismatch, the differing fields, attempts and first differing waypoint."""
++    v2 = Path(v2).resolve()
++    R = {n: {r["trial_id"]: r for r in records(v2 / n)[1]} for n in runs}
++    tids = [t["trial_id"] for t in json.loads((v2 / "roster.json").read_text())]
++    out, mism = {"runs": runs, "queries": {}}, 0
++    for t in tids:
++        have = {n: R[n][t] for n in runs if t in R[n] and (R[n][t]["completed"] or not R[n][t]["eligible"])}
++        ds = {n: digest(v2 / n, r) for n, r in have.items()}
++        uniq = sorted({d[0] for d in ds.values()})
++        row = {"compared_runs": sorted(have), "digests": {n: d[0][:16] for n, d in ds.items()}, "match": len(uniq) == 1,
++               "missing_or_interrupted": [n for n in runs if n not in have]}
++        if len(uniq) > 1:
++            mism += 1
++            ref, refd = next(iter(ds.items()))
++            diffs = {}
++            for n, d in ds.items():
++                if d[0] == refd[0]:
++                    continue
++                keys = sorted(k for k in set(d[1]) | set(refd[1]) if d[1].get(k) != refd[1].get(k))
++                att = next((i for i, (a, b) in enumerate(zip(d[1].get("attempts", []), refd[1].get("attempts", []))) if a != b), None)
++                wp = None
++                for (w1, _), (w0, _) in zip(d[2]["witnesses"], refd[2]["witnesses"]):
++                    if w1 != w0:
++                        q1, q0 = np.load(v2 / n / "trajectories" / f"{w1}.npz")["q"], np.load(v2 / ref / "trajectories" / f"{w0}.npz")["q"]
++                        wp = next((i for i in range(min(len(q0), len(q1))) if not np.array_equal(q0[i], q1[i])), min(len(q0), len(q1)))
++                        break
++                diffs[n] = {"vs": ref, "fields": keys, "first_attempt_diff": att,
++                            "attempt_work": [(d[1]["attempts"][att] if att is not None else None), (refd[1]["attempts"][att] if att is not None else None)],
++                            "first_differing_waypoint": wp, "mode_arrays_differ": [k for k in d[2].get("modes", {}) if d[2]["modes"][k] != refd[2].get("modes", {}).get(k)]}
++            row["diff"] = diffs
++        out["queries"][t] = row
++    out["mismatches"] = mism
++    out["queries_compared_in_all_runs"] = sum(not v["missing_or_interrupted"] for v in out["queries"].values())
++    out["run_fingerprints"] = {n: json.loads((v2 / n / "fingerprint.json").read_text())["run_fingerprint"] for n in runs}
++    (v2 / "comparisons.json").write_text(json.dumps(out, indent=1, sort_keys=True))
++    return out
++
++
++def integrity(v2):
++    v2 = Path(v2).resolve()
++    res = {}
++    for name, base in (("source_before.sha", P.DATA.parent), ("failed_run_before.sha", v2.parent / "smoke_20261106")):
++        lines = [l.split(maxsplit=1) for l in (v2 / "audit" / name).read_text().splitlines()]
++        changed = [f for h, f in lines if P.sha_file(base / f.strip()) != h]
++        res[name] = {"files": len(lines), "changed": changed}
++    st = subprocess.run(["git", "status", "--porcelain", "--ignored", "--", str(P.DATA)], capture_output=True, text=True, cwd=P.DATA).stdout
++    res["git_status_original_dataset"] = st.strip() or "clean"
++    (v2 / "integrity.json").write_text(json.dumps(res, indent=1))
++    return res
+ 
+ 
+ COL = {1: "#2ca02c", 0: "#d62728"}
+ 
+ 
+-def placements(out, recs):
+-    G = A.env()
+-    robot = G["robot"]
+-    paths = []
++def visuals(run, outdir):
++    """Scene-backed maps per root (labels per destination), the 48 x 48 pair categories of the reference query, a witness GIF."""
++    run, outdir = Path(run).resolve(), Path(outdir).resolve()
++    outdir.mkdir(parents=True, exist_ok=True)
++    _, recs = records(run)
++    robot = P.A.env()["robot"]
++    made = []
+     for rid in sorted({r["source_root_id"] for r in recs}):
+         rs = [r for r in recs if r["source_root_id"] == rid]
+         panels = sorted({(json.dumps(r["prefix_key"]), r["object_id"]) for r in rs})
+-        fig, axs = plt.subplots(1, len(panels), figsize=(max(5.2 * len(panels), 11), 6.4), squeeze=False)
++        fig, axs = plt.subplots(1, len(panels), figsize=(max(5.2 * len(panels), 11), 6.6), squeeze=False)
+         for ax, (pk, oid) in zip(axs[0], panels):
+             sub = [r for r in rs if json.dumps(r["prefix_key"]) == pk and r["object_id"] == oid]
+             s = scene_of(sub[0])
+             viz.draw_support(ax, s, cell_ids=True)
+             occ = {o.cell for o in s.objects}
+-            for c in range(64):
+-                rr, cc = divmod(c, 8)
+-                if c in occ or c not in s.legal_cells:
+-                    ax.add_patch(Rectangle((cc * .08, rr * .08), .08, .08, fc="none", ec="#888", hatch="////", lw=0, zorder=1))
++            for c in occ:
++                ax.add_patch(Rectangle(((c % 8) * .08, (c // 8) * .08), .08, .08, fc="none", ec="#888", hatch="////", lw=0, zorder=1))
+             for r in sub:
+-                rr, cc = divmod(r["destination_cell"], 8)
+-                fc = COL.get(r["label"], "#bbbbbb")
+-                ax.add_patch(Rectangle((cc * .08 + .004, rr * .08 + .004), .072, .072, fc=fc, alpha=.55, ec=fc, lw=1.5, zorder=2))
++                cc, rr = r["destination_cell"] % 8, r["destination_cell"] // 8
++                screen_only = r.get("label") == 0 and not r["mode_summary"]["motion_attempted"]
++                fc = "#bbbbbb" if r.get("label") is None else COL[r["label"]]
++                ax.add_patch(Rectangle((cc * .08 + .004, rr * .08 + .004), .072, .072, fc=fc, alpha=.55, ec=fc, lw=1.5, hatch="xx" if screen_only else None, zorder=2))
+             viz.draw_objects(ax, s)
+             o = s.get(oid)
+             ax.add_patch(Circle(o.xy_m, o.radius_m + .008, fc="none", ec="#1f3a93", lw=2.2, zorder=6))
+-            gc = load_root(rid)["goal_cell"]
++            gc = P.load_root(rid)["goal_cell"]
+             ax.add_patch(Rectangle(((gc % 8) * .08, (gc // 8) * .08), .08, .08, fc="none", ec="#ff7f0e", lw=2, ls="--", zorder=2))
+-            viz.draw_robot(ax, robot, np.asarray(s.robot.q_rad), robot.open_gap, alpha=.35, zorder=4)
+-            ctx = "root scene" if pk == "[]" else f"hypothetical after {json.loads(pk)}"
++            viz.draw_robot(ax, robot, np.asarray(s.robot.q_rad), robot.open_gap, alpha=.3, zorder=4)
+             ax.set(xlim=(-.42, .7), ylim=(-.08, .92), aspect="equal", xticks=[], yticks=[])
+-            ax.set_title(f"{oid} ({ctx})\n" + ", ".join(f"{r['destination_cell']}:{'-' if r['label'] is None else r['label']}" for r in sub), fontsize=8, loc="left")
+-        handles = [Rectangle((0, 0), 1, 1, fc=COL[1], alpha=.55), Rectangle((0, 0), 1, 1, fc=COL[0], alpha=.55),
+-                   Rectangle((0, 0), 1, 1, fc=viz.COLORS["support"], ec=viz.COLORS["cell_edge"]), Rectangle((0, 0), 1, 1, fc="none", hatch="////", ec="#888"),
+-                   Rectangle((0, 0), 1, 1, fc="none", ec="#ff7f0e", ls="--")]
+-        fig.legend(handles, ["attempted, label 1 (verified witness)", "attempted, label 0 (budget, no witness)", "legal free cell, not attempted",
+-                             "statically ineligible (occupied)", "target goal cell"], loc="lower center", ncol=3, fontsize=8, frameon=False)
+-        fig.suptitle(f"{rid}: placement queries for the ringed object (arm drawn faintly at its start configuration)", fontsize=10)
+-        fig.tight_layout(rect=(0, .09, 1, .95))
+-        path = out / "visuals" / f"{rid}_placements.png"
+-        path.parent.mkdir(exist_ok=True)
+-        fig.savefig(path, dpi=110)
++            ctx = "root scene" if pk == "[]" else f"hypothetical object edit {json.loads(pk)}"
++            ax.set_title(f"{oid} ({ctx})\n" + ", ".join(f"{r['destination_cell']}:{'-' if r.get('label') is None else r['label']}" for r in sub), fontsize=8, loc="left")
++        h = [Rectangle((0, 0), 1, 1, fc=COL[1], alpha=.55), Rectangle((0, 0), 1, 1, fc=COL[0], alpha=.55), Rectangle((0, 0), 1, 1, fc=COL[0], alpha=.55, hatch="xx"),
++             Rectangle((0, 0), 1, 1, fc="#bbbbbb", alpha=.55), Rectangle((0, 0), 1, 1, fc="none", hatch="////", ec="#888"), Rectangle((0, 0), 1, 1, fc="none", ec="#ff7f0e", ls="--")]
++        fig.legend(h, ["label 1: verified placement witness", "label 0: planned pairs, work budget finished", "label 0: no pair motion-tested (screens only)",
++                       "no label (ineligible or interrupted)", "occupied cell (statically ineligible)", "target goal cell"], loc="lower center", ncol=3, fontsize=8, frameon=False)
++        fig.suptitle(f"{rid}: placement-only queries for the ringed object (already held; arm drawn faintly at the scene's start pose)", fontsize=10)
++        fig.tight_layout(rect=(0, .1, 1, .95))
++        made.append(outdir / f"{rid}_placements.png")
++        fig.savefig(made[-1], dpi=110)
+         plt.close(fig)
+-        paths.append(path)
+-    return paths
+-
+-
+-def witness_gif(out, rec, wid, n=40):
+-    """Frames from the saved trajectory file: the full arm bodies (geometry.bodies), fingers, held disc; s = normalised path length
+-    (the 2D teacher's witnesses are untimed joint-space waypoints)."""
+-    G = A.env()
+-    robot = G["robot"]
+-    f = np.load(out / "trajectories" / f"{wid}.npz")
+-    core = {x: f[x] for x in ("q", "gap", "phase", "attached", "held_local", "place_xy")}
++    ref = next(r for r in recs if r["eligible"] and r.get("completed"))   # the Pass A reference query (roster position 0)
++    z = np.load(run / "parts" / f"{ref['trial_id']}.npz")
++    fig, ax = plt.subplots(figsize=(8.2, 7.4))
++    cmap = ListedColormap(["#d9d9d9", "#fdd0a2", "#ffffff", "#d62728", "#2ca02c", "#1f77b4"])
++    ax.imshow(z["pair_category"], cmap=cmap, vmin=-.5, vmax=5.5, interpolation="nearest")
++    ax.set(xlabel="place mode (24 tool axes x 2 elbows)", ylabel="held mode (24 tool axes x 2 elbows)")
++    ax.set_title(f"{ref['source_root_id']} {ref['object_id']} -> cell {ref['destination_cell']}: the 2,304 (held, place) pairs\n"
++                 + ", ".join(f"{P.CAT[k].lower()} {int((z['pair_category'] == k).sum())}" for k in list(P.CAT)[:3]) + "\n"
++                 + ", ".join(f"{P.CAT[k].lower()} {int((z['pair_category'] == k).sum())}" for k in list(P.CAT)[3:]), fontsize=8, loc="left")
++    fig.legend([Rectangle((0, 0), 1, 1, fc=c, ec="#999") for c in cmap.colors], [P.CAT[k] for k in P.CAT], loc="lower center", ncol=3, fontsize=7, frameon=False)
++    fig.tight_layout(rect=(0, .08, 1, 1))
++    made.append(outdir / f"{ref['trial_id']}_mode_pairs.png")
++    fig.savefig(made[-1], dpi=110)
++    plt.close(fig)
++    pos = [(r, a["witness"]) for r in recs if r.get("label") == 1 for a in r["attempts"] if a.get("witness") and a["evidence_source"] == "NEW_PLANNED"]
++    rec, wid = next(((r, w) for r, w in pos if r["prefix_key"]), pos[0])
++    made += witness_gif(run, rec, wid, outdir)
++    return made
++
++
++def witness_gif(run, rec, wid, outdir, n=40):
++    """Frames drawn from the saved witness: full arm bodies (geometry.bodies), fingers, the held disc, release and retreat. The
++    2D teacher's witnesses are untimed joint waypoints, so s is the normalised joint-path parameter, not time."""
++    robot = P.A.env()["robot"]
++    f = np.load(run / "trajectories" / f"{wid}.npz")
++    core = {k: f[k] for k in CORE}
+     s = scene_of(rec)
+-    rest = s.get(rec["object_id"]).xy_m
+-    others = [o for o in s.objects if o.id != rec["object_id"]]
++    oid, rad = rec["object_id"], s.get(rec["object_id"]).radius_m
+     frames, strip = [], []
+-    smp = mo.samples(core, n)
+-    for k, (q, gap, phase) in enumerate(smp):
++    for k, (q, gap, phase) in enumerate(P.mo.samples(core, n)):
+         fig, ax = plt.subplots(figsize=(5.4, 5.0))
+         viz.draw_support(ax, s, cell_ids=False)
+-        for o in others:
+-            ax.add_patch(Circle(o.xy_m, o.radius_m, fc=viz.COLORS["target" if o.kind == "target" else "obstacle"], ec="k", lw=.5, zorder=3))
+-        held = (rec["object_id"], s.get(rec["object_id"]).radius_m, tuple(core["held_local"])) if mo.CONTEXT[phase][0] == "held" else None
+-        if held is None:
+-            xy = mo.target_xy(robot, core, phase, q, rest)
+-            ax.add_patch(Circle(xy, s.get(rec["object_id"]).radius_m, fc="#1f3a93", ec="k", zorder=3))
++        for o in s.objects:
++            if o.id != oid:
++                ax.add_patch(Circle(o.xy_m, o.radius_m, fc=viz.COLORS["target" if o.kind == "target" else "obstacle"], ec="k", lw=.5, zorder=3))
++        held = (oid, rad, tuple(core["held_local"])) if phase == "carry" else None
+         viz.draw_robot(ax, robot, q, gap, held=held)
+-        if held is not None:                              # the palette draws a held disc in the target's colour: repaint it as the mover
+-            ax.add_patch(Circle(ge.tool_point(robot, q, held[2]), held[1], fc="#1f3a93", ec="k", zorder=9))
+-        rr, cc = divmod(rec["destination_cell"], 8)
++        xy = P.ge.tool_point(robot, q, core["held_local"]) if held else core["place_xy"]
++        ax.add_patch(Circle(xy, rad, fc="#1f3a93", ec="k", zorder=9))
++        cc, rr = rec["destination_cell"] % 8, rec["destination_cell"] // 8
+         ax.add_patch(Rectangle((cc * .08, rr * .08), .08, .08, fc="none", ec="#2ca02c", lw=2, zorder=2))
+         ax.set(xlim=(-.42, .7), ylim=(-.08, .92), aspect="equal", xticks=[], yticks=[])
+-        ax.set_title(f"{rec['object_id']} -> cell {rec['destination_cell']}   phase: {phase}\n"
+-                     f"s = {k / (n - 1):.2f} of the joint path (untimed waypoints)   witness {wid[:10]}", fontsize=8, loc="left")
++        ax.set_title(f"{oid} held from cell {rec['source_cell']} -> cell {rec['destination_cell']}   phase: {phase}\n"
++                     f"s = {k / (n - 1):.2f} of the joint path (untimed waypoints), witness {wid[:10]}", fontsize=8, loc="left")
+         fig.tight_layout()
+         fig.canvas.draw()
+         img = Image.fromarray(np.asarray(fig.canvas.buffer_rgba())[..., :3])
+@@ -209,56 +314,24 @@
+         if k in np.linspace(0, n - 1, 6).astype(int):
+             strip.append(img)
+         plt.close(fig)
+-    gif = out / "visuals" / f"{rec['source_root_id']}_witness.gif"
++    gif = outdir / f"{rec['trial_id']}_witness.gif"
+     frames[0].save(gif, save_all=True, append_images=frames[1:] + [frames[-1]] * 8, duration=120, loop=0)
+-    w, h = strip[0].size
+-    sheet = Image.new("RGB", (w * len(strip), h), "white")
++    sheet = Image.new("RGB", (strip[0].size[0] * len(strip), strip[0].size[1]), "white")
+     for i, im in enumerate(strip):
+-        sheet.paste(im, (i * w, 0))
+-    sheet.save(out / "visuals" / f"{rec['source_root_id']}_witness_filmstrip.png")
+-    return gif
+-
+-
+-def main(out):
+-    out = Path(out).resolve()
+-    tasks = json.loads((out / "roster_predeclared.json").read_text())
+-    ok_roster = all(t in roster() for t in tasks)
+-    recs = assemble(out, tasks)
+-    ver = verify(out, tasks, recs)
+-    ver["roster_matches_code"] = ok_roster
+-    figs = placements(out, recs)
+-    new = [(r, a["witness"]) for r in recs if r["attempted"] for a in r["attempts"] if a.get("witness") and a["method"] != "REUSED_ARCHIVED_WITNESS_RECERTIFIED"]
+-    pick = next(((r, w) for r, w in new if r["prefix_key"]), new[0] if new else None)
+-    gif = witness_gif(out, *pick) if pick else None
+-    att = [r for r in recs if r["attempted"]]
+-    summ = {"queries_predeclared": len(tasks), "attempted": len(att), "label_1": sum(r["label"] == 1 for r in att),
+-            "label_0": sum(r["label"] == 0 for r in att), "not_attempted": len(recs) - len(att),
+-            "not_attempted_reasons": dict(Counter(r.get("excluded") or r.get("engineering_abort") for r in recs if not r["attempted"])),
+-            "negative_kinds": dict(Counter(r["negative_kind"] for r in att if r["label"] == 0)),
+-            "failure_phases": dict(Counter(r["failure_phase"] for r in att if r["label"] == 0)),
+-            "certificates": sum(bool(r.get("is_certificate")) for r in att),
+-            "modes": {k: sum(r["mode_summary"][k] for r in att) for k in att[0]["mode_summary"]} if att else {},
+-            "witnesses": {"files": len(list(out.glob("trajectories/*.npz"))),
+-                          "new_verified": sum(a.get("witness") is not None and a["method"] != "REUSED_ARCHIVED_WITNESS_RECERTIFIED" for r in att for a in r["attempts"]),
+-                          "reused_archived": sum(a["method"] == "REUSED_ARCHIVED_WITNESS_RECERTIFIED" for r in att for a in r["attempts"]),
+-                          "reuse_checked": [r["reuse_check"] for r in att if r.get("reuse_check")]},
+-            "query_wall_cut": sum(r["query_wall_cut"] for r in att), "pair_wall_clock_cut": sum(a.get("wall_clock_cut", False) for r in att for a in r["attempts"]),
+-            "query_wall_s_max": max(r["wall_s"] for r in att), "query_cpu_s_sum": round(sum(r["cpu_s"] for r in att), 1),
+-            "worker_peak_rss_mb_max": max(r["worker_peak_rss_mb"] for r in att), "verification": ver,
+-            "visuals": [str(x.relative_to(out)) for x in figs] + ([str(gif.relative_to(out))] if gif else [])}
+-    (out / "summary.json").write_text(json.dumps(summ, indent=1))
+-    files = sorted(x for x in out.rglob("*") if x.is_file() and x.name != "manifest.json")
+-    commit = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True, cwd=DATA).stdout.strip()
+-    man = {"schema_version": SCHEMA, "source_commit": commit, "protocol": json.loads((out / "parts" / f"{att[0]['trial_id']}.json").read_text())["placement_protocol_id"] if att else None,
+-           "roster_sha256": sha_file(out / "roster_predeclared.json"), "split_policy": "none exists in the 2D dataset; recorded as null, not regenerated",
+-           "mode_arrays": {k: "leading axis = attempted query (trial_id); pick/place axis = skill.directions order (phi = 2 pi k/24, elbow +1/-1)" for k in MODE_KEYS},
+-           "pair_category_codes": {0: "geometrically rejected (definite screen)", 1: "screen uncertain, not tested", 2: "valid, not motion-tested",
+-                                   3: "motion attempted, no witness", 4: "verified witness"},
+-           "files": {str(x.relative_to(out)): {"sha256": sha_file(x), "bytes": x.stat().st_size} for x in files}}
+-    (out / "manifest.json").write_text(json.dumps(man, indent=1, sort_keys=True))
+-    return summ
++        sheet.paste(im, (i * strip[0].size[0], 0))
++    sheet.save(outdir / f"{rec['trial_id']}_witness_filmstrip.png")
++    return [gif, outdir / f"{rec['trial_id']}_witness_filmstrip.png"]
+ 
+ 
+ if __name__ == "__main__":
+-    s = main(sys.argv[1])
+-    print(json.dumps({k: v for k, v in s.items() if k != "verification"} | {"verification": {k: v for k, v in s["verification"].items() if k != "checks"}}, indent=1))
++    cmd, args = sys.argv[1], sys.argv[2:]
++    if cmd == "audit":
++        s, v, fp = audit(args[0])
++        print(json.dumps({"summary": s, "verification": {k: v[k] for k in ("passed", "failed", "failures")}, "run_fingerprint": fp}, indent=1))
++    elif cmd == "compare":
++        c = compare(args[0], args[1:])
++        print(json.dumps({k: c[k] for k in ("mismatches", "queries_compared_in_all_runs", "run_fingerprints")}, indent=1))
++    elif cmd == "visuals":
++        print("\n".join(str(x) for x in visuals(args[0], args[1])))
++    elif cmd == "integrity":
++        print(json.dumps(integrity(args[0]), indent=1))
+--- audit/previous_code/test_placement_smoke.py	2026-11-06 18:40:17.076929044 +0530
++++ ../code/test_placement_smoke.py	2026-11-06 19:43:16.277068715 +0530
+@@ -1,49 +1,116 @@
+-"""Placement smoke sidecar: predeclared roster, operational binary labels, content-addressed witness round trip (no teacher run)."""
++"""Placement smoke sidecar V2: deterministic work budgets, held-state semantics, binary labels, accounting, witness replay, resume.
++Fixture FIXTURE_PICK_BLOCKED_HELD_VALID (unit test only, not smoke data): root 2d-plus2d-srv-w0408-s006 object o08 -> cell 55, an
++object no declared mode can pick from the root scene (pick access 0) that is still placeable once held."""
+ import json
++import multiprocessing as mp
+ from pathlib import Path
+ 
+ import numpy as np
++import pytest
+ import placement_smoke as P
++import placement_smoke_check as C
+ 
+-SMOKE = Path(__file__).resolve().parents[1] / "smoke_20261106"
++V2 = Path(__file__).resolve().parents[1] / "smoke_repro_v2"
++FIX = {"root": "2d-plus2d-srv-w0408-s006", "cls": "3", "prefix": [], "object": "o08", "dest": 55, "dest_tag": "FIXTURE", "trial_id": "fixture-o08-55"}
+ 
+ 
+-def test_roster_is_frozen_and_bounded():
+-    t = P.roster()
+-    assert t == json.loads((SMOKE / "roster_predeclared.json").read_text())
+-    assert len({x["root"] for x in t}) <= 4 and len(t) >= 28
+-    for rid in {x["root"] for x in t}:
+-        objs = {x["object"] for x in t if x["root"] == rid and not x["prefix"]}
+-        assert len(objs) <= 2 and all(sum(x["object"] == o and x["root"] == rid and not x["prefix"] for x in t) <= 5 for o in objs)
+-    assert 1 <= sum(bool(x["prefix"]) for x in t) <= 2
+-
+-
+-def _c(stage, certified=True):
+-    c = P.sk.Candidate(0.0, 1, stage)
+-    c.certified = certified
+-    return c
+-
+-
+-def test_labels_are_binary_and_certificates_only_from_definite_screens():
+-    counts = lambda geo, unc, val, ok, bad: {"total": geo + unc + val + ok + bad, "geometrically_rejected": geo,  # noqa: E731
+-                                             "screen_uncertain_not_tested": unc, "valid_not_motion_tested": val, "verified_success": ok,
+-                                             "budget_failed": bad}
+-    assert P.decide([_c("OK")], [_c("OK")], counts(0, 0, 3, 1, 0), [{}], False)["label"] == 1
+-    lab = P.decide([_c("GRASP_POSE")], [_c("OK")], counts(4, 0, 0, 0, 0), [], False)
+-    assert lab == {"label": 0, "negative_kind": "CERTIFIED_SCREEN", "failure_phase": "POST_GRASP_STATE", "is_certificate": True}
+-    lab = P.decide([_c("OK")], [_c("OK")], counts(0, 0, 5, 0, 8), [{"replay": "CERTIFIED"}], False)
+-    assert lab["label"] == 0 and lab["negative_kind"] == "BUDGET_EXHAUSTED" and not lab["is_certificate"]
+-    lab = P.decide([_c("GRASP_POSE", False)], [_c("OK")], counts(0, 4, 0, 0, 0), [], False)
+-    assert lab["label"] == 0 and not lab["is_certificate"] and "UNRESOLVED" not in json.dumps(lab)
+-
+-
+-def test_witness_round_trip_is_content_addressed(tmp_path):
+-    src = sorted((SMOKE / "trajectories").glob("*.npz"))[0]
+-    f = np.load(src)
+-    core = {k: f[k] for k in ("q", "gap", "phase", "attached", "held_local", "place_xy")}
+-    robot = P.A.env()["robot"]
+-    a = P.save_witness(tmp_path, robot, str(f["scene_hash"]), str(f["object_id"]), core, {"kind": "TEST"})
+-    b = P.save_witness(tmp_path, robot, str(f["scene_hash"]), str(f["object_id"]), core, {"kind": "TEST"})
+-    assert a == b == src.stem and len(list(tmp_path.glob("trajectories/*"))) == 1
+-    g = np.load(tmp_path / "trajectories" / f"{a}.npz")
+-    assert all(np.array_equal(g[k], core[k]) for k in core) and np.isfinite(g["object_xy"]).all()
++@pytest.fixture(scope="module")
++def runs(tmp_path_factory):
++    out = tmp_path_factory.mktemp("q")
++    ref = json.loads((V2 / "roster.json").read_text())[0]
++    return out, P.trial(FIX, out), P.trial(ref, out)
++
++
++class _Space:                                            # every extension fails: only the attempt counter can stop the loop
++    rng = np.random.default_rng(0)
++    sample, near, steer, edge = (lambda s: np.zeros(3)), (lambda s, n, z: 0), (lambda s, a, b: b), (lambda s, a, b: None)
++
++
++def test_failed_extensions_consume_attempts_and_stop_deterministically(monkeypatch):
++    monkeypatch.setitem(P.WORK, "rrt_attempts", 7)
++    ck, w = type("Ck", (), {"n_evals": 0})(), {"attempts": 0, "nodes": 0, "search_evals": 0, "shortcut_evals": 0, "stop": None}
++    assert P.det_rrt(_Space(), np.zeros(3), np.ones(3), ck, w) is None
++    assert w["attempts"] == 7 and w["nodes"] == 2 and w["stop"] == "ATTEMPTS"
++
++
++def test_budget_cutoff_is_not_a_certificate():
++    m = {"n_mode_witnesses": 0, "hard_screened": 2000, "total": 2304, "valid_not_planned": 296}
++    lab = P.decide([], {}, m, [{"work": {"stop": "ATTEMPTS"}}])
++    assert lab["label"] == 0 and lab["negative_kind"] == "WORK_BUDGET_EXHAUSTED" and not lab["is_certificate"]
++
++
++def _plan(_=None):
++    G = P.A.env()
++    robot, p = G["robot"], P.sk.params(G["cfg"])
++    s = P.scene_from_dict(P.load_root(FIX["root"])["scene"])
++    obj = s.get("o08")
++    a = next(c for c in P.held_modes(robot, s, obj, p) if c.stage == "OK")
++    dxy = np.asarray(s.lattice.center(55))
++    ck = P.mo.checkers(robot, s, "o08", dxy, a.local, p["delta"], p["eps"])
++    b = next(c for c in P.sk.screen_place(robot, ck, dxy, a.local, a.gap, p) if c.stage == "OK")
++    st, path, method, work = P.plan_carry(ck[("held", False)], a.q_end, b.q_end, a.gap, G["cfg"], p, "unit/det")
++    return st, method, work, [q.tolist() for q in path]
++
++
++def test_planning_is_identical_across_processes_and_ignores_the_clock(monkeypatch):
++    with mp.get_context("fork").Pool(2) as pool:
++        par = pool.map(_plan, [0, 1])
++    here = _plan()
++    monkeypatch.setattr(P.pn.time, "time", lambda: 1e18)          # a clock past any deadline cannot cut search or shortcutting
++    late = _plan()
++    assert par[0] == par[1] == here == late
++
++
++def test_pick_blocked_object_is_still_placeable_once_held(runs):
++    _, fx, _ = runs
++    assert fx["pick_access_modes_ok"] == 0 and fx["held_modes_valid"] > 0
++    assert fx["completed"] and fx["label"] == 1 and fx["witness_refs"]
++
++
++def test_witness_is_placement_only_and_replays_phase_by_phase(runs):
++    out, fx, _ = runs
++    f = np.load(out / "trajectories" / f"{fx['witness_refs'][0]}.npz")
++    core = {k: f[k] for k in C.CORE}
++    s = P.scene_from_dict(P.load_root(FIX["root"])["scene"])
++    G = P.A.env()
++    robot, p, dxy = G["robot"], P.sk.params(G["cfg"]), np.asarray(s.lattice.center(55))
++    assert [str(x) for x in f["phase_run_name"]] == ["carry", "release", "retreat"] and f["gap"][0] < robot.open_gap
++    assert P.verify_witness(robot, s, "o08", core, dxy, p)[0]
++    assert not P.verify_witness(robot, s, "o08", {**core, "held_local": core["held_local"] + [0.004, 0.0]}, dxy, p)[0]
++    k = [str(x) for x in core["phase"]].index("release")
++    assert not P.verify_witness(robot, s, "o08", {**core, "phase": np.array(["carry"] * len(core["phase"]))}, dxy, p)[0] and k > 0
++
++
++def test_emergency_interruption_gives_no_label(tmp_path, monkeypatch):
++    monkeypatch.setitem(P.SAFETY, "query_emergency_s", 1)
++    r = P.trial({**FIX, "trial_id": "fixture-interrupt"}, tmp_path)
++    assert r["completed"] is False and r["label"] is None and r["safety_interruption"] == "QUERY_EMERGENCY_WALL"
++    assert not P.final(tmp_path / "parts" / "fixture-interrupt.json")       # resume re-runs it
++
++
++def test_accounting_reuse_and_idempotent_resume(runs):
++    out, _, ref = runs
++    m = ref["mode_summary"]
++    assert m["total"] == 2304 == m["hard_screened"] + m["motion_attempted"] + m["reused_reverified"] + m["not_motion_attempted"]
++    assert m["reused_reverified"] == 1 and ref["reuse_check"]["reverified"] and ref["attempts"][0]["evidence_source"] == "REUSED_REVERIFIED"
++    before = {f: f.read_bytes() for f in out.rglob("*") if f.is_file()}
++    assert P.trial(json.loads((V2 / "roster.json").read_text())[0], out) == ref
++    assert before == {f: f.read_bytes() for f in out.rglob("*") if f.is_file()}
++
++
++def test_prefix_lineage_and_occupied_then_vacated(tmp_path):
++    t = [x for x in json.loads((V2 / "roster.json").read_text()) if x["dest_tag"] == "vacated_by_prefix"]
++    assert len(t) == 2 and {bool(x["prefix"]) for x in t} == {True, False}
++    root = P.scene_from_dict(P.load_root(t[0]["root"])["scene"])
++    h0 = P.scene_hash(root)
++    edited = P.substitute_pose(root, *next(x for x in t if x["prefix"])["prefix"][0])
++    assert P.scene_hash(root) == h0 != P.scene_hash(edited)                 # the sibling root scene is never mutated
++    r = P.trial(next(x for x in t if not x["prefix"]), tmp_path)
++    assert not r["eligible"] and r["label"] is None and r["excluded"] == "DEST_OCCUPIED"
++
++
++def test_fingerprint_ignores_volatile_fields(runs, tmp_path):
++    out, fx, _ = runs
++    a = C.digest(out, fx)[0]
++    assert C.digest(out, {**fx, "volatile": {"wall_s": 1e9, "cpu_s": 0, "worker_peak_rss_mb": 0}})[0] == a
++    assert C.digest(out, {**fx, "label": 0})[0] != a

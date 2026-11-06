@@ -1,0 +1,1 @@
+cd /home/naren/Desktop/rss-placement-smoke/gh-yadu-iiith/planar_2d/dataset_relocations_v1/code && PYTHONDONTWRITEBYTECODE=1 /home/naren/Desktop/rss3d_env/venv/bin/python launch_runner.py pilot /home/naren/Desktop/rss-placement-smoke/gh-yadu-iiith/planar_2d/dataset_relocations_v1/launch_ready_2d_v1 pilot_b64_w25_r1 64 FULL 25 all

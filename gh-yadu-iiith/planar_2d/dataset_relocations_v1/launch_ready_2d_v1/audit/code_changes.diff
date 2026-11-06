@@ -1,0 +1,1822 @@
+diff -ruN /home/naren/Desktop/rss-placement-smoke/gh-yadu-iiith/planar_2d/dataset_relocations_v1/launch_ready_2d_v1/audit/baseline/code_before/launch_check.py /home/naren/Desktop/rss-placement-smoke/gh-yadu-iiith/planar_2d/dataset_relocations_v1/launch_ready_2d_v1/../code/launch_check.py
+--- /home/naren/Desktop/rss-placement-smoke/gh-yadu-iiith/planar_2d/dataset_relocations_v1/launch_ready_2d_v1/audit/baseline/code_before/launch_check.py	1970-01-01 05:30:00.000000000 +0530
++++ /home/naren/Desktop/rss-placement-smoke/gh-yadu-iiith/planar_2d/dataset_relocations_v1/launch_ready_2d_v1/../code/launch_check.py	2026-11-06 22:10:16.502277914 +0530
+@@ -0,0 +1,316 @@
++"""Audit, compare and budget-analyse launch-readiness runs from saved files only (no planner call; witnesses are re-certified
++with the teacher's geometry, which is replay, not planning).
++
++    python launch_check.py audit <run>                         # verification.json, summary.json, fingerprint.json in <run>
++    python launch_check.py compare <out.json> <run> <run>...   # canonical per-query digests on the queries the runs share
++    python launch_check.py nested <out.json> <run64> <run8>    # independent 8-pair run vs the first-8 accounting of the 64-pair run
++    python launch_check.py budget <launch_dir> <run64> <out.json>   # 8/16/32/64 x FULL/FIRST_SUCCESS tables, Wilson CIs, flips, strata
++    python launch_check.py interrupt <out.json> <run> <snapshot.sha256> <parts_copy>   # SIGKILL + resume preserved commits
++    python launch_check.py integrity <launch_dir>              # original dataset, both smoke stores, smoke code vs the baseline hashes
++"""
++import hashlib, io, json, math, subprocess, sys
++from collections import Counter, defaultdict
++from pathlib import Path
++
++import numpy as np
++sys.path.insert(0, str(Path(__file__).resolve().parent))
++import placement_teacher as T  # noqa: E402
++P = T.P
++MODE_KEYS = ("held_stage", "held_definite", "pick_access_stage", "place_stage", "pair_category")
++BUDGETS = (8, 16, 32, 64)
++PROTECTED = ("roles", "intended_blockers", "labels", "verified_K", "observed", "construction", "parking", "verified_class")
++
++
++def ah(a):
++    a = np.ascontiguousarray(np.asarray(a))
++    return hashlib.sha256(f"{a.dtype.str}|{a.shape}|".encode() + a.tobytes()).hexdigest()
++
++
++def load(run, roots=None):
++    """[(header, query, modes-or-None, attempts dict)] for every packed root (or the given ones), in plan order within a root."""
++    out = []
++    for f in sorted(Path(run).glob("records/*.json")) if roots is None else [Path(run) / "records" / f"{r}.json" for r in roots]:
++        h = json.loads(f.read_text())
++        mf = Path(run) / "modes" / f"{h['root_id']}.npz"
++        z = dict(np.load(mf)) if mf.exists() else {}
++        qi = list(z.get("query_index", []))
++        for k, q in enumerate(h["queries"]):
++            m = a = None
++            if k in qi:
++                i, sel = qi.index(k), z["a_query"] == k
++                m, a = {x: z[x][i] for x in MODE_KEYS}, {x: z[x][sel] for x in T.ATT}
++            out.append(({x: v for x, v in h.items() if x != "queries"}, q, m, a))
++    return out
++
++
++def digest(run, h, q, m, a):
++    canon = {k: v for k, v in q.items() if k != "volatile"}
++    extra = {"modes": {k: ah(v) for k, v in (m or {}).items()}, "attempts": {k: ah(v) for k, v in (a or {}).items()},
++             "witnesses": [[w, {k: ah(v) for k, v in T.witness(run, h["root_id"], w).items()}] for w in q["witness_refs"]],
++             "header": {k: h[k] for k in ("root_id", "split", "budget_hash", "pair_protocol_id", "original_scene_hash", "root_file_sha256")}}
++    return hashlib.sha256(json.dumps([canon, extra], sort_keys=True).encode()).hexdigest()
++
++
++def _audit_roots(args):
++    """Per-root checks (run in a process pool): -> (check counter, failures, packed witness ids per root)."""
++    run, man, split, roots = args
++    rows = load(run, roots)
++    G = P.A.env()
++    robot, p = G["robot"], P.sk.params(G["cfg"])
++    chk, bad, packed = Counter(), [], {}
++    B, pol = man["policy"]["pairs_per_query"], man["policy"]
++
++    def ok(name, cond, detail=""):
++        chk[(name, bool(cond))] += 1
++        if not cond:
++            bad.append(f"{name}: {detail}")
++    for h, q, m, a in rows:
++        tid = q["trial_id"]
++        ok("header pins budget / protocol / split", h["budget_hash"] == man["budget_hash"] and h["pair_protocol_id"] == man["pair_protocol_id"]
++           and h["split"] == split[h["root_id"]] and P.sha_file(P.DATA / "raw" / "roots" / f"{h['root_id']}.json") == h["root_file_sha256"], tid)
++        ok("protected fields only under privileged_teacher", not any(k in q for k in PROTECTED) and set(h["privileged_teacher"]) == {"verified_class"}, tid)
++        task = {"root": h["root_id"], "prefix": q["prefix_key"]}
++        s = T.scene_for(task)
++        ok("scene hash recomputes; prefix provenance", P.scene_hash(s) == q["hypothetical_scene_hash"]
++           and (q["prefix_provenance"] == "HYPOTHETICAL") == bool(q["prefix_key"]), tid)
++        if not q["eligible"]:
++            ok("ineligible -> unattempted, unlabeled, really occupied", not q["attempted"] and q["label"] is None and not q["witness_refs"]
++               and (q["excluded"] != "DEST_OCCUPIED" or q["destination_cell"] in {o.cell for o in s.objects}), tid)
++            continue
++        if not q["completed"]:
++            ok("interrupted -> label null with reason", q["label"] is None and q["safety_interruption"], tid)
++            continue
++        mc, cat = q["mode_counts"], m["pair_category"]
++        ok("completed -> binary label, 1 <-> verified pair", q["label"] in (0, 1) and (q["label"] == 1) == (mc["n_mode_witnesses"] > 0) == bool(a["a_verified"].any()), tid)
++        if q["label"] == 0:
++            ok("0 carries kind, scope, phase", q["negative_kind"] and q["negative_scope"] and q["failure_phase"] and isinstance(q["is_certificate"], bool), tid)
++        ok("partition reconciles and equals the arrays", mc["total"] == 2304 == mc["hard_screened"] + mc["motion_attempted"] + mc["reused_reverified"] + mc["not_motion_attempted"]
++           and [mc["hard_screened"], mc["screen_inconclusive"], mc["valid_not_planned"], mc["attempted_failure"], mc["attempted_success"], mc["reused_reverified"]]
++           == [int((cat == c).sum()) for c in range(6)], tid)
++        rk = a["a_rank"][a["a_rank"] >= 0]
++        first = next((int(r) for r, v in zip(a["a_rank"], a["a_verified"]) if r >= 0 and v), None)
++        n_exp = min(B, mc["valid_pairs"]) if pol["coverage"] == "FULL" or first is None else first + 1
++        ok("schedule: ranks 0..n-1, n per coverage rule, outcomes match categories", list(rk) == list(range(len(rk))) and len(rk) == n_exp
++           and all(cat[i, j] == (5 if r < 0 else 4 if v else 3) for i, j, r, v in zip(a["a_pick"], a["a_place"], a["a_rank"], a["a_verified"])), tid)
++        ok("counted work within limits (+1 extension of the RRT-Connect step)", all(x <= T.PER_PAIR["rrt_attempts"] + 1 for x in a["a_attempts"])
++           and all(x <= T.PER_PAIR["rrt_nodes"] + 1 for x in a["a_nodes"]), tid)
++        st = [w for w, s_ in zip(a["a_witness"], a["a_stored"]) if s_]
++        ok("witness_refs = stored verified pairs, within the store cap", q["witness_refs"] == list(dict.fromkeys(st))
++           and sum(r >= 0 for r, s_ in zip(a["a_rank"], a["a_stored"]) if s_) <= pol["witness_store_max"], tid)
++        ident = f"{h['pair_protocol_id']}|{s.robot_profile_hash}|{q['hypothetical_scene_hash']}|{q['object_id']}"
++        dxy = np.asarray(s.lattice.center(q["destination_cell"]))
++        for w in q["witness_refs"]:
++            core = T.witness(run, h["root_id"], w)
++            packed.setdefault(h["root_id"], set()).add(w)
++            ok("witness content id recomputes", T.wid_of(ident, core) == w, w)
++            good, ver = P.verify_witness(robot, s, q["object_id"], core, dxy, p)
++            ok("witness re-certifies phase by phase (carry, release, retreat)", good and [str(x) for x in dict.fromkeys(core["phase"])] == list(T.PHASES), f"{w} {ver}")
++            ok("witness starts attached at the source", np.allclose(P.ge.tool_point(robot, core["q"][0], core["held_local"]), s.get(q["object_id"]).xy_m, atol=1e-6), w)
++    return chk, bad, packed
++
++
++def audit(run, procs=16):
++    run = Path(run).resolve()
++    man, rows = json.loads((run / "run_manifest.json").read_text()), load(run)
++    split = {r["root_id"]: r["split"] for r in json.loads((_launch(run) / "split_manifest.json").read_text())["roots"]}
++    chk, bad, packed = Counter(), [], {}
++
++    def ok(name, cond, detail=""):
++        chk[(name, bool(cond))] += 1
++        if not cond:
++            bad.append(f"{name}: {detail}")
++    ok("one record per planned query", len(rows) == man["queries"], f"{len(rows)}/{man['queries']}")
++    ok("no open roots, parts or temp files", not list(run.glob("parts/*/*")) and not list(run.rglob("*.tmp")))
++    roots = sorted({h["root_id"] for h, _, _, _ in rows})
++    import multiprocessing as mp
++    with mp.get_context("fork").Pool(procs) as pool:
++        for c, b_, pk in pool.map(_audit_roots, [(run, man, split, [r]) for r in roots]):
++            chk.update(c)
++            bad += b_
++            packed.update(pk)
++    for f in run.glob("witnesses/*.npz"):
++        ok("pack holds exactly the referenced witnesses", set(np.load(f)["ids"]) == packed.get(f.stem, set()), f.stem)
++    comp = [(h, q, m, a) for h, q, m, a in rows if q["eligible"] and q["completed"]]
++    summ = {"queries": len(rows), "static_ineligible": sum(not q["eligible"] for _, q, _, _ in rows), "completed": len(comp),
++            "interrupted": sum(q["eligible"] and not q["completed"] for _, q, _, _ in rows), "label_1": sum(q["label"] == 1 for _, q, _, _ in comp),
++            "label_0": sum(q["label"] == 0 for _, q, _, _ in comp), "negative_kinds": dict(Counter(q["negative_kind"] for _, q, _, _ in comp if q["label"] == 0)),
++            "label_sources": dict(Counter(q["label_source"] for _, q, _, _ in comp if q["label"] == 1)),
++            "modes": {k: sum(q["mode_counts"][k] for _, q, _, _ in comp) for k in comp[0][1]["mode_counts"]} if comp else {},
++            "pairs_planned": sum(q["work"]["pairs_planned"] for _, q, _, _ in comp), "stored_witnesses": sum(len(v) for v in packed.values()),
++            "methods": dict(Counter(T.METHODS[x] for _, _, _, a in comp for x in a["a_method"])),
++            "query_cpu_s_sum": round(sum(q["volatile"]["cpu_s"] for _, q, _, _ in comp), 1),
++            "bytes": {d: sum(f.stat().st_size for f in run.glob(f"{d}/*")) for d in ("records", "modes", "witnesses")}}
++    fp = {q["trial_id"]: digest(run, h, q, m, a) for h, q, m, a in rows}
++    out = {"verification": {"passed": sum(n for (_, v), n in chk.items() if v), "failed": sum(n for (_, v), n in chk.items() if not v), "failures": bad[:50],
++                            "checks": sorted({k for k, _ in chk})}, "summary": summ,
++           "fingerprint": {"run_fingerprint": hashlib.sha256(json.dumps(sorted(fp.items())).encode()).hexdigest(), "queries": fp}}
++    for k, v in out.items():
++        (run / f"{k}.json").write_text(json.dumps(v, indent=1, sort_keys=True))
++    return out
++
++
++def _launch(run):
++    return next(x for x in Path(run).resolve().parents if (x / "split_manifest.json").exists())
++
++
++def compare(dst, runs):
++    fps = {r: json.loads((Path(r) / "fingerprint.json").read_text())["queries"] for r in runs}
++    shared = sorted(set.intersection(*(set(v) for v in fps.values())))
++    mism = [t for t in shared if len({fps[r][t] for r in runs}) > 1]
++    out = {"runs": [str(r) for r in runs], "shared_queries": len(shared), "mismatches": len(mism), "mismatched": mism,
++           "per_run_queries": {str(r): len(v) for r, v in fps.items()}}
++    Path(dst).write_text(json.dumps(out, indent=1))
++    return out
++
++
++def virtual(q, a, B, cov):
++    """The query's outcome under budget B and coverage cov, read from a FULL run with >= B pairs (nested schedules)."""
++    reused = bool(((a["a_rank"] < 0) & a["a_verified"]).any())
++    keep = (a["a_rank"] >= 0) & (a["a_rank"] < B)
++    if cov == "FIRST_SUCCESS":
++        first = next((int(r) for r, v in zip(a["a_rank"], a["a_verified"]) if 0 <= r < B and v), None)
++        keep &= (a["a_rank"] < (first + 1 if first is not None else B)) & (not reused)
++    ver = int((a["a_verified"] & keep).sum())
++    cpu = q["volatile"]["screen_cpu_s"] + sum(c for c, k in zip(q["volatile"]["attempt_cpu_s"], keep[a["a_rank"] >= 0]) if k)
++    lab = int(ver > 0 or reused)
++    mc = q["mode_counts"]
++    kind = None if lab else ("CERTIFIED_SCREEN" if mc["hard_screened"] == mc["total"] else "NO_PLAN_FOUND" if mc["valid_pairs"] == 0
++                             else "WORK_BUDGET_EXHAUSTED" if mc["valid_pairs"] > B else "SCHEDULE_EXHAUSTED_NO_WITNESS")
++    return {"label": lab, "kind": kind, "planned": int(keep.sum()), "verified": ver + reused, "cpu_s": cpu, "valid": mc["valid_pairs"],
++            "evals": int(sum(x for x, k in zip(a["a_pre_evals"] + a["a_search_evals"] + a["a_shortcut_evals"], keep) if k))}
++
++
++def nested(dst, run64, run8):
++    A = {q["trial_id"]: (q, a) for _, q, _, a in load(run64) if q["eligible"] and q["completed"]}
++    out, bad = Counter(), []
++    for _, q, _, a in load(run8):
++        if not (q["eligible"] and q["completed"]):
++            continue
++        q64, a64 = A[q["trial_id"]]
++        sel = a64["a_rank"] < 8
++        same = all(np.array_equal(a[k], a64[k][sel]) for k in T.ATT if k != "a_stored") and q["label"] == virtual(q64, a64, 8, "FULL")["label"]
++        same &= q["negative_kind"] == virtual(q64, a64, 8, "FULL")["kind"] and q["mode_counts"]["valid_pairs"] == q64["mode_counts"]["valid_pairs"]
++        out["equal" if same else "different"] += 1
++        if not same:
++            bad.append(q["trial_id"])
++    res = {"compared": sum(out.values()), **out, "different_ids": bad}
++    Path(dst).write_text(json.dumps(res, indent=1))
++    return res
++
++
++def wilson(k, n, z=1.96):
++    if n == 0:
++        return [None, None]
++    c, h = (k + z * z / 2) / (n + z * z), z * math.sqrt(k * (n - k) / n + z * z / 4) / (n + z * z)
++    return [round(c - h, 4), round(c + h, 4)]
++
++
++def budget(L, run64, dst):
++    L, rows = Path(L), [(h, q, a) for h, q, _, a in load(run64) if q["eligible"] and q["completed"]]
++    grp = {r["root_id"]: r["root_group_id"] for r in json.loads((L / "split_manifest.json").read_text())["roots"]}
++    V = {(b, c): [virtual(q, a, b, c) for _, q, a in rows] for b in BUDGETS for c in ("FULL", "FIRST_SUCCESS")}
++    ref = [v["label"] for v in V[(64, "FULL")]]
++    tab = {}
++    for b in BUDGETS:
++        f, s = V[(b, "FULL")], V[(b, "FIRST_SUCCESS")]
++        y = [v["label"] for v in f]
++        miss = sum(r == 1 and x == 0 for r, x in zip(ref, y))
++        flips = {f"{i}->{j}": sum(x == i and r == j for r, x in zip(ref, y)) for i in (0, 1) for j in (0, 1)}
++        strata = {}
++        for name in ("dest_bin", "block", "source_bin", "class"):
++            d = defaultdict(lambda: [0, 0, 0])
++            for (h, q, _), r, x in zip(rows, ref, y):
++                k = h["privileged_teacher"]["verified_class"] if name == "class" else q[name]
++                d[k][0] += r == 1
++                d[k][1] += r == 1 and x == 0
++                d[k][2] += x == 0
++            strata[name] = {k: {"pos64": v[0], "missed": v[1], "miss_frac": round(v[1] / v[0], 4) if v[0] else None, "ci95": wilson(v[1], v[0]), "label0": v[2]}
++                            for k, v in sorted(d.items())}
++        neg = [(h, q) for (h, q, _), x in zip(rows, y) if x == 0]
++        cpu = lambda vs: {"mean": round(float(np.mean([v["cpu_s"] for v in vs])), 3), "median": round(float(np.median([v["cpu_s"] for v in vs])), 3),  # noqa: E731
++                          "p95": round(float(np.percentile([v["cpu_s"] for v in vs], 95)), 3), "sum_h": round(sum(v["cpu_s"] for v in vs) / 3600, 3)}
++        tab[b] = {"queries": len(y), "label_1": sum(y), "label_0": len(y) - sum(y), "missed_vs_64": miss, "pos64": sum(ref),
++                  "miss_frac": round(miss / sum(ref), 4) if sum(ref) else None, "miss_ci95": wilson(miss, sum(ref)),
++                  "rescued_by_64": {"of_label0": len(y) - sum(y), "rescued": miss, "rate": round(miss / (len(y) - sum(y)), 4) if len(y) > sum(y) else None},
++                  "flip_matrix_B_to_64": flips, "strata": strata,
++                  "negatives": {"queries": len(neg), "roots": len({h["root_id"] for h, _ in neg}), "lineage_groups": len({grp[h["root_id"]] for h, _ in neg}),
++                                "classes": dict(Counter(h["privileged_teacher"]["verified_class"] for h, _ in neg)), "objects": len({(h["root_id"], q["object_id"]) for h, q in neg}),
++                                "kinds": dict(Counter(v["kind"] for v in f if not v["label"]))},
++                  "pairs_planned_mean": round(float(np.mean([v["planned"] for v in f])), 2),
++                  "survivor_pair_coverage": round(sum(v["planned"] for v in f) / max(1, sum(v["valid"] for v in f)), 4),
++                  "attempted_pair_success": round(sum(v["verified"] for v in f) / max(1, sum(v["planned"] for v in f)), 4),
++                  "verified_pairs_total": sum(v["verified"] for v in f), "evals_total": sum(v["evals"] for v in f),
++                  "cpu_FULL": cpu(f), "cpu_FIRST_SUCCESS": cpu(s), "pairs_planned_mean_FIRST_SUCCESS": round(float(np.mean([v["planned"] for v in s])), 2)}
++    mono = all(all(not (V[(b1, "FULL")][i]["label"] == 1 and V[(b2, "FULL")][i]["label"] == 0) for i in range(len(rows)))
++               for b1 in BUDGETS for b2 in BUDGETS if b2 > b1)
++    rank = defaultdict(lambda: [0, 0])
++    for _, _, a in rows:
++        for r, v in zip(a["a_rank"], a["a_verified"]):
++            if r >= 0:
++                rank[min(BUDGETS, key=lambda b: (r >= b, b))][0] += 1
++                rank[min(BUDGETS, key=lambda b: (r >= b, b))][1] += bool(v)
++    fail = Counter((T.METHODS[m], T.STOPS[s_]) for _, _, a in rows for m, s_, v, r in zip(a["a_method"], a["a_stop"], a["a_verified"], a["a_rank"]) if r >= 0 and not v)
++    out = {"run": str(run64), "budgets": tab, "monotone_no_1_to_0": mono, "pair_success_by_rank_bucket": {f"<{b}": {"planned": v[0], "verified": v[1],
++           "rate": round(v[1] / v[0], 4) if v[0] else None} for b, v in sorted(rank.items())}, "failed_attempts_by_method_stop": {f"{a}:{b}": n for (a, b), n in fail.most_common()},
++           "queries_by_label_valid_pairs0": sum(v["valid"] == 0 for v in V[(64, "FULL")]), "virtual_rows": {f"{b}/{c}": [[v["label"], round(v["cpu_s"], 3), v["planned"]] for v in vs]
++                                                                                                         for (b, c), vs in V.items()},
++           "row_ids": [q["trial_id"] for _, q, _ in rows], "row_meta": [[h["root_id"], q["block"], q["dest_bin"], q["source_bin"], h["privileged_teacher"]["verified_class"]] for h, q, _ in rows]}
++    Path(dst).write_text(json.dumps(out, indent=1, sort_keys=True))
++    return out
++
++
++def interrupt(dst, run, snap, parts):
++    """After SIGKILL + resume: packed files present at the kill are byte-identical; every query committed (final) at the kill
++    reappears unchanged (record and arrays) inside its packed root."""
++    run, res = Path(run), Counter()
++    for line in Path(snap).read_text().splitlines():
++        h, f = line.split(maxsplit=1)
++        if not f.startswith("parts/"):
++            res["packed_same" if (run / f).exists() and P.sha_file(run / f) == h else "packed_changed"] += 1
++    now = {q["trial_id"]: (q, m, a) for _, q, m, a in load(run)}
++    for f in Path(parts).glob("*/*.json"):
++        r = json.loads(f.read_text())
++        if not (r["completed"] or not r["eligible"]):
++            res["unfinished_part_rerun"] += 1
++            continue
++        q, m, a = now[r["trial_id"]]
++        same = r == q
++        if f.with_suffix(".npz").exists():
++            z = np.load(f.with_suffix(".npz"))
++            same &= all(np.array_equal(z[k], m[k]) for k in MODE_KEYS) and all(np.array_equal(z[k], a[k]) for k in T.ATT)
++        res["committed_part_same" if same else "committed_part_changed"] += 1
++    Path(dst).write_text(json.dumps(dict(res), indent=1))
++    return dict(res)
++
++
++def integrity(L):
++    L, res = Path(L), {}
++    base = L / "audit" / "baseline"
++    for name, root in (("original_dataset.sha256", P.DATA), ("smoke_20261106.sha256", L.parent / "smoke_20261106"), ("smoke_repro_v2.sha256", L.parent / "smoke_repro_v2")):
++        lines = [x.split(maxsplit=1) for x in (base / name).read_text().splitlines()]
++        now = {str(f.relative_to(root)) for f in root.rglob("*") if f.is_file()}
++        res[name] = {"files": len(lines), "changed": [f for h, f in lines if P.sha_file(root / f.strip()) != h],
++                     "added": sorted(now - {f.strip()[2:] for _, f in lines})}
++    res["smoke_code_unchanged"] = {f.split()[1]: P.sha_file(P.HERE / f.split()[1]) == f.split()[0] for f in (base / "code_before.sha256").read_text().splitlines()}
++    res["git_status_original_dataset"] = subprocess.run(["git", "status", "--porcelain", "--ignored", "--", str(P.DATA)], capture_output=True, text=True, cwd=P.DATA).stdout.strip() or "clean"
++    (L / "audit" / "integrity.json").write_text(json.dumps(res, indent=1))
++    return res
++
++
++if __name__ == "__main__":
++    cmd, args = sys.argv[1], sys.argv[2:]
++    if cmd == "audit":
++        r = audit(args[0])
++        print(json.dumps({"verification": {k: r["verification"][k] for k in ("passed", "failed", "failures")}, "summary": r["summary"],
++                          "run_fingerprint": r["fingerprint"]["run_fingerprint"]}, indent=1))
++    elif cmd == "compare":
++        print(json.dumps(compare(args[0], args[1:]), indent=1))
++    elif cmd == "nested":
++        print(json.dumps(nested(*args), indent=1))
++    elif cmd == "budget":
++        r = budget(*args)
++        print(json.dumps({b: {k: v for k, v in t.items() if k not in ("strata",)} for b, t in r["budgets"].items()}, indent=1))
++    elif cmd == "interrupt":
++        print(json.dumps(interrupt(*args), indent=1))
++    elif cmd == "integrity":
++        print(json.dumps(integrity(args[0]), indent=1))
+diff -ruN /home/naren/Desktop/rss-placement-smoke/gh-yadu-iiith/planar_2d/dataset_relocations_v1/launch_ready_2d_v1/audit/baseline/code_before/launch_decide.py /home/naren/Desktop/rss-placement-smoke/gh-yadu-iiith/planar_2d/dataset_relocations_v1/launch_ready_2d_v1/../code/launch_decide.py
+--- /home/naren/Desktop/rss-placement-smoke/gh-yadu-iiith/planar_2d/dataset_relocations_v1/launch_ready_2d_v1/audit/baseline/code_before/launch_decide.py	1970-01-01 05:30:00.000000000 +0530
++++ /home/naren/Desktop/rss-placement-smoke/gh-yadu-iiith/planar_2d/dataset_relocations_v1/launch_ready_2d_v1/../code/launch_decide.py	2026-11-06 23:43:58.411640984 +0530
+@@ -0,0 +1,157 @@
++"""Apply the PRE-REGISTERED pilot selection rule (configs/pilot_policy_selection.json, frozen before any pilot call) to the pilot
++evidence; forecast the full run; freeze configs/production_policy.json only when every gate passes.
++
++    python launch_decide.py gates <launch_dir> <run_a> <run_b>     # gates.json; run_a, run_b = two audited 25-worker 64-pair runs
++    python launch_decide.py decide <launch_dir> <budget.json> <run64_25w> <soak_run_25w> <gates.json>
++"""
++import gzip, io, json, sys, time
++from collections import Counter, defaultdict
++from pathlib import Path
++
++import numpy as np
++import psutil
++sys.path.insert(0, str(Path(__file__).resolve().parent))
++import launch_check as K  # noqa: E402
++import launch_plan as LP  # noqa: E402
++import placement_teacher as T  # noqa: E402
++P = T.P
++
++
++def label_rule(b, rule):
++    lr, out = rule["label_rule"], {}
++    for B in rule["candidates"]:
++        t = b["budgets"][str(B)]
++        bad = [f"overall miss {t['miss_frac']}"] if (t["miss_frac"] or 0) > lr["max_miss_overall"] else []
++        for dim, keys in lr["strata"].items():
++            for k in keys:
++                s = t["strata"][dim].get(k)
++                if s and s["pos64"] >= lr["min_positives_for_stratum_test"] and s["miss_frac"] > lr["max_miss_per_stratum"]:
++                    bad.append(f"{dim}={k} miss {s['miss_frac']} of {s['pos64']}")
++        out[B] = {"passes": not bad and b["monotone_no_1_to_0"], "violations": bad}
++    sel = next((B for B in rule["candidates"] if out[B]["passes"]), None)
++    return sel, out
++
++
++def throughput(soak):
++    """Sustained worker CPU-s per wall-s while the queue was non-empty (thermal pauses included)."""
++    m = [json.loads(x) for x in open(Path(soak) / "monitor.jsonl")]
++    w = [x for x in m if x.get("queued", 0) > 0 and x.get("workers_cpu_s") is not None]
++    if len(w) >= 2:
++        return (w[-1]["workers_cpu_s"] - w[0]["workers_cpu_s"]) / (w[-1]["t"] - w[0]["t"]), "monitor slope while queue non-empty"
++    r = json.loads(sorted(Path(soak).glob("run_*.json"))[-1].read_text())
++    return r["children_cpu_s"] / r["wall_s"], "children CPU / wall (includes ramp and tail)"
++
++
++def bytes_model(run64, B, cov):
++    """Bytes per plan row when the pilot roots are re-packed exactly as production packs them under (B, cov, witness_store_max=1):
++    one records JSON, one modes NPZ and one witness NPZ per root (+ half a 4 KiB block per file). -> (bytes per row, bytes per witness)."""
++    by = defaultdict(list)
++    for h, q, m, a in K.load(run64):
++        by[h["root_id"]].append((q, m, a))
++    tot = rows = nw = wbytes = 0
++    for rid, rs in by.items():
++        recs, arrs, ws = [], defaultdict(list), []
++        for q, m, a in rs:
++            rows += 1
++            if not (q["eligible"] and q["completed"]):
++                recs.append(q)
++                continue
++            v = K.virtual(q, a, B, cov)
++            keep = (a["a_rank"] < 0) | ((a["a_rank"] >= 0) & (a["a_rank"] < v["planned"]))
++            for k in K.MODE_KEYS:
++                arrs[k].append(m[k])
++            for k in T.ATT:
++                arrs["c_" + k].append(a[k][keep])
++            recs.append({**q, "volatile": {**q["volatile"], "attempt_cpu_s": q["volatile"]["attempt_cpu_s"][:v["planned"]]}, "witness_refs": q["witness_refs"][:1]})
++            if v["label"] and q["witness_refs"]:
++                ws.append(T.witness(run64, rid, q["witness_refs"][0]))
++        mb, wb = io.BytesIO(), io.BytesIO()
++        np.savez_compressed(mb, **{k: np.concatenate(v) if k.startswith("c_") else np.stack(v) for k, v in arrs.items()})
++        if ws:
++            np.savez_compressed(wb, q=np.concatenate([w["q"] for w in ws]), gap=np.concatenate([w["gap"] for w in ws]), attached=np.concatenate([w["attached"] for w in ws]),
++                                phase_code=np.concatenate([[T.PHASES.index(str(x)) for x in w["phase"]] for w in ws]).astype(np.int8),
++                                held_local=np.stack([w["held_local"] for w in ws]), place_xy=np.stack([w["place_xy"] for w in ws]))
++            nw, wbytes = nw + len(ws), wbytes + len(wb.getvalue())
++        tot += len(json.dumps({"queries": recs}, separators=(",", ":"))) + len(mb.getvalue()) + len(wb.getvalue()) + 3 * 2048
++    return tot / rows, wbytes / max(nw, 1)
++
++
++def gates(L, a, b):
++    """determinism (a = b = serial reference on shared queries), nested, interrupt + resume, 25-worker safety of a and b (no safety
++    stop in any of their sessions), and zero audit failures. Evidence: audit/pilot/gates_evidence.json."""
++    import glob
++    L = Path(L)
++    A, PL = L / "audit" / "pilot", L / "pilot"
++    runs = [Path(a), Path(b)]
++    c3 = K.compare(A / f"compare_{runs[0].name}_{runs[1].name}_serial.json", [*runs, PL / "pilot_b64_serial_first"])
++    c2 = K.compare(A / f"compare_{runs[0].name}_{runs[1].name}.json", runs)
++    ci, n = json.loads((A / "compare_b8_vs_interrupt.json").read_text()), json.loads((A / "nested_b64r1_vs_b8.json").read_text())
++    it = json.loads((A / "interrupt_check.json").read_text())
++    names = {*runs, PL / "pilot_b64_serial_first", PL / "pilot_b8_w25", PL / "pilot_b8_w25_interrupt"}
++    aud = {r.name: json.loads((r / "verification.json").read_text())["failed"] for r in names}
++    stops = {r.name: [json.loads(Path(f).read_text())["stop"] for f in sorted(glob.glob(str(r / "run_1*.json")))] for r in runs}
++    g = {"determinism": c3["mismatches"] == 0 and c3["shared_queries"] == 25 and c2["mismatches"] == 0 and c2["shared_queries"] == 347,
++         "nested": n["compared"] == 300 and n.get("different", 0) == 0,
++         "interrupt_resume": ci["mismatches"] == 0 and ci["shared_queries"] == 347 and it.get("packed_changed", 0) == 0 and it.get("committed_part_changed", 0) == 0,
++         "safety_25": all(s is None for v in stops.values() for s in v), "audits": all(v == 0 for v in aud.values())}
++    (A / "gates.json").write_text(json.dumps(g, indent=1))
++    (A / "gates_evidence.json").write_text(json.dumps({"runs_judged": [str(r) for r in runs], "audit_failures": aud, "safety_stops_per_session": stops,
++        "compare_with_serial": {k: c3[k] for k in ("shared_queries", "mismatches")}, "compare_pair": {k: c2[k] for k in ("shared_queries", "mismatches")},
++        "compare_b8_interrupt": {k: ci[k] for k in ("shared_queries", "mismatches")}, "nested": {k: v for k, v in n.items() if k != "different_ids"}, "interrupt": it}, indent=1))
++    return g
++
++
++def decide(L, bj, run64, soak, gates_f):
++    L = Path(L)
++    rule = json.loads((L / "configs" / "pilot_policy_selection.json").read_text())
++    b, gates = json.loads(Path(bj).read_text()), json.loads(Path(gates_f).read_text())
++    sel, per_b = label_rule(b, rule)
++    neg = b["budgets"][str(sel)]["negatives"] if sel else None
++    g = rule["negative_diversity_gate"]
++    neg_ok = bool(neg) and neg["queries"] >= g["min_label0"] and neg["lineage_groups"] >= g["min_lineage_groups"] and len(neg["classes"]) >= g["min_classes"]
++    rate, how = throughput(soak)
++    meta = b["row_meta"]
++    plan = [json.loads(x) for x in gzip.decompress((L / "query_plan.jsonl.gz").read_bytes()).decode().splitlines()]
++    free = psutil.disk_usage(str(L)).free / 2 ** 20
++    budget_mb = free - 1536
++    ladder = []
++    for cov, qn in rule["workload_rule"]["ladder"]:
++        if sel is None:
++            break
++        cpu = defaultdict(list)
++        for (rid, blk, dbin, sbin, cls), v in zip(meta, b["virtual_rows"][f"{sel}/{cov}"]):
++            cpu[dbin].append(v[1])
++        mean = {k: float(np.mean(v)) for k, v in cpu.items()}
++        comp = Counter(r[8] for p in plan for r in p["queries"] if LP.in_quota(r, LP.QUOTAS[qn]) and not r[12])
++        n_static = sum(1 for p in plan for r in p["queries"] if LP.in_quota(r, LP.QUOTAS[qn]) and r[12])
++        cpu_h = sum(n * mean.get(k, max(mean.values())) for k, n in comp.items()) / 3600
++        per_q, w = bytes_model(run64, sel, cov)
++        roots = sum(1 for p in plan if any(LP.in_quota(r, LP.QUOTAS[qn]) for r in p["queries"]))
++        days = cpu_h * 3600 / rate / 86400
++        disk = per_q * (sum(comp.values()) + n_static) / 2 ** 20 + days * 86400 / 2 * 300 / 2 ** 20     # + monitor log (300 B / 2 s)
++        ladder.append({"coverage": cov, "quota": qn, "teacher_queries": sum(comp.values()), "static_rows": n_static, "roots": roots,
++                       "cpu_h": round(cpu_h, 1), "wall_days": round(days, 2), "disk_mb": round(disk, 1), "bytes_per_row_packed": round(per_q),
++                       "bytes_per_witness": round(w), "fits": days <= rule["workload_rule"]["max_projected_wall_days"] and disk <= budget_mb})
++    pick = next((x for x in ladder if x["fits"]), None)
++    verdict_gates = {"label_rule_selects_budget": sel is not None, "negative_diversity": neg_ok, "workload_fits": pick is not None, **gates}
++    out = {"version": "PILOT_DECISION_V1", "decided": time.strftime("%Y-%m-%dT%H:%M:%S"), "rule_sha256": P.sha_file(L / "configs" / "pilot_policy_selection.json"),
++           "selected_pairs": sel, "per_budget": per_b, "negatives_at_selected": neg, "throughput_worker_cpu_s_per_s": round(rate, 2), "throughput_basis": how,
++           "disk_free_mb": round(free), "disk_budget_mb": round(budget_mb), "ladder": ladder, "chosen": pick, "gates": verdict_gates,
++           "ready": all(verdict_gates.values())}
++    (L / "audit" / "pilot_decision.json").write_text(json.dumps(out, indent=1, sort_keys=True))
++    if out["ready"]:
++        pol = {"pairs_per_query": sel, "coverage": pick["coverage"], "witness_store_max": rule["workload_rule"]["production_witness_store_max"], "reuse_archived": True}
++        prod = {"version": "PRODUCTION_POLICY_2D_V1", "frozen": out["decided"], "policy": pol, "budget_hash": T.budget_hash(pol), "quota": pick["quota"],
++                "quota_spec": LP.QUOTAS[pick["quota"]], "forecast": {k: pick[k] for k in ("teacher_queries", "static_rows", "roots", "cpu_h", "wall_days", "disk_mb")},
++                "decision_file_sha256": P.sha_file(L / "audit" / "pilot_decision.json"), "note": "B is a finite operational policy; zeros are policy-limited, not physical impossibility"}
++        f = L / "configs" / "production_policy.json"
++        f.write_text(json.dumps(prod, indent=1, sort_keys=True))
++        fz = json.loads((L / "configs" / "frozen_hashes.json").read_text())
++        fz["production_policy_sha256"] = P.sha_file(f)
++        (L / "configs" / "frozen_hashes.json").write_text(json.dumps(fz, indent=1, sort_keys=True))
++    return out
++
++
++if __name__ == "__main__":
++    f = gates if sys.argv[1] == "gates" else decide
++    print(json.dumps(f(*sys.argv[2:]), indent=1, sort_keys=True))
+diff -ruN /home/naren/Desktop/rss-placement-smoke/gh-yadu-iiith/planar_2d/dataset_relocations_v1/launch_ready_2d_v1/audit/baseline/code_before/launch_guard.py /home/naren/Desktop/rss-placement-smoke/gh-yadu-iiith/planar_2d/dataset_relocations_v1/launch_ready_2d_v1/../code/launch_guard.py
+--- /home/naren/Desktop/rss-placement-smoke/gh-yadu-iiith/planar_2d/dataset_relocations_v1/launch_ready_2d_v1/audit/baseline/code_before/launch_guard.py	1970-01-01 05:30:00.000000000 +0530
++++ /home/naren/Desktop/rss-placement-smoke/gh-yadu-iiith/planar_2d/dataset_relocations_v1/launch_ready_2d_v1/../code/launch_guard.py	2026-11-06 22:20:04.220780623 +0530
+@@ -0,0 +1,97 @@
++"""Launch guard for the full 2D placement collection: metadata-only preflight (no teacher call, counted), the confirmation token
++of the current frozen files, and the production entry that refuses unless --execute-full, a matching --confirm token and a
++passing preflight are all present. Nothing here starts work except full(..., execute=True) after every check has passed."""
++import fcntl, gzip, json, os
++from collections import Counter
++from pathlib import Path
++
++import psutil
++import launch_runner as R
++from launch_runner import LP, P, T, cfg_of, plan_rows, read_temp, sensors, ac_online, topology, tasks_for
++
++
++def preflight(L, full=False):
++    """Metadata only: no teacher call (counted). Dataset, plan, split, config, policy, topology, sensor, power, memory, disk."""
++    L, C = Path(L), cfg_of(L)
++    calls = Counter()
++    orig = (P.plan_carry, P.held_modes)
++    P.plan_carry = lambda *a, **k: calls.update(["plan_carry"]) or orig[0](*a, **k)
++    P.held_modes = lambda *a, **k: calls.update(["held_modes"]) or orig[1](*a, **k)
++    try:
++        return _checks(L, C, full, calls)
++    finally:
++        P.plan_carry, P.held_modes = orig
++
++
++def _checks(L, C, full, calls):
++    h, chk = json.loads((L / "plan_hashes.json").read_text()), {}
++    plan = plan_rows(L)
++    chk["selected_unchanged"] = P.sha_file(P.DATA / "selected.json") == h["source_selected_sha256"]
++    chk["roots_5000_unique"] = len({p["root_id"] for p in plan}) == len(plan) == 5000 == len(LP.selected())
++    chk["root_files_unchanged"] = all(P.sha_file(P.DATA / "raw" / "roots" / f"{p['root_id']}.json") == p["root_file_sha256"] for p in plan)
++    chk["query_plan_hash"] = P.sha(gzip.decompress((L / "query_plan.jsonl.gz").read_bytes())) == h["query_plan_sha256"]
++    chk["split_manifest_hash"] = P.sha_file(L / "split_manifest.json") == h["split_manifest_sha256"]
++    b = LP.build()
++    chk["plan_recomputes_from_dataset"] = P.sha("".join(json.dumps(p, separators=(",", ":"), sort_keys=True) + "\n" for p in b["plan"]).encode()) == h["query_plan_sha256"]
++    chk["teacher_sources_pinned"] = T.pair_protocol()[0] == C["pair_protocol_id"]
++    chk["config_hash"] = P.sha_file(L / "configs" / "launch_config.json") == (json.loads((L / "configs" / "frozen_hashes.json").read_text())["launch_config_sha256"])
++    cpus, res, topo = topology(C["execution"]["workers"], C["execution"]["reserved_logical_cpus"])
++    chk["cpusets_match_config"] = cpus == C["execution"]["worker_cpus"] and res == C["execution"]["reserved_cpus"]
++    lab = sensors()
++    chk["sensor_k10temp_tctl"] = lab is not None and read_temp(lab) is not None
++    chk["ac_power"] = ac_online() is True
++    vm, du = psutil.virtual_memory(), psutil.disk_usage(str(L))
++    chk["memory_headroom"] = vm.available // 2 ** 20 >= C["execution"]["workers"] * 250 + C["safety"]["min_mem_available_mb"]
++    pol_f = L / "configs" / "production_policy.json"
++    pol = json.loads(pol_f.read_text()) if pol_f.exists() else None
++    need = (pol or {}).get("forecast", {}).get("disk_mb", 0) + C["safety"]["min_disk_free_mb"]
++    chk["disk_headroom"] = du.free // 2 ** 20 >= need
++    if full:
++        chk["production_policy_frozen"] = pol is not None and P.sha_file(pol_f) == json.loads((L / "configs" / "frozen_hashes.json").read_text()).get("production_policy_sha256")
++        tgt = Path(C["full_run_dir"])
++        chk["no_conflicting_full_run"] = not (tgt / ".lock").exists() or _unlocked(tgt / ".lock")
++    q = Counter()
++    sel = (lambda r: LP.in_quota(r, LP.QUOTAS[pol["quota"]])) if pol else (lambda r: False)
++    for p in plan:
++        for r in p["queries"]:
++            if sel(r):
++                q[(p["split"], "static" if r[12] else "teacher")] += 1
++    rep = {"checks": chk, "passed": all(chk.values()), "teacher_calls": dict(calls), "planner_calls": calls["plan_carry"], "worker_cpus": cpus,
++           "reserved_cpus": res, "topology": topo, "hard_cpu_quota": False, "mem_available_mb": vm.available // 2 ** 20, "disk_free_mb": du.free // 2 ** 20,
++           "disk_needed_mb": need, "planned_queries": {f"{a}/{b}": n for (a, b), n in sorted(q.items())}, "production_policy": pol,
++           "temp_now_c": read_temp(lab) if lab else None, "load1": os.getloadavg()[0]}
++    return rep
++
++
++def _unlocked(f):
++    with open(f, "w") as fh:
++        try:
++            fcntl.flock(fh, fcntl.LOCK_EX | fcntl.LOCK_NB)
++            return True
++        except OSError:
++            return False
++
++
++def token(L):
++    L = Path(L)
++    fz = json.loads((L / "configs" / "frozen_hashes.json").read_text())
++    h = json.loads((L / "plan_hashes.json").read_text())
++    parts = [h["query_plan_sha256"], h["split_manifest_sha256"], fz["launch_config_sha256"], fz.get("production_policy_sha256") or "NO_POLICY"]
++    return "LAUNCH-2D-" + P.sha("|".join(parts).encode())[:20]
++
++
++def full(L, argv, execute=True):
++    """Production entry: refuses unless --execute-full, --confirm <token of the CURRENT frozen files> and a passing preflight.
++    execute=False (the `guard` command) stops after the checks: nothing is created and no teacher runs."""
++    if "--execute-full" not in argv or "--confirm" not in argv or argv.index("--confirm") + 1 >= len(argv):
++        raise SystemExit("REFUSED: full collection needs --execute-full and --confirm <token> (see RUNBOOK.md)")
++    if argv[argv.index("--confirm") + 1] != token(L):
++        raise SystemExit("REFUSED: confirmation token does not match the current frozen plan / split / config / policy hashes")
++    rep = preflight(L, full=True)
++    if not rep["passed"]:
++        raise SystemExit("REFUSED: preflight failed: " + json.dumps({k: v for k, v in rep["checks"].items() if not v}))
++    C, pol = cfg_of(L), rep["production_policy"]
++    if not execute:
++        return {"guard": "PASSED", "token": token(L), "full_run_dir": C["full_run_dir"], "policy": pol["policy"], "quota": pol["quota"]}
++    roots = tasks_for(L, lambda r: LP.in_quota(r, LP.QUOTAS[pol["quota"]]))
++    return R.run(L, C["full_run_dir"], roots, pol["policy"], C["execution"]["workers"], C["execution"]["worker_cpus"], C["execution"]["reserved_cpus"], "FULL")
+diff -ruN /home/naren/Desktop/rss-placement-smoke/gh-yadu-iiith/planar_2d/dataset_relocations_v1/launch_ready_2d_v1/audit/baseline/code_before/launch_plan.py /home/naren/Desktop/rss-placement-smoke/gh-yadu-iiith/planar_2d/dataset_relocations_v1/launch_ready_2d_v1/../code/launch_plan.py
+--- /home/naren/Desktop/rss-placement-smoke/gh-yadu-iiith/planar_2d/dataset_relocations_v1/launch_ready_2d_v1/audit/baseline/code_before/launch_plan.py	1970-01-01 05:30:00.000000000 +0530
++++ /home/naren/Desktop/rss-placement-smoke/gh-yadu-iiith/planar_2d/dataset_relocations_v1/launch_ready_2d_v1/../code/launch_plan.py	2026-11-06 21:52:03.049264604 +0530
+@@ -0,0 +1,259 @@
++"""Launch planning for the 2D placement sidecar, from root metadata only (never calls the physical teacher).
++
++  splits   lineage groups = union of parent_family_id, identical object layouts and conversion origin; whole groups go to
++           train / val / test (70 / 15 / 15) by a deterministic class-stratified greedy; groups holding roots that earlier
++           development touched (smoke roster, unit fixture) are forced to train.
++  plan     per root, candidates chosen from scene geometry only (no roles, blockers, repairs, Y labels or K):
++             root block     up to 4 non-target objects (source near / mid / far round robin) x 12 destinations
++             prefix blocks  2 object-only edits (one random design edit; one archived executed first move, flagged as chosen
++                            with protected metadata), each x the 2 objects nearest the edited one x 6 destinations, the first
++                            object's first destination being the cell the edit vacated; plus that (object, cell) in the root
++                            scene as a static-ineligible contrast (no teacher call)
++           destinations: legal, empty, not T's goal; stratified by Chebyshev distance from the source (near 1-2, mid 3-4,
++           far 5-7), simple random (hash) order inside a stratum, so inclusion probability = k / n of its stratum.
++  pilot    25 train roots (5 per class, one per lineage group, >= 2 movable obstacles), a fixed prefix of each block.
++
++    python launch_plan.py freeze <launch_dir>     # split_manifest.json, query_plan.jsonl.gz, pilot_roster.json, plan_summary.json
++    python launch_plan.py verify <launch_dir>     # recompute from the dataset and compare (drift check)
++"""
++import gzip, hashlib, json, math, sys
++from collections import Counter, defaultdict
++from pathlib import Path
++
++import placement_smoke as P
++
++PLAN = {"version": "PLACEMENT_PLAN_V1", "seed": "LAUNCH_READY_2D_V1", "split_targets": {"train": 0.70, "val": 0.15, "test": 0.15},
++        "root_objects": 4, "root_dests": 12, "prefixes": 2, "prefix_objects": 2, "prefix_dests": 6,
++        "dest_bins": {"near": [1, 2], "mid": [3, 4], "far": [5, 7]}, "source_bins": "bd_2d.env regions (base-distance tertiles)",
++        "pilot": {"roots_per_class": 5, "root_objects": 2, "root_dests": 4, "prefix_dests": 2, "min_obstacles": 2},
++        "dev_touched_roots": "smoke_repro_v2/roster.json roots + unit fixture 2d-plus2d-srv-w0408-s006"}
++CLASSES = ("NONE", "0", "1", "2", "3")
++COLS = ("trial_id", "block", "prefix", "prefix_kind", "object", "source_cell", "source_bin", "dest", "dest_bin", "stratum_k", "stratum_n",
++        "pilot", "static_ineligible", "obj_rank", "dest_rank")
++QUOTAS = {"Q1": {"root_objects": 4, "root_dests": 12, "prefixes": 2, "prefix_objects": 2, "prefix_dests": 6},   # = the design maximum
++          "Q2": {"root_objects": 4, "root_dests": 8, "prefixes": 2, "prefix_objects": 2, "prefix_dests": 4},
++          "Q3": {"root_objects": 3, "root_dests": 6, "prefixes": 2, "prefix_objects": 1, "prefix_dests": 4},
++          "Q4": {"root_objects": 2, "root_dests": 4, "prefixes": 2, "prefix_objects": 1, "prefix_dests": 2}}   # = the pilot shape
++TRIAL = lambda root, prefix, obj, dest: P.sha(f"PLACEMENT_LAUNCH_V1|{json.dumps([root, prefix, obj, dest])}".encode())[:16]  # noqa: E731
++H = lambda *a: P.sha(json.dumps([PLAN["seed"], *a]).encode())  # noqa: E731
++cheb = lambda a, b: max(abs(a // 8 - b // 8), abs(a % 8 - b % 8))  # noqa: E731
++
++
++def selected():
++    s = json.loads((P.DATA / "selected.json").read_text())["selected"]
++    return {x: c for c in CLASSES for x in s[c]}
++
++
++def lineage(R):
++    """Union-find over the three proven sharing relations -> {group_id: sorted root ids}."""
++    par = {x: x for x in R}
++
++    def find(x):
++        while par[x] != x:
++            par[x] = par[par[x]]
++            x = par[x]
++        return x
++    for key in (lambda r: r["ids"]["parent_family_id"], lambda r: json.dumps(sorted((o["id"], o["cell"]) for o in r["scene"]["objects"])),
++                lambda r: r["construction"].get("converted_from") or r["ids"]["root_id"]):
++        first = {}
++        for x in sorted(R):
++            k = key(R[x])
++            par[find(x)] = find(first.setdefault(k, x))
++    g = defaultdict(list)
++    for x in sorted(R):
++        g[find(x)].append(x)
++    return {"grp-" + P.sha("|".join(v).encode())[:12]: v for v in g.values()}
++
++
++def splits(groups, cls, forced):
++    N, T = Counter(cls.values()), PLAN["split_targets"]
++    cur, out = {s: Counter() for s in T}, {}
++    for g in sorted(groups, key=lambda g: (g not in forced, -len(groups[g]), H("group", g))):
++        n = Counter(cls[x] for x in groups[g])
++        score = lambda s: (sum(k * (T[s] * N[c] - cur[s][c]) / N[c] for c, k in n.items()), -list(T).index(s))  # noqa: E731
++        out[g] = "train" if g in forced else max(T, key=score)
++        cur[out[g]].update(n)
++    return out
++
++
++def source_bin(cell, G):
++    dist = lambda c: math.dist(((c % 8 + 0.5) * 0.08, (c // 8 + 0.5) * 0.08), G["robot"].base)  # noqa: E731  (bd_2d.env's own metric)
++    edge = G.setdefault("_source_edges", {b: max(dist(c) for c in v) for b, v in G["region"].items()})
++    return "near" if dist(cell) <= edge["near"] else "mid" if dist(cell) <= edge["mid"] else "far"
++
++
++def allocate(n, sizes):
++    k = {b: n // 3 + (i < n % 3) for i, b in enumerate(sizes)}
++    k = {b: min(k[b], sizes[b]) for b in sizes}
++    while sum(k.values()) < n and any(k[b] < sizes[b] for b in sizes):
++        for b in sizes:
++            if sum(k.values()) < n and k[b] < sizes[b]:
++                k[b] += 1
++    return k
++
++
++def dests(key, src, pool, n):
++    """Stratified destinations, interleaved near/mid/far so that any leading slice stays stratified: (cell, bin, k, n_bin)."""
++    bins = {b: sorted((c for c in pool if lo <= cheb(c, src) <= hi), key=lambda c: H(key, c)) for b, (lo, hi) in PLAN["dest_bins"].items()}
++    k = allocate(n, {b: len(v) for b, v in bins.items()})
++    return [(bins[b][i], b, k[b], len(bins[b])) for i in range(max(k.values(), default=0)) for b in bins if i < k[b]]
++
++
++def root_plan(rid, r, G, pilot):
++    goal, legal = r["goal_cell"], set(r["scene"]["legal_cells"])
++    cells0 = {o["id"]: o["cell"] for o in r["scene"]["objects"]}
++    movers = sorted(o for o in cells0 if o != "t0")
++    pool = lambda cells, extra=(): sorted(c for c in legal if c not in cells.values() and c != goal and c not in extra)  # noqa: E731
++    rows = []
++
++    def add(block, prefix, kind, o, cells, d, dbin, k, n, pil, static=False, ranks=(0, 0)):
++        if static and TRIAL(rid, prefix, o, d) in {x[0] for x in rows}:
++            return                                    # both edits vacated the same cell for the same object: one record
++        rows.append([TRIAL(rid, prefix, o, d), block, prefix, kind, o, cells[o], source_bin(cells[o], G), d, dbin, k, n, pil, static, *ranks])
++    bybin = defaultdict(list)
++    for o in sorted(movers, key=lambda o: H(rid, "obj", o)):
++        bybin[source_bin(cells0[o], G)].append(o)
++    objs = [o for i in range(len(movers)) for b in ("near", "mid", "far") if i < len(bybin[b]) for o in [bybin[b][i]]][:PLAN["root_objects"]]
++    for oi, o in enumerate(objs):
++        for di, (d, b, k, n) in enumerate(dests((rid, "root", o), cells0[o], pool(cells0), PLAN["root_dests"])):
++            add("root", [], None, o, cells0, d, b, k, n, pilot and oi < PLAN["pilot"]["root_objects"] and di < PLAN["pilot"]["root_dests"], ranks=(oi, di))
++    edits = []
++    order = sorted(movers, key=lambda o: H(rid, "edit", o))
++    if order and pool(cells0):
++        edits.append(("prefix1", "DESIGN_RANDOM_EDIT", order[0], min(pool(cells0), key=lambda c: H(rid, "edit1dest", c))))
++        arch = sorted({tuple(b["sequence"][0]) for b in r["labels"]["B"] if b["witnesses"] and b["sequence"] and b["sequence"][0][0] in movers
++                       and b["sequence"][0][1] in pool(cells0)} - {edits[0][2:]}, key=lambda m: H(rid, "edit2", *m))
++        if arch:
++            edits.append(("prefix2", "ARCHIVED_FIRST_MOVE", *arch[0]))
++        elif len(order) > 1:
++            edits.append(("prefix2", "DESIGN_RANDOM_EDIT", order[1], min(pool(cells0), key=lambda c: H(rid, "edit2dest", c))))
++    for block, kind, a, c in edits:
++        cells, prefix = {**cells0, a: c}, [[a, c]]
++        near = sorted((o for o in movers if o != a), key=lambda o: (cheb(cells0[o], cells0[a]), H(rid, block, o)))[:PLAN["prefix_objects"]]
++        for oi, o in enumerate(near):
++            vac = oi == 0 and cells0[a] != goal
++            ds = ([(cells0[a], "vacated", 1, 1)] if vac else []) + dests((rid, block, o), cells[o], pool(cells, [cells0[a]] if vac else []),
++                                                                        PLAN["prefix_dests"] - vac)
++            for di, (d, b, k, n) in enumerate(ds):
++                add(block, prefix, kind, o, cells, d, b, k, n, pilot and oi == 0 and di < PLAN["pilot"]["prefix_dests"], ranks=(oi, di))
++            if vac:                                   # the same object and cell before the edit: occupied, a legality record
++                add("contrast_" + block, [], None, o, cells0, cells0[a], "vacated", 1, 1, pilot, True)
++    assert len({x[0] for x in rows}) == len(rows), rid
++    return rows
++
++
++def in_quota(row, q):
++    """Rows of a quota: a leading slice of every block (objects and destinations are stored in rank order)."""
++    r = dict(zip(COLS, row))
++    if r["block"] == "root":
++        return r["obj_rank"] < q["root_objects"] and r["dest_rank"] < q["root_dests"]
++    k = int(r["block"][-1])                              # prefix1 / prefix2 / contrast_prefix1 / contrast_prefix2
++    if r["static_ineligible"]:
++        return k <= q["prefixes"] and q["prefix_objects"] > 0
++    return k <= q["prefixes"] and r["obj_rank"] < q["prefix_objects"] and r["dest_rank"] < q["prefix_dests"]
++
++
++def build():
++    cls = selected()
++    R = {x: P.load_root(x) for x in cls}
++    G = P.A.env()
++    groups = lineage(R)
++    gof = {x: g for g, v in groups.items() for x in v}
++    v2 = P.HERE.parent / "smoke_repro_v2" / "roster.json"
++    touched = {t["root"] for t in json.loads(v2.read_text())} | {"2d-plus2d-srv-w0408-s006"}
++    forced = {gof[x] for x in touched}
++    split = splits(groups, cls, forced)
++    nobs = {x: sum(o["id"] != "t0" for o in R[x]["scene"]["objects"]) for x in R}
++    edges = sorted(nobs.values())
++    clut = lambda x: 0 if nobs[x] <= edges[len(edges) // 3] else 1 if nobs[x] <= edges[2 * len(edges) // 3] else 2  # noqa: E731
++    pilot = []
++    for c in CLASSES:                                  # 5 per class: train, untouched group, one root per group, clutter caps 2/2/1
++        used, cap = set(), Counter()
++        cand = sorted((x for x in R if cls[x] == c and split[gof[x]] == "train" and gof[x] not in forced and nobs[x] >= PLAN["pilot"]["min_obstacles"]),
++                      key=lambda x: H("pilot", x))
++        for strict in (True, False):
++            for x in cand:
++                if len([p for p in pilot if cls[p] == c]) < PLAN["pilot"]["roots_per_class"] and gof[x] not in used and (not strict or cap[clut(x)] < (2, 2, 1)[clut(x)]):
++                    pilot.append(x)
++                    used.add(gof[x])
++                    cap[clut(x)] += 1
++    rows, plan = [], []
++    for x in sorted(R, key=lambda x: H("order", x)):    # root order: hash-shuffled, so a partial run spans every class and split
++        s = P.scene_from_dict(R[x]["scene"])
++        q = root_plan(x, R[x], G, x in pilot)
++        plan.append({"root_id": x, "split": split[gof[x]], "root_group_id": gof[x], "verified_class": cls[x], "root_file_sha256": P.sha_file(P.DATA / "raw" / "roots" / f"{x}.json"),
++                     "original_scene_hash": P.scene_hash(s), "n_obstacles": nobs[x], "clutter_bin": clut(x), "queries": q})
++        rows.append({"root_id": x, "verified_class": cls[x], "root_group_id": gof[x], "split": split[gof[x]], "dev_touched": x in touched, "pilot": x in pilot})
++    return {"cls": cls, "groups": groups, "split": split, "rows": rows, "plan": plan, "pilot": pilot, "forced": sorted(forced), "R": R, "gof": gof}
++
++
++def write(out, b):
++    out = Path(out)
++    sel_hash = P.sha_file(P.DATA / "selected.json")
++    sm = {"version": PLAN["version"], "seed": PLAN["seed"], "source_selected_sha256": sel_hash, "algorithm": "lineage union-find (parent_family_id, identical "
++          "object layout, conversion origin) -> class-stratified greedy over groups, largest first; dev-touched groups forced to train",
++          "targets": PLAN["split_targets"], "forced_train_groups": b["forced"], "roots": b["rows"]}
++    blob = json.dumps(sm, indent=0, sort_keys=True).encode()
++    lines = "".join(json.dumps(p, separators=(",", ":"), sort_keys=True) + "\n" for p in b["plan"]).encode()
++    pil = [{**dict(zip(COLS, q)), "root": p["root_id"], "split": p["split"], "verified_class": p["verified_class"]} for p in b["plan"] for q in p["queries"] if q[11]]
++    files = {"split_manifest.json": blob, "query_plan.jsonl.gz": gzip.compress(lines, mtime=0),
++             "pilot_roster.json": json.dumps(pil, indent=0, sort_keys=True).encode()}
++    hashes = {"split_manifest_sha256": P.sha(blob), "query_plan_sha256": P.sha(lines), "pilot_roster_sha256": P.sha(files["pilot_roster.json"]),
++              "source_selected_sha256": sel_hash, "plan_spec_sha256": P.sha(json.dumps([PLAN, QUOTAS], sort_keys=True).encode()), "plan_spec": PLAN,
++              "quotas": QUOTAS, "columns": COLS}
++    files["plan_hashes.json"] = json.dumps(hashes, indent=1, sort_keys=True).encode()
++    for name, data in files.items():                    # frozen: never overwrite a differing file
++        f = out / name
++        if f.exists() and f.read_bytes() != data:
++            raise SystemExit(f"FROZEN FILE DIFFERS: {f}")
++    out.mkdir(parents=True, exist_ok=True)
++    for name, data in files.items():
++        if not (out / name).exists():
++            (out / name).write_bytes(data)
++    (out / "plan_summary.json").write_text(json.dumps(summary(b), indent=1, sort_keys=True))
++    return hashes
++
++
++def summary(b):
++    cls, sp, gof = b["cls"], b["split"], b["gof"]
++    per = {s: {"roots": Counter(), "groups": len({g for g, v in sp.items() if v == s})} for s in ("train", "val", "test")}
++    q = defaultdict(Counter)
++    for p in b["plan"]:
++        per[p["split"]]["roots"][p["verified_class"]] += 1
++        for r in p["queries"]:
++            q[p["split"]][("static" if r[12] else r[1].replace("prefix1", "prefix").replace("prefix2", "prefix")) + ("_pilot" if r[11] else "")] += 1
++            q[p["split"]]["dest_" + r[8]] += not r[12]
++            q[p["split"]]["teacher_queries"] += not r[12]
++            q[p["split"]]["pilot_teacher_queries"] += r[11] and not r[12]
++    kinds = Counter(r[3] for p in b["plan"] for r in p["queries"] if r[3])
++    leak = {k: sum(len({sp[gof[x]] for x in v}) > 1 for v in idx.values()) for k, idx in (
++        ("family", _index(b["R"], lambda r: r["ids"]["parent_family_id"])), ("layout", _index(b["R"], lambda r: json.dumps(sorted((o["id"], o["cell"]) for o in r["scene"]["objects"])))),
++        ("conversion", _index(b["R"], lambda r: r["construction"].get("converted_from") or r["ids"]["root_id"])))}
++    nq = [sum(not r[12] for r in p["queries"]) for p in b["plan"]]
++    return {"roots": len(b["plan"]), "groups": len(b["groups"]), "largest_group": max(len(v) for v in b["groups"].values()),
++            "per_split": {s: {"roots": sum(v["roots"].values()), "by_class": dict(v["roots"]), "groups": v["groups"], "queries": dict(q[s])} for s, v in per.items()},
++            "cross_split_shared": leak, "prefix_kinds": dict(kinds), "teacher_queries_total": sum(nq), "roots_without_queries": sum(n == 0 for n in nq),
++            "queries_per_root": {"mean": round(sum(nq) / len(nq), 2), "max": max(nq)}, "pilot_roots": b["pilot"],
++            "pilot_by_class": dict(Counter(cls[x] for x in b["pilot"])), "pilot_teacher_queries": sum(q[s]["pilot_teacher_queries"] for s in q),
++            "quota_teacher_queries": {k: sum(in_quota(r, v) and not r[12] for p in b["plan"] for r in p["queries"]) for k, v in QUOTAS.items()},
++            "pilot_inside_every_quota": all(in_quota(r, v) for v in QUOTAS.values() for p in b["plan"] for r in p["queries"] if r[11])}
++
++
++def _index(R, key):
++    d = defaultdict(list)
++    for x, r in R.items():
++        d[key(r)].append(x)
++    return d
++
++
++if __name__ == "__main__":
++    cmd, out = sys.argv[1], Path(sys.argv[2]).resolve()
++    b = build()
++    if cmd == "freeze":
++        print(json.dumps(write(out, b), indent=1))
++    elif cmd == "verify":
++        old = json.loads((out / "plan_hashes.json").read_text())
++        lines = "".join(json.dumps(p, separators=(",", ":"), sort_keys=True) + "\n" for p in b["plan"]).encode()
++        same = old["query_plan_sha256"] == P.sha(lines) == P.sha(gzip.decompress((out / "query_plan.jsonl.gz").read_bytes()))
++        print(json.dumps({"query_plan_reproduced": same, "selected_unchanged": old["source_selected_sha256"] == P.sha_file(P.DATA / "selected.json")}))
++        sys.exit(0 if same else 1)
+diff -ruN /home/naren/Desktop/rss-placement-smoke/gh-yadu-iiith/planar_2d/dataset_relocations_v1/launch_ready_2d_v1/audit/baseline/code_before/launch_runner.py /home/naren/Desktop/rss-placement-smoke/gh-yadu-iiith/planar_2d/dataset_relocations_v1/launch_ready_2d_v1/../code/launch_runner.py
+--- /home/naren/Desktop/rss-placement-smoke/gh-yadu-iiith/planar_2d/dataset_relocations_v1/launch_ready_2d_v1/audit/baseline/code_before/launch_runner.py	1970-01-01 05:30:00.000000000 +0530
++++ /home/naren/Desktop/rss-placement-smoke/gh-yadu-iiith/planar_2d/dataset_relocations_v1/launch_ready_2d_v1/../code/launch_runner.py	2026-11-06 22:11:05.574641243 +0530
+@@ -0,0 +1,318 @@
++"""Local runner for the 2D placement sidecar (pilot now; full collection only behind the launch guard).
++
++Workers are long-lived processes, one per selected logical CPU (sched_setaffinity), nice 10, one BLAS/OpenMP thread, killed with
++the coordinator (PR_SET_PDEATHSIG). Affinity is NOT a quota: no cgroup is reachable here, so hard_cpu_quota = false. The
++coordinator samples k10temp Tctl every 0.25 s: >= temp_pause_c freezes every worker (SIGSTOP) and holds dispatch until
++<= temp_resume_c; >= temp_cancel_c (one sample), sensor loss, cooling stall, excessive pausing, low memory / disk, swap growth,
++worker RSS, process leak, worker death or AC loss cancel the run. Work budgets are counted, so freezing never changes a result; a
++query in flight at a cancel is recorded completed=false / label=null and re-runs identically on resume. Roots are packed when all
++their queries are final. Control: touch <run>/PAUSE (hold), rm it (resume), touch <run>/DRAIN (finish in-flight, exit), kill -TERM
++<coordinator pid> (cancel now).
++
++    python launch_runner.py topology <launch_dir>
++    python launch_runner.py preflight <launch_dir> [full]
++    python launch_runner.py pilot <launch_dir> <run_name> <pairs> <FULL|FIRST_SUCCESS> <workers|serial> [all|first_per_root|one]
++    python launch_runner.py token <launch_dir>                        # the confirmation token of the current frozen files
++    python launch_runner.py guard <launch_dir> --execute-full --confirm <token>   # checks only
++    python launch_runner.py full <launch_dir> --execute-full --confirm <token>
++    python launch_runner.py status <run_dir>
++"""
++import os
++for _k in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS", "NUMEXPR_NUM_THREADS", "VECLIB_MAXIMUM_THREADS"):
++    os.environ[_k] = "1"                                  # before any numerical import
++import ctypes, fcntl, gc, gzip, json, multiprocessing as mp, resource, signal, sys, time  # noqa: E402
++from collections import Counter, deque  # noqa: E402
++from pathlib import Path  # noqa: E402
++
++sys.path.insert(0, str(Path(__file__).resolve().parent))
++import psutil  # noqa: E402
++import launch_plan as LP  # noqa: E402
++import placement_teacher as T  # noqa: E402
++P = T.P
++SCHEMA = "placement_launch_v1"
++
++
++def cfg_of(L):
++    return json.loads((Path(L) / "configs" / "launch_config.json").read_text())
++
++
++def topology(workers, reserve):
++    """Allowed online logical CPUs -> (worker cpus, reserved cpus, detail): one thread per physical core first, then SMT siblings
++    alternating between L3 complexes (CCDs); the remainder is reserved for the host, UI and this coordinator."""
++    cores = {}
++    for c in sorted(os.sched_getaffinity(0)):
++        b = Path(f"/sys/devices/system/cpu/cpu{c}")
++        if (b / "online").exists() and (b / "online").read_text().strip() != "1":
++            continue
++        l3 = int((b / "cache/index3/id").read_text()) if (b / "cache/index3/id").exists() else 0
++        cores.setdefault((int((b / "topology/physical_package_id").read_text()), l3, int((b / "topology/core_id").read_text())), []).append(c)
++    if len(sum(cores.values(), [])) < workers + reserve:
++        raise SystemExit(f"FAIL_CLOSED: {len(sum(cores.values(), []))} allowed online CPUs < {workers} workers + {reserve} reserved")
++    keys = sorted(cores)
++    l3s = sorted({k[1] for k in keys})
++    by = {g: [k for k in keys if k[1] == g] for g in l3s}
++    sel = [cores[k][0] for k in keys]                     # one thread per physical core
++    for i in range(1, max(len(v) for v in cores.values())):
++        for j in range(max(len(v) for v in by.values())):
++            sel += [cores[by[g][j]][i] for g in l3s if j < len(by[g]) and i < len(cores[by[g][j]])]   # siblings, CCDs alternating
++    sel = sel[:workers]
++    return sel, sorted(set(sum(cores.values(), [])) - set(sel)), {"cores": {f"{k}": v for k, v in cores.items()}, "l3_groups": l3s}
++
++
++def sensors():
++    for hw in Path("/sys/class/hwmon").glob("hwmon*"):
++        if (hw / "name").read_text().strip() == "k10temp":
++            lab = {(f.read_text().strip()): f.with_name(f.name.replace("_label", "_input")) for f in hw.glob("temp*_label")}
++            if "Tctl" in lab:
++                return lab
++    return None
++
++
++def ac_online():
++    for s in Path("/sys/class/power_supply").glob("*"):
++        if (s / "type").exists() and (s / "type").read_text().strip() == "Mains":
++            return (s / "online").read_text().strip() == "1"
++    return None
++
++
++def read_temp(lab, name="Tctl"):
++    try:
++        return int(lab[name].read_text()) / 1000
++    except (OSError, KeyError, ValueError, TypeError):
++        return None
++
++
++def _worker(wid, cpu, tq, rq, out, policy, emerg, nice):
++    ctypes.CDLL("libc.so.6").prctl(1, signal.SIGKILL)    # PR_SET_PDEATHSIG: die with the coordinator
++    os.sched_setaffinity(0, {cpu})
++    os.nice(nice)
++    signal.signal(signal.SIGINT, signal.SIG_IGN)
++    while (t := tq.get()) is not None:
++        rq.put(("start", wid, t["trial_id"]))
++        try:
++            r = T.run_query(t, out, policy, emerg)
++            v, m = r.get("volatile", {}), r.get("mode_counts") or {}
++            rq.put(("done", wid, t["trial_id"], r.get("label"), r.get("completed"), r.get("eligible"), v.get("cpu_s", 0.0),
++                    m.get("motion_attempted", 0) + m.get("reused_reverified", 0), m.get("valid_pairs", 0)))
++        except Exception as e:  # noqa: BLE001
++            rq.put(("error", wid, t["trial_id"], f"{type(e).__name__}: {e}"[:400]))
++
++
++def header(L, p, policy, scope):
++    G, h = P.A.env(), json.loads((Path(L) / "plan_hashes.json").read_text())
++    return {"schema_version": SCHEMA, "resume_version": T.RESUME_VERSION, "scope": scope, "domain": "planar_2d", "root_id": p["root_id"],
++            "split": p["split"], "root_group_id": p["root_group_id"], "source_selected_sha256": h["source_selected_sha256"],
++            "split_manifest_sha256": h["split_manifest_sha256"], "query_plan_sha256": h["query_plan_sha256"], "root_file_sha256": p["root_file_sha256"],
++            "original_scene_hash": p["original_scene_hash"], "robot_hash": G["protocol"], "teacher_hash": G["config_hash"],
++            "pair_protocol_id": T.pair_protocol()[0], "budget_hash": T.budget_hash(policy), "policy": policy, "support_id": "table",
++            "held_grasp_policy": T.HELD_POLICY, "privileged_teacher": {"verified_class": p["verified_class"]}}
++
++
++def plan_rows(L):
++    return [json.loads(x) for x in gzip.decompress((Path(L) / "query_plan.jsonl.gz").read_bytes()).decode().splitlines()]
++
++
++def tasks_for(L, select):
++    out = []
++    for p in plan_rows(L):
++        rows = [r for r in p["queries"] if select(r)]
++        if rows:
++            out.append((p, [{**dict(zip(LP.COLS, r)), "root": p["root_id"]} for r in rows]))
++    return out
++
++
++def run(L, out, roots, policy, workers, cpus, reserved, scope):
++    """The coordinator. roots: [(plan_row, [task, ...])] in plan order. Returns the run summary (also run_<t0>.json)."""
++    C, S = cfg_of(L), cfg_of(L)["safety"]
++    out = Path(out).resolve()
++    out.mkdir(parents=True, exist_ok=True)
++    lock = open(out / ".lock", "w")
++    fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)      # one coordinator per run directory
++    man = {"scope": scope, "policy": policy, "budget_hash": T.budget_hash(policy), "pair_protocol_id": T.pair_protocol()[0],
++           "plan_hashes": json.loads((Path(L) / "plan_hashes.json").read_text()), "config_sha256": P.sha_file(Path(L) / "configs" / "launch_config.json"),
++           "tasks_sha256": P.sha(json.dumps([t["trial_id"] for _, ts in roots for t in ts]).encode()), "roots": len(roots), "queries": sum(len(t) for _, t in roots)}
++    mf = out / "run_manifest.json"
++    if mf.exists() and json.loads(mf.read_text()) != man:
++        raise SystemExit(f"REFUSED: {mf} records a different frozen plan / policy / task list")
++    mf.write_text(json.dumps(man, indent=1, sort_keys=True))
++    for f in [*out.glob("parts/*/*.tmp"), *out.glob("*/*.tmp")]:
++        f.unlink()                                        # torn writes (no worker alive yet)
++    todo, left = deque(), {}
++    for p, ts in roots:
++        rid, d = p["root_id"], out / "parts" / p["root_id"]
++        if (out / "records" / f"{rid}.json").exists():
++            if d.exists():                                # crashed after packing: the parts are redundant
++                for f in d.iterdir():
++                    f.unlink()
++                d.rmdir()
++            continue
++        keep = {w for f in d.glob("*.json") for w in json.loads(f.read_text())["witness_refs"] if T.final(f)} if d.exists() else set()
++        for f in d.glob("w_*.npz") if d.exists() else []:
++            if f.stem[2:] not in keep:
++                f.unlink()                                # witness of an unfinished query: rewritten identically on re-run
++        q = [t for t in ts if not T.final(d / f"{t['trial_id']}.json")]
++        left[rid] = (p, ts, len(q))
++        todo += q
++        if not q:
++            T.pack_root(out, header(L, p, policy, scope), ts)
++            del left[rid]
++    os.sched_setaffinity(0, set(reserved))
++    lab, t0, swap0 = sensors(), time.time(), psutil.swap_memory().used
++    if lab is None or read_temp(lab) is None:
++        raise SystemExit("FAIL_CLOSED: k10temp Tctl not readable")
++    gc.freeze()                                           # the task list stays shared copy-on-write: the GC never touches it in workers
++    ctx = mp.get_context("fork")
++    tq, rq = ctx.Queue(), ctx.Queue()
++    procs = [ctx.Process(target=_worker, args=(i, c, tq, rq, str(out), policy, S["query_emergency_cpu_s"], C["execution"]["nice"]), daemon=True)
++             for i, c in enumerate(cpus[:workers])]
++    for pr in procs:
++        pr.start()
++    pids = [pr.pid for pr in procs]
++    inflight, done, stop, frozen, why = {}, Counter(), None, False, None
++    events, hist, log, cnt = [], deque(), open(out / "monitor.jsonl", "a"), Counter()
++    hot_since = last_log = last_stat = 0.0
++    loss = 0
++    signal.signal(signal.SIGTERM, lambda *_: (_ for _ in ()).throw(KeyboardInterrupt()))
++    task_ctx = {t["trial_id"]: (p, t) for p, ts in roots for t in ts}
++    try:
++        while (todo or inflight) and stop is None:
++            now, tc = time.time(), read_temp(lab)
++            loss = loss + 1 if tc is None else 0
++            user = (out / "PAUSE").exists()
++            if not frozen and ((tc or 0) >= S["temp_pause_c"] or user):
++                [os.kill(x, signal.SIGSTOP) for x in pids]
++                frozen, why, hot_since = True, "USER" if user else "THERMAL", now
++                events.append(["PAUSE", round(now - t0, 2), tc, why])
++            elif frozen and not user and (tc or 99) <= S["temp_resume_c"]:
++                [os.kill(x, signal.SIGCONT) for x in pids]
++                frozen = False
++                events.append(["RESUME", round(now - t0, 2), tc, why])
++            hist.append((now, frozen and why == "THERMAL"))
++            while hist[0][0] < now - 600:
++                hist.popleft()
++            if now - last_log >= C["execution"]["log_every_s"]:
++                vm, kids = psutil.virtual_memory(), psutil.Process().children(recursive=True)
++                rss = [k.memory_info().rss // 2 ** 20 for k in kids if k.is_running()]
++                wcpu = sum(sum(k.cpu_times()[:2]) for k in kids if k.is_running())
++                s = {"t": round(now - t0, 2), "temp_c": tc, **{k: read_temp(lab, k) for k in ("Tccd1", "Tccd2")}, "frozen": frozen, "inflight": len(inflight),
++                     "done": sum(done.values()), "mem_available_mb": vm.available // 2 ** 20, "swap_growth_mb": (psutil.swap_memory().used - swap0) // 2 ** 20,
++                     "disk_free_mb": psutil.disk_usage(str(out)).free // 2 ** 20, "load1": os.getloadavg()[0], "descendants": len(kids),
++                     "workers_rss_mb": sum(rss), "max_worker_rss_mb": max(rss, default=0), "workers_cpu_s": round(wcpu, 1), "queued": len(todo), "ac": ac_online()}
++                log.write(json.dumps(s) + "\n")
++                log.flush()
++                last_log = now
++                stop = next((m for m, bad in (
++                    ("MEMORY", s["mem_available_mb"] < S["min_mem_available_mb"]), ("SWAP", s["swap_growth_mb"] > S["max_swap_growth_mb"]),
++                    ("DISK", s["disk_free_mb"] < S["min_disk_free_mb"]), ("WORKER_RSS", s["max_worker_rss_mb"] > S["max_worker_rss_mb"]),
++                    ("PROCESS_LEAK", len(kids) > workers + S["max_descendants_extra"]), ("WORKER_DIED", not all(pr.is_alive() for pr in procs)),
++                    ("AC_POWER_LOST", S["require_ac_power"] and s["ac"] is False)) if bad), None)
++            stop = stop or next((m for m, bad in (
++                ("TEMPERATURE", (tc or 0) >= S["temp_cancel_c"]), ("SENSOR_LOSS", loss >= S["sensor_loss_samples"]),
++                ("COOLING_STALL", frozen and why == "THERMAL" and now - hot_since > S["cooling_stall_s"]),
++                ("EXCESSIVE_PAUSING", now - t0 > 600 and sum(f for _, f in hist) / len(hist) > S["max_paused_fraction_10min"])) if bad), None)
++            if (out / "DRAIN").exists():
++                todo.clear()
++            room = min(workers - len(inflight), C["execution"]["dispatch_per_sample"])   # staggered ramp-up
++            while stop is None and not frozen and todo and room > 0:
++                room -= 1
++                t = todo.popleft()
++                inflight[t["trial_id"]] = None
++                tq.put(t)
++            while not rq.empty():
++                m = rq.get()
++                if m[0] == "start":
++                    inflight[m[2]] = m[1]
++                elif m[0] == "error":
++                    stop = f"ERROR:{m[2]}:{m[3]}"
++                else:
++                    inflight.pop(m[2], None)
++                    p, t = task_ctx[m[2]]
++                    done[(p["verified_class"], t["block"].split("_")[0], t["dest_bin"], "null" if m[3] is None else str(m[3]))] += 1
++                    cnt["cpu_s"] += m[6]
++                    cnt["planned"] += m[7]
++                    cnt["valid"] += m[8]
++                    rid = p["root_id"]
++                    p, ts, n = left[rid]
++                    left[rid] = (p, ts, n - 1)
++                    if n - 1 == 0:
++                        T.pack_root(out, header(L, p, policy, scope), ts)
++                        del left[rid]
++            if now - last_stat >= C["execution"]["status_every_s"]:
++                status(out, man, done, cnt, left, inflight, events, tc, frozen, t0)
++                last_stat = now
++            time.sleep(C["execution"]["sample_every_s"])
++    except KeyboardInterrupt:
++        stop = "USER_CANCEL"
++    [os.kill(x, signal.SIGCONT) for x in pids if psutil.pid_exists(x)]
++    if stop:
++        for pr in procs:
++            pr.kill()
++    else:
++        for _ in procs:
++            tq.put(None)
++    for pr in procs:
++        pr.join(30)
++    for tid in inflight:                                  # interrupted: no observed label
++        p, t = task_ctx[tid]
++        part = out / "parts" / p["root_id"] / f"{tid}.json"
++        if not T.final(part):
++            part.parent.mkdir(parents=True, exist_ok=True)
++            T.commit(part, {"schema_version": SCHEMA, "trial_id": tid, "eligible": True, "attempted": True, "completed": False, "label": None,
++                            "safety_interruption": stop, "witness_refs": []}, None)
++    ru = resource.getrusage(resource.RUSAGE_CHILDREN)
++    paused = sum(b[1] - a[1] for a, b in zip(events[::2], events[1::2])) + ((time.time() - t0 - events[-1][1]) if len(events) % 2 else 0)
++    res = {"scope": scope, "workers": workers, "worker_cpus": cpus[:workers], "reserved_cpus": reserved, "hard_cpu_quota": False,
++           "enforcement": "sched_setaffinity (1 logical CPU per worker) + fixed process count + nice + 1 BLAS/OMP thread; no cgroup quota",
++           "sensor": "k10temp Tctl", "safety": S, "queries": man["queries"], "finished_now": sum(done.values()), "interrupted": sorted(inflight),
++           "not_started": len(todo), "stop": stop, "wall_s": round(time.time() - t0, 1), "children_cpu_s": round(ru.ru_utime + ru.ru_stime, 1),
++           "paused_s": round(paused, 1), "pauses": len(events[::2]), "events": events, "roots_open": sorted(left), "leftover_descendants": len(psutil.Process().children(recursive=True))}
++    (out / f"run_{int(t0)}.json").write_text(json.dumps(res, indent=1))
++    status(out, man, done, cnt, left, inflight, events, None, False, t0, final_=res)
++    return res
++
++
++def status(out, man, done, cnt, left, inflight, events, tc, frozen, t0, final_=None):
++    lab = Counter()
++    for (c, b, d, y), n in done.items():
++        lab[f"label_{y}"] += n
++        lab[f"class_{c}"] += n
++        lab[f"block_{b}"] += n
++        lab[f"dest_{d}"] += n
++    el = time.time() - t0
++    rate = sum(done.values()) / el * 3600 if el > 0 else 0
++    s = {"updated": time.strftime("%Y-%m-%dT%H:%M:%S"), "pid": os.getpid(), "elapsed_h": round(el / 3600, 3), "queries_total": man["queries"],
++         "queries_done_this_session": sum(done.values()), "roots_open": len(left), "inflight": len(inflight), "temp_c": tc, "frozen": frozen,
++         "pauses": len(events[::2]), "worker_cpu_h": round(cnt["cpu_s"] / 3600, 3), "queries_per_h": round(rate, 1),
++         "survivor_pair_coverage": round(cnt["planned"] / cnt["valid"], 4) if cnt["valid"] else None, "counts": dict(sorted(lab.items())),
++         "roots_packed": len(list(out.glob("records/*.json"))), "final": final_ is not None, "stop": (final_ or {}).get("stop")}
++    (out / "status.tmp").write_text(json.dumps(s, indent=1))
++    os.replace(out / "status.tmp", out / "status.json")
++
++
++if __name__ == "__main__":
++    cmd, L = sys.argv[1], Path(sys.argv[2]).resolve()
++    if cmd == "topology":
++        C = cfg_of(L)
++        print(json.dumps(topology(C["execution"]["workers"], C["execution"]["reserved_logical_cpus"]), indent=1))
++    elif cmd == "preflight":
++        from launch_guard import preflight
++        r = preflight(L, full=len(sys.argv) > 3 and sys.argv[3] == "full")
++        print(json.dumps(r, indent=1))
++        sys.exit(0 if r["passed"] else 1)
++    elif cmd == "pilot":
++        name, B, cov, w = sys.argv[3], int(sys.argv[4]), sys.argv[5], sys.argv[6]
++        sub = sys.argv[7] if len(sys.argv) > 7 else "all"
++        C = cfg_of(L)
++        roots = tasks_for(L, lambda r: r[11])
++        if sub in ("first_per_root", "one"):
++            roots = [(p, [next(t for t in ts if not t["static_ineligible"])]) for p, ts in roots][:1 if sub == "one" else None]
++        assert all(p["split"] == "train" for p, _ in roots), "pilot roots must be train"
++        cpus, workers = ([C["execution"]["serial_cpu"]], 1) if w == "serial" else (C["execution"]["worker_cpus"], int(w))
++        pol = {"pairs_per_query": B, "coverage": cov, "witness_store_max": B, "reuse_archived": True}
++        print(json.dumps({k: v for k, v in run(L, L / "pilot" / name, roots, pol, workers, cpus, C["execution"]["reserved_cpus"], "PILOT").items()
++                          if k not in ("safety", "events")}, indent=1))
++    elif cmd in ("full", "guard", "token"):
++        import launch_guard as LG
++        print(LG.token(L) if cmd == "token" else json.dumps(LG.full(L, sys.argv[3:], execute=cmd == "full"), indent=1, default=str))
++    elif cmd == "status":
++        print((L / "status.json").read_text())
+diff -ruN /home/naren/Desktop/rss-placement-smoke/gh-yadu-iiith/planar_2d/dataset_relocations_v1/launch_ready_2d_v1/audit/baseline/code_before/launch_viz.py /home/naren/Desktop/rss-placement-smoke/gh-yadu-iiith/planar_2d/dataset_relocations_v1/launch_ready_2d_v1/../code/launch_viz.py
+--- /home/naren/Desktop/rss-placement-smoke/gh-yadu-iiith/planar_2d/dataset_relocations_v1/launch_ready_2d_v1/audit/baseline/code_before/launch_viz.py	1970-01-01 05:30:00.000000000 +0530
++++ /home/naren/Desktop/rss-placement-smoke/gh-yadu-iiith/planar_2d/dataset_relocations_v1/launch_ready_2d_v1/../code/launch_viz.py	2026-11-06 22:42:10.889944242 +0530
+@@ -0,0 +1,210 @@
++"""Readiness figures from saved files only: budget curves, cost, thermal soak trace, scene-backed placement maps (root scene and
++hypothetical edits), a 48 x 48 pair matrix and real witness GIFs drawn from the packed trajectories.
++
++    python launch_viz.py all <launch_dir> <run64> <budget.json> <thermal_run> <outdir>
++"""
++import json, sys
++from pathlib import Path
++
++import numpy as np
++sys.path.insert(0, str(Path(__file__).resolve().parent))
++import launch_check as K  # noqa: E402
++import placement_teacher as T  # noqa: E402
++import matplotlib  # noqa: E402
++import matplotlib.ticker  # noqa: E402
++matplotlib.use("Agg")
++import matplotlib.pyplot as plt  # noqa: E402
++from matplotlib.colors import ListedColormap  # noqa: E402
++from matplotlib.patches import Circle, FancyArrowPatch, Rectangle  # noqa: E402
++from PIL import Image  # noqa: E402
++import viz  # noqa: E402
++
++P = T.P
++SER = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4"]       # reference categorical order (slots 1-5), fixed
++INK, INK2, GRID, SURF = "#0b0b0b", "#52514e", "#dddcd7", "#fcfcfb"
++plt.rcParams.update({"figure.facecolor": SURF, "axes.facecolor": SURF, "axes.edgecolor": INK2, "axes.labelcolor": INK, "xtick.color": INK2,
++                     "ytick.color": INK2, "text.color": INK, "axes.grid": True, "grid.color": GRID, "grid.linewidth": 0.6, "axes.spines.top": False,
++                     "axes.spines.right": False, "font.size": 9, "lines.linewidth": 2})
++
++
++def budget_figure(bj, out):
++    b = json.loads(Path(bj).read_text())
++    Bs = [int(x) for x in sorted(b["budgets"], key=int)]
++    fig, (a1, a2) = plt.subplots(1, 2, figsize=(11.5, 4.3))
++    series = [("all queries", None)] + [(k, k) for k in ("near", "mid", "far", "vacated")]
++    for (name, key), col, mk in zip(series, SER, "osD^v"):
++        y, lo, hi = [], [], []
++        for B in Bs:
++            t = b["budgets"][str(B)]
++            s = t if key is None else t["strata"]["dest_bin"].get(key)
++            n, m = (t["pos64"], t["missed_vs_64"]) if key is None else (s["pos64"], s["missed"])
++            ci = K.wilson(n - m, n)
++            y.append((n - m) / n), lo.append((n - m) / n - ci[0]), hi.append(ci[1] - (n - m) / n)
++        a1.errorbar(Bs, y, yerr=[lo, hi] if key is None else None, color=col, marker=mk, ms=6, lw=2.4 if key is None else 1.4, capsize=3,
++                    label=f"{name} (n={b['budgets']['64']['pos64'] if key is None else b['budgets']['64']['strata']['dest_bin'][key]['pos64']})")
++    a1.axhline(0.98, color=INK2, lw=1, ls=":")
++    a1.text(11, 0.9805, "selection line: miss <= 2% of 64-pair positives", fontsize=8, color=INK2, va="bottom")
++    a1.set(xscale="log", xticks=Bs, xticklabels=Bs, xlabel="grasp-pair budget B (first B scheduled pairs)", ylabel="share of 64-pair positives also found at B",
++           title="Label recall vs the B=64 pilot reference (not physical ground truth)")
++    a1.legend(fontsize=8, frameon=False, loc="lower right")
++    for cov, col, mk in (("FULL", SER[0], "o"), ("FIRST_SUCCESS", SER[1], "s")):
++        y = [b["budgets"][str(B)][f"cpu_{cov}"]["mean"] for B in Bs]
++        a2.plot(Bs, y, color=col, marker=mk, ms=6, label=f"{cov.lower().replace('_', ' ')} coverage")
++        a2.annotate(f"{y[-1]:.1f} s", (Bs[-1], y[-1]), textcoords="offset points", xytext=(6, 0), fontsize=8, color=INK2, va="center")
++    a2.set(xscale="log", xticks=Bs, xticklabels=Bs, xlabel="grasp-pair budget B", ylabel="mean worker CPU-s per query (25-worker run)",
++           title="Teacher cost per query", ylim=(0, None))
++    for ax in (a1, a2):
++        ax.xaxis.set_minor_formatter(matplotlib.ticker.NullFormatter())
++        ax.xaxis.set_minor_locator(matplotlib.ticker.NullLocator())
++    a2.legend(fontsize=8, frameon=False, loc="upper left")
++    fig.tight_layout()
++    fig.savefig(out, dpi=120)
++    plt.close(fig)
++
++
++def thermal_figure(run, out, S):
++    m = [json.loads(x) for x in open(Path(run) / "monitor.jsonl")]
++    t = np.array([x["t"] for x in m]) / 60
++    fig, (a1, a2) = plt.subplots(2, 1, figsize=(11, 6), sharex=True, gridspec_kw={"height_ratios": [2, 1]})
++    a1.plot(t, [x["temp_c"] for x in m], color=SER[0], lw=1.4, label="Tctl (k10temp)")
++    for v, txt in ((S["temp_cancel_c"], "cancel 95"), (S["temp_pause_c"], "pause 88"), (S["temp_resume_c"], "resume 80")):
++        a1.axhline(v, color=INK2, lw=1, ls="--")
++        a1.text(t[-1], v + 0.3, txt, ha="right", va="bottom", fontsize=8, color=INK2)
++    fr = np.array([x["frozen"] for x in m])
++    for i in np.nonzero(fr)[0]:
++        a1.axvspan(t[i] - (t[1] - t[0]) / 2, t[i] + (t[1] - t[0]) / 2, color=GRID, lw=0)
++    a1.set(ylabel="CPU temperature (C)", title=f"25-worker 64-pair pilot soak: {t[-1]:.1f} min, peak {max(x['temp_c'] for x in m):.1f} C, "
++           f"workers frozen in {fr.mean():.1%} of samples (grey)")
++    a2.plot(t, [x["done"] for x in m], color=SER[0], label="queries finished")
++    a2.plot(t, [x["inflight"] for x in m], color=SER[1], ls="--", label="queries in flight")
++    a2.set(xlabel="minutes since start", ylabel="queries")
++    a2.legend(fontsize=8, frameon=False, loc="center right")
++    fig.tight_layout()
++    fig.savefig(out, dpi=120)
++    plt.close(fig)
++
++
++def scene_maps(run, bj, out, roots):
++    """Per root: one panel per (context, object): destinations coloured by the 64-pair label, a ring where 8 pairs disagree."""
++    rows = K.load(run)
++    b = json.loads(Path(bj).read_text())
++    v8 = dict(zip(b["row_ids"], [x[0] for x in b["virtual_rows"]["8/FULL"]]))
++    robot, made = P.A.env()["robot"], []
++    for rid in roots:
++        rs = [(h, q) for h, q, _, _ in rows if h["root_id"] == rid]
++        panels = list(dict.fromkeys((json.dumps(q["prefix_key"]), q["object_id"]) for _, q in rs))
++        fig, axs = plt.subplots(1, len(panels), figsize=(4.6 * len(panels), 5.4), squeeze=False)
++        for ax, (pk, oid) in zip(axs[0], panels):
++            sub = [q for _, q in rs if json.dumps(q["prefix_key"]) == pk and q["object_id"] == oid]
++            s = T.scene_for({"root": rid, "prefix": json.loads(pk)})
++            viz.draw_support(ax, s, cell_ids=True)
++            viz.draw_objects(ax, s)
++            o = s.get(oid)
++            ax.add_patch(Circle(o.xy_m, o.radius_m + .009, fc="none", ec=INK, lw=2.2, zorder=7))
++            for q in sub:
++                c = q["destination_cell"]
++                y = q["label"]
++                fc = "#bbbbbb" if y is None else SER[0] if y == 1 else SER[1]
++                ax.add_patch(Rectangle(((c % 8) * .08 + .005, (c // 8) * .08 + .005), .07, .07, fc=fc, alpha=.55, ec=fc, lw=1.2,
++                                       hatch="////" if y is None else None, zorder=2))
++                if y is not None and v8.get(q["trial_id"]) != y:
++                    ax.add_patch(Rectangle(((c % 8) * .08 + .002, (c // 8) * .08 + .002), .076, .076, fc="none", ec=INK, lw=2, ls="--", zorder=3))
++            for a, cell in json.loads(pk):
++                src = P.scene_from_dict(P.load_root(rid)["scene"]).get(a).xy_m
++                ax.add_patch(FancyArrowPatch(src, s.lattice.center(cell), arrowstyle="-|>", mutation_scale=12, color=INK2, ls="--", lw=1.4, zorder=8))
++            viz.draw_robot(ax, robot, np.asarray(s.robot.q_rad), robot.open_gap, alpha=.25, zorder=4)
++            ax.set(xlim=(-.42, .7), ylim=(-.08, .92), aspect="equal", xticks=[], yticks=[])
++            ax.grid(False)
++            ctx = "root scene" if pk == "[]" else f"HYPOTHETICAL edit {json.loads(pk)} (dashed arrow; no robot state assumed)"
++            ax.set_title(f"{oid}: {ctx}", fontsize=8, loc="left")
++        h = [Rectangle((0, 0), 1, 1, fc=SER[0], alpha=.55), Rectangle((0, 0), 1, 1, fc=SER[1], alpha=.55),
++             Rectangle((0, 0), 1, 1, fc="#bbbbbb", alpha=.55, hatch="////"), Rectangle((0, 0), 1, 1, fc="none", ec=INK, ls="--", lw=2)]
++        fig.legend(h, ["label 1 at B=64 (verified carry-release-retreat)", "label 0 at B=64 (policy-limited)", "statically ineligible (occupied; no teacher)",
++                       "B=8 label differs from B=64"], loc="lower center", ncol=4, fontsize=8, frameon=False)
++        fig.suptitle(f"{rid} (train pilot root): placement queries for the ringed, already-held object; arm faint at its start pose", fontsize=10)
++        fig.tight_layout(rect=(0, .07, 1, .95))
++        made.append(Path(out) / f"{rid}_placements.png")
++        fig.savefig(made[-1], dpi=110)
++        plt.close(fig)
++    return made
++
++
++def mode_matrix(run, tid, out):
++    for h, q, m, a in K.load(run):
++        if q["trial_id"] == tid:
++            break
++    cmap = ListedColormap(["#d9d9d9", "#f3e7c4", "#ffffff", SER[1], SER[0], SER[2]])
++    fig, ax = plt.subplots(figsize=(7.6, 7.4))
++    ax.imshow(m["pair_category"], cmap=cmap, vmin=-.5, vmax=5.5, interpolation="nearest")
++    for i, j, r in zip(a["a_pick"], a["a_place"], a["a_rank"]):
++        if 0 <= r < 64:
++            ax.text(j, i, str(r + 1), ha="center", va="center", fontsize=4.5, color=INK)
++    ax.grid(False)
++    ax.set(xlabel="place mode (24 tool axes x 2 elbows)", ylabel="held mode (24 tool axes x 2 elbows)")
++    ax.set_title(f"{h['root_id']} {q['object_id']} -> cell {q['destination_cell']} ({q['block']}): 2,304 pairs; numbers = schedule rank of planned pairs",
++                 fontsize=8, loc="left")
++    fig.legend([Rectangle((0, 0), 1, 1, fc=c, ec="#999") for c in cmap.colors], [P.CAT[k] for k in P.CAT], loc="lower center", ncol=3, fontsize=7, frameon=False)
++    fig.tight_layout(rect=(0, .07, 1, 1))
++    fig.savefig(out, dpi=120)
++    plt.close(fig)
++
++
++def witness_gif(run, rid, q, wid, out, n=40):
++    robot, core = P.A.env()["robot"], T.witness(run, rid, wid)
++    s = T.scene_for({"root": rid, "prefix": q["prefix_key"]})
++    oid, rad, frames, strip = q["object_id"], s.get(q["object_id"]).radius_m, [], []
++    for k, (qq, gap, phase) in enumerate(P.mo.samples(core, n)):
++        fig, ax = plt.subplots(figsize=(5.4, 5.0))
++        viz.draw_support(ax, s, cell_ids=False)
++        for o in s.objects:
++            if o.id != oid:
++                ax.add_patch(Circle(o.xy_m, o.radius_m, fc=viz.COLORS["target" if o.kind == "target" else "obstacle"], ec="k", lw=.5, zorder=3))
++        held = (oid, rad, tuple(core["held_local"])) if phase == "carry" else None
++        viz.draw_robot(ax, robot, qq, gap, held=held)
++        ax.add_patch(Circle(P.ge.tool_point(robot, qq, core["held_local"]) if held else core["place_xy"], rad, fc=SER[0], ec="k", zorder=9))
++        c = q["destination_cell"]
++        ax.add_patch(Rectangle(((c % 8) * .08, (c // 8) * .08), .08, .08, fc="none", ec=SER[2], lw=2, zorder=2))
++        ax.set(xlim=(-.42, .7), ylim=(-.08, .92), aspect="equal", xticks=[], yticks=[])
++        ax.grid(False)
++        ctx = "root scene" if not q["prefix_key"] else f"hypothetical edit {q['prefix_key']}"
++        ax.set_title(f"{oid} held at cell {q['source_cell']} -> cell {c} ({ctx})   phase: {phase}\n"
++                     f"s = {k / (n - 1):.2f} of the joint path (untimed waypoints); witness {wid[:10]}", fontsize=7.5, loc="left")
++        fig.tight_layout()
++        fig.canvas.draw()
++        img = Image.fromarray(np.asarray(fig.canvas.buffer_rgba())[..., :3])
++        frames.append(img)
++        if k in np.linspace(0, n - 1, 6).astype(int):
++            strip.append(img)
++        plt.close(fig)
++    frames[0].save(out, save_all=True, append_images=frames[1:] + [frames[-1]] * 8, duration=120, loop=0)
++    sheet = Image.new("RGB", (strip[0].size[0] * len(strip), strip[0].size[1]), "white")
++    for i, im in enumerate(strip):
++        sheet.paste(im, (i * strip[0].size[0], 0))
++    sheet.save(Path(out).with_name(Path(out).stem + "_filmstrip.png"))
++
++
++def all_figures(L, run64, bj, therm, out):
++    out = Path(out)
++    out.mkdir(parents=True, exist_ok=True)
++    budget_figure(bj, out / "budget_recall_and_cost.png")
++    thermal_figure(therm, out / "thermal_soak_25_workers.png", json.loads((Path(L) / "configs" / "launch_config.json").read_text())["safety"])
++    rows = K.load(run64)
++    b = json.loads(Path(bj).read_text())
++    flips = [rid for rid, (y8, y64) in zip([m[0] for m in b["row_meta"]], zip([x[0] for x in b["virtual_rows"]["8/FULL"]], [x[0] for x in b["virtual_rows"]["64/FULL"]])) if y8 != y64]
++    neg = [h["root_id"] for h, q, _, _ in rows if q["label"] == 0]
++    cls = {}
++    for h, _, _, _ in rows:
++        cls.setdefault(h["privileged_teacher"]["verified_class"], h["root_id"])
++    roots = list(dict.fromkeys(flips[:1] + neg[:1] + list(cls.values())[:2]))[:4]
++    scene_maps(run64, bj, out, roots)
++    q0 = max(((h, q) for h, q, _, _ in rows if q["eligible"] and q["completed"] and q["mode_counts"]["motion_attempted"] >= 32),
++             key=lambda hq: (hq[1]["mode_counts"]["attempted_failure"] > 0 and hq[1]["label"] == 1, hq[1]["mode_counts"]["attempted_failure"]))
++    mode_matrix(run64, q0[1]["trial_id"], out / f"{q0[1]['trial_id']}_mode_pairs.png")
++    for blk in ("root", "prefix1"):
++        h, q = next((h, q) for h, q, _, a in rows if q["label"] == 1 and q["block"] == blk and q["witness_refs"] and a["a_method"][0] > 1)
++        witness_gif(run64, h["root_id"], q, q["witness_refs"][0], out / f"{q['trial_id']}_{blk}_witness.gif")
++    return sorted(str(p) for p in out.iterdir())
++
++
++if __name__ == "__main__":
++    print("\n".join(all_figures(*sys.argv[2:7])))
+diff -ruN /home/naren/Desktop/rss-placement-smoke/gh-yadu-iiith/planar_2d/dataset_relocations_v1/launch_ready_2d_v1/audit/baseline/code_before/placement_teacher.py /home/naren/Desktop/rss-placement-smoke/gh-yadu-iiith/planar_2d/dataset_relocations_v1/launch_ready_2d_v1/../code/placement_teacher.py
+--- /home/naren/Desktop/rss-placement-smoke/gh-yadu-iiith/planar_2d/dataset_relocations_v1/launch_ready_2d_v1/audit/baseline/code_before/placement_teacher.py	1970-01-01 05:30:00.000000000 +0530
++++ /home/naren/Desktop/rss-placement-smoke/gh-yadu-iiith/planar_2d/dataset_relocations_v1/launch_ready_2d_v1/../code/placement_teacher.py	2026-11-06 22:09:54.845181028 +0530
+@@ -0,0 +1,293 @@
++"""Placement teacher for the launch-ready sidecar: one planned query under a budget policy, atomic per-query parts, per-root
++packing and witness pack / unpack. Event, held-mode semantics, per-pair counted work (det_rrt), witness construction and
++phase-aware certification are the repaired smoke's (placement_smoke.py, imported unchanged); only the query-level schedule is
++parameterised: the first B valid (held, place) pairs in the smoke's fixed order, FULL (plan all B) or FIRST_SUCCESS coverage.
++
++Label of a completed query: 1 iff a verified carry -> release -> retreat witness exists (planned or a re-verified archived
++suffix); 0 iff the declared schedule finished without one (operational, policy-limited; a certificate only when every pair fell
++to definite static screens); null if statically ineligible or interrupted by a safety guard (re-run identically on resume).
++"""
++import functools, io, json, os, resource, signal, time
++from pathlib import Path
++
++import numpy as np
++import placement_smoke as P
++from placement_smoke import ge, mo, sk
++
++TEACHER = "PLACEMENT_LAUNCH_V1"
++RESUME_VERSION = 1
++STAGES = ("", "OK", "NO_IK", "HELD_CONTACT_MODEL", "HELD_STATE", "PLACE_POSE", "RELEASE", "RETREAT", "GRASP_POSE", "APPROACH", "CLOSURE")
++PHASES = ("carry", "release", "retreat")
++METHODS = ("ARCHIVED_SUFFIX", "DIRECT", "GUIDE_LINE", "RRT_JOINT", "RRT_OBJECT_POSE", "LINK0_SWEEP", "WORK_BUDGET_EXHAUSTED", "ENDPOINT_IK_MISMATCH")
++STOPS, STATUS = ("", "NODES", "ATTEMPTS", "EVALS", "SOLVED"), (ge.CLEAR, ge.COLLISION, ge.UNRESOLVED)
++PER_PAIR = {k: P.WORK[k] for k in ("rrt_attempts", "rrt_evals", "rrt_nodes", "shortcut_rounds")}
++HELD_POLICY = "HELD_48_MODES_ANY_VERIFIED_V1: 24 tool axes x 2 elbows, attached at the source; success under >= 1 scheduled pair"
++CORE = ("q", "gap", "phase", "attached", "held_local", "place_xy")
++ATT = ("a_pick", "a_place", "a_rank", "a_method", "a_status", "a_stop", "a_attempts", "a_nodes", "a_pre_evals", "a_search_evals",
++       "a_shortcut_evals", "a_verified", "a_stored", "a_witness")
++
++
++def pair_protocol():
++    """How ONE (held, place) pair is planned and certified (independent of the query budget): witness ids use this."""
++    G = P.A.env()
++    src = {f: P.sha_file(P.LCT / f)[:16] for f in ("skill.py", "motion.py", "planner.py", "geometry.py", "config.toml")}
++    sem = {"name": TEACHER, "event": P.EVENT, "per_pair_work": PER_PAIR, "teacher_config_hash": G["config_hash"], "robot_protocol": G["protocol"],
++           "teacher_sources": src, "planner_seed": G["cfg"]["planner2d"]["seed"], "seed_rule": "planner.call_seed(seed, '<trial_id>/carry<i>.<j>')",
++           "schedule": "valid pairs sorted by (elbow switch, joint distance, (i, j))", "smoke_code_sha256": P.sha_file(P.__file__)}
++    return P.sha(json.dumps(sem, sort_keys=True).encode())[:16], sem
++
++
++def budget_hash(policy):
++    return P.sha(json.dumps([pair_protocol()[0], policy], sort_keys=True).encode())[:16]
++
++
++def code(table, s):
++    return table.index(s)                                # an unknown value raises: never silently mis-coded
++
++
++def scene_for(task):
++    s = P.scene_from_dict(P.load_root(task["root"])["scene"])
++    for o, c in task["prefix"]:
++        s = P.substitute_pose(s, o, c)
++    return s
++
++
++def wid_of(ident, core):
++    h = P.hashlib.sha256(ident.encode())
++    for k in sorted(core):
++        a = np.asarray(core[k])
++        h.update(f"{k}|{a.dtype.str}|{a.shape}".encode() + a.tobytes())
++    return h.hexdigest()[:24]
++
++
++def put_witness(d, wid, core):
++    f = d / f"w_{wid}.npz"
++    if not f.exists():
++        tmp = f.with_suffix(f".{os.getpid()}.tmp")
++        with open(tmp, "wb") as fh:
++            np.savez_compressed(fh, **{k: np.asarray(core[k]) for k in CORE})
++        os.replace(tmp, f)
++
++
++def _cpu_alarm(*_):
++    raise TimeoutError("QUERY_EMERGENCY_CPU")
++
++
++def run_query(task, out, policy, emergency_cpu_s):
++    """task: plan row + root context. Writes parts/<root>/<trial_id>.json (+ .npz, + w_<id>.npz); returns the record."""
++    d = Path(out) / "parts" / task["root"]
++    part = d / f"{task['trial_id']}.json"
++    if final(part):
++        return json.loads(part.read_text())
++    d.mkdir(parents=True, exist_ok=True)
++    scene = scene_for(task)
++    obj, s_hash = scene.get(task["object"]), P.scene_hash(scene)
++    rec = {k: task[k] for k in ("trial_id", "block", "prefix_kind", "source_cell", "source_bin", "dest_bin", "stratum_k", "stratum_n", "obj_rank", "dest_rank")}
++    rec.update(prefix_key=task["prefix"], prefix_provenance="HYPOTHETICAL" if task["prefix"] else "ROOT", object_id=obj.id,
++               context_selected_with_protected_metadata=task["prefix_kind"] == "ARCHIVED_FIRST_MOVE", hypothetical_scene_hash=s_hash,
++               source_xy=list(map(float, obj.xy_m)),
++               destination_cell=task["dest"], destination_xy=list(map(float, scene.lattice.center(task["dest"]))),
++               query_seed_key=task["trial_id"], resume_version=RESUME_VERSION)
++    why = "DEST_NOT_LEGAL" if task["dest"] not in scene.legal_cells else "DEST_OCCUPIED" if task["dest"] in {o.cell for o in scene.objects} else None
++    if why:
++        rec.update(eligible=False, attempted=False, completed=False, label=None, excluded=why, witness_refs=[], safety_interruption=None)
++        return commit(part, rec, None)
++    t0, c0 = time.time(), time.process_time()
++    signal.signal(signal.SIGVTALRM, _cpu_alarm)          # CPU-time guard: frozen (SIGSTOP) workers do not advance it
++    signal.setitimer(signal.ITIMER_VIRTUAL, emergency_cpu_s)
++    try:
++        body, modes, vol = query(task, d, rec, scene, obj, policy)
++        rec.update(body)
++    except TimeoutError as e:
++        rec.update(eligible=True, attempted=True, completed=False, label=None, safety_interruption=str(e), witness_refs=[])
++        modes, vol = None, {}
++    finally:
++        signal.setitimer(signal.ITIMER_VIRTUAL, 0)
++    rec["volatile"] = {"wall_s": round(time.time() - t0, 3), "cpu_s": round(time.process_time() - c0, 3), **vol,
++                       "worker_peak_rss_mb": round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024, 1)}
++    return commit(part, rec, modes)
++
++
++def query(task, d, rec, scene, obj, policy):
++    G = P.A.env()
++    cfg, robot, p, B = G["cfg"], G["robot"], sk.params(G["cfg"]), policy["pairs_per_query"]
++    c0 = time.process_time()
++    dxy = np.asarray(scene.lattice.center(task["dest"]))
++    pick_diag = sk.screen_pick(robot, mo.checkers(robot, scene, obj.id, None, None, p["delta"], p["eps"]), obj.xy_m, obj.radius_m, p)
++    picks = P.held_modes(robot, scene, obj, p)
++    groups, places, cks = {}, {}, {}
++    for i, c in enumerate(picks):
++        if c.stage == "OK":
++            key = (round(c.local[0], 12), round(c.local[1], 12), round(c.gap, 12))
++            if key not in groups:
++                ck = mo.checkers(robot, scene, obj.id, dxy, c.local, p["delta"], p["eps"])
++                groups[key] = (sk.screen_place(robot, ck, dxy, c.local, c.gap, p), ck)
++            places[i], cks[i] = groups[key]
++    n = len(picks)
++    cat = np.zeros((n, n), np.int8)
++    for i, a in enumerate(picks):
++        for j in range(n):
++            bad = [a] if a.stage != "OK" else [x for x in [places[i][j]] if x.stage != "OK"]
++            cat[i, j] = 2 if not bad else 0 if any(x.certified for x in bad) else 1
++    ident = f"{pair_protocol()[0]}|{scene.robot_profile_hash}|{rec['hypothetical_scene_hash']}|{obj.id}"
++    rows, cpu, stored, refs, vol = [], [], 0, [], {"screen_cpu_s": round(time.process_time() - c0, 3)}
++    old = P.reuse(P.load_root(task["root"]), {"prefix": task["prefix"], "object": obj.id, "dest": task["dest"]}, robot, scene, picks, places, p) \
++        if policy["reuse_archived"] else None
++    if old and old["reverified"]:
++        w = wid_of(ident, old["arrays"])
++        put_witness(d, w, old["arrays"])
++        refs.append(w)
++        cat[old["pick"], old["place"]] = 5
++        rows.append([old["pick"], old["place"], -1, 0, 0, 0, 0, 0, 0, 0, 0, True, True, w])
++    sched = sorted(((int(i), int(j)) for i, j in zip(*np.nonzero(cat == 2))),
++                   key=lambda ij: (picks[ij[0]].branch != places[ij[0]][ij[1]].branch, float(np.linalg.norm(picks[ij[0]].q_end - places[ij[0]][ij[1]].q_end)), ij))
++    for rank, (i, j) in enumerate(sched[:B]):
++        if policy["coverage"] == "FIRST_SUCCESS" and any(r[11] for r in rows):
++            break
++        t = time.process_time()
++        a, b = picks[i], places[i][j]
++        guide = pose = None
++        if a.branch == b.branch:
++            guide = mo.carry_line(robot, obj.xy_m, dxy, a.local, a.phi, b.phi, a.branch, p["line_step_m"], p["max_ik_jump_rad"])[0]
++            pose = ((*obj.xy_m, a.phi), (*dxy, b.phi), a.local, a.branch, p["line_step_m"], p["max_ik_jump_rad"])
++        st, path, method, work = P.plan_carry(cks[i][("held", False)], a.q_end, b.q_end, a.gap, cfg, p, f"{rec['trial_id']}/carry{i}.{j}", guide, pose)
++        ok, w, keep = False, "", False
++        if st == ge.CLEAR:
++            arr = P.witness_arrays(robot, obj.id, a, path, b)
++            ok = P.verify_witness(robot, scene, obj.id, arr, dxy, p)[0]
++            if ok:
++                w = wid_of(ident, arr)
++                keep = stored < policy["witness_store_max"]
++                if keep:
++                    put_witness(d, w, arr)
++                    refs.append(w)
++                    stored += 1
++        cat[i, j] = 4 if ok else 3
++        rows.append([i, j, rank, code(METHODS, method.split(":")[0]), code(STATUS, st), code(STOPS, work["stop"] or ""), work["attempts"], work["nodes"],
++                     work["pre_evals"], work["search_evals"], work["shortcut_evals"], ok, keep, w])
++        cpu.append(round(time.process_time() - t, 4))
++    vol["attempt_cpu_s"] = cpu
++    c = {P.CAT[k]: int((cat == k).sum()) for k in P.CAT}
++    m = {"total": n * n, "hard_screened": c["HARD_SCREENED"], "motion_attempted": c["PLANNED_FAILED"] + c["PLANNED_VERIFIED"],
++         "reused_reverified": c["REUSED_REVERIFIED"], "not_motion_attempted": c["SCREEN_INCONCLUSIVE_NOT_PLANNED"] + c["VALID_NOT_PLANNED"],
++         "attempted_success": c["PLANNED_VERIFIED"], "attempted_failure": c["PLANNED_FAILED"], "screen_inconclusive": c["SCREEN_INCONCLUSIVE_NOT_PLANNED"],
++         "valid_not_planned": c["VALID_NOT_PLANNED"], "n_mode_witnesses": c["PLANNED_VERIFIED"] + c["REUSED_REVERIFIED"], "valid_pairs": len(sched)}
++    assert m["total"] == m["hard_screened"] + m["motion_attempted"] + m["reused_reverified"] + m["not_motion_attempted"]
++    replay = any(r[4] == 0 and not r[11] for r in rows)
++    lab = decide(m, picks, places, policy, bool(rows), replay)
++    planned = any(r[11] for r in rows if r[2] >= 0)
++    modes = {"held_stage": np.array([code(STAGES, x.stage) for x in picks], np.int8), "held_definite": np.array([x.certified for x in picks]),
++             "pick_access_stage": np.array([code(STAGES, x.stage) for x in pick_diag], np.int8),
++             "place_stage": np.array([[code(STAGES, x.stage) for x in places[i]] if i in places else [0] * n for i in range(n)], np.int8), "pair_category": cat}
++    cols = list(zip(*rows)) if rows else [[]] * len(ATT)
++    for k, col, dt in zip(ATT, cols, (np.int16,) * 3 + (np.int8,) * 3 + (np.int32,) * 5 + (bool, bool, "U24")):
++        modes[k] = np.array(col, dt)
++    body = {"eligible": True, "attempted": True, "completed": True, **lab, "safety_interruption": None, "mode_counts": m,
++            "label_source": None if not lab["label"] else "BOTH" if planned and old and old["reverified"] else "PLANNED" if planned else "REUSED",
++            "held_modes_valid": sum(x.stage == "OK" for x in picks), "pick_access_modes_ok": sum(x.stage == "OK" for x in pick_diag),
++            "place_screen_groups": len(groups), "witness_refs": refs, "n_verified_pairs": m["n_mode_witnesses"],
++            "work": {"pairs_planned": sum(r[2] >= 0 for r in rows), "rrt_attempts": int(sum(r[6] for r in rows)), "rrt_nodes": int(sum(r[7] for r in rows)),
++                     "evals": int(sum(r[8] + r[9] + r[10] for r in rows))},
++            "privileged_teacher": None if old is None else {"archived_witness": old["archived_witness"], "archived_role": old["role"],
++                                                            "reverified": old["reverified"], "pick": old["pick"], "place": old["place"]}}
++    return body, modes, vol
++
++
++def decide(m, picks, places, policy, any_rows, replay):
++    if m["n_mode_witnesses"]:
++        return {"label": 1, "negative_kind": None, "negative_scope": None, "failure_phase": None, "is_certificate": False}
++    if m["hard_screened"] == m["total"]:
++        valid = [i for i, c in enumerate(picks) if c.stage == "OK"]
++        bad = [x.stage for i in valid for x in places[i] if x.stage != "OK"]
++        return {"label": 0, "negative_kind": "CERTIFIED_SCREEN", "negative_scope": "DECLARED_48x48_CATALOGUE_DEFINITE_STATIC_SCREENS",
++                "failure_phase": "HELD_STATE" if not valid else max(sorted(set(bad)), key=bad.count), "is_certificate": True}
++    scope = f"FINITE_POLICY:{policy['pairs_per_query']}_PAIRS,{policy['coverage']},PER_PAIR_WORK_BUDGET"
++    if not any_rows:
++        return {"label": 0, "negative_kind": "NO_PLAN_FOUND", "negative_scope": scope + ",SCREEN_INCONCLUSIVE", "failure_phase": "SCREEN", "is_certificate": False}
++    return {"label": 0, "negative_kind": "WORK_BUDGET_EXHAUSTED" if m["valid_not_planned"] else "SCHEDULE_EXHAUSTED_NO_WITNESS", "negative_scope": scope,
++            "failure_phase": "REPLAY" if replay else "CARRY", "is_certificate": False}
++
++
++def final(part):
++    if not part.exists():
++        return False
++    r = json.loads(part.read_text())
++    return bool(r["completed"] or not r["eligible"])
++
++
++def commit(part, rec, modes):
++    if modes is not None:
++        tmp = part.with_suffix(f".{os.getpid()}.npz.tmp")
++        with open(tmp, "wb") as f:
++            np.savez_compressed(f, **modes)
++        os.replace(tmp, part.with_suffix(".npz"))
++    tmp = part.with_suffix(f".{os.getpid()}.tmp")
++    tmp.write_text(json.dumps(rec, separators=(",", ":"), sort_keys=True))
++    os.replace(tmp, part)
++    return rec
++
++
++def _atomic(path, data):
++    path.parent.mkdir(parents=True, exist_ok=True)
++    tmp = path.with_suffix(path.suffix + f".{os.getpid()}.tmp")
++    with open(tmp, "wb") as f:
++        f.write(data)
++        f.flush()
++        os.fsync(f.fileno())
++    os.replace(tmp, path)
++
++
++def pack_root(out, header, tasks):
++    """All queries of a root final -> records/<root>.json, modes/<root>.npz, witnesses/<root>.npz (written witnesses-first, the
++    JSON last, each atomically); then parts/<root>/ is removed. Content is ordered by the plan, never by completion."""
++    out, rid = Path(out), header["root_id"]
++    d = out / "parts" / rid
++    recs = [json.loads((d / f"{t['trial_id']}.json").read_text()) for t in tasks]
++    assert all(r["completed"] or not r["eligible"] for r in recs), rid
++    wids = list(dict.fromkeys(w for r in recs for w in r["witness_refs"]))
++    ws = [{k: v for k, v in np.load(d / f"w_{w}.npz").items()} for w in wids]
++    if ws:
++        lens = [len(w["q"]) for w in ws]
++        pack = {"ids": np.array(wids, "U24"), "q_offsets": np.concatenate([[0], np.cumsum(lens)]).astype(np.int64),
++                "q": np.concatenate([w["q"] for w in ws]), "gap": np.concatenate([w["gap"] for w in ws]),
++                "phase_code": np.concatenate([[code(PHASES, str(x)) for x in w["phase"]] for w in ws]).astype(np.int8),
++                "attached": np.concatenate([w["attached"] for w in ws]), "held_local": np.stack([w["held_local"] for w in ws]),
++                "place_xy": np.stack([w["place_xy"] for w in ws])}
++        _atomic(out / "witnesses" / f"{rid}.npz", _npz(pack))
++    z = [(i, np.load(d / f"{r['trial_id']}.npz")) for i, r in enumerate(recs) if (d / f"{r['trial_id']}.npz").exists()]
++    if z:
++        arr = {k: np.stack([x[k] for _, x in z]) for k in ("held_stage", "held_definite", "pick_access_stage", "place_stage", "pair_category")}
++        arr["query_index"] = np.array([i for i, _ in z], np.int16)
++        arr["a_query"] = np.concatenate([np.full(len(x["a_pick"]), i, np.int16) for i, x in z])
++        for k in ATT:
++            arr[k] = np.concatenate([x[k] for _, x in z])
++        _atomic(out / "modes" / f"{rid}.npz", _npz(arr))
++    _atomic(out / "records" / f"{rid}.json", json.dumps({**header, "queries": recs}, separators=(",", ":"), sort_keys=True).encode())
++    for f in d.iterdir():
++        f.unlink()
++    d.rmdir()
++
++
++def _npz(arrays):
++    buf = io.BytesIO()
++    np.savez_compressed(buf, **arrays)
++    return buf.getvalue()
++
++
++@functools.lru_cache(maxsize=8)
++def _pack(path, mtime_ns):
++    return dict(np.load(path))                          # one decompression per pack (keyed by mtime), not one per witness
++
++
++def witness(out, rid, wid):
++    """CORE arrays of a stored witness with its original dtypes (from the root pack, or from a part while the root is open)."""
++    f = Path(out) / "witnesses" / f"{rid}.npz"
++    if not f.exists():
++        z = np.load(Path(out) / "parts" / rid / f"w_{wid}.npz")
++        return {k: z[k] for k in CORE}
++    z = _pack(str(f), f.stat().st_mtime_ns)
++    k = list(z["ids"]).index(wid)
++    a, b = z["q_offsets"][k], z["q_offsets"][k + 1]
++    s = slice(a - k, b - k - 1)                          # n_k waypoints carry n_k - 1 segment entries
++    return {"q": z["q"][a:b], "gap": z["gap"][a:b], "phase": np.array([PHASES[c] for c in z["phase_code"][s]], "U16"),
++            "attached": z["attached"][s], "held_local": z["held_local"][k], "place_xy": z["place_xy"][k]}
+diff -ruN /home/naren/Desktop/rss-placement-smoke/gh-yadu-iiith/planar_2d/dataset_relocations_v1/launch_ready_2d_v1/audit/baseline/code_before/test_launch_ready.py /home/naren/Desktop/rss-placement-smoke/gh-yadu-iiith/planar_2d/dataset_relocations_v1/launch_ready_2d_v1/../code/test_launch_ready.py
+--- /home/naren/Desktop/rss-placement-smoke/gh-yadu-iiith/planar_2d/dataset_relocations_v1/launch_ready_2d_v1/audit/baseline/code_before/test_launch_ready.py	1970-01-01 05:30:00.000000000 +0530
++++ /home/naren/Desktop/rss-placement-smoke/gh-yadu-iiith/planar_2d/dataset_relocations_v1/launch_ready_2d_v1/../code/test_launch_ready.py	2026-11-06 22:06:54.663462766 +0530
+@@ -0,0 +1,140 @@
++"""Launch-readiness tests: frozen splits and plan, oracle-free candidates, teacher = repaired smoke, nested budgets, witness packs,
++held-state semantics, emergency interruption, launch guard (refuses without any planner call), topology. Teacher calls here use
++only dev-touched TRAIN roots (the smoke reference query and the unit fixture)."""
++import copy, json
++from collections import Counter
++from pathlib import Path
++
++import numpy as np
++import pytest
++import launch_check as K
++import launch_guard as LG
++import launch_plan as LP
++import launch_runner as R
++import placement_teacher as T
++
++P = T.P
++L = Path(__file__).resolve().parents[1] / "launch_ready_2d_v1"
++V2 = L.parent / "smoke_repro_v2"
++FIX = {"root": "2d-plus2d-srv-w0408-s006", "trial_id": "fixture-o08-55", "prefix": [], "object": "o08", "dest": 55, "block": "root", "prefix_kind": None,
++       "source_cell": 0, "source_bin": "", "dest_bin": "", "stratum_k": 0, "stratum_n": 0, "obj_rank": 0, "dest_rank": 0}
++POL = {"pairs_per_query": 12, "coverage": "FULL", "witness_store_max": 12, "reuse_archived": True}
++SPLIT = {r["root_id"]: r for r in json.loads((L / "split_manifest.json").read_text())["roots"]}
++
++
++def test_splits_are_lineage_closed_balanced_and_dev_roots_train():
++    s = json.loads((L / "plan_summary.json").read_text())
++    assert s["cross_split_shared"] == {"conversion": 0, "family": 0, "layout": 0}
++    by = Counter(r["split"] for r in SPLIT.values())
++    assert by["train"] == 3500 and abs(by["val"] - 750) <= 5 and abs(by["test"] - 750) <= 5
++    groups = {}
++    for r in SPLIT.values():
++        groups.setdefault(r["root_group_id"], set()).add(r["split"])
++    assert all(len(v) == 1 for v in groups.values())
++    assert all(SPLIT[x]["split"] == "train" for x in {t["root"] for t in json.loads((V2 / "roster.json").read_text())} | {FIX["root"]})
++    assert all(SPLIT[x]["split"] == "train" and not SPLIT[x]["dev_touched"] for x in s["pilot_roots"]) and s["pilot_inside_every_quota"]
++
++
++def test_candidates_ignore_protected_metadata():
++    """Scrambling roles, blockers, parking, construction and every label leaves the root block and design edit unchanged."""
++    G = P.A.env()
++    for rid in sorted(SPLIT, key=lambda x: LP.H("test", x))[:60]:
++        r = P.load_root(rid)
++        s = copy.deepcopy(r)
++        s.update(roles={}, intended_blockers=[], parking={}, alt_parking={}, construction={}, verified_K=None, observed=None)
++        s["labels"] = {"B": [], "D": [], "original": {}, "blocker": {}}
++        a = [x for x in LP.root_plan(rid, r, G, False) if x[3] != "ARCHIVED_FIRST_MOVE" and not x[1].endswith("prefix2")]
++        b = [x for x in LP.root_plan(rid, s, G, False) if not x[1].endswith("prefix2")]
++        assert a == b
++
++
++def test_teacher_reproduces_the_repaired_smoke(tmp_path):
++    t = json.loads((V2 / "roster.json").read_text())[0]
++    old = json.loads((V2 / "serial" / "parts" / f"{t['trial_id']}.json").read_text())
++    task = {**FIX, "root": t["root"], "trial_id": t["trial_id"], "prefix": t["prefix"], "object": t["object"], "dest": t["dest"]}
++    r = T.run_query(task, tmp_path, {**POL, "pairs_per_query": 8, "witness_store_max": 8}, 1200)
++    z = np.load(tmp_path / "parts" / t["root"] / f"{t['trial_id']}.npz")
++    assert r["label"] == old["label"] and {k: r["mode_counts"][k] for k in old["mode_summary"]} == old["mode_summary"]
++    assert [(a["pick"], a["place"]) for a in old["attempts"]] == list(zip(z["a_pick"].tolist(), z["a_place"].tolist()))
++    assert np.array_equal(z["pair_category"], np.load(V2 / "serial" / "parts" / f"{t['trial_id']}.npz")["pair_category"])
++    oq = [np.load(V2 / "serial" / "trajectories" / f"{w}.npz")["q"] for w in old["witness_refs"]]
++    assert all(np.array_equal(a, T.witness(tmp_path, t["root"], w)["q"]) for a, w in zip(oq, r["witness_refs"])) and len(oq) == len(r["witness_refs"])
++
++
++@pytest.fixture(scope="module")
++def fx(tmp_path_factory):
++    out = {}
++    for name, pol in (("b12", POL), ("b4", {**POL, "pairs_per_query": 4}), ("fs", {**POL, "coverage": "FIRST_SUCCESS"})):
++        d = tmp_path_factory.mktemp(name)
++        r = T.run_query(FIX, d, pol, 1200)
++        z = np.load(d / "parts" / FIX["root"] / f"{FIX['trial_id']}.npz")
++        out[name] = (d, r, {k: z[k] for k in T.ATT})
++    return out
++
++
++def test_nested_budgets_and_first_success_equal_their_virtual_accounting(fx):
++    _, r12, a12 = fx["b12"]
++    _, r4, a4 = fx["b4"]
++    sel = a12["a_rank"] < 4
++    assert all(np.array_equal(a4[k], a12[k][sel]) for k in T.ATT if k != "a_stored")
++    assert K.virtual(r12, a12, 4, "FULL")["label"] == r4["label"] and K.virtual(r12, a12, 4, "FULL")["kind"] == r4["negative_kind"]
++    _, rf, af = fx["fs"]
++    v = K.virtual(r12, a12, 12, "FIRST_SUCCESS")
++    assert v["label"] == rf["label"] and v["planned"] == rf["work"]["pairs_planned"] == int((af["a_rank"] >= 0).sum())
++
++
++def test_pick_blocked_object_is_placeable_and_witness_is_placement_only(fx):
++    d, r, _ = fx["b12"]
++    assert r["pick_access_modes_ok"] == 0 and r["held_modes_valid"] > 0 and r["label"] == 1
++    G = P.A.env()
++    w = T.witness(d, FIX["root"], r["witness_refs"][0])
++    assert list(dict.fromkeys(str(x) for x in w["phase"])) == ["carry", "release", "retreat"] and w["gap"][0] < G["robot"].open_gap
++    s = T.scene_for(FIX)
++    assert P.verify_witness(G["robot"], s, "o08", w, np.asarray(s.lattice.center(55)), P.sk.params(G["cfg"]))[0]
++
++
++def test_pack_roundtrip_keeps_ids_and_removes_parts(fx, tmp_path):
++    import shutil
++    d, r, _ = fx["b12"]
++    shutil.copytree(d, tmp_path / "run")
++    hdr = {"root_id": FIX["root"], "pair_protocol_id": T.pair_protocol()[0]}
++    T.pack_root(tmp_path / "run", hdr, [FIX])
++    s = T.scene_for(FIX)
++    ident = f"{hdr['pair_protocol_id']}|{s.robot_profile_hash}|{r['hypothetical_scene_hash']}|o08"
++    assert all(T.wid_of(ident, T.witness(tmp_path / "run", FIX["root"], w)) == w for w in r["witness_refs"])
++    assert not (tmp_path / "run" / "parts" / FIX["root"]).exists() and (tmp_path / "run" / "records" / f"{FIX['root']}.json").exists()
++
++
++def test_emergency_interruption_is_unlabeled_and_rerun(tmp_path):
++    r = T.run_query({**FIX, "trial_id": "fixture-interrupt"}, tmp_path, POL, 0.05)
++    assert r["completed"] is False and r["label"] is None and r["safety_interruption"] == "QUERY_EMERGENCY_CPU"
++    assert not T.final(tmp_path / "parts" / FIX["root"] / "fixture-interrupt.json")
++
++
++def test_static_contrast_is_occupied_and_never_planned(tmp_path, monkeypatch):
++    monkeypatch.setattr(P, "plan_carry", lambda *a, **k: pytest.fail("planner called"))
++    p = next(x for x in R.plan_rows(L) if x["root_id"] in SPLIT and SPLIT[x["root_id"]]["pilot"])
++    row = next(dict(zip(LP.COLS, q)) for q in p["queries"] if q[12])
++    r = T.run_query({**row, "root": p["root_id"]}, tmp_path, POL, 1200)
++    assert not r["eligible"] and r["label"] is None and r["excluded"] == "DEST_OCCUPIED"
++
++
++def test_full_launch_guard_refuses_without_running_the_teacher(monkeypatch):
++    monkeypatch.setattr(P, "plan_carry", lambda *a, **k: pytest.fail("planner called"))
++    monkeypatch.setattr(R, "run", lambda *a, **k: pytest.fail("runner started"))
++    target = Path(R.cfg_of(L)["full_run_dir"])
++    for argv in ([], ["--execute-full"], ["--confirm", LG.token(L)], ["--execute-full", "--confirm", "LAUNCH-2D-wrong"]):
++        with pytest.raises(SystemExit, match="REFUSED"):
++            LG.full(L, argv)
++    if not json.loads((L / "configs" / "frozen_hashes.json").read_text()).get("production_policy_sha256"):
++        with pytest.raises(SystemExit, match="REFUSED"):           # right token, but no frozen production policy yet
++            LG.full(L, ["--execute-full", "--confirm", LG.token(L)])
++    assert not target.exists()
++
++
++def test_topology_selection():
++    C = R.cfg_of(L)
++    w, res, topo = R.topology(25, 7)
++    assert len(set(w)) == 25 and len(res) >= 7 and not set(w) & set(res) and w == C["execution"]["worker_cpus"]
++    cores = list(topo["cores"].values())
++    assert set(w[:len(cores)]) == {c[0] for c in cores}            # one thread per physical core before any SMT sibling
