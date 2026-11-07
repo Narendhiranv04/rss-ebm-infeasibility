@@ -1,0 +1,42 @@
+{
+ "state": "RUNNING_VERIFIED",
+ "host": "nav@gvlab",
+ "run_dir": "/home/nav/approachb3d_v3/repo/gh-yadu-iiith/shelf_6x6_open_sides/dataset_placement_extension_v2/production_v4/run_q2_parity",
+ "checkout": {"path": "~/approachb3d_v3/repo", "commit": "83c1135f69f894424873e0a3843be67c91d9ce99", "branch": "naren/3d-dataset-relocations", "tracked_files_clean": true},
+ "authorization": {
+  "authorized_by": "requesting user — authorisation supplied in this execution prompt",
+  "authorized_utc": "2026-11-07T15:38:16Z",
+  "statement_verbatim": "I also newly authorise starting the 3D v4 Q2_3D_PARITY_V1 placement dataset collection on gvlab: 59,972 physical placement queries, adaptive_v1 4×500 → 8×1500 → 16×5000, 12 workers pinned to CPUs 0–11. This v4 authorisation supersedes no previous history and does not authorise v3.",
+  "conditions": "applies only if the appropriate frozen-manifest, scientific, thermal, resource, reproducibility, and integrity guards pass",
+  "where": "production_v4/production_policy_v4.json on gvlab only (excluded from Git via .git/info/exclude; mode 0600); the token is never committed",
+  "authorized_policy_file_sha256": "66d03a82855a3f951c88231424f56ad1a6218398a1d05251e572da877208c1ff",
+  "template_sha256": "0100a81e0317b7f52000415b161d08c01bf18b1d11718816f429d262aa66a6cf",
+  "guard": "code/prod4.py check production_v4/production_policy_v4.json <token> -> {\"ok\": true, \"reasons\": [], \"authorization_reasons\": []}"
+ },
+ "pre_launch_checks": {"production_v4_SHA256SUMS": "OK", "production_v3_SHA256SUMS": "OK", "v2_ARTIFACT_MANIFEST": "OK",
+                       "decide_v4": "3D_V4_READY_PENDING_NEW_USER_AUTHORIZATION, no blockers",
+                       "metadata_preflight": {"physical_queries": 59972, "static_contrasts": 4616, "roots": 1466, "planner_calls": 0, "teacher_entry_calls": 0,
+                                              "run_dir_created": false, "roster_regenerated_equal": true, "refusals_other_than_authorization": []}},
+ "launch_attempts": [
+  {"utc": "2026-11-07T15:38:38Z", "result": "REFUSED by the launcher's metadata preflight: 'another collector is running: [3263309]'",
+   "cause": "pid 3263309 was the assistant's own ssh command shell, whose command line contained 'launch_v4.sh' while it waited (sleep 20); it is not an ancestor of the launcher. The guard was correctly conservative; nothing was created (no run dir, lock free, 0 teacher calls).",
+   "fix": "start the tmux session from ~/approachb3d_v3/start_v4_session.sh, whose command line never names the launcher, with a 5 s delay inside the session"},
+  {"utc": "2026-11-07T15:39:40Z", "result": "preflight passed, prod4 check ok:true, test_prod4.py + test_mock3d_v2.py 37 passed (8 min 22 s), collector exec'd"}
+ ],
+ "invocation": "tmux session shelf66v3_v4: bash production_v4/launch_v4.sh --execute --policy-file production_v4/production_policy_v4.json --confirm <token from ~/.cache/shelf66v3_place/v4_token.txt> | tee -a production_v4/launch_v4.log",
+ "collector": {"started_utc": "2026-11-07T15:48:32Z", "coordinator_pid": 3264085, "coordinator_affinity": "0-11", "nice": 10, "process_group_leader": true,
+               "workers": 12, "worker_cpus": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], "worker_pids": "3270370-3270381 (one per CPU) + multiprocessing resource tracker 3270368",
+               "lock": "~/.cache/shelf66v3_place/collector.lock held by pid 3264085 (kernel flock)"},
+ "run_manifest": {"sha256": "249d8d74e06352adb63c89bbac017f5b50d9a617b6df2ec22a0546ab958c45db", "mode": "PRODUCTION_FIRST_COHORT (policy version SHELF66V3_PLACE_PRODUCTION_V4_Q2_PARITY)",
+                  "policy": "adaptive_v1", "stages": [[4, 500], [8, 1500], [16, 5000]], "units": 1466, "queries": 59972,
+                  "roster_sha256": "80134f6329971411...", "teacher_protocol": "89cbabed5d7e4847", "policy_file_sha256": "66d03a82855a3f95..."},
+ "first_units": "12 units of 56 queries completed by 15:51:27Z (e.g. 3ds66-lap-w0007-s003, -s016, -s012)",
+ "health_at_start": {"pkg_temp_c": 46.0, "cpu_pct_sum": 1200.0, "workers_alive": 12, "affinity_union": "0-11", "rss_max_gb": 0.46, "mem_avail_gb": 56.0,
+                     "disk_free_gb": 60.4, "violations": []},
+ "measured_at_31_min": {"units": 170, "queries": 9520, "cpu_s_per_query": 2.27, "queries_per_hour": 18327,
+                        "note": "only 56-query units so far (largest first); the stratified forecast assumed 9.3 CPU-s / query (15.6 h base, 33.4 h buffered); re-estimate as smaller units arrive"},
+ "backups": {"second_disk": "/ssd_scratch/nav_shelf66v3_backup/run_q2_parity (verified every 10 min by gvlab cron; destination re-hashed each cycle)",
+             "laptop_mirror": "~/Desktop/shelf66v3_offhost_mirror/run_q2_parity (pulled + re-hashed by the laptop transfer job)",
+             "restore_test": "production_v4/launch/restore_test_3d.json (unit 3ds66-lap-w0000-s007: hashes equal the ledger, 56 records, NPZ opened)",
+             "durable_offsite": "DURABLE_OFFSITE_NOT_CONFIGURED"}
+}
