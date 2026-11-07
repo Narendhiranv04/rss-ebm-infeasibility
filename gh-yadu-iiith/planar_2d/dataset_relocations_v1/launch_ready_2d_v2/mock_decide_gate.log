@@ -1,0 +1,204 @@
+FAIL_CLOSED: NOT_READY_TO_LAUNCH: all gates required; do not modify thresholds post hoc
+{
+ "status": "STATIC_PASS",
+ "errors": [],
+ "two_edit_queries_in_audit_subset": 1056,
+ "pilot_roots": 25,
+ "plan_root_count": 5000,
+ "snapshot": {
+  "free_disk_mb": 61136,
+  "cpu_boost": "0",
+  "allowed_logical_cpus": 32,
+  "min_disk_free_mb": 10240,
+  "mem_available_mb": 12133,
+  "full_dir_exists": false
+ },
+ "metadata_preflight_calls": {}
+}
+{
+ "verdict": "NOT_READY_TO_LAUNCH",
+ "gates": {
+  "v2_ref64_25_audit": true,
+  "v2_ref64_25_safety": true,
+  "v2_adaptive25_a_audit": true,
+  "v2_adaptive25_a_safety": true,
+  "v2_adaptive25_b_audit": true,
+  "v2_adaptive25_b_safety": true,
+  "v2_adaptive_serial_audit": true,
+  "v2_adaptive_serial_safety": true,
+  "v2_adaptive_interrupted_audit": true,
+  "v2_adaptive_interrupted_safety": true,
+  "independent_25_worker_repro": true,
+  "serial_matches_parallel": true,
+  "interrupt_matches": true,
+  "adaptive_nested_ref64": true,
+  "adaptive_recall_vs_64": true,
+  "negative_diversity": true,
+  "all_verified_witnesses_stored": true,
+  "disk_safety": true,
+  "runtime_forecast": false
+ },
+ "failures": [
+  "RUNTIME_FORECAST"
+ ],
+ "nested": {
+  "shared": 346,
+  "bad": [],
+  "different": 0
+ },
+ "relative_to_reference_64": {
+  "positive_reference_count": 301,
+  "adaptive_missed": 0,
+  "miss_fraction": 0.0,
+  "wilson_95": [
+   0.0,
+   0.0126
+  ],
+  "strata": {
+   "block": {
+    "prefix3": {
+     "pos64": 41,
+     "missed": 0,
+     "miss_frac": 0.0
+    },
+    "prefix1": {
+     "pos64": 46,
+     "missed": 0,
+     "miss_frac": 0.0
+    },
+    "prefix2": {
+     "pos64": 42,
+     "missed": 0,
+     "miss_frac": 0.0
+    },
+    "root": {
+     "pos64": 172,
+     "missed": 0,
+     "miss_frac": 0.0
+    }
+   },
+   "dest_bin": {
+    "near": {
+     "pos64": 152,
+     "missed": 0,
+     "miss_frac": 0.0
+    },
+    "mid": {
+     "pos64": 43,
+     "missed": 0,
+     "miss_frac": 0.0
+    },
+    "vacated": {
+     "pos64": 66,
+     "missed": 0,
+     "miss_frac": 0.0
+    },
+    "far": {
+     "pos64": 40,
+     "missed": 0,
+     "miss_frac": 0.0
+    }
+   }
+  }
+ },
+ "pilot": {
+  "completed": 346,
+  "positives": 301,
+  "negatives": 45,
+  "stored_witnesses": 2223
+ },
+ "forecast": {
+  "q1_teacher_queries": 357240,
+  "cpu_hours_with_1p5_buffer": 4453.7,
+  "wall_days_with_1p5_buffer": 7.62,
+  "disk_mb_with_1p5_buffer_and_500mb_overhead": 5169.8,
+  "free_mb": 61136.7,
+  "pilot_throughput_cpu_s_per_s": 24.36,
+  "estimators": {
+   "pilot_mean_cpu_hours_x1p5": 3251.2,
+   "composition_weighted_cpu_hours_x1p5": 4453.7,
+   "composition_weighted_wall_days_no_buffer": 5.08,
+   "pilot_mean_disk_mb_x1p5": 4669.8,
+   "composition_weighted_disk_mb_x1p5": 4651.8,
+   "strata": {
+    "prefix1/far": {
+     "q1_queries": 11936,
+     "pilot_n": 0,
+     "cpu_s": 35.49
+    },
+    "prefix1/mid": {
+     "q1_queries": 17484,
+     "pilot_n": 0,
+     "cpu_s": 41.76
+    },
+    "prefix1/near": {
+     "q1_queries": 17735,
+     "pilot_n": 25,
+     "cpu_s": 19.15
+    },
+    "prefix1/vacated": {
+     "q1_queries": 4409,
+     "pilot_n": 25,
+     "cpu_s": 2.91
+    },
+    "prefix2/far": {
+     "q1_queries": 11837,
+     "pilot_n": 0,
+     "cpu_s": 35.49
+    },
+    "prefix2/mid": {
+     "q1_queries": 17538,
+     "pilot_n": 0,
+     "cpu_s": 41.76
+    },
+    "prefix2/near": {
+     "q1_queries": 17780,
+     "pilot_n": 25,
+     "cpu_s": 22.81
+    },
+    "prefix2/vacated": {
+     "q1_queries": 4409,
+     "pilot_n": 25,
+     "cpu_s": 11.62
+    },
+    "prefix3/far": {
+     "q1_queries": 11145,
+     "pilot_n": 0,
+     "cpu_s": 35.49
+    },
+    "prefix3/mid": {
+     "q1_queries": 16498,
+     "pilot_n": 0,
+     "cpu_s": 41.76
+    },
+    "prefix3/near": {
+     "q1_queries": 16760,
+     "pilot_n": 23,
+     "cpu_s": 13.24
+    },
+    "prefix3/vacated": {
+     "q1_queries": 4185,
+     "pilot_n": 23,
+     "cpu_s": 28.63
+    },
+    "root/far": {
+     "q1_queries": 62361,
+     "pilot_n": 47,
+     "cpu_s": 35.49
+    },
+    "root/mid": {
+     "q1_queries": 72043,
+     "pilot_n": 53,
+     "cpu_s": 41.76
+    },
+    "root/near": {
+     "q1_queries": 71120,
+     "pilot_n": 100,
+     "cpu_s": 13.0
+    }
+   },
+   "rule": "max(pilot mean, Q1-composition weighted) x 1.5 (review fix R5)"
+  }
+ },
+ "explicit_scope": "No production query executed; readiness of the configured finite-policy 2D placement sidecar only"
+}

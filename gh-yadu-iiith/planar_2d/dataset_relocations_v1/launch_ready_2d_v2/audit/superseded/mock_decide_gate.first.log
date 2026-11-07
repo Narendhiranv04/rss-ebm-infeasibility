@@ -1,0 +1,117 @@
+{
+ "status": "STATIC_PASS",
+ "errors": [],
+ "two_edit_queries_in_audit_subset": 1056,
+ "pilot_roots": 25,
+ "plan_root_count": 5000,
+ "snapshot": {
+  "free_disk_mb": 61138,
+  "cpu_boost": "0",
+  "allowed_logical_cpus": 32,
+  "min_disk_free_mb": 10240,
+  "mem_available_mb": 12182,
+  "full_dir_exists": false
+ },
+ "metadata_preflight_calls": {}
+}
+{
+ "verdict": "READY_TO_LAUNCH",
+ "gates": {
+  "v2_ref64_25_audit": true,
+  "v2_ref64_25_safety": true,
+  "v2_adaptive25_a_audit": true,
+  "v2_adaptive25_a_safety": true,
+  "v2_adaptive25_b_audit": true,
+  "v2_adaptive25_b_safety": true,
+  "v2_adaptive_serial_audit": true,
+  "v2_adaptive_serial_safety": true,
+  "v2_adaptive_interrupted_audit": true,
+  "v2_adaptive_interrupted_safety": true,
+  "independent_25_worker_repro": true,
+  "serial_matches_parallel": true,
+  "interrupt_matches": true,
+  "adaptive_nested_ref64": true,
+  "adaptive_recall_vs_64": true,
+  "negative_diversity": true,
+  "all_verified_witnesses_stored": true,
+  "disk_safety": true,
+  "runtime_forecast": true
+ },
+ "failures": [],
+ "nested": {
+  "shared": 346,
+  "bad": [],
+  "different": 0
+ },
+ "relative_to_reference_64": {
+  "positive_reference_count": 301,
+  "adaptive_missed": 0,
+  "miss_fraction": 0.0,
+  "wilson_95": [
+   0.0,
+   0.0126
+  ],
+  "strata": {
+   "block": {
+    "root": {
+     "pos64": 172,
+     "missed": 0,
+     "miss_frac": 0.0
+    },
+    "prefix1": {
+     "pos64": 46,
+     "missed": 0,
+     "miss_frac": 0.0
+    },
+    "prefix3": {
+     "pos64": 41,
+     "missed": 0,
+     "miss_frac": 0.0
+    },
+    "prefix2": {
+     "pos64": 42,
+     "missed": 0,
+     "miss_frac": 0.0
+    }
+   },
+   "dest_bin": {
+    "far": {
+     "pos64": 40,
+     "missed": 0,
+     "miss_frac": 0.0
+    },
+    "mid": {
+     "pos64": 43,
+     "missed": 0,
+     "miss_frac": 0.0
+    },
+    "near": {
+     "pos64": 152,
+     "missed": 0,
+     "miss_frac": 0.0
+    },
+    "vacated": {
+     "pos64": 66,
+     "missed": 0,
+     "miss_frac": 0.0
+    }
+   }
+  }
+ },
+ "pilot": {
+  "completed": 346,
+  "positives": 301,
+  "negatives": 45,
+  "stored_witnesses": 2223
+ },
+ "forecast": {
+  "q1_teacher_queries": 357240,
+  "cpu_hours_with_1p5_buffer": 3251.2,
+  "wall_days_with_1p5_buffer": 5.56,
+  "disk_mb_with_1p5_buffer_and_500mb_overhead": 5169.8,
+  "free_mb": 61138.8,
+  "pilot_throughput_cpu_s_per_s": 24.36
+ },
+ "explicit_scope": "No production query executed; readiness of the configured finite-policy 2D placement sidecar only"
+}
+FROZEN v2 production policy; full job NOT started. Explicit later authorization required.

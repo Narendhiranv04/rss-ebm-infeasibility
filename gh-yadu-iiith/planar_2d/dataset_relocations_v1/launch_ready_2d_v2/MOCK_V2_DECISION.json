@@ -1,0 +1,187 @@
+{
+ "explicit_scope": "No production query executed; readiness of the configured finite-policy 2D placement sidecar only",
+ "failures": [
+  "RUNTIME_FORECAST"
+ ],
+ "forecast": {
+  "cpu_hours_with_1p5_buffer": 4453.7,
+  "disk_mb_with_1p5_buffer_and_500mb_overhead": 5169.8,
+  "estimators": {
+   "composition_weighted_cpu_hours_x1p5": 4453.7,
+   "composition_weighted_disk_mb_x1p5": 4651.8,
+   "composition_weighted_wall_days_no_buffer": 5.08,
+   "pilot_mean_cpu_hours_x1p5": 3251.2,
+   "pilot_mean_disk_mb_x1p5": 4669.8,
+   "rule": "max(pilot mean, Q1-composition weighted) x 1.5 (review fix R5)",
+   "strata": {
+    "prefix1/far": {
+     "cpu_s": 35.49,
+     "pilot_n": 0,
+     "q1_queries": 11936
+    },
+    "prefix1/mid": {
+     "cpu_s": 41.76,
+     "pilot_n": 0,
+     "q1_queries": 17484
+    },
+    "prefix1/near": {
+     "cpu_s": 19.15,
+     "pilot_n": 25,
+     "q1_queries": 17735
+    },
+    "prefix1/vacated": {
+     "cpu_s": 2.91,
+     "pilot_n": 25,
+     "q1_queries": 4409
+    },
+    "prefix2/far": {
+     "cpu_s": 35.49,
+     "pilot_n": 0,
+     "q1_queries": 11837
+    },
+    "prefix2/mid": {
+     "cpu_s": 41.76,
+     "pilot_n": 0,
+     "q1_queries": 17538
+    },
+    "prefix2/near": {
+     "cpu_s": 22.81,
+     "pilot_n": 25,
+     "q1_queries": 17780
+    },
+    "prefix2/vacated": {
+     "cpu_s": 11.62,
+     "pilot_n": 25,
+     "q1_queries": 4409
+    },
+    "prefix3/far": {
+     "cpu_s": 35.49,
+     "pilot_n": 0,
+     "q1_queries": 11145
+    },
+    "prefix3/mid": {
+     "cpu_s": 41.76,
+     "pilot_n": 0,
+     "q1_queries": 16498
+    },
+    "prefix3/near": {
+     "cpu_s": 13.24,
+     "pilot_n": 23,
+     "q1_queries": 16760
+    },
+    "prefix3/vacated": {
+     "cpu_s": 28.63,
+     "pilot_n": 23,
+     "q1_queries": 4185
+    },
+    "root/far": {
+     "cpu_s": 35.49,
+     "pilot_n": 47,
+     "q1_queries": 62361
+    },
+    "root/mid": {
+     "cpu_s": 41.76,
+     "pilot_n": 53,
+     "q1_queries": 72043
+    },
+    "root/near": {
+     "cpu_s": 13.0,
+     "pilot_n": 100,
+     "q1_queries": 71120
+    }
+   }
+  },
+  "free_mb": 61136.7,
+  "pilot_throughput_cpu_s_per_s": 24.36,
+  "q1_teacher_queries": 357240,
+  "wall_days_with_1p5_buffer": 7.62
+ },
+ "gates": {
+  "adaptive_nested_ref64": true,
+  "adaptive_recall_vs_64": true,
+  "all_verified_witnesses_stored": true,
+  "disk_safety": true,
+  "independent_25_worker_repro": true,
+  "interrupt_matches": true,
+  "negative_diversity": true,
+  "runtime_forecast": false,
+  "serial_matches_parallel": true,
+  "v2_adaptive25_a_audit": true,
+  "v2_adaptive25_a_safety": true,
+  "v2_adaptive25_b_audit": true,
+  "v2_adaptive25_b_safety": true,
+  "v2_adaptive_interrupted_audit": true,
+  "v2_adaptive_interrupted_safety": true,
+  "v2_adaptive_serial_audit": true,
+  "v2_adaptive_serial_safety": true,
+  "v2_ref64_25_audit": true,
+  "v2_ref64_25_safety": true
+ },
+ "nested": {
+  "bad": [],
+  "different": 0,
+  "shared": 346
+ },
+ "pilot": {
+  "completed": 346,
+  "negatives": 45,
+  "positives": 301,
+  "stored_witnesses": 2223
+ },
+ "relative_to_reference_64": {
+  "adaptive_missed": 0,
+  "miss_fraction": 0.0,
+  "positive_reference_count": 301,
+  "strata": {
+   "block": {
+    "prefix1": {
+     "miss_frac": 0.0,
+     "missed": 0,
+     "pos64": 46
+    },
+    "prefix2": {
+     "miss_frac": 0.0,
+     "missed": 0,
+     "pos64": 42
+    },
+    "prefix3": {
+     "miss_frac": 0.0,
+     "missed": 0,
+     "pos64": 41
+    },
+    "root": {
+     "miss_frac": 0.0,
+     "missed": 0,
+     "pos64": 172
+    }
+   },
+   "dest_bin": {
+    "far": {
+     "miss_frac": 0.0,
+     "missed": 0,
+     "pos64": 40
+    },
+    "mid": {
+     "miss_frac": 0.0,
+     "missed": 0,
+     "pos64": 43
+    },
+    "near": {
+     "miss_frac": 0.0,
+     "missed": 0,
+     "pos64": 152
+    },
+    "vacated": {
+     "miss_frac": 0.0,
+     "missed": 0,
+     "pos64": 66
+    }
+   }
+  },
+  "wilson_95": [
+   0.0,
+   0.0126
+  ]
+ },
+ "verdict": "NOT_READY_TO_LAUNCH"
+}

@@ -1,0 +1,86 @@
+--- delivered/mock_v2_gate.py	2026-11-07 00:52:49.769915237 +0530
++++ reviewed/mock_v2_gate.py	2026-11-07 02:09:22.768695880 +0530
+@@ -195,7 +195,7 @@
+     static(repo, strict_runtime=True)
+     if not execute: raise RuntimeError("REFUSED: physically planning the pilot requires --execute-mock")
+     # Regression tests only. This includes a single existing development fixture, never production roots.
+-    run_cmd([sys.executable, "-m", "pytest", "-q", str(code / "test_v2_contract.py"),
++    run_cmd([sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider", str(code / "test_v2_contract.py"),   # REVIEW FIX R4
+              str(code / "test_launch_ready.py"), str(code / "test_placement_smoke.py")], code)
+     # Readable evidence for a STRICT bounded pilot; never call full or guard --execute-full.
+     sequence = [
+@@ -211,7 +211,7 @@
+             print(f"Existing pilot {name}: runner will only resume if its manifest matches", flush=True)
+         run_cmd(pilot_cmd(code, L, name, B, cov, w, subset), code)
+         run_cmd([sys.executable, str(code / "launch_check.py"), "audit", str(target)], code)
+-        if any(djson(f)["stop"] is not None for f in target.glob("run_*.json")):
++        if any(djson(f)["stop"] is not None for f in target.glob("run_[0-9]*.json")):   # REVIEW FIX R3: not run_manifest.json
+             raise RuntimeError(f"THERMAL_OR_SAFETY_STOP in {name}; no gate passing, do not relax thresholds")
+         if (root / "full_2d_v2").exists():
+             raise RuntimeError("Unexpected full production directory appeared")
+@@ -261,6 +261,26 @@
+     print(json.dumps({"interrupt_resume": "PASS", "committed_unchanged": len(before), "surviving_workers": 0}, indent=1))
+ 
+ 
++def composition_forecast(K, LP, L, run):
++    """REVIEW FIX R5: Q1 CPU-s and bytes from the pilot's per-(block, dest_bin) means, weighted by Q1's query composition."""
++    import gzip
++    from collections import Counter, defaultdict
++    import numpy as np
++    recs = [(h, q, att) for h, q, m, att in K.load(run) if q["eligible"] and q["completed"]]
++    files = {d: sum(f.stat().st_size for f in Path(run).glob(f"{d}/*")) for d in ("records", "modes", "witnesses")}
++    nwit = sum(len(q["witness_refs"]) for _, q, _ in recs)
++    per_w, base = files["witnesses"] / max(nwit, 1), (files["records"] + files["modes"]) / len(recs)
++    cpu, byt, cpu_d, byt_d = defaultdict(list), defaultdict(list), defaultdict(list), defaultdict(list)
++    for h, q, att in recs:
++        k, b = (q["block"], q["dest_bin"]), base + per_w * len(q["witness_refs"])
++        cpu[k].append(q["volatile"]["cpu_s"]); byt[k].append(b); cpu_d[q["dest_bin"]].append(q["volatile"]["cpu_s"]); byt_d[q["dest_bin"]].append(b)
++    plan = [json.loads(x) for x in gzip.decompress((L / "query_plan.jsonl.gz").read_bytes()).decode().splitlines()]
++    comp = Counter((r[1], r[8]) for p in plan for r in p["queries"] if LP.in_quota(r, LP.QUOTAS["Q1"]) and not r[12])
++    pick = lambda d, dd, k: float(np.mean(d[k])) if len(d[k]) >= 5 else float(np.mean(dd[k[1]]))  # noqa: E731
++    strata = {f"{b}/{d}": {"q1_queries": n, "pilot_n": len(cpu[(b, d)]), "cpu_s": round(pick(cpu, cpu_d, (b, d)), 2)} for (b, d), n in sorted(comp.items())}
++    return {"cpu_s": sum(n * pick(cpu, cpu_d, k) for k, n in comp.items()), "bytes": sum(n * pick(byt, byt_d, k) for k, n in comp.items()), "strata": strata}
++
++
+ def compare_adaptive(K, ref, target):
+     a = {q["trial_id"]: (q, att) for h, q, m, att in K.load(ref) if q["eligible"] and q["completed"]}
+     b = {q["trial_id"]: (q, att) for h, q, m, att in K.load(target) if q["eligible"] and q["completed"]}
+@@ -293,7 +313,7 @@
+     gate, failures = {}, []
+     for p in pilots + [L / "pilot" / "v2_adaptive_interrupted"]:
+         audit = djson(p / "verification.json")
+-        stops = [djson(f)["stop"] for f in p.glob("run_*.json")]
++        stops = [djson(f)["stop"] for f in p.glob("run_[0-9]*.json")]   # REVIEW FIX R3: run_manifest.json has no "stop"
+         gate[p.name + "_audit"] = audit["failed"] == 0
+         gate[p.name + "_safety"] = all(x is None for x in stops) if p.name != "v2_adaptive_interrupted" else True
+         if not gate[p.name + "_audit"]: failures.append(p.name + ":AUDIT")
+@@ -353,8 +373,14 @@
+     pilot_q = total["completed"]
+     q1 = djson(L / "plan_summary.json")["quota_teacher_queries"]["Q1"]
+     # Deliberately conservative estimate: pilot mean x 1.5 heterogeneity buffer.
+-    cpu_sec = float(total["query_cpu_s_sum"]) / pilot_q * q1 * 1.5
+-    disk_bytes = sum(total["bytes"].values()) / pilot_q * q1 * 1.5
++    cpu_mean = float(total["query_cpu_s_sum"]) / pilot_q * q1 * 1.5
++    disk_mean = sum(total["bytes"].values()) / pilot_q * q1 * 1.5
++    # REVIEW FIX R5: the pilot over-represents cheap near / vacated destinations (first destinations of each block), while Q1
++    # is mostly mid / far root destinations. Re-weight the pilot by Q1's (block, dest_bin) composition (pooled dest_bin when a
++    # stratum has < 5 pilot queries) and keep the LARGER of the two estimates; the 1.5x buffer applies to both.
++    comp = composition_forecast(K, LP, L, a)
++    cpu_sec = max(cpu_mean, comp["cpu_s"] * 1.5)
++    disk_bytes = max(disk_mean, comp["bytes"] * 1.5)
+     # Monitor logs, in-flight parts and atomic writes need additional space.
+     disk_mb = disk_bytes / 1024**2 + 500
+     speed = 24.83  # historical rate only; v2 run-time forecast updated below
+@@ -376,7 +402,11 @@
+                                     "stored_witnesses": total["stored_witnesses"]},
+               "forecast": {"q1_teacher_queries": q1, "cpu_hours_with_1p5_buffer": round(cpu_sec / 3600,1),
+                            "wall_days_with_1p5_buffer": round(days,2), "disk_mb_with_1p5_buffer_and_500mb_overhead": round(disk_mb,1),
+-                           "free_mb": round(free_mb,1), "pilot_throughput_cpu_s_per_s": round(speed,2)},
++                           "free_mb": round(free_mb,1), "pilot_throughput_cpu_s_per_s": round(speed,2),
++                           "estimators": {"pilot_mean_cpu_hours_x1p5": round(cpu_mean / 3600, 1), "composition_weighted_cpu_hours_x1p5": round(comp["cpu_s"] * 1.5 / 3600, 1),
++                                          "composition_weighted_wall_days_no_buffer": round(comp["cpu_s"] / max(.1, speed) / 86400, 2),
++                                          "pilot_mean_disk_mb_x1p5": round(disk_mean / 1024**2, 1), "composition_weighted_disk_mb_x1p5": round(comp["bytes"] * 1.5 / 1024**2, 1),
++                                          "strata": comp["strata"], "rule": "max(pilot mean, Q1-composition weighted) x 1.5 (review fix R5)"}},
+               "explicit_scope": "No production query executed; readiness of the configured finite-policy 2D placement sidecar only"}
+     (L / "MOCK_V2_DECISION.json").write_text(json.dumps(report, indent=1, sort_keys=True))
+     if failures:

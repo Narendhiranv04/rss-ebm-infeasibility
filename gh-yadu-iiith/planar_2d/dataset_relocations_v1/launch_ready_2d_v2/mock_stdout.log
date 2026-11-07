@@ -1,0 +1,430 @@
+{
+ "status": "STATIC_PASS",
+ "errors": [],
+ "two_edit_queries_in_audit_subset": 1056,
+ "pilot_roots": 25,
+ "plan_root_count": 5000,
+ "snapshot": {
+  "free_disk_mb": 61230,
+  "cpu_boost": "0",
+  "allowed_logical_cpus": 32,
+  "min_disk_free_mb": 10240,
+  "mem_available_mb": 12011,
+  "full_dir_exists": false
+ },
+ "metadata_preflight_calls": {}
+}
+EXECUTING BOUNDED PILOT: /home/naren/Desktop/rss3d_env/venv/bin/python -m pytest -q -p no:cacheprovider /home/naren/Desktop/rss-placement-ready-v2/gh-yadu-iiith/planar_2d/dataset_relocations_v1/code_v2/test_v2_contract.py /home/naren/Desktop/rss-placement-ready-v2/gh-yadu-iiith/planar_2d/dataset_relocations_v1/code_v2/test_launch_ready.py /home/naren/Desktop/rss-placement-ready-v2/gh-yadu-iiith/planar_2d/dataset_relocations_v1/code_v2/test_placement_smoke.py
+.........................                                                [100%]
+25 passed in 208.43s (0:03:28)
+EXECUTING BOUNDED PILOT: /home/naren/Desktop/rss3d_env/venv/bin/python /home/naren/Desktop/rss-placement-ready-v2/gh-yadu-iiith/planar_2d/dataset_relocations_v1/code_v2/launch_runner.py pilot /home/naren/Desktop/rss-placement-ready-v2/gh-yadu-iiith/planar_2d/dataset_relocations_v1/launch_ready_2d_v2 v2_ref64_25 64 FULL 25 all
+{
+ "scope": "PILOT",
+ "workers": 25,
+ "worker_cpus": [
+  0,
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+  9,
+  10,
+  11,
+  12,
+  13,
+  14,
+  15,
+  16,
+  24,
+  17,
+  25,
+  18,
+  26,
+  19,
+  27,
+  20
+ ],
+ "reserved_cpus": [
+  21,
+  22,
+  23,
+  28,
+  29,
+  30,
+  31
+ ],
+ "hard_cpu_quota": false,
+ "enforcement": "sched_setaffinity (1 logical CPU per worker) + fixed process count + nice + 1 BLAS/OMP thread; no cgroup quota",
+ "sensor": "k10temp Tctl",
+ "queries": 417,
+ "finished_now": 417,
+ "interrupted": [],
+ "not_started": 0,
+ "stop": null,
+ "wall_s": 1811.4,
+ "children_cpu_s": 38293.5,
+ "paused_s": 0,
+ "pauses": 0,
+ "roots_open": [],
+ "leftover_descendants": 0
+}
+EXECUTING BOUNDED PILOT: /home/naren/Desktop/rss3d_env/venv/bin/python /home/naren/Desktop/rss-placement-ready-v2/gh-yadu-iiith/planar_2d/dataset_relocations_v1/code_v2/launch_check.py audit /home/naren/Desktop/rss-placement-ready-v2/gh-yadu-iiith/planar_2d/dataset_relocations_v1/launch_ready_2d_v2/pilot/v2_ref64_25
+{
+ "verification": {
+  "passed": 48052,
+  "failed": 0,
+  "failures": []
+ },
+ "summary": {
+  "queries": 417,
+  "static_ineligible": 71,
+  "completed": 346,
+  "interrupted": 0,
+  "label_1": 301,
+  "label_0": 45,
+  "negative_kinds": {
+   "NO_PLAN_FOUND": 13,
+   "SCHEDULE_EXHAUSTED_NO_WITNESS": 12,
+   "WORK_BUDGET_EXHAUSTED": 4,
+   "CERTIFIED_SCREEN": 16
+  },
+  "label_sources": {
+   "PLANNED": 301
+  },
+  "modes": {
+   "attempted_failure": 2656,
+   "attempted_success": 14976,
+   "hard_screened": 701676,
+   "motion_attempted": 17632,
+   "n_mode_witnesses": 14976,
+   "not_motion_attempted": 77876,
+   "reused_reverified": 0,
+   "screen_inconclusive": 12030,
+   "total": 797184,
+   "valid_not_planned": 65846,
+   "valid_pairs": 83478
+  },
+  "pairs_planned": 17632,
+  "stored_witnesses": 14976,
+  "methods": {
+   "DIRECT": 8780,
+   "GUIDE_LINE": 1221,
+   "RRT_OBJECT_POSE": 4459,
+   "RRT_JOINT": 516,
+   "WORK_BUDGET_EXHAUSTED": 1921,
+   "LINK0_SWEEP": 735
+  },
+  "query_cpu_s_sum": 38291.3,
+  "bytes": {
+   "records": 1047702,
+   "modes": 536778,
+   "witnesses": 13687517
+  }
+ },
+ "run_fingerprint": "33097e5074c7bd180016fa51ff7bacf0cd7aefdf521d411f1080cae387be3c69"
+}
+EXECUTING BOUNDED PILOT: /home/naren/Desktop/rss3d_env/venv/bin/python /home/naren/Desktop/rss-placement-ready-v2/gh-yadu-iiith/planar_2d/dataset_relocations_v1/code_v2/launch_runner.py pilot /home/naren/Desktop/rss-placement-ready-v2/gh-yadu-iiith/planar_2d/dataset_relocations_v1/launch_ready_2d_v2 v2_adaptive25_a 8 ADAPTIVE_FULL 25 all
+{
+ "scope": "PILOT",
+ "workers": 25,
+ "worker_cpus": [
+  0,
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+  9,
+  10,
+  11,
+  12,
+  13,
+  14,
+  15,
+  16,
+  24,
+  17,
+  25,
+  18,
+  26,
+  19,
+  27,
+  20
+ ],
+ "reserved_cpus": [
+  21,
+  22,
+  23,
+  28,
+  29,
+  30,
+  31
+ ],
+ "hard_cpu_quota": false,
+ "enforcement": "sched_setaffinity (1 logical CPU per worker) + fixed process count + nice + 1 BLAS/OMP thread; no cgroup quota",
+ "sensor": "k10temp Tctl",
+ "queries": 417,
+ "finished_now": 417,
+ "interrupted": [],
+ "not_started": 0,
+ "stop": null,
+ "wall_s": 470.0,
+ "children_cpu_s": 7559.2,
+ "paused_s": 0,
+ "pauses": 0,
+ "roots_open": [],
+ "leftover_descendants": 0
+}
+EXECUTING BOUNDED PILOT: /home/naren/Desktop/rss3d_env/venv/bin/python /home/naren/Desktop/rss-placement-ready-v2/gh-yadu-iiith/planar_2d/dataset_relocations_v1/code_v2/launch_check.py audit /home/naren/Desktop/rss-placement-ready-v2/gh-yadu-iiith/planar_2d/dataset_relocations_v1/launch_ready_2d_v2/pilot/v2_adaptive25_a
+{
+ "verification": {
+  "passed": 9793,
+  "failed": 0,
+  "failures": []
+ },
+ "summary": {
+  "queries": 417,
+  "static_ineligible": 71,
+  "completed": 346,
+  "interrupted": 0,
+  "label_1": 301,
+  "label_0": 45,
+  "negative_kinds": {
+   "NO_PLAN_FOUND": 13,
+   "WORK_BUDGET_EXHAUSTED": 8,
+   "SCHEDULE_EXHAUSTED_NO_WITNESS": 8,
+   "CERTIFIED_SCREEN": 16
+  },
+  "label_sources": {
+   "PLANNED": 301
+  },
+  "modes": {
+   "attempted_failure": 499,
+   "attempted_success": 2223,
+   "hard_screened": 701676,
+   "motion_attempted": 2722,
+   "n_mode_witnesses": 2223,
+   "not_motion_attempted": 92786,
+   "reused_reverified": 0,
+   "screen_inconclusive": 12030,
+   "total": 797184,
+   "valid_not_planned": 80756,
+   "valid_pairs": 83478
+  },
+  "pairs_planned": 2722,
+  "stored_witnesses": 2223,
+  "methods": {
+   "DIRECT": 1394,
+   "RRT_OBJECT_POSE": 730,
+   "GUIDE_LINE": 90,
+   "WORK_BUDGET_EXHAUSTED": 463,
+   "LINK0_SWEEP": 36,
+   "RRT_JOINT": 9
+  },
+  "query_cpu_s_sum": 7557.3,
+  "bytes": {
+   "records": 606957,
+   "modes": 200733,
+   "witnesses": 2354039
+  }
+ },
+ "run_fingerprint": "5787aaa67379af75e53549a1da60576c85e34fa47671c51267f8836cb00047d9"
+}
+EXECUTING BOUNDED PILOT: /home/naren/Desktop/rss3d_env/venv/bin/python /home/naren/Desktop/rss-placement-ready-v2/gh-yadu-iiith/planar_2d/dataset_relocations_v1/code_v2/launch_runner.py pilot /home/naren/Desktop/rss-placement-ready-v2/gh-yadu-iiith/planar_2d/dataset_relocations_v1/launch_ready_2d_v2 v2_adaptive25_b 8 ADAPTIVE_FULL 25 all
+{
+ "scope": "PILOT",
+ "workers": 25,
+ "worker_cpus": [
+  0,
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+  9,
+  10,
+  11,
+  12,
+  13,
+  14,
+  15,
+  16,
+  24,
+  17,
+  25,
+  18,
+  26,
+  19,
+  27,
+  20
+ ],
+ "reserved_cpus": [
+  21,
+  22,
+  23,
+  28,
+  29,
+  30,
+  31
+ ],
+ "hard_cpu_quota": false,
+ "enforcement": "sched_setaffinity (1 logical CPU per worker) + fixed process count + nice + 1 BLAS/OMP thread; no cgroup quota",
+ "sensor": "k10temp Tctl",
+ "queries": 417,
+ "finished_now": 417,
+ "interrupted": [],
+ "not_started": 0,
+ "stop": null,
+ "wall_s": 502.0,
+ "children_cpu_s": 7575.4,
+ "paused_s": 0,
+ "pauses": 0,
+ "roots_open": [],
+ "leftover_descendants": 0
+}
+EXECUTING BOUNDED PILOT: /home/naren/Desktop/rss3d_env/venv/bin/python /home/naren/Desktop/rss-placement-ready-v2/gh-yadu-iiith/planar_2d/dataset_relocations_v1/code_v2/launch_check.py audit /home/naren/Desktop/rss-placement-ready-v2/gh-yadu-iiith/planar_2d/dataset_relocations_v1/launch_ready_2d_v2/pilot/v2_adaptive25_b
+{
+ "verification": {
+  "passed": 9793,
+  "failed": 0,
+  "failures": []
+ },
+ "summary": {
+  "queries": 417,
+  "static_ineligible": 71,
+  "completed": 346,
+  "interrupted": 0,
+  "label_1": 301,
+  "label_0": 45,
+  "negative_kinds": {
+   "NO_PLAN_FOUND": 13,
+   "WORK_BUDGET_EXHAUSTED": 8,
+   "SCHEDULE_EXHAUSTED_NO_WITNESS": 8,
+   "CERTIFIED_SCREEN": 16
+  },
+  "label_sources": {
+   "PLANNED": 301
+  },
+  "modes": {
+   "attempted_failure": 499,
+   "attempted_success": 2223,
+   "hard_screened": 701676,
+   "motion_attempted": 2722,
+   "n_mode_witnesses": 2223,
+   "not_motion_attempted": 92786,
+   "reused_reverified": 0,
+   "screen_inconclusive": 12030,
+   "total": 797184,
+   "valid_not_planned": 80756,
+   "valid_pairs": 83478
+  },
+  "pairs_planned": 2722,
+  "stored_witnesses": 2223,
+  "methods": {
+   "DIRECT": 1394,
+   "RRT_OBJECT_POSE": 730,
+   "GUIDE_LINE": 90,
+   "WORK_BUDGET_EXHAUSTED": 463,
+   "LINK0_SWEEP": 36,
+   "RRT_JOINT": 9
+  },
+  "query_cpu_s_sum": 7573.4,
+  "bytes": {
+   "records": 606840,
+   "modes": 200733,
+   "witnesses": 2354039
+  }
+ },
+ "run_fingerprint": "5787aaa67379af75e53549a1da60576c85e34fa47671c51267f8836cb00047d9"
+}
+EXECUTING BOUNDED PILOT: /home/naren/Desktop/rss3d_env/venv/bin/python /home/naren/Desktop/rss-placement-ready-v2/gh-yadu-iiith/planar_2d/dataset_relocations_v1/code_v2/launch_runner.py pilot /home/naren/Desktop/rss-placement-ready-v2/gh-yadu-iiith/planar_2d/dataset_relocations_v1/launch_ready_2d_v2 v2_adaptive_serial 8 ADAPTIVE_FULL serial first_per_root
+{
+ "scope": "PILOT",
+ "workers": 1,
+ "worker_cpus": [
+  0
+ ],
+ "reserved_cpus": [
+  21,
+  22,
+  23,
+  28,
+  29,
+  30,
+  31
+ ],
+ "hard_cpu_quota": false,
+ "enforcement": "sched_setaffinity (1 logical CPU per worker) + fixed process count + nice + 1 BLAS/OMP thread; no cgroup quota",
+ "sensor": "k10temp Tctl",
+ "queries": 25,
+ "finished_now": 25,
+ "interrupted": [],
+ "not_started": 0,
+ "stop": null,
+ "wall_s": 80.5,
+ "children_cpu_s": 70.6,
+ "paused_s": 0,
+ "pauses": 0,
+ "roots_open": [],
+ "leftover_descendants": 0
+}
+EXECUTING BOUNDED PILOT: /home/naren/Desktop/rss3d_env/venv/bin/python /home/naren/Desktop/rss-placement-ready-v2/gh-yadu-iiith/planar_2d/dataset_relocations_v1/code_v2/launch_check.py audit /home/naren/Desktop/rss-placement-ready-v2/gh-yadu-iiith/planar_2d/dataset_relocations_v1/launch_ready_2d_v2/pilot/v2_adaptive_serial
+{
+ "verification": {
+  "passed": 800,
+  "failed": 0,
+  "failures": []
+ },
+ "summary": {
+  "queries": 25,
+  "static_ineligible": 0,
+  "completed": 25,
+  "interrupted": 0,
+  "label_1": 24,
+  "label_0": 1,
+  "negative_kinds": {
+   "CERTIFIED_SCREEN": 1
+  },
+  "label_sources": {
+   "PLANNED": 24
+  },
+  "modes": {
+   "attempted_failure": 1,
+   "attempted_success": 191,
+   "hard_screened": 46618,
+   "motion_attempted": 192,
+   "n_mode_witnesses": 191,
+   "not_motion_attempted": 10790,
+   "reused_reverified": 0,
+   "screen_inconclusive": 778,
+   "total": 57600,
+   "valid_not_planned": 10012,
+   "valid_pairs": 10204
+  },
+  "pairs_planned": 192,
+  "stored_witnesses": 191,
+  "methods": {
+   "DIRECT": 166,
+   "RRT_OBJECT_POSE": 25,
+   "WORK_BUDGET_EXHAUSTED": 1
+  },
+  "query_cpu_s_sum": 70.5,
+  "bytes": {
+   "records": 67998,
+   "modes": 112499,
+   "witnesses": 126258
+  }
+ },
+ "run_fingerprint": "9ea6b6122402f04d4320b9229fd23732f51abc70cbda53c7acce625a1349e084"
+}
+PILOT RUNS COMPLETED. Run interrupt and decide; this is NOT production readiness yet.

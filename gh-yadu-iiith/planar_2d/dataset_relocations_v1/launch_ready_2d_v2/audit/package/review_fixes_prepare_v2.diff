@@ -1,0 +1,25 @@
+--- delivered/prepare_v2.py	2026-11-07 00:52:49.769979087 +0530
++++ reviewed/prepare_v2.py	2026-11-07 00:52:49.771808354 +0530
+@@ -37,8 +37,9 @@
+ 
+ def patch_plan(s: str) -> str:
+     s = replace_once(s, '"version": "PLACEMENT_PLAN_V1"', '"version": "PLACEMENT_PLAN_V2"', "plan version")
+-    s = replace_once(s, '"root_objects": 4, "root_dests": 12, "prefixes": 2, "prefix_objects": 2, "prefix_dests": 6',
+-                         '"root_objects": 4, "root_dests": 12, "prefixes": 3, "prefix_objects": 2, "prefix_dests": 6', "plan prefix count")
++    # REVIEW FIX R1: the bare anchor also occurs in QUOTAS["Q1"]; anchor on the PLAN line's own indentation (unique).
++    s = replace_once(s, '\n        "root_objects": 4, "root_dests": 12, "prefixes": 2, "prefix_objects": 2, "prefix_dests": 6,',
++                         '\n        "root_objects": 4, "root_dests": 12, "prefixes": 3, "prefix_objects": 2, "prefix_dests": 6,', "plan prefix count")
+     # All quotas keep the optional two-edit block. No change to the original source roots.
+     s = replace_once(s, '"Q1": {"root_objects": 4, "root_dests": 12, "prefixes": 2,',
+                          '"Q1": {"root_objects": 4, "root_dests": 12, "prefixes": 3,', "Q1 quota")
+@@ -140,6 +141,10 @@
+                  f"{policy['coverage']},PER_PAIR_WORK_BUDGET")""",
+         "explicit negative scope",
+     )
++    # REVIEW FIX R2: up to 32 witnesses are stored per query; two pairs yielding identical arrays share one content id, so
++    # store and reference each content id once (otherwise witness_refs repeats an id and the audit fails).
++    s = replace_once(s, '                keep = stored < policy["witness_store_max"]',
++                         '                keep = w not in refs and stored < policy["witness_store_max"]', "content-deduplicated witness storage")
+     return s
+ 
+ 

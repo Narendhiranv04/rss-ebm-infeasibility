@@ -1,0 +1,13 @@
+# Claude Opus 5.5 High — Execute final bounded 2D dataset-readiness mock
+
+Read `INSTRUCTIONS.md` fully and inspect every delivered Python file: `prepare_v2.py`, `mock_v2_gate.py`, `test_v2_contract.py`. Treat `final-fixed-methodology-1.pdf` as the authoritative scientific architecture and GitHub branch `naren/2d-dataset-relocation` (`16d1b3b4`) as the source baseline.
+
+**Task:** Review and integrate this v2 candidate in a NEW worktree, then execute ONLY the bounded 25-root final mock. Correct actual code defects found during integration; never paper over failing source anchors, mismatching science hashes, invalid teacher semantics, safety cancellations or failed unit tests. Do not touch the original dataset or the v1 smoke/pilot evidence.
+
+Required fixes: remove target-goal destination leakage; use geometry-only edited-context selection; add legal two-edit hypothetical contexts with root-consistent lineage; prohibit archived witness reuse in canonical labels; pre-register and compare adaptive 8→32 work-budgeted planning against a new 64-mode reference; store every distinct verified trajectory within the actually attempted 8/32 modes; pin the teacher adapter source; preserve deterministic mode accounting, complete root-group splits and all non-negotiable binary-label semantics.
+
+**Hardware:** 25 workers on 32 logical CPUs, seven reserved. Make no claims that affinity is a cgroup quota. Require ≥10 GiB free and a verified host-side CPU boost-off configuration; keep pause 88°C / resume 80°C / immediate cancel 95°C, and all existing memory/sensor/worker safeguards. Two independent 25-worker adaptive runs must complete without safety stops. A separate kill/resume test and serial comparison must agree canonically. A failed gate is `NOT_READY_TO_LAUNCH`.
+
+Use `prepare_v2.py` in no-write preview first, then create `code_v2/` and `launch_ready_2d_v2/` (do not mutate v1), freeze metadata, run the static audits and tests, execute the bounded mock and interruption test, and issue the final readiness decision using `mock_v2_gate.py`. Inspect the generated runbook/guard. Run the shell wrapper **without arguments** to demonstrate refusal; never pass `--execute-full`.
+
+Produce `FINAL_MOCK_V2_REPORT.md` with precise root/query counts, modified files and diff, pilot labels and failures, rank-wise/mode coverage, witness replay, real GIFs/figures, thermal telemetry, CPU/storage forecasts, source hashes, nested-budget agreement and every gate's outcome. Save complete audit artifacts. **STOP after the final mock and readiness report. Do not start the full 2D extension, train anything, run 3D work or push/merge without my authorization.**
