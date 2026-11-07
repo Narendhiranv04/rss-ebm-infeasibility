@@ -1,0 +1,74 @@
+{
+ "assumptions": [
+  "per-query CPU of the V2 adaptive_v1 run A (12 pinned workers, same teacher protocol 89cbabed5d7e4847)",
+  "parallel efficiency of the V2 12-worker sweep vs serial",
+  "disk = queries x positive rate (run A) x bytes / witness + JSON / query"
+ ],
+ "buffer_rule": "1.5 x max(bootstrap p95, point x the largest held-out measured/predicted ratio)",
+ "by_K": {
+  "0": 13680,
+  "1": 11916,
+  "2": 15620,
+  "3": 18756
+ },
+ "by_block": {
+  "prefix1": 9224,
+  "prefix2": 9224,
+  "prefix3": 6460,
+  "root": 35064
+ },
+ "by_split": {
+  "test": 8608,
+  "train": 42612,
+  "val": 8752
+ },
+ "cost_source_levels": {
+  "kd": 9878,
+  "kdb": 4446,
+  "kdbs": 45648
+ },
+ "cpu_hours": 165.36,
+ "cpu_hours_p05_p95": [
+  153.44,
+  181.5
+ ],
+ "disk_gb": 2.569,
+ "disk_gb_buffered": 3.854,
+ "disk_gb_x1_5": 3.854,
+ "held_out_max_ratio": 1.425,
+ "held_out_timing_checks": {
+  "first_cohort_train_sample_144 (unit=query: no IK cache sharing)": {
+   "measured_cpu_s": 1834.5,
+   "measured_over_predicted": 1.425,
+   "predicted_cpu_s": 1287.1,
+   "queries": 144
+  },
+  "v3_integration_smoke_12 (unit=root, production mode)": {
+   "measured_cpu_s": 144.9,
+   "measured_over_predicted": 1.289,
+   "predicted_cpu_s": 112.4,
+   "queries": 12
+  },
+  "v4_integration_smoke_32 (unit=root, production mode)": {
+   "measured_cpu_s": 279.0,
+   "measured_over_predicted": 1.005,
+   "predicted_cpu_s": 277.5,
+   "queries": 32
+  }
+ },
+ "parallel_efficiency": 0.881,
+ "production_queries": 59972,
+ "scenarios_wall_hours": {
+  "base": 15.64,
+  "conservative_p95": 17.17,
+  "held_out_calibrated": 22.29,
+  "optimistic_p05": 14.51
+ },
+ "strata_backed_off_to_coarser_levels": {
+  "kd": 9878,
+  "kdb": 4446
+ },
+ "wall_hours_buffered": 33.43,
+ "wall_hours_expected": 15.64,
+ "workers": 12
+}
