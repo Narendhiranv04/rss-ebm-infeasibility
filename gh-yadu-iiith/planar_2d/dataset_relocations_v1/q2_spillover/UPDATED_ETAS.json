@@ -1,0 +1,25 @@
+{
+ "version": "Q2_2D_SPILLOVER_V1",
+ "computed_utc": "2026-11-07T17:20:00Z",
+ "measured": {
+  "3d_v4": {"queries_done": 25032, "queries_total": 59972, "units_done": 447, "at_utc": "2026-11-07T17:11:27Z", "since_start_h": 1.38, "queries_per_h": 18106,
+            "note": "units run largest-first (56-query units); the mix of the remaining units can shift the rate"},
+  "2d_laptop_original": {"tasks_packed": 3086, "tasks_total": 249965, "roots_packed": 57, "at_utc": "2026-11-07T17:18:36Z", "tasks_per_h": "2,807-3,222 (3,000 used)",
+                         "worker_cpu_s_per_query": 29.2, "lost_to_swap_stop_h": 0.29}
+ },
+ "milestones_utc": {
+  "3d_collection_complete": {"central": "2026-11-07T19:10Z", "range": ["2026-11-07T19:00Z", "2026-11-07T20:00Z"]},
+  "3d_audit_and_100pct_replay_passed": {"central": "2026-11-07T20:15Z", "range": ["2026-11-07T19:40Z", "2026-11-07T21:30Z"], "assumes": "audit 5-15 min + replay 0.5-1.5 h on 12 workers"},
+  "canary_passed_drain_partition_launch": {"central": "2026-11-07T21:15Z", "range": ["2026-11-07T20:30Z", "2026-11-07T22:30Z"], "assumes": "16-root canary ~860 tasks on 12 workers 30-45 min, drain <= 5 min, partition 5-10 min"},
+  "q2_complete_with_spillover": {"central": "2026-11-09T19:00Z", "range": ["2026-11-09T13:00Z", "2026-11-10T02:30Z"],
+                                 "assumes": "~235,400 tasks left at the hand-off; laptop 3,000/h + gvlab 12 workers at 20 (15-30) CPU-s/query = 2,160 (1,440-2,880)/h; the owner map balances the two hosts by canary throughput so both finish together"},
+  "merged_canonical_audited": {"central": "2026-11-09T20:30Z", "note": "merge + launch_check.audit (witness re-certification) adds ~1-2 h"},
+  "q2_complete_laptop_only_for_comparison": {"central": "2026-11-11T03:45Z", "note": "235,400 / 3,000 per h = 78.5 h after the hand-off time"}
+ },
+ "expected_saving_h": 33,
+ "uncertainties": [
+  "gvlab per-query CPU time is unknown until the canary; it sets both the share and the end date",
+  "each laptop swap-guard stop (see reports/) pauses the laptop share until a manual resume",
+  "the queue does not hand off before every gate passes; a BLOCKED_* state leaves the laptop original running alone (laptop-only ETA applies)"
+ ]
+}

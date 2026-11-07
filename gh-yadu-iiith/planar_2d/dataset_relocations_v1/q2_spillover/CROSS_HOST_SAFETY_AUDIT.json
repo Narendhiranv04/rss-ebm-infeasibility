@@ -1,0 +1,56 @@
+{
+ "version": "Q2_2D_SPILLOVER_V1",
+ "audited_utc": "2026-11-07T17:20:00Z",
+ "verdict": "QUEUED_SAFE: no 2D work on gvlab; the 3D v4 run and the laptop original 2D run are untouched by the queue",
+ "exactly_once": {
+  "unit": "2D root: a root is packed only when all its Q2 tasks are final, so roots are never split across hosts",
+  "owner_map": "handoff/HANDOFF_ROOT_OWNER_MANIFEST.json, frozen and sha256-referenced by both allowlists before either scoped run starts; never overwritten (versioned hand-offs only)",
+  "rules": [
+   "ORIGINAL = PACKED roots of full_2d_v2 at the drain (immutable; the merge re-checks every file against the snapshot sha256)",
+   "LAPTOP = PARTIAL roots (verified parts copied into a new run dir) + a share of UNTOUCHED roots",
+   "GVLAB = UNTOUCHED roots only (validate_allowlist refuses PACKED or PARTIAL)",
+   "the union is checked to be exactly 4,620 roots / 249,965 tasks / 238,160 teacher queries with 0 duplicate trial IDs (partition refuses otherwise)",
+   "merge refuses a scoped run that packed a root it does not own, any trial-ID mismatch or collision, and an existing merged directory"
+  ],
+  "no_live_handoff": "partition requires the original coordinator's kernel lock to be free; DRAIN_2D waits until the coordinator has exited; full_2d_v2/DRAIN stays in place, so a stray relaunch drains immediately",
+  "safety_stop_not_relaunched": "if the original run stopped on a safety guard instead of draining, the queue waits for state/ACK_ORIGINAL_STOP; stopped scoped runs are reported and never restarted automatically"
+ },
+ "scientific_identity": {
+  "unchanged": "code_v2 teacher / plan / policy / runner / audit are imported unchanged; ADAPTIVE_FULL 8->32, witness_store_max 32, reuse_archived false, budget 0cd2597b0d9141fb, pair protocol 938b09a23a581152, production policy sha256 cf6db768..., trial IDs and splits from the frozen plan",
+  "checked_on_every_start": "check_frozen (both hosts); server-run additionally checks all 47,384 staged files against the laptop's sha256 source manifest and the server copies of the plan / split / policy",
+  "portability_gate": "16-root TRAIN canary: per-trial content fingerprints (canonical query fields, modes, attempts, witness arrays) must be identical to the laptop's own packed bytes, with witnesses re-certified by the audit (PASS_EXACT); anything else is HARD_BLOCK and no drain happens",
+  "gvlab_environment": "venv313: Python 3.13.11, the laptop's pip freeze replicated with uv (numpy 2.4.6, scipy 1.18.1, mujoco 3.10.0, psutil 7.2.2, ...)"
+ },
+ "gvlab_cpu_budget": {
+  "host": "Intel Xeon Gold 5317, 12 cores / 24 logical CPUs (CPU k and k+12 are SMT siblings); other users are present on the host",
+  "project_ceiling_logical_cpus": 18,
+  "now_3d_v4": {"collector_pid": 3264085, "affinity": "0-11", "workers": 12, "worker_affinities": "one each on CPUs 0-11", "monitoring_cron": "taskset 12-13 nice 15",
+                "queue_gate_ssh": "taskset 12,13 nice 15 every 2 min", "project_cpus_in_use": "0-13 (14 <= 18)"},
+  "post_3d_verification": "tmux q2_post3d under taskset 0-13; replay3d on 12 workers, CPUs 0-11",
+  "canary_and_spillover": "12 workers on CPUs 0-11 (one logical CPU each, nice 10, 1 BLAS thread), coordinator on 12-13, monitoring on 12-13: 14 <= 18",
+  "never_concurrent": "every 2D server step re-runs gate3d (all 1,466 units, last end complete, no collect4/replay3d/launch_v4/etc. process, collector lock free, CPUs 0-13 <= 25% busy) before any worker starts"
+ },
+ "hardware_safety": {
+  "gvlab": {"profile": "GVLAB_XEON5317_CORETEMP_V1", "sensor": "coretemp 'Package id 0' (hwmon3; 45 C under the 12-worker 3D load at 17:19Z)", "ac_power": "not required (server has no AC/battery sysfs)",
+            "start_gate": "coretemp < 70 C, >= 8 GB available RAM, >= 20 GB free disk", "runner_thresholds": "pause 88 C / resume 80 C / cancel 95 C, sensor-loss 4 samples, cooling stall 180 s, memory / swap / disk / RSS / process-leak guards unchanged",
+            "sensor_fails_closed": "server-run refuses if the coretemp package sensor is unreadable (tested)"},
+  "laptop": {"unchanged": "k10temp Tctl, AC required, cpu boost off, 25 workers + 7 reserved CPUs, systemd-inhibit sleep lock; nothing laptop-specific is assumed on gvlab"}
+ },
+ "worktrees_and_data": {
+  "gvlab_3d_checkout": "~/approachb3d_v3/repo stays at e0f234d9 with no tracked change; status4.py now runs from a copy in ~/approachb3d_v3/telemetry/bin (SHELF66V3_SIDE) and the previous crontab is saved as telemetry/crontab.before_spillover.txt",
+  "laptop_running_worktree": "only the new untracked q2_spillover/ folder was added; the queue writes full_2d_v2/DRAIN only in DRAIN_2D",
+  "gvlab_2d_staging": "~/approachb3d_v3/2d_q2_spillover (separate tree; plan files + amendment decision byte-identical to the laptop)",
+  "preserved": "3D v4 run + backups, full_2d_v2, all frozen artefacts; the merged dataset is a new directory"
+ },
+ "laptop_memory_incident": {
+  "summary": "the laptop original run stopped at 16:43:42Z on its own swap guard (633 > 512 MB) because of the assistant's plan-loading test on the host; it was diagnosed and resumed at 17:00:45Z with the documented command, lossless",
+  "record": "reports/2D_SAFETY_STOP_AND_RESUME_20261107.json",
+  "mitigation": "laptop-side queue steps are stdlib-only before the drain; status4 hashing drops page cache; cache hygiene before the remainder; no automatic restarts",
+  "residual_risk": "swap headroom 233 MB at 17:14Z (zram + vm.swappiness=180); a further stop would need a manual resume or a user decision (see the report)"
+ },
+ "scheduler": {
+  "laptop_tick": "crontab */2, flock, env -i, nice 10, host /usr/bin/python3 (stdlib)",
+  "sleep": "cron cannot take a logind block inhibitor (probe: cron_can_inhibit false); a login-session holder 'placement2d-q2-queue' (systemd-inhibit ... spill2d.py hold) is listed and visible from cron (queue_holder_listed true)",
+  "secrets": "no tokens in the queue, logs or repository; the 2D token stays in the git-excluded prelaunch folder"
+ }
+}

@@ -1,0 +1,35 @@
+{
+ "event": "2D Q2 laptop original run stopped by its own frozen swap-growth guard, diagnosed, and resumed once with the documented resume command",
+ "stop": {
+  "utc": "2026-11-07T16:43:42Z",
+  "reason": "SWAP (swap_growth_mb 633 > max_swap_growth_mb 512; mem_available_mb 11330; temp 76 C; no other guard near its limit)",
+  "run_record": "full_2d_v2/run_1794066823.json: stop SWAP, finished_now 2524, interrupted 25 (recorded completed=false / label=null, so they re-run on resume), pauses 0, leftover_descendants 0",
+  "packed_roots_kept": 43,
+  "swap_device": "/dev/zram0 (compressed RAM, 16 GB) with vm.swappiness=180: the kernel prefers to move idle anonymous pages to zram over dropping file cache, so swap grows with any allocation or file-cache burst even while ~12 GB stay available",
+  "swap_growth_trajectory_session1_mb": {"0-33 min": 0, "33.7 min (16:27Z)": 102, "49.1 min (16:42:45Z)": 417, "50.0 min (16:43:42Z)": 633}
+ },
+ "cause": {
+  "final_step": "the assistant ran test_spill2d.py on the laptop HOST at 16:43:28Z (it imports the 2D code and loads the full Q2 plan). The guard tripped 8-14 s later (+216 MB at 16:43:36-42Z).",
+  "earlier_steps": "16:27Z and 16:39-16:42Z: the status4 transfer job's full re-hash of the 3D laptop mirror (~0.6 GB of reads every 10 min) inflated the file cache, and a new browser content process started at 16:39:55Z",
+  "responsibility": "the assistant's test run on the host and its own backup job's cache churn, not a fault of the runner, teacher or data"
+ },
+ "resume": {
+  "utc": "2026-11-07T17:00:45Z",
+  "command": "setsid bash launch_ready_2d_v2/launch_full_2d.sh --execute-full --confirm <the same Q2 token> (host, via flatpak-spawn --host); this is the launcher's documented resume path. The frozen task list, policy, seeds and safety configuration are unchanged, and no threshold was edited.",
+  "pre_checks": "no coordinator running; no DRAIN/PAUSE; boost 0; AC 1; Tctl 59 C; mem available 13.2 GB",
+  "guard": "launch_runner.py guard passed (quota Q2, ADAPTIVE_FULL 8->32)",
+  "coordinator_pid": 512496,
+  "sleep_inhibitor_pid": 512578,
+  "evidence": "status at 17:08:34Z: 365 queries this session, 25 in flight, roots_packed 43 -> 50, 3,222 q/h; packed roots are never re-run",
+  "startup_swap": "swap growth reached ~280 MB within 80 s of the resume (25 workers allocating ~11.5 GB while the file cache was full), then stayed flat (279 MB at 17:14Z)"
+ },
+ "mitigations_applied": [
+  "Every spillover step that imports the 2D code or loads the plan now runs on gvlab (canary pick, canary compare, plan tests) or only after the drain (partition, remainder, merge). While the original run is live, the laptop tick uses only the stdlib, ssh and rsync.",
+  "status4.sha() drops each file from the page cache after hashing it (POSIX_FADV_DONTNEED), so the 10-minute verification passes no longer grow the laptop's file cache.",
+  "Before the laptop remainder starts, laptop_run() calls cache_hygiene(): POSIX_FADV_DONTNEED on the project's own files. This frees memory before the 25 workers allocate; the guard is not touched.",
+  "The queue never relaunches a run that a safety guard stopped. If the original run is safety-stopped at the hand-off, it waits for state/ACK_ORIGINAL_STOP. A stopped scoped run is reported in telemetry and never restarted automatically.",
+  "Do not run the plan-loading tests on the laptop host while any laptop 2D run is live; the runbook says where to run them."
+ ],
+ "residual_risk": "The guard compares swap use with the value at runner start-up. On this host (zram + swappiness 180 + a browser using ~8 GB), ordinary desktop activity can still add 512 MB over hours, and each stop needs a manual resume. Options for the user: (1) `sudo sysctl -w vm.swappiness=60` for the duration of the run (reverts on reboot; needs sudo, so the assistant did not do it); (2) close memory-heavy browser tabs; (3) an explicit, user-authorized amendment of the swap criterion. The assistant changed none of these.",
+ "recorded_by": "Claude Opus 5.5, session 2b63770c"
+}

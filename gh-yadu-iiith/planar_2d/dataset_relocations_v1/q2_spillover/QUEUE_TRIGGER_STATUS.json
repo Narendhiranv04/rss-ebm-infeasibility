@@ -1,0 +1,44 @@
+{
+ "_snapshot_note": "commit-time snapshot; the live file is state/QUEUE_TRIGGER_STATUS.json (published every 10 min as status/2d_q2_spillover_queue.json on the telemetry branch)",
+ "gate3d_collection": {
+  "facts": {
+   "coretemp_c": 46.0,
+   "cpu0_13_busy_pct": 85.8,
+   "disk_free_gb": 58.7,
+   "last_end_complete": false,
+   "load1": 12.3544921875,
+   "mem_avail_gb": 47.7,
+   "project_processes": [
+    {
+     "cmd": "bash -c sleep 5; cd /home/nav/approachb3d_v3/repo/gh-yadu-iiith/shelf_6x6_open_sides/dataset_placement_extension_v2 && SHELF_SRC=/home/nav/a",
+     "pid": 3264061
+    },
+    {
+     "cmd": "/home/nav/approachb3d_mock/env/bin/python code/collect4.py --policy-file /home/nav/approachb3d_v3/repo/gh-yadu-iiith/shelf_6x6_open_sides/da",
+     "pid": 3264085
+    }
+   ],
+   "queries_total": 59972,
+   "units_done": 501,
+   "units_total": 1466
+  },
+  "pass": false,
+  "reasons": [
+   "3D collection incomplete (501/1466 units, last end complete=False)",
+   "project compute still active on gvlab: ['bash -c sleep 5; cd /home/nav/approachb3d_v3/repo/gh-yadu-ii', '/home/nav/approachb3d_mock/env/bin/python code/collect4.py -']",
+   "3D collector lock still held",
+   "CPUs 0-13 busy with other work (> 25%)"
+  ],
+  "utc": "2026-11-07T17:22:05Z"
+ },
+ "history": [],
+ "inhibitor_probe": {
+  "cron_can_inhibit": false,
+  "queue_holder_listed": true,
+  "t": 1794071761.5649018,
+  "utc": "2026-11-07T17:16:01Z"
+ },
+ "last_tick_utc": "2026-11-07T17:22:02Z",
+ "state": "WAIT_3D",
+ "version": "Q2_2D_SPILLOVER_V1"
+}

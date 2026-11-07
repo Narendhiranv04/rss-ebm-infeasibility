@@ -1,0 +1,156 @@
+{
+ "backups": {
+  "2d_original_to_gvlab": {
+   "files_failing": 0,
+   "roots_packed": 48,
+   "roots_verified_on_destination": 48,
+   "state": "VERIFIED"
+  },
+  "2d_remainder_to_gvlab": "NOTHING_TO_BACK_UP",
+  "2d_spillover_gvlab_second_disk_and_laptop_mirror": "NOTHING_TO_MIRROR",
+  "3d_gvlab_second_disk": {
+   "destination": "/ssd_scratch/nav_shelf66v3_backup/run_q2_parity",
+   "recopied_missing_or_corrupt": 0,
+   "units_done_in_ledger": 491,
+   "units_verified_in_backup": 491,
+   "utc": "2026-11-07T17:20:05Z"
+  },
+  "3d_laptop_mirror": {
+   "files_failing": 0,
+   "rsync_rc": 0,
+   "state": "VERIFIED",
+   "units_in_index": 389
+  },
+  "durable_offsite": "DURABLE_OFFSITE_NOT_CONFIGURED (gvlab disk, gvlab second disk and laptop are interim copies; a status commit is not a backup)",
+  "verification": "every cycle re-hashes every destination file against the source manifest / ledger; mismatches are deleted (remote) or re-copied (local); a failed rsync is never reported as verified"
+ },
+ "health": {
+  "durable_offsite": "DURABLE_OFFSITE_NOT_CONFIGURED (two-host interim copies only)",
+  "flags": [],
+  "overall": "HEALTHY"
+ },
+ "observed_utc": "2026-11-07T17:22:04Z",
+ "queue_state": {
+  "gate3d_collection": {
+   "facts": {
+    "coretemp_c": 46.0,
+    "cpu0_13_busy_pct": 85.8,
+    "disk_free_gb": 58.7,
+    "last_end_complete": false,
+    "load1": 12.3544921875,
+    "mem_avail_gb": 47.7,
+    "project_processes": [
+     {
+      "cmd": "bash -c sleep 5; cd /home/nav/approachb3d_v3/repo/gh-yadu-iiith/shelf_6x6_open_sides/dataset_placement_extension_v2 && SHELF_SRC=/home/nav/a",
+      "pid": 3264061
+     },
+     {
+      "cmd": "/home/nav/approachb3d_mock/env/bin/python code/collect4.py --policy-file /home/nav/approachb3d_v3/repo/gh-yadu-iiith/shelf_6x6_open_sides/da",
+      "pid": 3264085
+     }
+    ],
+    "queries_total": 59972,
+    "units_done": 501,
+    "units_total": 1466
+   },
+   "pass": false,
+   "reasons": [
+    "3D collection incomplete (501/1466 units, last end complete=False)",
+    "project compute still active on gvlab: ['bash -c sleep 5; cd /home/nav/approachb3d_v3/repo/gh-yadu-ii', '/home/nav/approachb3d_mock/env/bin/python code/collect4.py -']",
+    "3D collector lock still held",
+    "CPUs 0-13 busy with other work (> 25%)"
+   ],
+   "utc": "2026-11-07T17:22:05Z"
+  },
+  "inhibitor_probe": {
+   "cron_can_inhibit": false,
+   "queue_holder_listed": true,
+   "t": 1794071761.5649018,
+   "utc": "2026-11-07T17:16:01Z"
+  },
+  "last_error": null,
+  "last_tick_utc": "2026-11-07T17:22:02Z",
+  "state": "WAIT_3D"
+ },
+ "schedulers_verified": {
+  "automatic_queue_ticks": [
+   "{\"state\": \"WAIT_3D\", \"last_error\": null}",
+   "{\"state\": \"WAIT_3D\", \"last_error\": null}",
+   "{\"state\": \"WAIT_3D\", \"last_error\": null}",
+   "{\"state\": \"WAIT_3D\", \"last_error\": null}",
+   "{\"state\": \"WAIT_3D\", \"last_error\": null}",
+   "{\"state\": \"WAIT_3D\", \"last_error\": null}"
+  ],
+  "gvlab_crontab": "*/10 status4.py backup; snapshot from ~/approachb3d_v3/telemetry/bin (taskset 12-13, nice 15); first cycle with the new copy 17:20:05Z OK",
+  "laptop_host_crontab": [
+   "2-59/10 status4.py relay",
+   "6-59/10 status4.py transfer",
+   "*/2 spill2d.py tick (installed 2026-11-07T17:10:59Z)"
+  ],
+  "queue_history_evidence": {
+   "17:12:01Z": "first automatic tick: WAIT_3D; exposed the relative gvlab path bug (fail-closed: no transition)",
+   "17:14:01Z": "automatic tick, fixed code: WAIT_3D, gate3d 461/1466 units, last_error null",
+   "17:16:01Z": "automatic tick: WAIT_3D, gate3d 469/1466, inhibitor probe cron_can_inhibit false / queue_holder_listed true"
+  },
+  "sleep_inhibitors": [
+   "placement2d-q2 (original run, pid 512578)",
+   "placement2d-q2-queue (queue holder, pid 516765)"
+  ]
+ },
+ "telemetry": {
+  "branch": "naren/3d-dataset-relocations-telemetry",
+  "cadence": "laptop relay cron 2-59/10 (fast status; own clone; ff-only pushes; queue items deleted only after a successful push)",
+  "combined_2d": {
+   "note": "disjoint by the frozen owner map; before a handoff only the original run counts",
+   "roots_total": 4620,
+   "unique_roots_packed": 61
+  },
+  "files": [
+   "status/heartbeat_latest.json",
+   "status/2d_q2_latest.json",
+   "status/3d_v4_latest.json",
+   "status/2d_q2_spillover_queue.json",
+   "status/history/*.jsonl"
+  ],
+  "jobs_reported": {
+   "2D_Q2_GVLAB_SPILLOVER": "NOT_STARTED",
+   "2D_Q2_LAPTOP_ORIGINAL": "RUNNING",
+   "2D_Q2_LAPTOP_REMAINDER": "NOT_STARTED",
+   "2D_Q2_SPILLOVER_QUEUE": "WAIT_3D",
+   "3D_V4_Q2_PARITY": [
+    "2026-11-07T17:20:05Z",
+    "RUNNING"
+   ]
+  },
+  "last_relays": [
+   {
+    "2d": "RUNNING",
+    "3d": "RUNNING",
+    "b2": "VERIFIED",
+    "health": "HEALTHY",
+    "m3": "VERIFIED",
+    "push_rc": 0,
+    "utc": "2026-11-07T17:02:03Z"
+   },
+   {
+    "2d": "RUNNING",
+    "3d": "RUNNING",
+    "b2": "VERIFIED",
+    "health": "HEALTHY",
+    "m3": "VERIFIED",
+    "push_rc": 0,
+    "utc": "2026-11-07T17:12:04Z"
+   },
+   {
+    "2d": "RUNNING",
+    "3d": "RUNNING",
+    "b2": "VERIFIED",
+    "health": "HEALTHY",
+    "m3": "VERIFIED",
+    "push_rc": 0,
+    "utc": "2026-11-07T17:22:04Z"
+   }
+  ]
+ },
+ "version": "Q2_2D_SPILLOVER_V1"
+}
