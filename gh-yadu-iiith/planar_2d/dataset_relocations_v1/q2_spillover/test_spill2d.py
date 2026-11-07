@@ -57,6 +57,20 @@ def test_gate_refuses_active_3d_processes_and_held_lock(tmp_path):
             assert not g["pass"] and any("project compute still active" in r for r in g["reasons"])
         finally:
             p.kill(); p.wait()
+    # the launching chain itself is never "project compute": a grandparent shell whose command line names "spill2d.py server-run" (the real
+    # 2026-11-07 canary refusal: tmux -> bash -c '... (chain)' -> subshell -> python server-run) is excluded, a sibling with the same name is not
+    probe = tmp_path / "probe.py"
+    probe.write_text(f"import sys, json; sys.path.insert(0, {str(HERE)!r}); import spill2d as S\n"
+                     "print(json.dumps(S.project_processes(names=('spill2d.py server-run',))))\n")
+    r = subprocess.run(["bash", "-c", f"bash -c '{sys.executable} {probe}; true'; true # spill2d.py server-run --scope CANARY"],
+                       capture_output=True, text=True, timeout=60)
+    assert r.returncode == 0 and json.loads(r.stdout.strip().splitlines()[-1]) == [], (r.stdout, r.stderr)
+    sib = subprocess.Popen(["bash", "-c", "exec -a 'python spill2d.py server-run --scope SPILLOVER' sleep 30"])
+    try:
+        time.sleep(0.4)
+        assert [p["pid"] for p in S.project_processes(names=("spill2d.py server-run",))] == [sib.pid]
+    finally:
+        sib.kill(); sib.wait()
     lk = tmp_path / "held.lock"
     h = subprocess.Popen([sys.executable, "-c", "import fcntl,sys,time;f=open(sys.argv[1],'w');fcntl.flock(f,fcntl.LOCK_EX);print('H',flush=True);time.sleep(30)",
                           str(lk)], stdout=subprocess.PIPE, text=True)

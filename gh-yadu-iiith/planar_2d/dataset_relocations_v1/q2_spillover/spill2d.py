@@ -91,8 +91,21 @@ def cmdline(pid):
         return ""
 
 
+def ancestors(pid=None):
+    """This process and every ancestor up to init (the tmux/sh/subshell chain that launched it; it can never be a 3D job)."""
+    out, p = set(), pid or os.getpid()
+    while p > 1 and p not in out:
+        out.add(p)
+        try:
+            p = int(Path(f"/proc/{p}/stat").read_text().rsplit(")", 1)[1].split()[1])
+        except (OSError, ValueError, IndexError):
+            break
+    return out
+
+
 def project_processes(exclude=(), names=PROJECT_PROCS):
-    me, out = {os.getpid(), os.getppid(), *exclude}, []
+    # exclude the whole launch chain: the 2026-11-07 canary was refused because its own tmux shell's command line contains "spill2d.py server-run"
+    me, out = {*ancestors(), os.getppid(), *exclude}, []
     for d in Path("/proc").iterdir():
         if d.name.isdigit() and int(d.name) not in me:
             c = cmdline(d.name)

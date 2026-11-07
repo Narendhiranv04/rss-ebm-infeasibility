@@ -18,6 +18,7 @@ The 2D teacher, plan, policy, runner and audit in `code_v2/` are imported **unch
   - `QUEUE_TRIGGER_STATUS.json`: a snapshot at commit time. The live file is `state/QUEUE_TRIGGER_STATUS.json`, published every 10 min to the telemetry branch as `status/2d_q2_spillover_queue.json`.
   - `CROSS_HOST_SAFETY_AUDIT.json`, `10MIN_TELEMETRY_AND_BACKUP_STATUS.json`, `UPDATED_ETAS.json`.
 - `reports/2D_SAFETY_STOP_AND_RESUME_20261107.json`: the laptop run's swap-guard stop, its cause, the resume and the mitigations.
+- `reports/2D_SWAP_STOP_2_AND_CANARY_SELFMATCH_20261107.json`: the second swap-guard stop (19:33Z) and the first canary attempt, which was refused by its own launch shell (fixed: `ancestors()`), with the resume and the retry.
 - **Written later by the queue** (absent until their stage passes):
   - `PORTABILITY_CANARY_REPORT.json`;
   - `handoff/HANDOFF_ROOT_OWNER_MANIFEST.json` (with `allowlist_*.json`);
