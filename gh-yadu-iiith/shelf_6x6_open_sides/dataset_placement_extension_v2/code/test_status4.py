@@ -105,3 +105,22 @@ def test_health_flags_are_explicit():
     run2 = S.health(None, {"state": "RUNNING", "status_age_s": 10, "roots_packed": 5}, {"state": "VERIFIED", "t": now - 4000,
                     "roots_verified_on_destination": 5}, {"state": "NOTHING_TO_MIRROR"}, {})
     assert any(f.startswith("STALE_3D") for f in run2["flags"]) and any(f.startswith("BACKUP_LAGGING_2D") for f in run2["flags"])
+
+
+def test_2d_states_drained_for_handoff_and_local_spillover_backup(monkeypatch, tmp_path):
+    run = tmp_path / "run"; (run / "records").mkdir(parents=True)
+    (run / "run_manifest.json").write_text(json.dumps({"roots": 2, "queries": 4}))
+    (run / "records/r1.json").write_text(json.dumps({"queries": [{"eligible": True, "label": 1, "witness_refs": ["w"]}, {"eligible": False}]}))
+    (run / "status.json").write_text(json.dumps({"final": True, "stop": None}))
+    monkeypatch.setattr(S, "RELAY", tmp_path / "relay")
+    assert S.state_2d(run, "x", "J")["state"] == "STOPPED_INCOMPLETE"             # final, not all roots, no drain: an unexplained stop
+    (run / "DRAIN").write_text("handoff")
+    s = S.state_2d(run, "x", "J")
+    assert s["state"] == "DRAINED_FOR_HANDOFF" and s["job"] == "J" and s["teacher_queries_packed"] == 1
+    (run / "status.json").write_text(json.dumps({"final": True, "stop": "SWAP"}))
+    assert S.state_2d(run, "x", "J")["state"] == "STOPPED_INCOMPLETE"             # a safety stop stays a stop even with DRAIN present
+    dst = tmp_path / "dst"
+    b = S.backup_packed_local(run, dst)
+    assert b["state"] == "VERIFIED" and b["roots_verified"] == 1 and S.sha(dst / "records/r1.json") == S.sha(run / "records/r1.json")
+    (dst / "records/r1.json").write_text("corrupt")
+    assert S.backup_packed_local(run, dst)["state"] == "VERIFIED" and S.sha(dst / "records/r1.json") == S.sha(run / "records/r1.json")

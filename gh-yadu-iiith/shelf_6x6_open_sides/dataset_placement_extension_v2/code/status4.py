@@ -23,7 +23,7 @@ import fcntl, glob, hashlib, json, os, shutil, subprocess, sys, tempfile, time
 from pathlib import Path
 
 HOME = Path.home()
-SIDE = Path(__file__).resolve().parent.parent
+SIDE = Path(os.environ.get("SHELF66V3_SIDE") or Path(__file__).resolve().parent.parent)   # gvlab copy outside the live worktree
 RUN4 = SIDE / "production_v4/run_q2_parity"
 RUN3 = SIDE / "production_v3/run_first_cohort"
 TELE = HOME / "approachb3d_v3/telemetry"                                        # gvlab
@@ -36,6 +36,11 @@ MIRROR3 = Path(os.environ.get("SHELF66V3_MIRROR3", str(HOME / "Desktop/shelf66v3
 RUN2D = Path(os.environ.get("PLACEMENT2D_RUN", str(HOME / "Desktop/rss-placement-ready-v2/gh-yadu-iiith/planar_2d/dataset_relocations_v1/full_2d_v2")))
 BACKUP2D = os.environ.get("PLACEMENT2D_BACKUP", "/ssd_scratch/nav_placement2d_backup/full_2d_v2")    # on gvlab
 REMOTE = os.environ.get("STATUS4_REMOTE", "gvlab")
+REM2D = RUN2D.parent / "q2_spillover/runs/remainder_laptop"                       # laptop 2D remainder (after a verified handoff only)
+SPILL_STATE = RUN2D.parent / "q2_spillover/state/QUEUE_TRIGGER_STATUS.json"
+G_SPILL_RUN = HOME / "approachb3d_v3/2d_q2_spillover/src/gh-yadu-iiith/planar_2d/dataset_relocations_v1/launch_ready_2d_v2_gvlab/runs/spillover_gvlab"
+BACKUP2D_BASE = "/ssd_scratch/nav_placement2d_backup"
+MIRROR2D_SPILL = HOME / "Desktop/placement2d_spillover_mirror/spillover_gvlab"
 TRAILER = "\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 STALE_S, LAG_UNITS, LAG_S = 1200, 60, 1500
 
@@ -53,10 +58,17 @@ def atomic(path, text):
 
 
 def sha(p):
+    """Streamed sha256; the file's pages are dropped from the page cache afterwards (POSIX_FADV_DONTNEED) so the 10-min re-hash of
+    backups / mirrors does not inflate the laptop's file cache, which under vm.swappiness=180 + zram pushes anon pages to swap and
+    can trip the 2D runner's frozen swap-growth guard (incident 2026-11-07, see q2_spillover/reports)."""
     h = hashlib.sha256()
     with open(p, "rb") as f:
         for b in iter(lambda: f.read(1 << 20), b""):
             h.update(b)
+        try:
+            os.posix_fadvise(f.fileno(), 0, 0, os.POSIX_FADV_DONTNEED)
+        except (AttributeError, OSError):
+            pass
     return h.hexdigest()
 
 
@@ -153,6 +165,8 @@ def cmd_snapshot():
     s = {"utc": utc(), "t": time.time(), "host": os.uname().nodename, "checkout_head":
          subprocess.run(["git", "-C", str(SIDE), "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip(),
          "3D_V4_Q2_PARITY": run_state(RUN4, "v4"), "3D_V3_FIRST_COHORT": run_state(RUN3, "v3"), "host_state": host(),
+         "2D_Q2_GVLAB_SPILLOVER": state_2d(G_SPILL_RUN, "spillover_gvlab", "2D_Q2_GVLAB_SPILLOVER") if G_SPILL_RUN.exists() else {"state": "NOT_STARTED"},
+         "2D_spillover_backup": jload(Path(BACKUP2D_BASE) / "spillover_gvlab/backup_summary.json") or {"state": "NOTHING_TO_BACK_UP"},
          "backup": (jload(BACKUP3 / "backup_index.json", {}) or {}).get("summary") or {"status": "no v4 backup yet"}}
     txt = json.dumps(s, indent=1, sort_keys=True)
     atomic(TELE / "latest_3d.json", txt)
@@ -197,7 +211,58 @@ def backup_units(run, dst):
     return summ
 
 
+def backup_packed_local(run, dst):
+    """gvlab: packed 2D spillover roots -> second disk; every destination file re-hashed against the source each cycle."""
+    roots = packed_roots(run)
+    if not roots:
+        return {"state": "NOTHING_TO_BACK_UP", "utc": utc(), "t": time.time()}
+    dst.mkdir(parents=True, exist_ok=True)
+    man = jload(dst / "manifest.json", {}) or {}
+    bad = 0
+    for rid, files in roots.items():
+        for p in files:
+            rel = str(p.relative_to(run))
+            man.setdefault(rel, sha(p))
+            out = dst / rel
+            if out.exists() and sha(out) == man[rel]:
+                continue
+            out.parent.mkdir(parents=True, exist_ok=True)
+            tmp = out.with_name(f".{out.name}.tmp")
+            shutil.copyfile(p, tmp)
+            with open(tmp, "rb") as f:
+                os.fsync(f.fileno())
+            if sha(tmp) != man[rel]:
+                tmp.unlink(); bad += 1; continue
+            os.replace(tmp, out)
+    atomic(dst / "manifest.json", json.dumps(man, sort_keys=True))
+    ok = [r for r, fs in roots.items() if all((dst / str(p.relative_to(run))).exists() for p in fs)]
+    summ = {"utc": utc(), "t": time.time(), "destination": str(dst), "roots_packed": len(roots), "roots_verified": len(ok), "files_failing": bad,
+            "state": "VERIFIED" if not bad and len(ok) == len(roots) else "BACKUP_FAILED_OR_PARTIAL"}
+    atomic(dst / "backup_summary.json", json.dumps(summ))
+    return summ
+
+
+def mirror_2d_spillover():
+    """gvlab second-disk copy of the 2D spillover -> laptop mirror; verified only after a successful rsync and a full re-hash."""
+    t = subprocess.run(["ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=20", REMOTE, f"test -f {BACKUP2D_BASE}/spillover_gvlab/manifest.json"],
+                       capture_output=True).returncode
+    if t == 255:
+        return {"state": "MIRROR_FAILED", "utc": utc(), "reason": "ssh / network failure"}
+    if t != 0:
+        return {"state": "NOTHING_TO_MIRROR", "utc": utc(), "t": time.time()}
+    MIRROR2D_SPILL.mkdir(parents=True, exist_ok=True)
+    r = subprocess.run(["rsync", "-a", "--timeout=300", f"{REMOTE}:{BACKUP2D_BASE}/spillover_gvlab/", f"{MIRROR2D_SPILL}/"], capture_output=True, text=True)
+    man = jload(MIRROR2D_SPILL / "manifest.json", {}) or {}
+    bad = [f for f, h in man.items() if not (MIRROR2D_SPILL / f).exists() or sha(MIRROR2D_SPILL / f) != h]
+    summ = {"utc": utc(), "t": time.time(), "path": str(MIRROR2D_SPILL), "rsync_rc": r.returncode, "files": len(man), "files_failing": len(bad),
+            "state": "VERIFIED" if r.returncode == 0 and not bad else "MIRROR_FAILED"}
+    atomic(MIRROR2D_SPILL.parent / "spillover_gvlab_verification.json", json.dumps(summ, indent=1))
+    return summ
+
+
 def cmd_backup():
+    if (G_SPILL_RUN / "run_manifest.json").exists():
+        print(json.dumps({"2d_spillover_backup": backup_packed_local(G_SPILL_RUN, Path(BACKUP2D_BASE) / "spillover_gvlab")}))
     if not (RUN4 / "run_manifest.json").exists():
         print(json.dumps({"backup": "v4 run not started"})); return
     print(json.dumps(backup_units(RUN4, BACKUP3)))
@@ -213,15 +278,16 @@ def packed_roots(run):
     return out
 
 
-def state_2d():
-    run = RUN2D
+def state_2d(run=None, tag="full_2d_v2", job="2D_Q2_LAPTOP_ORIGINAL"):
+    run = Path(run) if run else RUN2D
     procs = []
     for d in Path("/proc").iterdir():
         if d.name.isdigit():
             c = cmdline(d.name)
-            if "launch_runner.py" in c and (" full " in c or " guard " in c):
+            if ("launch_runner.py" in c and (" full " in c or " guard " in c) and tag == "full_2d_v2") or \
+                    ("spill2d.py laptop-run" in c and tag == "remainder_laptop") or ("spill2d.py server-run --scope SPILLOVER" in c and tag == "spillover_gvlab"):
                 procs.append({"pid": int(d.name), "cmd": c[:160]})
-    s = {"utc": utc(), "t": time.time(), "host": os.uname().nodename, "job": "2D_Q2", "run_dir": str(run), "run_dir_exists": run.exists(),
+    s = {"utc": utc(), "t": time.time(), "host": os.uname().nodename, "job": job, "run_dir": str(run), "run_dir_exists": run.exists(),
          "coordinator_processes": procs, "cpu_boost": (Path("/sys/devices/system/cpu/cpufreq/boost").read_text().strip()
                                                       if Path("/sys/devices/system/cpu/cpufreq/boost").exists() else None)}
     try:
@@ -235,7 +301,7 @@ def state_2d():
     st = jload(run / "status.json", {}) or {}
     m = last_line(run / "monitor.jsonl")
     roots = packed_roots(run)
-    cache_p = RELAY / "label_cache_2d.json"
+    cache_p = (RELAY if RELAY.parent.exists() else TELE) / ("label_cache_2d.json" if tag == "full_2d_v2" else f"label_cache_2d_{tag}.json")
     cache = jload(cache_p, {})
     for rid, files in roots.items():
         if rid not in cache:
@@ -247,9 +313,10 @@ def state_2d():
     atomic(cache_p, json.dumps(cache))
     agg = {k: sum(cache[r][k] for r in roots) for k in ("q", "teacher", "1", "0", "null", "w")}
     stopped = st.get("final") and st.get("stop")
-    coord = [p for p in procs if " full " in p["cmd"]]
+    coord = [p for p in procs if " full " in p["cmd"] or "laptop-run" in p["cmd"] or "server-run" in p["cmd"]]
     st_age = time.time() - Path(run / "status.json").stat().st_mtime if (run / "status.json").exists() else None
     s.update(state="RUNNING" if coord else ("COMPLETED" if st.get("final") and not st.get("stop") and len(roots) >= man["roots"] else
+                                              "DRAINED_FOR_HANDOFF" if st.get("final") and not st.get("stop") and (run / "DRAIN").exists() else
                                               "STOPPED_INCOMPLETE"),
              manifest={k: man.get(k) for k in ("scope", "budget_hash", "pair_protocol_id", "config_sha256", "tasks_sha256", "roots", "queries")},
              quota_queries_total=man.get("queries"), roots_total=man.get("roots"), roots_packed=len(roots),
@@ -266,35 +333,38 @@ def state_2d():
     return s
 
 
-def backup_2d():
+def backup_2d(run=None, tag="full_2d_v2"):
     """Packed 2D roots -> gvlab second disk; source manifest, rsync, then a REMOTE sha256 of every backed-up file each cycle."""
-    roots = packed_roots(RUN2D)
+    RUN2D_, BACKUP2D_ = (Path(run) if run else RUN2D), (f"{BACKUP2D_BASE}/{tag}" if run else BACKUP2D)
+    roots = packed_roots(RUN2D_)
+    subprocess.run(["ssh", "-o", "BatchMode=yes", REMOTE, f"mkdir -p {BACKUP2D_}"], capture_output=True)
     if not roots:
         return {"state": "NOTHING_TO_BACK_UP", "utc": utc()}
-    man_p = RELAY / "backup2d_source_manifest.json"
+    sfx = "" if tag == "full_2d_v2" else f"_{tag}"                   # original run keeps its pre-spillover cache/summary names
+    man_p = RELAY / f"backup2d_source_manifest{sfx}.json"
     man = jload(man_p, {})
     for rid, files in roots.items():
         for p in files:
-            rel = str(p.relative_to(RUN2D))
+            rel = str(p.relative_to(RUN2D_))
             if rel not in man:
                 man[rel] = sha(p)                                 # packed files are immutable once written
     atomic(man_p, json.dumps(man, sort_keys=True))
-    lst = RELAY / "backup2d_files.txt"
+    lst = RELAY / f"backup2d_files{sfx}.txt"
     atomic(lst, "\n".join(sorted(man)) + "\n")
-    r = subprocess.run(["rsync", "-a", "--timeout=300", "--files-from", str(lst), f"{RUN2D}/", f"{REMOTE}:{BACKUP2D}/"], capture_output=True, text=True)
-    meta = [f for f in ("run_manifest.json", "status.json") if (RUN2D / f).exists()]
-    subprocess.run(["rsync", "-a", *[str(RUN2D / f) for f in meta], f"{REMOTE}:{BACKUP2D}/meta/"], capture_output=True, text=True)
-    v = subprocess.run(["ssh", "-o", "BatchMode=yes", REMOTE, f"cd {BACKUP2D} && xargs -d '\\n' nice -n 19 ionice -c3 sha256sum 2>/dev/null"],
+    r = subprocess.run(["rsync", "-a", "--timeout=300", "--files-from", str(lst), f"{RUN2D_}/", f"{REMOTE}:{BACKUP2D_}/"], capture_output=True, text=True)
+    meta = [f for f in ("run_manifest.json", "status.json") if (RUN2D_ / f).exists()]
+    subprocess.run(["rsync", "-a", *[str(RUN2D_ / f) for f in meta], f"{REMOTE}:{BACKUP2D_}/meta/"], capture_output=True, text=True)
+    v = subprocess.run(["ssh", "-o", "BatchMode=yes", REMOTE, f"cd {BACKUP2D_} && xargs -d '\\n' nice -n 19 ionice -c3 sha256sum 2>/dev/null"],
                        input="\n".join(sorted(man)) + "\n", capture_output=True, text=True)
     remote = {ln[66:].strip(): ln[:64] for ln in v.stdout.splitlines()}
     bad = [f for f, h in man.items() if remote.get(f) != h]
     if bad:                                                       # corrupt or missing on gvlab: delete so the next cycle re-copies
-        subprocess.run(["ssh", "-o", "BatchMode=yes", REMOTE, f"cd {BACKUP2D} && rm -f " + " ".join(f"'{b}'" for b in bad[:500])], capture_output=True)
-    ok_roots = [rid for rid, files in roots.items() if all(remote.get(str(p.relative_to(RUN2D))) == man[str(p.relative_to(RUN2D))] for p in files)]
-    summ = {"utc": utc(), "t": time.time(), "destination": f"{REMOTE}:{BACKUP2D}", "rsync_rc": r.returncode, "verify_rc": v.returncode,
+        subprocess.run(["ssh", "-o", "BatchMode=yes", REMOTE, f"cd {BACKUP2D_} && rm -f " + " ".join(f"'{b}'" for b in bad[:500])], capture_output=True)
+    ok_roots = [rid for rid, files in roots.items() if all(remote.get(str(p.relative_to(RUN2D_))) == man[str(p.relative_to(RUN2D_))] for p in files)]
+    summ = {"utc": utc(), "t": time.time(), "destination": f"{REMOTE}:{BACKUP2D_}", "rsync_rc": r.returncode, "verify_rc": v.returncode,
             "roots_packed": len(roots), "roots_verified_on_destination": len(ok_roots), "files_failing": len(bad), "failing_examples": bad[:5],
             "state": "VERIFIED" if r.returncode == 0 and v.returncode == 0 and not bad else "BACKUP_FAILED_OR_PARTIAL"}
-    atomic(RELAY / "backup2d_last.json", json.dumps(summ, indent=1))
+    atomic(RELAY / f"backup2d_last{sfx}.json", json.dumps(summ, indent=1))
     return summ
 
 
@@ -342,7 +412,7 @@ def health(s3, s2, b2, m3, relay_state):
         flags.append(f"STOPPED_2D: {s2.get('stop_reason')}")
     if s2.get("state") == "RUNNING" and (s2.get("status_age_s") or 0) > STALE_S:
         flags.append("STALE_2D: runner status.json not updated for > 20 min")
-    if s2.get("state") in ("RUNNING", "COMPLETED", "STOPPED_INCOMPLETE") and (
+    if s2.get("state") in ("RUNNING", "COMPLETED", "STOPPED_INCOMPLETE", "DRAINED_FOR_HANDOFF") and (
             b2.get("state") != "VERIFIED" or s2.get("roots_packed", 0) - b2.get("roots_verified_on_destination", 0) > LAG_UNITS
             or now - b2.get("t", 0) > LAG_S):
         flags.append(f"BACKUP_LAGGING_2D: {b2.get('state')}, {round((now - b2.get('t', 0)) / 60)} min since the last 2D backup run")
@@ -366,7 +436,35 @@ def cmd_relay():
     q3 = sorted(RELAY.glob("queue/*_3d.json"))
     s3 = jload(q3[-1]) if q3 else None
     h = health(s3, s2, b2, m3, rs)
+    sr = state_2d(REM2D, "remainder_laptop", "2D_Q2_LAPTOP_REMAINDER") if REM2D.exists() else {"state": "NOT_STARTED"}
+    q = jload(SPILL_STATE, {"state": "NOT_INSTALLED"}) or {}
+    sp = (s3 or {}).get("2D_Q2_GVLAB_SPILLOVER", {"state": "UNKNOWN"})
+    uniq = (s2.get("roots_packed") or 0) + (sr.get("roots_packed") or 0) + (sp.get("roots_packed") or 0)
+    b2r = jload(RELAY / "backup2d_last_remainder_laptop.json", {"state": "NO_TRANSFER_RUN_YET"}) or {}
+    b2s = (s3 or {}).get("2D_spillover_backup") or {}
+    m2s = jload(MIRROR2D_SPILL.parent / "spillover_gvlab_verification.json", {"state": "NO_TRANSFER_RUN_YET"}) or {}
+    now = time.time()
+    for tag, st_, bk in (("REMAINDER", sr, b2r), ("SPILLOVER", sp, b2s)):
+        f = []
+        if st_.get("state") == "STOPPED_INCOMPLETE":
+            f.append(f"STOPPED_2D_{tag}: {st_.get('stop_reason')}")
+        if st_.get("state") == "RUNNING" and (st_.get("status_age_s") or 0) > STALE_S:
+            f.append(f"STALE_2D_{tag}")
+        if st_.get("state") in ("RUNNING", "COMPLETED", "STOPPED_INCOMPLETE") and (st_.get("roots_packed") or 0) and (
+                bk.get("state") != "VERIFIED" or now - bk.get("t", 0) > LAG_S
+                or (st_.get("roots_packed") or 0) - (bk.get("roots_verified_on_destination", bk.get("roots_verified")) or 0) > LAG_UNITS):
+            f.append(f"BACKUP_LAGGING_2D_{tag}: {bk.get('state')}")
+        if f:
+            h["flags"] += f; h["overall"] = "ATTENTION"
+    if m2s.get("state") == "MIRROR_FAILED":
+        h["flags"].append("MIRROR_FAILED_2D_SPILLOVER"); h["overall"] = "ATTENTION"
+    if str(q.get("state", "")).startswith("BLOCKED"):
+        h["flags"].append(f"SPILLOVER_QUEUE_{q['state']}"); h["overall"] = "ATTENTION"
     beat = {"utc": utc(), "t": time.time(), "host": os.uname().nodename, "health": h, "2D_Q2": s2, "2D_backup_to_gvlab": b2,
+            "2D_Q2_LAPTOP_REMAINDER": sr, "2D_Q2_GVLAB_SPILLOVER": sp, "2D_remainder_backup_to_gvlab": b2r, "2D_spillover_backup_on_gvlab": b2s,
+            "2D_spillover_mirror_to_laptop": m2s,
+            "2D_Q2_SPILLOVER_QUEUE": {k: q.get(k) for k in ("state", "last_tick_utc", "last_error", "block_reason", "progress", "server_share", "attention")},
+            "2D_Q2_COMBINED": {"unique_roots_packed": uniq, "roots_total": 4620, "note": "disjoint by the frozen owner map; before a handoff only the original run counts"},
             "3D_mirror_to_laptop": m3, "3D_latest_gvlab_snapshot_utc": (s3 or {}).get("utc"), "gvlab_queue_pull_rc": pulled.returncode}
     atomic(RELAY / "queue" / f"{beat['utc'].replace(':', '')}_heartbeat.json", json.dumps(beat, indent=1, sort_keys=True))
     items = sorted(RELAY.glob("queue/*.json"))
@@ -393,9 +491,11 @@ def cmd_relay():
             atomic(TCLONE / "status/3d_v4_latest.json", json.dumps(latest["3d"], indent=1, sort_keys=True))
         atomic(TCLONE / "status/2d_q2_latest.json", json.dumps(s2, indent=1, sort_keys=True))
         atomic(TCLONE / "status/heartbeat_latest.json", json.dumps(beat, indent=1, sort_keys=True))
+        if SPILL_STATE.exists():
+            atomic(TCLONE / "status/2d_q2_spillover_queue.json", json.dumps(q, indent=1, sort_keys=True))
         v3 = (latest.get("3d") or s3 or {}).get("3D_V4_Q2_PARITY", {})
         msg = (f"telemetry {beat['utc']}: {h['overall']} | 3D v4 {v3.get('state')} {v3.get('queries_done')}/{v3.get('queries_total')} | "
-               f"2D Q2 {s2.get('state')} {s2.get('queries_packed')}/{s2.get('quota_queries_total')}") + TRAILER
+               f"2D Q2 {s2.get('state')} {s2.get('queries_packed')}/{s2.get('quota_queries_total')} | spill queue {q.get('state')}") + TRAILER
         git("add", "status")
         if git("diff", "--cached", "--quiet", check=False).returncode != 0:
             git("commit", "-q", "-m", msg)
@@ -420,8 +520,11 @@ def cmd_transfer():
     """Bulk copies, separate from the status push (own cron line and lock): 2D packed roots -> gvlab, gvlab 3D backup -> laptop mirror."""
     s2 = state_2d()
     b2 = backup_2d() if s2.get("run_dir_exists") else {"state": "NOTHING_TO_BACK_UP", "utc": utc(), "t": time.time()}
+    b2r = backup_2d(REM2D, "remainder_laptop") if (REM2D / "run_manifest.json").exists() else {"state": "NOTHING_TO_BACK_UP"}
+    m2s = mirror_2d_spillover()
     m3 = mirror_3d()
     print(json.dumps({"utc": utc(), "b2": {k: b2.get(k) for k in ("state", "roots_packed", "roots_verified_on_destination", "files_failing")},
+                      "b2_remainder": b2r.get("state"), "m2_spillover": m2s.get("state"),
                       "m3": {k: m3.get(k) for k in ("state", "units_in_index", "files_failing", "rsync_rc")}}))
 
 
