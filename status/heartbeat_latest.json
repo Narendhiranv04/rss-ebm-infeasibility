@@ -5,7 +5,7 @@
   "coordinator_processes": [],
   "cpu_boost": "0",
   "drain_or_pause": {
-   "DRAIN": false,
+   "DRAIN": true,
    "PAUSE": false
   },
   "eta_hours": 111.7,
@@ -63,11 +63,11 @@
    "worker_cpu_h": 0.852
   },
   "state": "STOPPED_INCOMPLETE",
-  "status_age_s": 740.6,
+  "status_age_s": 1340.5,
   "stop_reason": "SWAP",
-  "t": 1794093721.952286,
+  "t": 1794094321.832427,
   "teacher_queries_packed": 10348,
-  "utc": "2026-11-07T23:22:01Z",
+  "utc": "2026-11-07T23:32:01Z",
   "witness_refs_packed": 56898
  },
  "2D_Q2_COMBINED": {
@@ -82,13 +82,15 @@
   "state": "NOT_STARTED"
  },
  "2D_Q2_SPILLOVER_QUEUE": {
-  "attention": null,
+  "attention": [
+   "ORIGINAL_2D_SAFETY_STOP:SWAP -- inspect, then touch q2_spillover/state/ACK_ORIGINAL_STOP to hand off"
+  ],
   "block_reason": null,
   "last_error": null,
-  "last_tick_utc": "2026-11-07T23:22:01Z",
+  "last_tick_utc": "2026-11-07T23:32:01Z",
   "progress": null,
   "server_share": null,
-  "state": "VERIFY_2D_SERVER"
+  "state": "DRAIN_2D"
  },
  "2D_backup_to_gvlab": {
   "destination": "gvlab:/ssd_scratch/nav_placement2d_backup/full_2d_v2",
@@ -98,8 +100,8 @@
   "roots_verified_on_destination": 201,
   "rsync_rc": 0,
   "state": "VERIFIED",
-  "t": 1794093368.7891827,
-  "utc": "2026-11-07T23:16:08Z",
+  "t": 1794093968.7450502,
+  "utc": "2026-11-07T23:26:08Z",
   "verify_rc": 0
  },
  "2D_remainder_backup_to_gvlab": {
@@ -111,16 +113,16 @@
  "2D_spillover_mirror_to_laptop": {
   "state": "NO_TRANSFER_RUN_YET"
  },
- "3D_latest_gvlab_snapshot_utc": "2026-11-07T23:20:10Z",
+ "3D_latest_gvlab_snapshot_utc": "2026-11-07T23:30:09Z",
  "3D_mirror_to_laptop": {
   "failing_examples": [],
   "files_failing": 0,
   "path": "/home/naren/Desktop/shelf66v3_offhost_mirror/run_q2_parity",
   "rsync_rc": 0,
   "state": "VERIFIED",
-  "t": 1794093378.6298954,
+  "t": 1794093978.5749083,
   "units_in_index": 1466,
-  "utc": "2026-11-07T23:16:18Z"
+  "utc": "2026-11-07T23:26:18Z"
  },
  "gvlab_queue_pull_rc": 0,
  "health": {
@@ -131,6 +133,6 @@
   "overall": "ATTENTION"
  },
  "host": "pop-os",
- "t": 1794093724.0812964,
- "utc": "2026-11-07T23:22:04Z"
+ "t": 1794094324.062249,
+ "utc": "2026-11-07T23:32:04Z"
 }
