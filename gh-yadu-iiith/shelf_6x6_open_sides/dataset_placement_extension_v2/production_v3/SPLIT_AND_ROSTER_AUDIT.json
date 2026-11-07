@@ -1,0 +1,117 @@
+{
+ "cohort_roots": 1582,
+ "leakage": {
+  "cross_split_layouts": 0,
+  "cross_split_roots": 0,
+  "derived_scene_layouts": 4234,
+  "examples": []
+ },
+ "protected_metadata": "the roster rule reads object ids / shapes / sizes / heights, initial cells and the grid only (plan3d docstring); no roles, blockers, B/D labels, K-construction spec or outcomes; K is a reporting field",
+ "qc_excluded_roots": 0,
+ "roster": {
+  "by_K": {
+   "0": 3451,
+   "1": 3160,
+   "2": 3470,
+   "3": 3570
+  },
+  "by_band": {
+   "far": 4557,
+   "mid": 4761,
+   "near": 2027,
+   "vacated": 2306
+  },
+  "by_depth": {
+   "0": 5822,
+   "1": 4221,
+   "2": 3608
+  },
+  "by_depth_band": {
+   "d0:far": 1802,
+   "d0:mid": 2300,
+   "d0:near": 1720,
+   "d1:far": 1453,
+   "d1:mid": 1466,
+   "d1:vacated": 1302,
+   "d2:far": 1302,
+   "d2:mid": 995,
+   "d2:near": 307,
+   "d2:vacated": 1004
+  },
+  "by_split": {
+   "test": 1921,
+   "train": 9664,
+   "val": 2066
+  },
+  "by_split_K": {
+   "test:K0": 496,
+   "test:K1": 479,
+   "test:K2": 426,
+   "test:K3": 520,
+   "train:K0": 2406,
+   "train:K1": 2215,
+   "train:K2": 2393,
+   "train:K3": 2650,
+   "val:K0": 549,
+   "val:K1": 466,
+   "val:K2": 651,
+   "val:K3": 400
+  },
+  "coverage_missing": {
+   "K": [],
+   "band": [],
+   "depth": []
+  },
+  "equal_to_v2_live_roster_restricted_to_cohort": true,
+  "every_row_qc_eligible_and_pinned": true,
+  "physical_queries": 13651,
+  "roots_with_queries": 1466,
+  "rows": 16419,
+  "rule": "SHELF66V3_PLACE_ROSTER_V1 (plan3d.roster_for; production: every slot of every root, reference = False)",
+  "sha256": "26b887eacb8bff3015d9ec01bbf91e065bfca0a35bd057b19be8f286c6f4898d",
+  "static_by_kind": {
+   "OCCUPIED": 1302,
+   "OUT_OF_BOUNDS": 1466
+  },
+  "static_contrasts": 2768
+ },
+ "semantics": {
+  "label 0": "NEG_CERTIFIED_GEOMETRY (scope: 32 poses x <= 4 source IK candidates x the 2-D footprint carry model) or NEG_UNDER_POLICY (BOUNDED_SEARCH / EXECUTION / DETERMINISTIC_PLAN under adaptive_v1, with its scope record)",
+  "label 1": "VERIFIED: a stored witness passes every gate (re-verified by fresh-process replay)",
+  "label None": "UNLABELED_NO_VALID_POST_GRASP_STATE / UNLABELED_SCENE_NOT_SETTLED / INTERRUPTED: never a negative",
+  "physical query": "V_place(S_hyp, o, d) conditional on a certified post-grasp hold: already held -> lift -> carry -> lower -> release -> retreat -> settle (13 MuJoCo gates); not pick accessibility, not target-task success",
+  "static contrast": "OCCUPIED / OUT_OF_BOUNDS destinations: static ineligible rows, never sent to the physical teacher, kept apart from learned negatives"
+ },
+ "split": {
+  "by_class": {
+   "test": {
+    "0": 67,
+    "1": 53,
+    "2": 44,
+    "3": 52
+   },
+   "train": {
+    "0": 358,
+    "1": 251,
+    "2": 246,
+    "3": 265
+   },
+   "val": {
+    "0": 86,
+    "1": 53,
+    "2": 67,
+    "3": 40
+   }
+  },
+  "components_over_all_selected_roots": 1045,
+  "components_spanning_two_splits": 0,
+  "counts": {
+   "test": 216,
+   "train": 1120,
+   "val": 246
+  },
+  "old_assignments_changed": 0,
+  "parent_sha256": "e9c389c46ac3bca3e2a5921eb0b30067bb40519232c26b737aeccf44de358107",
+  "sha256": "c0f8fb5a0f610737968edd31b4cdb1408726396dc0e400334718491fa230bc42"
+ }
+}

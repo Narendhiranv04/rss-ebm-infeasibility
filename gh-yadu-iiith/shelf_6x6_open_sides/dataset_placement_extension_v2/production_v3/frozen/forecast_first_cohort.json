@@ -1,0 +1,53 @@
+{
+ "assumptions": [
+  "per-query CPU from the real 12-worker adaptive_v1 run A, grouped K x depth x band (>=3 samples), backed off to K x depth, K, overall",
+  "root-lineage bootstrap over the mock's roots",
+  "NONE (selected) costed at the backed-off overall mean; K4 has 0 selected roots and is not in the forecast",
+  "disk = queries x positive rate x measured bytes / witness + JSON bytes / query"
+ ],
+ "by_K": {
+  "0": 3451,
+  "1": 3160,
+  "2": 3470,
+  "3": 3570
+ },
+ "by_split": {
+  "test": 1921,
+  "train": 9664,
+  "val": 2066
+ },
+ "cost_source_levels": {
+  "k": 13344,
+  "kd": 307
+ },
+ "cpu_hours": 35.16,
+ "cpu_hours_p05_p95": [
+  32.78,
+  37.78
+ ],
+ "disk_gb": 0.643,
+ "disk_gb_buffered": 0.964,
+ "disk_gb_x1_5": 0.964,
+ "not_forecast": [
+  "K4 (0 selected roots)",
+  "NONE (out of the first cohort)",
+  "0 QC-excluded roots"
+ ],
+ "parallel_efficiency": 0.881,
+ "parallel_efficiency_source": "mock_v2 sweep_12 vs serial (analysis_v2.json)",
+ "production_queries": 13651,
+ "roots": 1466,
+ "static_unlabeled": 2768,
+ "strata_backed_off": {
+  "K0:d2:near": 66,
+  "K1:d2:near": 63,
+  "K2:d2:near": 74,
+  "K3:d2:near": 104
+ },
+ "wall_days_expected": 0.139,
+ "wall_days_p95": 0.149,
+ "wall_days_p95_x1_5": 0.223,
+ "wall_hours_expected": 3.34,
+ "wall_hours_p95_x1_5": 5.35,
+ "workers": 12
+}
