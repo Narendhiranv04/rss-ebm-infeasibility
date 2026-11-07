@@ -1,0 +1,532 @@
+{
+ "alt_parking": {
+  "o00": [
+   [
+    2,
+    0
+   ],
+   [
+    2,
+    5
+   ],
+   [
+    1,
+    0
+   ],
+   [
+    1,
+    1
+   ]
+  ],
+  "o01": [
+   [
+    2,
+    5
+   ],
+   [
+    2,
+    0
+   ],
+   [
+    1,
+    0
+   ],
+   [
+    1,
+    1
+   ]
+  ]
+ },
+ "budget": {
+  "pool_cap": 6,
+  "rrt_max_iters": 5000,
+  "seq_tries": 8
+ },
+ "cell_convention": "shelf_scene confined shelf (row, col), 0-based, row 0 nearest the robot; centre = (x0 + (r-2.5)*pitch, (c-2.5)*pitch) on the 6 x 6 grid, on the shelf floor (table_z)",
+ "construction": {
+  "method": "bd_3dt"
+ },
+ "domain": "3ds66",
+ "empty_table_T_solve": {
+  "feasible_azimuths": [
+   112.5,
+   135.0,
+   180.0,
+   202.5,
+   225.0
+  ]
+ },
+ "generator_version_plus": "BD_GEN_V1+ROUTE_V15+SHELF66V3",
+ "geometry": {
+  "arm_ceiling": true,
+  "azimuths": [
+   0.0,
+   22.5,
+   45.0,
+   67.5,
+   90.0,
+   112.5,
+   135.0,
+   157.5,
+   180.0,
+   202.5,
+   225.0,
+   247.5,
+   270.0,
+   292.5,
+   315.0,
+   337.5
+  ],
+  "ceiling_margin": 0.1,
+  "clear_height": 0.6,
+  "cols": 6,
+  "grasp_at": "middle,top",
+  "lift": 0.025,
+  "no_overpass": true,
+  "pitch": 0.075,
+  "return_to_ready": false,
+  "rows": 6,
+  "scene": "confined",
+  "side_walls": false,
+  "table_z": 0.55,
+  "tilts": [
+   90.0
+  ],
+  "x0": 0.42
+ },
+ "goal": [
+  4,
+  1
+ ],
+ "grasp_azimuths": 16,
+ "greedy_blockers": [],
+ "ids": {
+  "config_hash": "8d521b1f6d23db23",
+  "construction_seed": 2016618100,
+  "generator_version": "BD_GEN_V1",
+  "label_protocol": "BD_BINARY_BUDGET_V1",
+  "parent_family_id": "fam-2b2b8fa512",
+  "robot_protocol": "XARM7_SHELF66_LEVELGRASP_V1:cd7f78f44022",
+  "root_id": "3ds66-srv-w0028-s015",
+  "teacher_version": "BD3DS66_TEACHER_V2:shelf_scene[confined].plan_pick_place(first feasible level grasp, fingers pre-shaped in every check, RRT max_iters=5000, no wall-clock)+MuJoCo run_plan, moves chained (no return to the ready pose between them)",
+  "variant_id": "orig"
+ },
+ "independent_moves": true,
+ "initial_cells": {
+  "o00": [
+   5,
+   2
+  ],
+  "o01": [
+   5,
+   4
+  ],
+  "t0": [
+   4,
+   4
+  ]
+ },
+ "intended_blockers": [],
+ "label_consistency": {
+  "consistent": true,
+  "shorter_sequences_that_succeeded": []
+ },
+ "labels": {
+  "B": [
+   {
+    "failed_step": null,
+    "final_cells": {
+     "o00": [
+      5,
+      2
+     ],
+     "o01": [
+      5,
+      4
+     ],
+     "t0": [
+      4,
+      1
+     ]
+    },
+    "n_actions": 1,
+    "negative_kind": null,
+    "reason": "executed",
+    "role": "minimal",
+    "sequence": [],
+    "steps": [
+     {
+      "azimuth": 202.5,
+      "dest": [
+       4,
+       1
+      ],
+      "end_cell": [
+       4,
+       1
+      ],
+      "grasp_id": 0,
+      "object": "t0",
+      "ok": true,
+      "pushed": [],
+      "tried": 1,
+      "z_err": -0.00010839601177345393
+     }
+    ],
+    "witnesses": [
+     "d082538cf91bcd669e0d1fa7"
+    ],
+    "y": 1
+   },
+   {
+    "excess_actions": 1,
+    "failed_step": null,
+    "final_cells": {
+     "o00": [
+      2,
+      2
+     ],
+     "o01": [
+      5,
+      4
+     ],
+     "t0": [
+      4,
+      1
+     ]
+    },
+    "n_actions": 2,
+    "negative_kind": null,
+    "reason": "executed",
+    "role": "noop_irrelevant",
+    "sequence": [
+     [
+      "o00",
+      [
+       2,
+       2
+      ]
+     ]
+    ],
+    "steps": [
+     {
+      "azimuth": 180.0,
+      "dest": [
+       2,
+       2
+      ],
+      "end_cell": [
+       2,
+       2
+      ],
+      "grasp_id": 16,
+      "object": "o00",
+      "ok": true,
+      "pushed": [],
+      "tried": 17,
+      "z_err": -0.00010875120813531175
+     },
+     {
+      "azimuth": 112.5,
+      "dest": [
+       4,
+       1
+      ],
+      "end_cell": [
+       4,
+       1
+      ],
+      "grasp_id": 7,
+      "object": "t0",
+      "ok": true,
+      "pushed": [],
+      "tried": 8,
+      "z_err": -0.0001086335586898135
+     }
+    ],
+    "witnesses": [
+     "dea7ba37bb3e43d08bc8772a",
+     "a3101c0fde5e425de4b89adb"
+    ],
+    "y": 1
+   }
+  ],
+  "D": [
+   {
+    "azimuth": 202.5,
+    "edit": {
+     "o00": [
+      2,
+      2
+     ]
+    },
+    "grasp_id": 0,
+    "negative_kind": null,
+    "query_kind": "SCENE_TARGET_ONLY",
+    "reason": "grasp 0",
+    "tried": 1,
+    "witness": "802f459c1f9e60c580aa2f71",
+    "y": 1
+   },
+   {
+    "azimuth": 202.5,
+    "edit": {
+     "o01": [
+      2,
+      5
+     ]
+    },
+    "grasp_id": 0,
+    "negative_kind": null,
+    "query_kind": "SCENE_TARGET_ONLY",
+    "reason": "grasp 0",
+    "tried": 1,
+    "witness": "f5080fc616ec1e8ceb39a9e1",
+    "y": 1
+   }
+  ],
+  "blocker": {
+   "blocker_supervision_valid": false,
+   "clearing_sets_reachable": {},
+   "full_lattice": false,
+   "mask": null,
+   "minimal_sets": [
+    [
+     "o00"
+    ],
+    [
+     "o01"
+    ]
+   ],
+   "relocation_queries": {
+    "feasible": 0,
+    "queries": 0
+   },
+   "scope": [
+    "o00",
+    "o01"
+   ],
+   "sequence_tries": 0,
+   "why_invalid": "FEASIBLE_ORIGINAL"
+  },
+  "edits_evaluated": 2,
+  "original": {
+   "azimuth": 202.5,
+   "grasp_id": 0,
+   "negative_kind": null,
+   "reason": "grasp 0",
+   "tried": 1,
+   "witness": "d082538cf91bcd669e0d1fa7",
+   "y": 1
+  }
+ },
+ "ledger_observed": "0",
+ "mechanism_pools": {
+  "grasp": [
+   [
+    4,
+    5
+   ],
+   [
+    3,
+    5
+   ],
+   [
+    3,
+    4
+   ],
+   [
+    3,
+    3
+   ],
+   [
+    2,
+    4
+   ],
+   [
+    2,
+    3
+   ],
+   [
+    4,
+    3
+   ],
+   [
+    5,
+    3
+   ],
+   [
+    5,
+    4
+   ],
+   [
+    5,
+    5
+   ]
+  ],
+  "place": [
+   [
+    4,
+    2
+   ],
+   [
+    3,
+    2
+   ],
+   [
+    3,
+    1
+   ],
+   [
+    3,
+    0
+   ],
+   [
+    3,
+    3
+   ],
+   [
+    2,
+    1
+   ],
+   [
+    2,
+    0
+   ],
+   [
+    4,
+    0
+   ],
+   [
+    5,
+    0
+   ],
+   [
+    5,
+    1
+   ],
+   [
+    5,
+    2
+   ]
+  ],
+  "transfer": [
+   [
+    4,
+    3
+   ],
+   [
+    4,
+    2
+   ],
+   [
+    5,
+    3
+   ],
+   [
+    3,
+    3
+   ],
+   [
+    5,
+    2
+   ],
+   [
+    3,
+    2
+   ]
+  ]
+ },
+ "n_movable": 2,
+ "objects": [
+  {
+   "color": "green",
+   "height": 0.13076845182355873,
+   "id": "t0",
+   "shape": "cylinder",
+   "size": 0.01803076147208524
+  },
+  {
+   "color": "red",
+   "height": 0.06569528773763324,
+   "id": "o00",
+   "shape": "cylinder",
+   "size": 0.01389077325450057
+  },
+  {
+   "color": "blue",
+   "height": 0.1256487719060631,
+   "id": "o01",
+   "shape": "box",
+   "size": 0.013831509932181713
+  }
+ ],
+ "observed": 0,
+ "parking": {
+  "o00": [
+   [
+    2,
+    2
+   ],
+   [
+    2,
+    5
+   ],
+   [
+    1,
+    0
+   ]
+  ],
+  "o01": [
+   [
+    2,
+    5
+   ],
+   [
+    1,
+    0
+   ],
+   [
+    1,
+    1
+   ]
+  ]
+ },
+ "reteach": {
+  "from_config_hash": "2c61fe5f5032e98d",
+  "from_generator_version": "BD_GEN_V1+ROUTE_V15+SHELF66V2",
+  "from_ledger_observed": "0",
+  "from_observed": "0",
+  "from_teacher_version": "BD3DS66_TEACHER_V1:shelf_scene[confined].plan_pick_place(first feasible level grasp, RRT max_iters=5000, no wall-clock)+MuJoCo run_plan, moves chained (no return to the ready pose between them)",
+  "from_verified_K": 0
+ },
+ "roles": {
+  "o00": "distractor:near_path",
+  "o01": "distractor:near_path"
+ },
+ "source_files": {
+  "rrt_connect.py": "01972f63842d",
+  "rrt_star.py": "bc46b48d5e68",
+  "shelf_scene.py": "440ac53766f8"
+ },
+ "spec": {
+  "K": 0,
+  "displacement": "medium",
+  "distractor_role": "near_path",
+  "distractors": "1-2",
+  "mechanism": "grasp",
+  "parking": "multiple",
+  "source": "far",
+  "start_pose": "home"
+ },
+ "target_src": [
+  4,
+  4
+ ],
+ "teacher_calls": {
+  "execute": 3,
+  "plan": 3
+ },
+ "teacher_wall_s": 19.85833501815796,
+ "verified_K": 0
+}

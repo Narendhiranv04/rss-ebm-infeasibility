@@ -7,6 +7,7 @@ This is the shelf scene used by the shelf datasets in this folder. It has one sh
 ```
 shelf_6x6_open_sides/
   README.md                           this file
+  requirements.txt                    Python dependencies (mujoco, numpy)
   scene/
     shelf_scene.py                    the environment: scene, grasp set, planner, MuJoCo execution (XArm7TableEnv)
     xarm7_cabinet_env.py              robot constants, model path (XARM7_XML), IK helpers
@@ -16,7 +17,7 @@ shelf_6x6_open_sides/
                                       the 2,500-scene class-quota dataset on this shelf, with its code (see its README)
 ```
 
-The robot model is in the repository, so nothing else needs to be downloaded. To use a different copy of the model, set `XARM7_XML` to the path of its `xarm7.xml`. Requirements: Python 3.10, `mujoco==3.16.0`, `numpy==2.2.6`.
+The robot model is in the repository, so nothing else needs to be downloaded. To use a different copy of the model, set `XARM7_XML` to the path of its `xarm7.xml`. Requirements: Python 3.10, `mujoco==3.16.0`, `numpy==2.2.6` (`pip install -r requirements.txt`).
 
 ## Geometry
 
@@ -35,6 +36,7 @@ The robot model is in the repository, so nothing else needs to be downloaded. To
 - **No overpass:** every object except the one being moved stands in a vertical column (its footprint, 1.2 m high). No part of the arm, the hand or the held object may enter another object's column, so the arm goes around obstacles, never over them. A free move may start inside a column the arm is already in, and leave it.
 - **Arm ceiling:** over the shelf, no part of the arm or hand may be higher than the tallest object's top + 10 cm. The held object is exempt.
 - **No return to the ready pose:** after putting an object down, the arm backs off and goes straight to its next pick. Only the first move of a scene starts at the ready pose.
+- **Fingers pre-shaped (SHELF66V3, 5 Nov 2026):** before every pick the fingers open to the object's width + 1.2 cm, and every collision check uses the fingers at that opening. Before this fix the checks used the fingers as they happened to be, fully open (about 8.5 cm) at the start of a scene, which made feasible grasps look infeasible.
 - **Clearances:** 3 mm to the shelf, 5 mm to other objects, and 2 cm in the middle of free (joint-space) moves. Plans are checked against the shelf structure, all objects and the arm itself.
 
 ## Objects

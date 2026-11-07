@@ -130,6 +130,12 @@ CARRY_LIFT = 0.025                   # sideways-only: the object is lifted just 
 CARRY_GAP = 0.006                   # footprint clearance to other objects while carrying (m)
 FOOTPRINT_GAP = 0.008               # minimum clearance between objects when placed (m)
 FINGER_CLEARANCE = 0.006            # per-side opening beyond the object width when pre-shaping (m)
+# SHELF66V3 (2026-11-05): the planner checks the fingers PRE-SHAPED (the grasp's open_width), and every pick pre-shapes them before
+# its first motion.  Before, the checks used the fingers as they happened to be: FULLY open (~8.5 cm) right after reset(), so every
+# plan made at the start of a scene (the teacher's original query, its edits, its relocation checks) saw a hand several cm too wide
+# and called feasible moves infeasible (2,500-run audit: 16 of 30 NONE and 5 of 20 K1 were in fact K0).
+GRIP_JOINTS = ("left_driver_joint", "left_finger_joint", "left_inner_knuckle_joint",
+               "right_driver_joint", "right_finger_joint", "right_inner_knuckle_joint")
 GRASP_AT = "middle,top"     # 6x6 shelf: pads at mid-height first; near the top (GRASP_TOP_MARGIN) where mid-height has no plan
 GRASP_TOP_MARGIN = 0.012            # pads grip the TOP of the object: pad centre = top - this (m).  Keeps the
                                     # wide gripper body above neighbours; min pad centre is 1.5 cm above the table
@@ -529,6 +535,8 @@ class XArm7TableEnv:
         self.jrange = np.clip(np.array([m.jnt_range[m.joint(j).id] for j in ARM_JOINTS]), -3.1, 3.1)
         self.act_arm = [m.actuator(f"act{i}").id for i in range(1, 8)]
         self.act_grip = m.actuator("gripper").id
+        self.grip_qadr = np.array([m.joint(j).qposadr[0] for j in GRIP_JOINTS])
+        self._check_width = None                               # SHELF66V3: pad gap the checks put the fingers at (None: as they are)
         self.site_id = m.site("grasp").id
         self.obj_qadr = [m.joint(o["name"] + "_free").qposadr[0] for o in self.objects]
         self.ik_data = mujoco.MjData(m)
@@ -720,6 +728,8 @@ class XArm7TableEnv:
         m, d = self.model, self.ik_data
         d.qpos[:] = self.data.qpos
         d.qpos[self.qadr] = q
+        if self._check_width is not None:                              # SHELF66V3: the fingers as the plan will have them
+            d.qpos[self.grip_qadr] = self._finger_q(self._check_width)
         for j, c in enumerate(self._col_ids):                          # the columns stand where the objects are now
             m.geom_pos[c, :2] = self.obj_pos(j)[:2]
         mujoco.mj_kinematics(m, d)
@@ -763,17 +773,23 @@ class XArm7TableEnv:
         pad_t = 2 * m.geom_size[l][1]
         d.qpos[:] = self.data.qpos
         d.ctrl[self.act_arm] = self.q_ready
-        ctrls, gaps = np.linspace(GRIPPER_OPEN, GRIPPER_CLOSED, 9), []
+        ctrls, gaps, fq = np.linspace(GRIPPER_OPEN, GRIPPER_CLOSED, 9), [], []
         for c in ctrls:
             d.ctrl[self.act_grip] = c
             for _ in range(500):
                 mujoco.mj_step(m, d)
             gaps.append(np.linalg.norm(d.geom_xpos[l] - d.geom_xpos[r]) - pad_t)
+            fq.append(d.qpos[self.grip_qadr].copy())               # SHELF66V3: the finger joints at this opening
         order = np.argsort(gaps)
-        self._grip_cal = (np.array(gaps)[order], ctrls[order])
+        self._grip_cal = (np.array(gaps)[order], ctrls[order], np.array(fq)[order])
+
+    def _finger_q(self, width):
+        """SHELF66V3: the gripper's joint positions at pad gap `width` (from the calibration)."""
+        gaps, _, fq = self._grip_cal
+        return np.array([np.interp(width, gaps, fq[:, k]) for k in range(fq.shape[1])])
 
     def set_gripper_width(self, width):
-        gaps, ctrls = self._grip_cal
+        gaps, ctrls = self._grip_cal[:2]
         self.data.ctrl[self.act_grip] = float(np.interp(width, gaps, ctrls))
 
     def set_gripper(self, open_):
@@ -1108,9 +1124,11 @@ class XArm7TableEnv:
             back = self.chain(cands[branch], pg, [pre], R)            # grasp -> hover
             q_pre, ch = back[-1], back[::-1]                          # hover -> grasp
         direct = self._direct_to_hover(q0, pre, R) if DIRECT_MOVES else None
-        segs = [dict(phase="to_hover", kind="cart", q=direct) if direct is not None
-                else dict(phase="to_hover", kind="joint", q=self.plan_free_move(q0, q_pre, seed)),
-                dict(phase="open", kind="grip", grip=g["open_width"])]
+        # SHELF66V3: the fingers are pre-shaped FIRST, where the arm is, and stay so until the grasp (before: only at the hover pose,
+        # so the move there ran with whatever opening the fingers had -- fully open after a reset); the checks assume it (_check_width)
+        segs = [dict(phase="open", kind="grip", grip=g["open_width"]),
+                dict(phase="to_hover", kind="cart", q=direct) if direct is not None
+                else dict(phase="to_hover", kind="joint", q=self.plan_free_move(q0, q_pre, seed))]
         segs.append(dict(phase="approach", kind="cart", q=ch))
         return segs, ch[-1]
 
@@ -1183,27 +1201,31 @@ class XArm7TableEnv:
                     grasp_id=grasp["id"], carry_xy=None)
         first_reason = ""
         at_ready = np.max(np.abs(q0 - self.q_ready)) < 1e-6
-        for branch in range(self.n_branches):                  # the next IK branch if this one fails
-            if self.static_ck is None and branch > 0 and at_ready:
-                break                                          # open scenes: from the ready pose both branches are one
-            segs = plan["segments"] = []
-            try:
-                s1, q_g = self._plan_approach(grasp, q0, seed, branch)
-                segs += s1
-                segs.append(dict(phase="close", kind="grip", grip=None))
-                s2, q_put, put, xy = self._plan_carry(name, goal_cell, grasp, q_g, seed)
-                plan["carry_xy"] = xy
-                segs += s2
-                segs.append(dict(phase="release", kind="grip", grip=grasp["open_width"]))
-                segs += self._plan_retreat(grasp, q_put, put, seed)
-                plan.update(feasible=True, branch=branch, reason="")
-                break
-            except (RuntimeError, ValueError) as err:
-                first_reason = first_reason or str(err)
-                plan["reason"] = first_reason
-                if isinstance(err, ReachError) or ("out of reach" in str(err) and at_ready):
-                    break                                          # another IK branch cannot fix this (from the ready
-                    # pose; from elsewhere the branches come in another order, nearest the arm first: all are tried)
+        self._check_width = grasp["open_width"]                # SHELF66V3: every check sees the fingers pre-shaped (see GRIP_JOINTS)
+        try:
+            for branch in range(self.n_branches):                  # the next IK branch if this one fails
+                if self.static_ck is None and branch > 0 and at_ready:
+                    break                                          # open scenes: from the ready pose both branches are one
+                segs = plan["segments"] = []
+                try:
+                    s1, q_g = self._plan_approach(grasp, q0, seed, branch)
+                    segs += s1
+                    segs.append(dict(phase="close", kind="grip", grip=None))
+                    s2, q_put, put, xy = self._plan_carry(name, goal_cell, grasp, q_g, seed)
+                    plan["carry_xy"] = xy
+                    segs += s2
+                    segs.append(dict(phase="release", kind="grip", grip=grasp["open_width"]))
+                    segs += self._plan_retreat(grasp, q_put, put, seed)
+                    plan.update(feasible=True, branch=branch, reason="")
+                    break
+                except (RuntimeError, ValueError) as err:
+                    first_reason = first_reason or str(err)
+                    plan["reason"] = first_reason
+                    if isinstance(err, ReachError) or ("out of reach" in str(err) and at_ready):
+                        break                                          # another IK branch cannot fix this (from the ready
+                        # pose; from elsewhere the branches come in another order, nearest the arm first: all are tried)
+        finally:
+            self._check_width = None
         return plan
 
     # -- executing plans in the simulator
