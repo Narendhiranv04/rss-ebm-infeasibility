@@ -1,0 +1,38 @@
+{
+ "backup": {
+  "confirmed_durable_offhost_destination": null,
+  "laptop_mirror": {
+   "kind": "off-host copy pulled and hash-verified by the relay; the laptop is not a confirmed durable store",
+   "path": "/home/naren/Desktop/shelf66v3_offhost_mirror"
+  },
+  "local_second_disk": {
+   "kind": "gvlab /ssd_scratch (sda1), run disk is sdb3; shared scratch, not durable",
+   "path": "/ssd_scratch/nav_shelf66v3_backup",
+   "writable": true
+  },
+  "state": "OFFHOST_BACKUP_BLOCKED",
+  "why": "no durable off-host destination has been designated by the user; not invented. Interim: second-disk copy + laptop mirror."
+ },
+ "observed_2d": {
+  "host": "pop-os",
+  "job": "2D_Q2",
+  "ledger_lines": 0,
+  "note": "observed read-only; the 2D job is independent of the 3D v4 job and is never touched by this service",
+  "processes": [],
+  "run_dir": "/home/naren/Desktop/rss-placement-ready-v2/gh-yadu-iiith/planar_2d/dataset_relocations_v1/full_2d_v2",
+  "run_dir_exists": false,
+  "state": "NOT_STARTED",
+  "utc": "2026-11-07T13:54:42Z"
+ },
+ "service": {
+  "gvlab_cron_installed": false,
+  "implemented": "code/status4.py snapshot | backup | relay",
+  "laptop_cron_installed": false,
+  "last_telemetry_commit": "197508b28e8efc83a3223e3984c035f5869ab5b8 telemetry 2026-11-07T13:54:38Z: 3D v4 NOT_STARTED, 2D Q2 NOT_STARTED (2 snapshots)",
+  "state": "IMPLEMENTED_AND_CYCLE_VERIFIED__SCHEDULER_NOT_INSTALLED",
+  "telemetry_branch": "naren/3d-dataset-relocations-telemetry",
+  "telemetry_commits": 2,
+  "why_not_scheduled": "installing the two cron entries (V4_RUNBOOK.md section 3) was refused by this session's permission policy as persistence; it needs the user's explicit go-ahead"
+ },
+ "utc": "2026-11-07T13:54:42Z"
+}

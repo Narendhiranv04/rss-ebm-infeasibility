@@ -1,0 +1,303 @@
+{
+ "authorization": "a v3 authorization or token cannot start v4 (version, roster, code and hashes differ); see production_v4/V4_RUNBOOK.md section 4",
+ "blockers": [
+  "github"
+ ],
+ "decision": {
+  "2D_Q2_CURRENT_STATE": "NOT_STARTED",
+  "3D_PHYSICAL_INTEGRATION": "PASS",
+  "3D_Q2_PARITY_ROSTER": "PASS",
+  "3D_V3_BASE_REUSE": "none: no v3 label was collected",
+  "3D_V3_CURRENT_STATE": "not_started",
+  "3D_V4": "NOT_READY",
+  "3D_V4_COLLECTION": "NOT_STARTED",
+  "OFFHOST_BACKUP": "OFFHOST_BACKUP_BLOCKED",
+  "PRODUCTION_GUARDS": "PASS",
+  "SOURCE_QC": "PASS",
+  "SPLIT_LEAKAGE": "PASS",
+  "STATUS_SERVICE": "IMPLEMENTED_AND_CYCLE_VERIFIED__SCHEDULER_NOT_INSTALLED",
+  "WITNESS_REPLAY": "PASS"
+ },
+ "evidence": {
+  "forecast": {
+   "buffer_rule": "1.5 x max(bootstrap p95, point x the largest held-out measured/predicted ratio)",
+   "cpu_hours": 165.36,
+   "cpu_hours_p05_p95": [
+    153.44,
+    181.5
+   ],
+   "disk_free_gb_now": 61.3,
+   "disk_gb": 2.569,
+   "disk_gb_buffered": 3.854,
+   "held_out_timing_checks": {
+    "first_cohort_train_sample_144 (unit=query: no IK cache sharing)": {
+     "measured_cpu_s": 1834.5,
+     "measured_over_predicted": 1.425,
+     "predicted_cpu_s": 1287.1,
+     "queries": 144
+    },
+    "v3_integration_smoke_12 (unit=root, production mode)": {
+     "measured_cpu_s": 144.9,
+     "measured_over_predicted": 1.289,
+     "predicted_cpu_s": 112.4,
+     "queries": 12
+    },
+    "v4_integration_smoke_32 (unit=root, production mode)": {
+     "measured_cpu_s": 279.0,
+     "measured_over_predicted": 1.005,
+     "predicted_cpu_s": 277.5,
+     "queries": 32
+    }
+   },
+   "production_queries": 59972,
+   "scenarios_wall_hours": {
+    "base": 15.64,
+    "conservative_p95": 17.17,
+    "held_out_calibrated": 22.29,
+    "optimistic_p05": 14.51
+   },
+   "wall_hours_buffered": 33.43,
+   "wall_hours_expected": 15.64
+  },
+  "github": null,
+  "guards": {
+   "preflight": {
+    "physical_queries": 59972,
+    "planner_calls": 0,
+    "refusals_other_than_authorization": [],
+    "run_dir_created": false,
+    "teacher_entry_calls": 0
+   },
+   "pytest_v2": "25 passed in 431.96s (0:07:11)",
+   "pytest_v4": "12 passed in 70.85s (0:01:10)",
+   "teacher_protocol": "89cbabed5d7e4847",
+   "template_refusals_other_than_authorization_now": [],
+   "template_unauthorized": true,
+   "template_version": "SHELF66V3_PLACE_PRODUCTION_V4_Q2_PARITY"
+  },
+  "integration": {
+   "B_equals_A": {
+    "equal": true,
+    "mismatches": [],
+    "queries": 32
+   },
+   "cpu_s_per_query_A": 8.72,
+   "labels_by_band_A": {
+    "far:1": 3,
+    "mid:0": 1,
+    "mid:1": 3,
+    "near:0": 6,
+    "near:1": 10,
+    "near:None": 1,
+    "vacated:1": 5,
+    "vacated:None": 3
+   },
+   "labels_by_block_A": {
+    "prefix1:1:VERIFIED": 2,
+    "prefix1:None:UNLABELED_NO_VALID_POST_GRASP_STATE": 2,
+    "prefix2:0:DETERMINISTIC_PLAN": 1,
+    "prefix2:1:VERIFIED": 3,
+    "prefix3:1:VERIFIED": 6,
+    "prefix3:None:UNLABELED_NO_VALID_POST_GRASP_STATE": 2,
+    "root:0:BOUNDED_SEARCH": 2,
+    "root:0:CERTIFIED_GEOMETRY": 2,
+    "root:0:DETERMINISTIC_PLAN": 2,
+    "root:1:VERIFIED": 10
+   },
+   "marked_A": {
+    "manifest_mode": "INTEGRATION_TEST",
+    "marker": "Integration test of the v4 production path (<= 32 TRAIN queries of the Q2_3D_PARITY_V1 roster). Never part of the dataset."
+   },
+   "monitor_A": {
+    "affinity_union": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "max_cpu_pct_sum": 401.4,
+    "max_temp_c": 38.0,
+    "min_mem_avail_gb": 59.0,
+    "sensor": "/sys/class/hwmon/hwmon3/temp1_input (coretemp)",
+    "ticks": 36,
+    "unexpected_descendants": 0,
+    "violations": []
+   },
+   "monitor_B": {
+    "affinity_union": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "max_cpu_pct_sum": 401.4,
+    "max_temp_c": 39.0,
+    "min_mem_avail_gb": 58.9,
+    "sensor": "/sys/class/hwmon/hwmon3/temp1_input (coretemp)",
+    "ticks": 71,
+    "unexpected_descendants": 0,
+    "violations": []
+   },
+   "semantics_problems_A": 0,
+   "smoke_A": {
+    "end": "{\"event\": \"end\", \"mode\": \"INTEGRATION_TEST\", \"t\": 1794058572.5151777, \"wall_s\": 74.11781692504883, \"units_done_now\": 4, \"complete\": true, \"safety_stop\": null}",
+    "rc": 0,
+    "wall_s": 76.1
+   },
+   "smoke_B_interrupt": {
+    "damaged_npz_unit": "3ds66-srv3-w0070-s012",
+    "descendants_alive_3s_after_kill": [],
+    "descendants_before_kill": 5,
+    "lock_held_after_kill": null,
+    "npz_bytes_before_after": [
+     153062,
+     76531
+    ],
+    "torn_ledger_line_appended": true,
+    "units_done_before_kill": 1,
+    "units_total": 4
+   },
+   "smoke_B_resume": {
+    "damaged_unit_quarantined_and_recomputed": true,
+    "ledger_units_failed": {
+     "3ds66-srv3-w0070-s012": "npz_sha_mismatch"
+    },
+    "quarantined_files": [
+     "3ds66-srv3-w0070-s002.json",
+     "3ds66-srv3-w0070-s002.npz",
+     "3ds66-srv3-w0070-s012.json",
+     "3ds66-srv3-w0070-s012.npz"
+    ],
+    "rc": 0,
+    "recomputed_units": 4,
+    "resumed_units": 0,
+    "torn_line_terminated_and_ignored": true
+   }
+  },
+  "offhost_backup": {
+   "confirmed_durable_offhost_destination": null,
+   "laptop_mirror": {
+    "kind": "off-host copy pulled and hash-verified by the relay; the laptop is not a confirmed durable store",
+    "path": "/home/naren/Desktop/shelf66v3_offhost_mirror"
+   },
+   "local_second_disk": {
+    "kind": "gvlab /ssd_scratch (sda1), run disk is sdb3; shared scratch, not durable",
+    "path": "/ssd_scratch/nav_shelf66v3_backup",
+    "writable": true
+   },
+   "state": "OFFHOST_BACKUP_BLOCKED",
+   "why": "no durable off-host destination has been designated by the user; not invented. Interim: second-disk copy + laptop mirror."
+  },
+  "replay": {
+   "A": {
+    "failures": [],
+    "max_q_exec_diff": 0,
+    "replayed": 21,
+    "verified": 21
+   },
+   "B": {
+    "failures": [],
+    "replayed": 21,
+    "verified": 21
+   }
+  },
+  "roster": {
+   "by_K": {
+    "0": 13680,
+    "1": 11916,
+    "2": 15620,
+    "3": 18756
+   },
+   "by_band": {
+    "far": 12604,
+    "mid": 20370,
+    "near": 23390,
+    "vacated": 3608
+   },
+   "by_block": {
+    "prefix1": 9224,
+    "prefix2": 9224,
+    "prefix3": 6460,
+    "root": 35064
+   },
+   "by_shape": {
+    "box": 28616,
+    "cylinder": 31356
+   },
+   "by_split": {
+    "test": 8608,
+    "train": 42612,
+    "val": 8752
+   },
+   "gates": {
+    "bands_present_per_split_and_depth": true,
+    "blocks_present_where_representable": true,
+    "count_reconciles": true,
+    "destinations_legal_in_own_scene": true,
+    "edit_states_valid": true,
+    "physical_semantic_keys_unique": true,
+    "scene_layouts_single_split": true,
+    "semantic_keys_single_split": true,
+    "split_inherited_unchanged": true
+   },
+   "physical_queries": 59972,
+   "regenerated_equal_in_preflight": true,
+   "static": 4616,
+   "theoretical": 59972
+  },
+  "source_qc": {
+   "manifest_hashes_match": true,
+   "roster_roots_not_eligible": [],
+   "v3_files_unchanged": {
+    "QC_ELIGIBLE_ROOTS.json": true,
+    "frozen/source_pin_first_cohort.json": true,
+    "frozen/split_manifest_first_cohort.json": true
+   }
+  },
+  "status_service": {
+   "gvlab_cron_installed": false,
+   "implemented": "code/status4.py snapshot | backup | relay",
+   "laptop_cron_installed": false,
+   "last_telemetry_commit": "197508b28e8efc83a3223e3984c035f5869ab5b8 telemetry 2026-11-07T13:54:38Z: 3D v4 NOT_STARTED, 2D Q2 NOT_STARTED (2 snapshots)",
+   "state": "IMPLEMENTED_AND_CYCLE_VERIFIED__SCHEDULER_NOT_INSTALLED",
+   "telemetry_branch": "naren/3d-dataset-relocations-telemetry",
+   "telemetry_commits": 2,
+   "why_not_scheduled": "installing the two cron entries (V4_RUNBOOK.md section 3) was refused by this session's permission policy as persistence; it needs the user's explicit go-ahead"
+  }
+ },
+ "gates": {
+  "forecast_storage": true,
+  "github": false,
+  "physical_integration": true,
+  "production_guards": true,
+  "roster": true,
+  "source_qc": true,
+  "split_leakage": true,
+  "witness_replay": true
+ },
+ "workload": {
+  "buffered_wall_h": 33.43,
+  "cpus": "0-11",
+  "disk_gb_buffered": 3.854,
+  "expected_wall_h": 15.64,
+  "physical_queries": 59972,
+  "policy": "adaptive_v1",
+  "roots": 1466,
+  "stages": [
+   [
+    4,
+    500
+   ],
+   [
+    8,
+    1500
+   ],
+   [
+    16,
+    5000
+   ]
+  ],
+  "static_contrasts": 4616,
+  "workers": 12
+ }
+}

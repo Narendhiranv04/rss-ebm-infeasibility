@@ -1,0 +1,187 @@
+{
+ "started_utc": "2026-11-07T13:34:55Z",
+ "smoke_A": {
+  "rc": 0,
+  "end": "{\"event\": \"end\", \"mode\": \"INTEGRATION_TEST\", \"t\": 1794058572.5151777, \"wall_s\": 74.11781692504883, \"units_done_now\": 4, \"complete\": true, \"safety_stop\": null}",
+  "wall_s": 76.1
+ },
+ "smoke_B_interrupt": {
+  "units_total": 4,
+  "units_done_before_kill": 1,
+  "descendants_before_kill": 5,
+  "descendants_alive_3s_after_kill": [],
+  "lock_held_after_kill": null,
+  "damaged_npz_unit": "3ds66-srv3-w0070-s012",
+  "npz_bytes_before_after": [
+   153062,
+   76531
+  ],
+  "torn_ledger_line_appended": true
+ },
+ "smoke_B_resume": {
+  "rc": 0,
+  "resumed_units": 0,
+  "recomputed_units": 4,
+  "quarantined_files": [
+   "3ds66-srv3-w0070-s002.json",
+   "3ds66-srv3-w0070-s002.npz",
+   "3ds66-srv3-w0070-s012.json",
+   "3ds66-srv3-w0070-s012.npz"
+  ],
+  "ledger_units_failed": {
+   "3ds66-srv3-w0070-s012": "npz_sha_mismatch"
+  },
+  "damaged_unit_quarantined_and_recomputed": true,
+  "torn_line_terminated_and_ignored": true
+ },
+ "B_equals_A": {
+  "queries": 32,
+  "mismatches": [],
+  "equal": true
+ },
+ "replay_A": {
+  "run": "/home/nav/approachb3d_v3/repo/gh-yadu-iiith/shelf_6x6_open_sides/dataset_placement_extension_v2/production_v4/integration/smoke_A",
+  "replayed": 21,
+  "unique_witnesses": 21,
+  "verified": 21,
+  "missing_witnesses": [],
+  "failures": [],
+  "max_q_exec_diff": 0,
+  "max_obj_end_diff_m": 0,
+  "hold_identical": 21
+ },
+ "audit_A": {
+  "units": 4,
+  "validated": 4,
+  "missing_or_invalid": [],
+  "failures": {},
+  "stray_files": [],
+  "queries": 32,
+  "labels": {
+   "0:NEG_CERTIFIED_GEOMETRY:CERTIFIED_GEOMETRY": 2,
+   "0:NEG_UNDER_POLICY:BOUNDED_SEARCH": 2,
+   "0:NEG_UNDER_POLICY:DETERMINISTIC_PLAN": 3,
+   "1:VERIFIED:None": 21,
+   "None:UNLABELED_NO_VALID_POST_GRASP_STATE:None": 4
+  },
+  "witness_associations": 21,
+  "complete": true
+ },
+ "monitor_A": {
+  "ticks": 36,
+  "max_cpu_pct_sum": 401.4,
+  "max_temp_c": 38.0,
+  "affinity_union": [
+   0,
+   1,
+   2,
+   3
+  ],
+  "violations": [],
+  "min_mem_avail_gb": 59.0,
+  "unexpected_descendants": 0,
+  "sensor": "/sys/class/hwmon/hwmon3/temp1_input (coretemp)"
+ },
+ "marked_A": {
+  "marker": "Integration test of the v4 production path (<= 32 TRAIN queries of the Q2_3D_PARITY_V1 roster). Never part of the dataset.",
+  "manifest_mode": "INTEGRATION_TEST"
+ },
+ "replay_B": {
+  "run": "/home/nav/approachb3d_v3/repo/gh-yadu-iiith/shelf_6x6_open_sides/dataset_placement_extension_v2/production_v4/integration/smoke_B",
+  "replayed": 21,
+  "unique_witnesses": 21,
+  "verified": 21,
+  "missing_witnesses": [],
+  "failures": [],
+  "max_q_exec_diff": 0,
+  "max_obj_end_diff_m": 0,
+  "hold_identical": 21
+ },
+ "audit_B": {
+  "units": 4,
+  "validated": 4,
+  "missing_or_invalid": [],
+  "failures": {},
+  "stray_files": [],
+  "queries": 32,
+  "labels": {
+   "0:NEG_CERTIFIED_GEOMETRY:CERTIFIED_GEOMETRY": 2,
+   "0:NEG_UNDER_POLICY:BOUNDED_SEARCH": 2,
+   "0:NEG_UNDER_POLICY:DETERMINISTIC_PLAN": 3,
+   "1:VERIFIED:None": 21,
+   "None:UNLABELED_NO_VALID_POST_GRASP_STATE:None": 4
+  },
+  "witness_associations": 21,
+  "complete": true
+ },
+ "monitor_B": {
+  "ticks": 71,
+  "max_cpu_pct_sum": 401.4,
+  "max_temp_c": 39.0,
+  "affinity_union": [
+   0,
+   1,
+   2,
+   3
+  ],
+  "violations": [],
+  "min_mem_avail_gb": 58.9,
+  "unexpected_descendants": 0,
+  "sensor": "/sys/class/hwmon/hwmon3/temp1_input (coretemp)"
+ },
+ "marked_B": {
+  "marker": "Integration test of the v4 production path (<= 32 TRAIN queries of the Q2_3D_PARITY_V1 roster). Never part of the dataset.",
+  "manifest_mode": "INTEGRATION_TEST"
+ },
+ "labels_by_block_A": {
+  "prefix1:1:VERIFIED": 2,
+  "prefix1:None:UNLABELED_NO_VALID_POST_GRASP_STATE": 2,
+  "prefix2:0:DETERMINISTIC_PLAN": 1,
+  "prefix2:1:VERIFIED": 3,
+  "prefix3:1:VERIFIED": 6,
+  "prefix3:None:UNLABELED_NO_VALID_POST_GRASP_STATE": 2,
+  "root:0:BOUNDED_SEARCH": 2,
+  "root:0:CERTIFIED_GEOMETRY": 2,
+  "root:0:DETERMINISTIC_PLAN": 2,
+  "root:1:VERIFIED": 10
+ },
+ "labels_by_band_A": {
+  "far:1": 3,
+  "mid:0": 1,
+  "mid:1": 3,
+  "near:0": 6,
+  "near:1": 10,
+  "near:None": 1,
+  "vacated:1": 5,
+  "vacated:None": 3
+ },
+ "semantics_problems_A": 0,
+ "cpu_s_per_query_A": 8.72,
+ "production_preflight": {
+  "rc": 0,
+  "physical_queries": 59972,
+  "static_contrasts": 4616,
+  "units": 1466,
+  "by_split": {
+   "test": 8608,
+   "train": 42612,
+   "val": 8752
+  },
+  "by_block": {
+   "prefix1": 9224,
+   "prefix2": 9224,
+   "prefix3": 6460,
+   "root": 35064
+  },
+  "planner_calls": 0,
+  "teacher_entry_calls": 0,
+  "run_dir_created": false,
+  "refusals_other_than_authorization": [],
+  "authorization_refusals": [
+   "no recorded user authorization (authorization.authorized_by / authorized_utc / statement)"
+  ],
+  "roster_regenerated_equal": true,
+  "semantic_keys_unique": true
+ },
+ "finished_utc": "2026-11-07T13:39:20Z"
+}
