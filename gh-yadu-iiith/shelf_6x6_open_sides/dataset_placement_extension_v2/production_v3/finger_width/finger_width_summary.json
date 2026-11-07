@@ -1,0 +1,143 @@
+{
+ "alt_positive_replays": {
+  "cohort_alt": {
+   "failures": [],
+   "hold_identical": 98,
+   "replayed": 98,
+   "verified": 98
+  },
+  "mock_alt": {
+   "failures": [],
+   "hold_identical": 77,
+   "replayed": 77,
+   "verified": 77
+  }
+ },
+ "cohort_sample_comparison": {
+  "by_source_class": {
+   "0:BOUNDED_SEARCH": {
+    "label_changed": 0,
+    "n": 8
+   },
+   "0:CERTIFIED_GEOMETRY": {
+    "label_changed": 0,
+    "n": 20
+   },
+   "0:DETERMINISTIC_PLAN": {
+    "label_changed": 0,
+    "n": 8
+   },
+   "1:VERIFIED": {
+    "label_changed": 0,
+    "n": 98
+   },
+   "None:UNLABELED_NO_VALID_POST_GRASP_STATE": {
+    "label_changed": 0,
+    "n": 10
+   }
+  },
+  "changed_qids": {},
+  "compared": 144,
+  "label_changed": 0,
+  "transitions": {
+   "0:BOUNDED_SEARCH -> 0:BOUNDED_SEARCH": 8,
+   "0:CERTIFIED_GEOMETRY -> 0:CERTIFIED_GEOMETRY": 20,
+   "0:DETERMINISTIC_PLAN -> 0:DETERMINISTIC_PLAN": 8,
+   "1:VERIFIED -> 1:VERIFIED": 98,
+   "None:UNLABELED_NO_VALID_POST_GRASP_STATE -> None:UNLABELED_NO_VALID_POST_GRASP_STATE": 10
+  }
+ },
+ "cohort_sample_screen_affected": 31,
+ "complete": true,
+ "decision": "NO_PROTOCOL_CHANGE: the alternate pre-shaped structure check changed no label in the targeted mock set or the cohort sample; the frozen source-exact protocol stays the first-cohort protocol",
+ "harness_source_rerun_vs_mock_A": {
+  "compared": 194,
+  "identical_label_status_kind_rank_branch_witnesses": 194,
+  "mismatches": [],
+  "protocol_run_A": "89cbabed5d7e4847",
+  "protocol_source_rerun": "89cbabed5d7e4847"
+ },
+ "label_change_rate_wilson95": {
+  "cohort_sample": [
+   0.0,
+   0.026
+  ],
+  "targeted_mock_screen_affected": [
+   0.0,
+   0.0432
+  ]
+ },
+ "protocols": {
+  "alt_preshaped": "fb172ca477f267d3",
+  "source_exact": "89cbabed5d7e4847"
+ },
+ "static_cohort_sample": {
+  "pose_status_transitions": {
+   "HELD_INVALID->IK_INVALID": 8,
+   "HELD_INVALID->TO_CARRY_TEST": 1,
+   "IK_INVALID->HELD_INVALID": 20,
+   "IK_INVALID->TO_CARRY_TEST": 10
+  },
+  "poses": 4608,
+  "poses_candidates_differ": 53,
+  "queries": 144,
+  "queries_any_candidate_difference": 34,
+  "queries_any_pose_status_change": 31
+ },
+ "static_mock_v2": {
+  "pose_status_transitions": {
+   "HELD_INVALID->IK_INVALID": 27,
+   "IK_INVALID->HELD_INVALID": 48,
+   "IK_INVALID->TO_CARRY_TEST": 24,
+   "TO_CARRY_TEST->IK_INVALID": 4
+  },
+  "poses": 12960,
+  "poses_candidates_differ": 142,
+  "queries": 405,
+  "queries_any_candidate_difference": 93,
+  "queries_any_pose_status_change": 85
+ },
+ "targeted_comparison": {
+  "by_source_class": {
+   "0:BOUNDED_SEARCH": {
+    "label_changed": 0,
+    "n": 17
+   },
+   "0:CERTIFIED_GEOMETRY": {
+    "label_changed": 0,
+    "n": 57
+   },
+   "0:DETERMINISTIC_PLAN": {
+    "label_changed": 0,
+    "n": 10
+   },
+   "1:VERIFIED": {
+    "label_changed": 0,
+    "n": 77
+   },
+   "None:UNLABELED_NO_VALID_POST_GRASP_STATE": {
+    "label_changed": 0,
+    "n": 33
+   }
+  },
+  "changed_qids": {},
+  "compared": 194,
+  "label_changed": 0,
+  "transitions": {
+   "0:BOUNDED_SEARCH -> 0:BOUNDED_SEARCH": 17,
+   "0:CERTIFIED_GEOMETRY -> 0:CERTIFIED_GEOMETRY": 57,
+   "0:DETERMINISTIC_PLAN -> 0:BOUNDED_SEARCH": 1,
+   "0:DETERMINISTIC_PLAN -> 0:DETERMINISTIC_PLAN": 9,
+   "1:VERIFIED -> 1:VERIFIED": 77,
+   "None:UNLABELED_NO_VALID_POST_GRASP_STATE -> None:UNLABELED_NO_VALID_POST_GRASP_STATE": 33
+  }
+ },
+ "targeted_selection": {
+  "certified_negative": 57,
+  "control_unaffected": 24,
+  "rule": "targeted = queries with a static pose-class change under the alternate check + every certified-negative and unlabeled query of mock_v2 adaptive_v1_A + 12 positive and 12 policy-negative unaffected controls (hash-ranked)",
+  "screen_affected": 85,
+  "total": 194,
+  "unlabeled": 33
+ }
+}

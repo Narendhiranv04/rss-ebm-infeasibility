@@ -1,0 +1,435 @@
+{
+ "blockers": [
+  "github"
+ ],
+ "decision": {
+  "COHORT_QC": "FIRST_COHORT_QC_PASS",
+  "FIRST_COHORT": "NOT_READY",
+  "FULL_2500_SOURCE": "FULL_2500_SOURCE_INCOMPLETE",
+  "FULL_COLLECTION": "FULL_COLLECTION_NOT_STARTED",
+  "MOCK_V2": "MOCK_V2_PASS",
+  "PRODUCTION_SOFTWARE": "PASS",
+  "SNAPSHOT_INTEGRITY": "SOURCE_SNAPSHOT_INTEGRITY_PASS"
+ },
+ "evidence": {
+  "cohort_qc": {
+   "author_jobs": 535,
+   "cohort_roots": 1582,
+   "cohort_roots_not_eligible": [],
+   "exclusions_equal": true,
+   "first_grasp_equal": 530,
+   "rerun": 535,
+   "roster_roots_not_eligible": [],
+   "summary": {
+    "author_s_pass_objects_rechecked_under_scene_ceiling": {
+     "pass": 2353
+    },
+    "by_class_status": {
+     "K0": {
+      "AUTHOR_QC_PASS": 355,
+      "SIDECAR_REPRO_QC_PASS": 40,
+      "VACUOUS_PASS_NO_NON_TARGET": 116
+     },
+     "K1": {
+      "AUTHOR_QC_PASS": 354,
+      "SIDECAR_REPRO_QC_PASS": 3
+     },
+     "K2": {
+      "AUTHOR_QC_PASS": 251,
+      "SIDECAR_REPRO_QC_PASS": 106
+     },
+     "K3": {
+      "AUTHOR_QC_PASS": 44,
+      "SIDECAR_REPRO_QC_PASS": 313
+     }
+    },
+    "eligible_by_class": {
+     "K0": 511,
+     "K1": 357,
+     "K2": 357,
+     "K3": 357
+    },
+    "eligible_total": 1582,
+    "objects_checked_here": 4759,
+    "objects_failing_here": 0,
+    "roots": 1582
+   },
+   "tool_pinned": true,
+   "verdict_equal": 535
+  },
+  "finger_width": {
+   "alt_positive_replays": {
+    "cohort_alt": {
+     "failures": [],
+     "hold_identical": 98,
+     "replayed": 98,
+     "verified": 98
+    },
+    "mock_alt": {
+     "failures": [],
+     "hold_identical": 77,
+     "replayed": 77,
+     "verified": 77
+    }
+   },
+   "cohort_sample_comparison": {
+    "by_source_class": {
+     "0:BOUNDED_SEARCH": {
+      "label_changed": 0,
+      "n": 8
+     },
+     "0:CERTIFIED_GEOMETRY": {
+      "label_changed": 0,
+      "n": 20
+     },
+     "0:DETERMINISTIC_PLAN": {
+      "label_changed": 0,
+      "n": 8
+     },
+     "1:VERIFIED": {
+      "label_changed": 0,
+      "n": 98
+     },
+     "None:UNLABELED_NO_VALID_POST_GRASP_STATE": {
+      "label_changed": 0,
+      "n": 10
+     }
+    },
+    "changed_qids": {},
+    "compared": 144,
+    "label_changed": 0,
+    "transitions": {
+     "0:BOUNDED_SEARCH -> 0:BOUNDED_SEARCH": 8,
+     "0:CERTIFIED_GEOMETRY -> 0:CERTIFIED_GEOMETRY": 20,
+     "0:DETERMINISTIC_PLAN -> 0:DETERMINISTIC_PLAN": 8,
+     "1:VERIFIED -> 1:VERIFIED": 98,
+     "None:UNLABELED_NO_VALID_POST_GRASP_STATE -> None:UNLABELED_NO_VALID_POST_GRASP_STATE": 10
+    }
+   },
+   "cohort_sample_screen_affected": 31,
+   "complete": true,
+   "decision": "NO_PROTOCOL_CHANGE: the alternate pre-shaped structure check changed no label in the targeted mock set or the cohort sample; the frozen source-exact protocol stays the first-cohort protocol",
+   "harness_source_rerun_vs_mock_A": {
+    "compared": 194,
+    "identical_label_status_kind_rank_branch_witnesses": 194,
+    "mismatches": [],
+    "protocol_run_A": "89cbabed5d7e4847",
+    "protocol_source_rerun": "89cbabed5d7e4847"
+   },
+   "label_change_rate_wilson95": {
+    "cohort_sample": [
+     0.0,
+     0.026
+    ],
+    "targeted_mock_screen_affected": [
+     0.0,
+     0.0432
+    ]
+   },
+   "protocols": {
+    "alt_preshaped": "fb172ca477f267d3",
+    "source_exact": "89cbabed5d7e4847"
+   },
+   "static_cohort_sample": {
+    "pose_status_transitions": {
+     "HELD_INVALID->IK_INVALID": 8,
+     "HELD_INVALID->TO_CARRY_TEST": 1,
+     "IK_INVALID->HELD_INVALID": 20,
+     "IK_INVALID->TO_CARRY_TEST": 10
+    },
+    "poses": 4608,
+    "poses_candidates_differ": 53,
+    "queries": 144,
+    "queries_any_candidate_difference": 34,
+    "queries_any_pose_status_change": 31
+   },
+   "static_mock_v2": {
+    "pose_status_transitions": {
+     "HELD_INVALID->IK_INVALID": 27,
+     "IK_INVALID->HELD_INVALID": 48,
+     "IK_INVALID->TO_CARRY_TEST": 24,
+     "TO_CARRY_TEST->IK_INVALID": 4
+    },
+    "poses": 12960,
+    "poses_candidates_differ": 142,
+    "queries": 405,
+    "queries_any_candidate_difference": 93,
+    "queries_any_pose_status_change": 85
+   },
+   "targeted_comparison": {
+    "by_source_class": {
+     "0:BOUNDED_SEARCH": {
+      "label_changed": 0,
+      "n": 17
+     },
+     "0:CERTIFIED_GEOMETRY": {
+      "label_changed": 0,
+      "n": 57
+     },
+     "0:DETERMINISTIC_PLAN": {
+      "label_changed": 0,
+      "n": 10
+     },
+     "1:VERIFIED": {
+      "label_changed": 0,
+      "n": 77
+     },
+     "None:UNLABELED_NO_VALID_POST_GRASP_STATE": {
+      "label_changed": 0,
+      "n": 33
+     }
+    },
+    "changed_qids": {},
+    "compared": 194,
+    "label_changed": 0,
+    "transitions": {
+     "0:BOUNDED_SEARCH -> 0:BOUNDED_SEARCH": 17,
+     "0:CERTIFIED_GEOMETRY -> 0:CERTIFIED_GEOMETRY": 57,
+     "0:DETERMINISTIC_PLAN -> 0:BOUNDED_SEARCH": 1,
+     "0:DETERMINISTIC_PLAN -> 0:DETERMINISTIC_PLAN": 9,
+     "1:VERIFIED -> 1:VERIFIED": 77,
+     "None:UNLABELED_NO_VALID_POST_GRASP_STATE -> None:UNLABELED_NO_VALID_POST_GRASP_STATE": 33
+    }
+   },
+   "targeted_selection": {
+    "certified_negative": 57,
+    "control_unaffected": 24,
+    "rule": "targeted = queries with a static pose-class change under the alternate check + every certified-negative and unlabeled query of mock_v2 adaptive_v1_A + 12 positive and 12 policy-negative unaffected controls (hash-ranked)",
+    "screen_affected": 85,
+    "total": 194,
+    "unlabeled": 33
+   }
+  },
+  "forecast": {
+   "by_K": {
+    "0": 3451,
+    "1": 3160,
+    "2": 3470,
+    "3": 3570
+   },
+   "by_split": {
+    "test": 1921,
+    "train": 9664,
+    "val": 2066
+   },
+   "cpu_hours": 35.16,
+   "cpu_hours_p05_p95": [
+    32.78,
+    37.78
+   ],
+   "disk_free_gb_now": 62.1,
+   "disk_gb": 0.643,
+   "disk_gb_x1_5": 0.964,
+   "parallel_efficiency": 0.881,
+   "production_queries": 13651,
+   "strata_backed_off": {
+    "K0:d2:near": 66,
+    "K1:d2:near": 63,
+    "K2:d2:near": 74,
+    "K3:d2:near": 104
+   },
+   "wall_hours_expected": 3.34,
+   "wall_hours_p95_x1_5": 5.35,
+   "workers": 12
+  },
+  "github": null,
+  "mock_v2": {
+   "decision": "MOCK_V2_PASS",
+   "v2_files_changed_or_missing": [],
+   "v2_manifest_files": 1979
+  },
+  "safety": {
+   "qc_affinity_union": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+   ],
+   "qc_max_temp_c": 47.0,
+   "qc_ticks": 711,
+   "qc_violations": [],
+   "smoke_A": {
+    "affinity_union": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "max_cpu_pct_sum": 400.8,
+    "max_temp_c": 40.0,
+    "min_mem_avail_gb": 59.5,
+    "sensor": "/sys/class/hwmon/hwmon3/temp1_input (coretemp)",
+    "ticks": 24,
+    "unexpected_descendants": 0,
+    "violations": []
+   },
+   "smoke_B": {
+    "affinity_union": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "max_cpu_pct_sum": 400.9,
+    "max_temp_c": 41.0,
+    "min_mem_avail_gb": 59.5,
+    "sensor": "/sys/class/hwmon/hwmon3/temp1_input (coretemp)",
+    "ticks": 35,
+    "unexpected_descendants": 0,
+    "violations": []
+   }
+  },
+  "snapshot": {
+   "final_k0_k3_identical": true,
+   "final_state_audit_pass": true,
+   "host_rehash": {
+    "differ_or_missing": [],
+    "files": 20574,
+    "identical": 20574,
+    "seconds": 6.3
+   },
+   "k_quota_run_stopped": true,
+   "ledger_append_only": true,
+   "published_files": 20577,
+   "published_files_differing": [],
+   "selection_reproduces": true
+  },
+  "software": {
+   "B_equals_A": true,
+   "damaged_npz_quarantined_and_recomputed": true,
+   "lock_released_after_kill": true,
+   "preflight": {
+    "by_split": {
+     "test": 1921,
+     "train": 9664,
+     "val": 2066
+    },
+    "physical_queries": 13651,
+    "planner_calls": 0,
+    "rc": 0,
+    "refusals_other_than_authorization": [],
+    "roster_regenerated_equal": true,
+    "run_dir_created": false,
+    "teacher_entry_calls": 0
+   },
+   "pytest_v2": [
+    "25 passed in 778.97s (0:12:58)"
+   ],
+   "pytest_v3": [
+    "23 passed in 40.40s"
+   ],
+   "replay_A": {
+    "n_failures": null,
+    "replayed": 8,
+    "verified": 8
+   },
+   "replay_B": {
+    "n_failures": null,
+    "replayed": 8,
+    "verified": 8
+   },
+   "semantics_problems_A": 0,
+   "smoke_A_complete": true,
+   "smoke_B_complete": true,
+   "template_refusals_other_than_authorization_now": [],
+   "template_unauthorized": true,
+   "test_runs_marked": true,
+   "workers_died_with_coordinator": true
+  },
+  "split_roster": {
+   "components_spanning_two_splits": 0,
+   "coverage_missing": {
+    "K": [],
+    "band": [],
+    "depth": []
+   },
+   "cross_split_layouts": 0,
+   "every_row_qc_eligible_and_pinned": true,
+   "old_assignments_changed": 0,
+   "roster_equal_v2_restricted": true,
+   "roster_sha_matches_file": true
+  }
+ },
+ "first_cohort": {
+  "by_class": {
+   "0": 511,
+   "1": 357,
+   "2": 357,
+   "3": 357
+  },
+  "by_qc_status": {
+   "AUTHOR_QC_PASS": 1004,
+   "SIDECAR_REPRO_QC_PASS": 462,
+   "VACUOUS_PASS_NO_NON_TARGET": 116
+  },
+  "cpus": "0-11",
+  "physical_queries": 13651,
+  "policy": "adaptive_v1",
+  "qc_roots": 1582,
+  "queries_by_split": {
+   "test": 1921,
+   "train": 9664,
+   "val": 2066
+  },
+  "roots_with_queries": 1466,
+  "stages": [
+   [
+    4,
+    500
+   ],
+   [
+    8,
+    1500
+   ],
+   [
+    16,
+    5000
+   ]
+  ],
+  "static_contrasts": 2768,
+  "teacher_protocol": "89cbabed5d7e4847",
+  "workers": 12
+ },
+ "full_2500": {
+  "k4_selected": 0,
+  "none_selected_final_run": 0,
+  "note": "K4 (0 / 510) and NONE are generated separately by the source author and are not part of the first cohort",
+  "published_counts": {
+   "0": 511,
+   "1": 357,
+   "2": 357,
+   "3": 357,
+   "4": 0,
+   "NONE": 3
+  },
+  "quota": {
+   "0": 511,
+   "1": 357,
+   "2": 357,
+   "3": 357,
+   "4": 510,
+   "NONE": 408
+  }
+ },
+ "gates": {
+  "cohort_qc": true,
+  "finger_width_analysis_done": true,
+  "github": false,
+  "mock_v2": true,
+  "safety": true,
+  "snapshot": true,
+  "software": true,
+  "split_roster": true,
+  "storage_forecast": true
+ },
+ "meaning": "FIRST_COHORT_READY_PENDING_USER_AUTHORIZATION: every gate above passed on saved evidence; the collector refuses to start until the user records an authorization in a copy of production_policy.TEMPLATE.json and passes the token it then requires.",
+ "next_user_action": "follow FIRST_COHORT_RUNBOOK.md section 4: copy the template, write authorized_by / authorized_utc / statement, compute the token with prod3d.py token, and start launch_first_cohort.sh --execute in tmux"
+}

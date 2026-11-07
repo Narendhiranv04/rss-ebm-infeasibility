@@ -1,0 +1,166 @@
+{
+ "started_utc": "2026-11-07T11:59:08Z",
+ "smoke_A": {
+  "rc": 0,
+  "end": "{\"event\": \"end\", \"mode\": \"INTEGRATION_TEST\", \"t\": 1794052800.2912638, \"wall_s\": 49.65997242927551, \"units_done_now\": 4, \"complete\": true, \"safety_stop\": null}",
+  "wall_s": 50.3
+ },
+ "smoke_B_interrupt": {
+  "units_total": 4,
+  "units_done_before_kill": 1,
+  "killed": "coordinator only (SIGKILL)",
+  "descendants_before_kill": 5,
+  "descendants_alive_3s_after_kill": [],
+  "lock_held_after_kill": null,
+  "damaged_npz_unit": "3ds66-lap3-w0055-s021",
+  "npz_bytes_before_after": [
+   87114,
+   43557
+  ],
+  "torn_ledger_line_appended": true
+ },
+ "smoke_B_resume": {
+  "rc": 0,
+  "wall_s": 50.5,
+  "resumed_units": 0,
+  "recomputed_units": 4,
+  "quarantined_files": [
+   "3ds66-lap3-w0055-s021.json",
+   "3ds66-lap3-w0055-s021.npz"
+  ],
+  "ledger_units_failed": {
+   "3ds66-lap3-w0055-s021": "npz_sha_mismatch"
+  },
+  "damaged_unit_quarantined_and_recomputed": true,
+  "torn_line_terminated_and_ignored": true,
+  "start_records": 2,
+  "end": "{\"event\": \"end\", \"mode\": \"INTEGRATION_TEST\", \"t\": 1794052876.7751763, \"wall_s\": 49.89975047111511, \"units_done_now\": 4, \"complete\": true, \"safety_stop\": null}"
+ },
+ "B_equals_A": {
+  "queries": 12,
+  "mismatches": [],
+  "equal": true
+ },
+ "replay_A": {
+  "run": "/home/nav/approachb3d_v3/repo/gh-yadu-iiith/shelf_6x6_open_sides/dataset_placement_extension_v2/production_v3/integration/smoke_A",
+  "replayed": 8,
+  "unique_witnesses": 8,
+  "verified": 8,
+  "missing_witnesses": [],
+  "failures": [],
+  "max_q_exec_diff": 0,
+  "max_obj_end_diff_m": 0,
+  "hold_identical": 8
+ },
+ "audit_A": {
+  "units": 4,
+  "validated": 4,
+  "missing_or_invalid": [],
+  "failures": {},
+  "stray_files": [],
+  "queries": 12,
+  "labels": {
+   "0:NEG_CERTIFIED_GEOMETRY:CERTIFIED_GEOMETRY": 1,
+   "0:NEG_UNDER_POLICY:BOUNDED_SEARCH": 1,
+   "0:NEG_UNDER_POLICY:DETERMINISTIC_PLAN": 1,
+   "1:VERIFIED:None": 8,
+   "None:UNLABELED_NO_VALID_POST_GRASP_STATE:None": 1
+  },
+  "witness_associations": 8,
+  "complete": true
+ },
+ "monitor_A": {
+  "ticks": 24,
+  "max_cpu_pct_sum": 400.8,
+  "max_temp_c": 40.0,
+  "affinity_union": [
+   0,
+   1,
+   2,
+   3
+  ],
+  "violations": [],
+  "min_mem_avail_gb": 59.5,
+  "unexpected_descendants": 0,
+  "sensor": "/sys/class/hwmon/hwmon3/temp1_input (coretemp)"
+ },
+ "marked_A": {
+  "marker_file": true,
+  "manifest_mode": "INTEGRATION_TEST",
+  "ledger_modes": [
+   "INTEGRATION_TEST"
+  ]
+ },
+ "replay_B": {
+  "run": "/home/nav/approachb3d_v3/repo/gh-yadu-iiith/shelf_6x6_open_sides/dataset_placement_extension_v2/production_v3/integration/smoke_B",
+  "replayed": 8,
+  "unique_witnesses": 8,
+  "verified": 8,
+  "missing_witnesses": [],
+  "failures": [],
+  "max_q_exec_diff": 0,
+  "max_obj_end_diff_m": 0,
+  "hold_identical": 8
+ },
+ "audit_B": {
+  "units": 4,
+  "validated": 4,
+  "missing_or_invalid": [],
+  "failures": {},
+  "stray_files": [],
+  "queries": 12,
+  "labels": {
+   "0:NEG_CERTIFIED_GEOMETRY:CERTIFIED_GEOMETRY": 1,
+   "0:NEG_UNDER_POLICY:BOUNDED_SEARCH": 1,
+   "0:NEG_UNDER_POLICY:DETERMINISTIC_PLAN": 1,
+   "1:VERIFIED:None": 8,
+   "None:UNLABELED_NO_VALID_POST_GRASP_STATE:None": 1
+  },
+  "witness_associations": 8,
+  "complete": true
+ },
+ "monitor_B": {
+  "ticks": 35,
+  "max_cpu_pct_sum": 400.9,
+  "max_temp_c": 41.0,
+  "affinity_union": [
+   0,
+   1,
+   2,
+   3
+  ],
+  "violations": [],
+  "min_mem_avail_gb": 59.5,
+  "unexpected_descendants": 0,
+  "sensor": "/sys/class/hwmon/hwmon3/temp1_input (coretemp)"
+ },
+ "marked_B": {
+  "marker_file": true,
+  "manifest_mode": "INTEGRATION_TEST",
+  "ledger_modes": [
+   "INTEGRATION_TEST"
+  ]
+ },
+ "production_preflight": {
+  "rc": 0,
+  "physical_queries": 13651,
+  "static_contrasts": 2768,
+  "units": 1466,
+  "roots": 1466,
+  "by_split": {
+   "test": 1921,
+   "train": 9664,
+   "val": 2066
+  },
+  "planner_calls": 0,
+  "teacher_entry_calls": 0,
+  "run_dir_created": false,
+  "refusals_other_than_authorization": [],
+  "authorization_refusals": [
+   "no recorded user authorization (authorization.authorized_by / authorized_utc / statement)"
+  ],
+  "roster_regenerated_equal": true,
+  "lock_free": true
+ },
+ "finished_utc": "2026-11-07T12:01:28Z"
+}

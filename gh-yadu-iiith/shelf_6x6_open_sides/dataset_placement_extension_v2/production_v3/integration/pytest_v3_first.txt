@@ -1,0 +1,46 @@
+..F............F.....                                                    [100%]
+=================================== FAILURES ===================================
+_________ test_launcher_refuses_unauthorized_template_and_wrong_token __________
+
+pols = (PosixPath('/tmp/pytest-of-nav/pytest-7/pols0'), PosixPath('/tmp/pytest-of-nav/pytest-7/pols0/prod.json'), PosixPath('/tmp/pytest-of-nav/pytest-7/pols0/test.json'))
+
+    def test_launcher_refuses_unauthorized_template_and_wrong_token(pols):
+        _, prod, _ = pols
+        r = run(["bash", "production_v3/launch_first_cohort.sh", "--execute", "--policy-file", prod, "--confirm", "0" * 32])
+>       refused(r, "no recorded user authorization", "confirmation token missing or !=", "authorization / hash / lock / resource check failed")
+
+code/test_prod3d_v3.py:88: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+r = CompletedProcess(args=['bash', 'production_v3/launch_first_cohort.sh', '--execute', '--policy-file', '/tmp/pytest-of-n...un_dir_existed": false, "run_dir_created": false, "lock_free": true}\n', stderr='REFUSED: metadata preflight failed\n')
+needles = ('no recorded user authorization', 'confirmation token missing or !=', 'authorization / hash / lock / resource check failed')
+
+    def refused(r, *needles):
+        out = r.stdout + r.stderr
+        assert r.returncode != 0 and "REFUSED" in out, out[-2500:]
+        for n in needles:
+>           assert n in out, (n, out[-2500:])
+E           AssertionError: ('confirmation token missing or !=', '{"dry_run": true, "mode": "PRODUCTION_FIRST_COHORT", "policy": "adaptive_v1", "s...ps": 0}, "run_dir_existed": false, "run_dir_created": false, "lock_free": true}
+E             REFUSED: metadata preflight failed
+E             ')
+E           assert 'confirmation token missing or !=' in '{"dry_run": true, "mode": "PRODUCTION_FIRST_COHORT", "policy": "adaptive_v1", "stages": [[4, 500], [8, 1500], [16, 50...eps": 0}, "run_dir_existed": false, "run_dir_created": false, "lock_free": true}\nREFUSED: metadata preflight failed\n'
+
+code/test_prod3d_v3.py:63: AssertionError
+______________ test_dry_run_metadata_preflight_zero_teacher_calls ______________
+
+pols = (PosixPath('/tmp/pytest-of-nav/pytest-7/pols0'), PosixPath('/tmp/pytest-of-nav/pytest-7/pols0/prod.json'), PosixPath('/tmp/pytest-of-nav/pytest-7/pols0/test.json'))
+
+    def test_dry_run_metadata_preflight_zero_teacher_calls(pols):
+        _, prod, _ = pols
+        r = collect(prod, None, None, "--dry-run")
+>       assert r.returncode == 0, (r.stdout + r.stderr)[-3000:]
+E       AssertionError: {"dry_run": true, "mode": "PRODUCTION_FIRST_COHORT", "policy": "adaptive_v1", "stages": [[4, 500], [8, 1500], [16, 5000]], "workers": 12, "cpus": "0-11", "teacher_protocol": "89cbabed5d7e4847", "SHELF_SRC": "/home/nav/approachb3d_v3/repo/gh-yadu-iiith/shelf_6x6_open_sides/dataset_bd_classquota_without_home_position_no_overpass", "refusals_other_than_authorization": ["CPUs 0-11 are 100% busy with other work (> 25%): do not compete"], "authorization_refusals": ["no recorded user authorization (authorization.authorized_by / authorized_utc / statement)"], "roster_rows": 16419, "physical_queries": 13651, "static_contrasts": 2768, "units": 1466, "queries_in_units": 13651, "roots": 1466, "by_split": {"test": 1921, "train": 9664, "val": 2066}, "by_K": {"0": 3451, "1": 3160, "2": 3470, "3": 3570}, "by_depth": {"0": 5822, "1": 4221, "2": 3608}, "by_band": {"far": 4557, "mid": 4761, "near": 2027, "vacated": 2306}, "by_split_K": {"test:K0": 496, "test:K1": 479, "test:K2": 426, "test:K3": 520, "train:K0": 2406, "train:K1": 2215, "train:K2": 2393, "train:K3": 2650, "val:K0": 549, "val:K1": 466, "val:K2": 651, "val:K3": 400}, "roster_regenerated_equal": true, "static_rows_excluded_from_units": true, "teacher_entry_calls": 0, "planner_calls": 0, "work_counters": {"rrt_iters": 0, "rrt_extend": 0, "rrt_edge": 0, "rrt_is_free": 0, "shortcut_edge": 0, "ik_calls": 0, "object_checks": 0, "static_checks": 0, "sim_steps": 0}, "run_dir_existed": false, "run_dir_created": false, "lock_free": true}
+E         
+E       assert 4 == 0
+E        +  where 4 = CompletedProcess(args=['/home/nav/approachb3d_mock/env/bin/python', 'code/collect3d.py', '--policy-file', '/tmp/pytest...atic_checks": 0, "sim_steps": 0}, "run_dir_existed": false, "run_dir_created": false, "lock_free": true}\n', stderr='').returncode
+
+code/test_prod3d_v3.py:224: AssertionError
+=========================== short test summary info ============================
+FAILED code/test_prod3d_v3.py::test_launcher_refuses_unauthorized_template_and_wrong_token
+FAILED code/test_prod3d_v3.py::test_dry_run_metadata_preflight_zero_teacher_calls
+2 failed, 19 passed in 57.67s
