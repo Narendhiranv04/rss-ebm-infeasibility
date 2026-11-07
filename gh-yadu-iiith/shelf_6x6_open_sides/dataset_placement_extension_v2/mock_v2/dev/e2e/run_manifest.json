@@ -1,0 +1,128 @@
+{
+ "code": {
+  "guard3d.py": "ff747256bad0bbdb2f84b3f3404bbc1d23dcf712cc393342d9c1ec79d58bc73f",
+  "placement3d.py": "b8a0d1a739e9a80ed91979a9cddbebe05bb5b734692d2ac6337068243775756c",
+  "plan3d.py": "532fb41c8d6ca4abbee7e8ff96b04f7bdb01ae0ab27e29fc52458720209586e4",
+  "policy3d.py": "895d9185e5d51f5c38f7cca39edbd097a4975e498366afe3f16cf9097583775e",
+  "run3d.py": "ae28cbd932ed4098a532fd437d71539aa7037bb26dcf3f3f6f4d089864822c50"
+ },
+ "early_stop": true,
+ "guard_cpu_s": 1200.0,
+ "limits": {
+  "disk_free_gb": 5.0,
+  "mem_avail_gb": 4.0,
+  "pkg_temp_pause_c": 90.0,
+  "pkg_temp_stop_c": 95.0,
+  "swap_growth_gb": 1.0,
+  "temp_resume_c": 82.0,
+  "worker_rss_gb": 2.0
+ },
+ "policy": "adaptive_v1",
+ "production": false,
+ "protocol": [
+  "89cbabed5d7e4847",
+  {
+   "branch_semantics": "unit = one ranked VALID pose with >= 1 physically held eligible branch; inside a unit test every eligible branch is tried in candidate order (hold certificate -> plan_branch -> re-instantiated hold -> execute -> verify) until one verifies (early-stop policies) or all are exhausted (reference); the carry route is branch-independent and planned once per unit test; a route ReachError ends the unit for every branch",
+   "check_width": "grasp open_width in every object check (SHELF66V3); structure check as source (default finger qpos)",
+   "ik_candidates": "solved at the pose rounded to the source cache key (1e-4 m), cache shared per object set",
+   "milestones": [
+    500,
+    1500,
+    5000
+   ],
+   "mode_order": "policy3d.ranked: k-th azimuth nearest the robot, grip height alternating, then the other heights; IK branches nearest q_ready",
+   "name": "SHELF66V3_PLACE_V2",
+   "robot_protocol": "XARM7_SHELF66_LEVELGRASP_V1:cd7f78f44022",
+   "seed": 0,
+   "source_teacher_config": "8d521b1f6d23db23",
+   "sources": {
+    "bd_3dt.py": "62dc853ccb5055ea",
+    "bd_core.py": "f34b881c061a4d26",
+    "bd_shelf.py": "ef71dcf43c6df19d",
+    "placement3d.py": "b8a0d1a739e9a80e",
+    "policy3d.py": "895d9185e5d51f5c",
+    "rrt_connect.py": "d2a2e25cfc7321b6",
+    "rrt_star.py": "b35ff354d6d8dfde",
+    "shelf_scene.py": "a8453e249d1654dc",
+    "xarm7_cabinet_env.py": "4da37932cbfb8473"
+   },
+   "steps": [
+    50,
+    400,
+    300,
+    40,
+    200,
+    10
+   ],
+   "tol": {
+    "attach_drift_m": 0.01,
+    "envelope_every": 2,
+    "envelope_margin_m": 0.0,
+    "hold_shift_m": 0.01,
+    "lift_frac": 0.3,
+    "neighbour_m": 0.004,
+    "settled_mps": 0.02,
+    "tilt_deg": 10.0,
+    "xy_m": 0.02,
+    "z_m": 0.01
+   },
+   "witness_policy": "every distinct VERIFIED (unit, branch) trajectory encountered is stored with its rank / grasp / branch provenance"
+  }
+ ],
+ "roots": "",
+ "roster_sha256": "40a3b757ec0c6b558bc6c190b1b37b9cd6bfe2631c31b1aa338b64bd8ba65b77",
+ "sensor_override": false,
+ "source_pin": {
+  "file_sha256": "ca5692a5453ab74be0eccd75b87f3e5e4e6082e3ca238a2096b2e8225c40b733",
+  "manifest_sha256": "9d61759558f822fa45a1313a00c93797cab2bcb6ecc3b4138663ba7c295b9e9c",
+  "roots": {
+   "3ds66-lap-w0015-s000": "c7587b7e1629dfb1f78061e024f1d84fdabc31b9cdb4a5e64e2cc1ba2a52b860",
+   "3ds66-srv-w0042-s014": "1f712ed42e15ffb871dda0875852218fa0ae7a18f4b8e23f6fe8b4ee75fe8229",
+   "3ds66-srv3-w0066-s021": "1c7b117eb55c78fd191236328c6d5ef9dbf05830b28f2567dad200cff2d6b7fa"
+  },
+  "snapshot": "yadu/dataset-3d@8032ad0bf842a490897a8247ee46312036c12546"
+ },
+ "splits": [
+  "train"
+ ],
+ "stages": [
+  [
+   4,
+   500
+  ],
+  [
+   8,
+   1500
+  ],
+  [
+   16,
+   5000
+  ]
+ ],
+ "subset": "all",
+ "unit_mode": "query",
+ "units": {
+  "3ds66-lap-w0015-s000_fx_budget_exhausted_negative": [
+   "3ds66-lap-w0015-s000:fx_budget_exhausted_negative"
+  ],
+  "3ds66-lap-w0015-s000_fx_vacated_after_edit": [
+   "3ds66-lap-w0015-s000:fx_vacated_after_edit"
+  ],
+  "3ds66-srv-w0042-s014_fx_obstructed_carry_certified": [
+   "3ds66-srv-w0042-s014:fx_obstructed_carry_certified"
+  ],
+  "3ds66-srv-w0042-s014_fx_target_goal_destination": [
+   "3ds66-srv-w0042-s014:fx_target_goal_destination"
+  ],
+  "3ds66-srv3-w0066-s021_fx_pick_inaccessible_held_placeable": [
+   "3ds66-srv3-w0066-s021:fx_pick_inaccessible_held_placeable"
+  ]
+ },
+ "worker_policy": {
+  "cpus": [
+   0,
+   1
+  ],
+  "workers": 2
+ }
+}

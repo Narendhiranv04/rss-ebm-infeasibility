@@ -1,0 +1,67 @@
+{
+ "candidates_real": {
+  "adaptive_v1": {
+   "cpus": "0-11",
+   "subset": "all",
+   "unit": "root",
+   "workers": 12
+  },
+  "fixed_4x1500": {
+   "cpus": "0-11",
+   "subset": "all",
+   "unit": "root",
+   "workers": 12
+  },
+  "fixed_4x5000": {
+   "cpus": "0-11",
+   "subset": "all",
+   "unit": "root",
+   "workers": 12
+  },
+  "fixed_8x5000": {
+   "cpus": "0-11",
+   "subset": "all",
+   "unit": "root",
+   "workers": 12
+  }
+ },
+ "frozen_utc": "2026-11-07T06:09:53Z",
+ "guard_cpu_s": 1200,
+ "interrupt": {
+  "kill_after_units": 10,
+  "policy": "adaptive_v1",
+  "then": "corrupt one NPZ + add an orphan, resume"
+ },
+ "max_physical_queries": 500,
+ "max_roots": 48,
+ "reference_run": {
+  "cpus": "0-11",
+  "policy": "reference_v2",
+  "subset": "all",
+  "unit": "root",
+  "workers": 12
+ },
+ "repeat": {
+  "name": "adaptive_v1_B",
+  "policy": "adaptive_v1"
+ },
+ "serial": {
+  "cpus": "0",
+  "policy": "adaptive_v1",
+  "subset": "depth-0 slot 1 / holdout slot 2 per root",
+  "unit": "query",
+  "workers": 1
+ },
+ "sweep": {
+  "condition": "only if gvlab has no other heavy load",
+  "configs": {
+   "12": "0-11",
+   "16": "0-15",
+   "18": "0-17",
+   "8": "0-7"
+  },
+  "policy": "adaptive_v1",
+  "subset": "depth-0 queries",
+  "unit": "query"
+ }
+}

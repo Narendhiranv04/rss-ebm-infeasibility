@@ -1,0 +1,5 @@
+{"id": "AMENDMENT_V2_001", "utc": "2026-11-07T06:12:38Z", "file": "code/run3d.py", "sha256_frozen": "ae28cbd932ed4098a532fd437d71539aa7037bb26dcf3f3f6f4d089864822c50", "sha256_amended": "f75275be8b74ed6253f41706b1359622da300ff6c4bd64df169510d6d31be615",
+ "defect": "monitor re-created its psutil.Process objects after each 2 s sample, so cpu_percent() always read 0.0: the per-tree CPU-percent ceiling check was ineffective (the CPU-affinity union check, which the kernel enforces, was unaffected)",
+ "found": "first reference_v2 launch: monitor.jsonl showed cpu_pct_sum 0.0 with 12 busy workers",
+ "action": "that launch was stopped after 38 s (own process group, SIGKILL by PGID; 0 units completed) and moved to mock_v2/runs_aborted/reference_v2_monitor_cpu_metric; monitor now keeps one persistent psutil.Process per pid; verified on the fixture-only roster (3 workers: cpu_pct_sum ~300%)",
+ "labels_affected": false, "selection_rule_changed": false, "roster_changed": false, "teacher_semantics_changed": false}
