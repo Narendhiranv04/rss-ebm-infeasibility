@@ -1,17 +1,43 @@
 {
  "gate3d_collection": {
+  "facts": {
+   "coretemp_c": 44.0,
+   "cpu0_13_busy_pct": 88.9,
+   "disk_free_gb": 58.7,
+   "last_end_complete": false,
+   "load1": 12.3037109375,
+   "mem_avail_gb": 47.7,
+   "project_processes": [
+    {
+     "cmd": "bash -c sleep 5; cd /home/nav/approachb3d_v3/repo/gh-yadu-iiith/shelf_6x6_open_sides/dataset_placement_extension_v2 && SHELF_SRC=/home/nav/a",
+     "pid": 3264061
+    },
+    {
+     "cmd": "/home/nav/approachb3d_mock/env/bin/python code/collect4.py --policy-file /home/nav/approachb3d_v3/repo/gh-yadu-iiith/shelf_6x6_open_sides/da",
+     "pid": 3264085
+    }
+   ],
+   "queries_total": 59972,
+   "units_done": 491,
+   "units_total": 1466
+  },
   "pass": false,
   "reasons": [
-   "nice: \u2018approachb3d_v3/2d_q2_spillover/venv313/bin/python\u2019: No such file or directory\n"
-  ]
+   "3D collection incomplete (491/1466 units, last end complete=False)",
+   "project compute still active on gvlab: ['bash -c sleep 5; cd /home/nav/approachb3d_v3/repo/gh-yadu-ii', '/home/nav/approachb3d_mock/env/bin/python code/collect4.py -']",
+   "3D collector lock still held",
+   "CPUs 0-13 busy with other work (> 25%)"
+  ],
+  "utc": "2026-11-07T17:20:04Z"
  },
  "history": [],
  "inhibitor_probe": {
-  "ok": false,
-  "t": 1794071521.9370322,
-  "utc": "2026-11-07T17:12:01Z"
+  "cron_can_inhibit": false,
+  "queue_holder_listed": true,
+  "t": 1794071761.5649018,
+  "utc": "2026-11-07T17:16:01Z"
  },
- "last_tick_utc": "2026-11-07T17:12:01Z",
+ "last_tick_utc": "2026-11-07T17:20:01Z",
  "state": "WAIT_3D",
  "version": "Q2_2D_SPILLOVER_V1"
 }
