@@ -1,5 +1,7 @@
 # 3D shelf B/D dataset: 6 × 6 open-sided shelf, without home position, no overpass (class-quota run)
 
+> **Data update (2026-11-07):** `raw/` and `selected.json` now hold a consistent IN-PROGRESS snapshot of the live store cut at 2026-11-07 05:28:58 UTC (1,585 selected: NONE 3, K0 511, K1 357, K2 357, K3 357, K4 0). The status and ledger counts in the sections below describe the earlier 6 Nov snapshot (commit 8032ad0b). Current counts, provenance and caveats: [`SNAPSHOT_STATUS.md`](SNAPSHOT_STATUS.md).
+
 This is a dataset of shelf rearrangement problems for an xArm7 in MuJoCo, built with the B/D dataset scripts (`code/`).
 
 - **The task:** each scene has a target object T that must reach a goal cell on the shelf of [`../README.md`](../README.md). Other objects may block it, and the label says how many objects must be moved out of the way first (K).
