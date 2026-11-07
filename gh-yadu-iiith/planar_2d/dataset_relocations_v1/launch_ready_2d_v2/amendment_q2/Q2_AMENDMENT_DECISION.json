@@ -1,0 +1,240 @@
+{
+ "amendment": "Q2_PRODUCTION_AMENDMENT_V1",
+ "evidence_gates_identical_to_historical_q1_decision": {
+  "adaptive_nested_ref64": true,
+  "adaptive_recall_vs_64": true,
+  "all_verified_witnesses_stored": true,
+  "disk_safety": true,
+  "independent_25_worker_repro": true,
+  "interrupt_matches": true,
+  "negative_diversity": true,
+  "serial_matches_parallel": true,
+  "v2_adaptive25_a_audit": true,
+  "v2_adaptive25_a_safety": true,
+  "v2_adaptive25_b_audit": true,
+  "v2_adaptive25_b_safety": true,
+  "v2_adaptive_interrupted_audit": true,
+  "v2_adaptive_interrupted_safety": true,
+  "v2_adaptive_serial_audit": true,
+  "v2_adaptive_serial_safety": true,
+  "v2_ref64_25_audit": true,
+  "v2_ref64_25_safety": true
+ },
+ "failures": [],
+ "forecast": {
+  "cpu_hours_with_1p5_buffer": 2847.5,
+  "disk_mb_with_1p5_buffer_and_500mb_overhead": 3613.2,
+  "estimators": {
+   "composition_weighted_cpu_hours_x1p5": 2847.5,
+   "pilot_mean_cpu_hours_x1p5": 2167.4,
+   "rule": "max(pilot mean, Q2-composition weighted) x 1.5 (reviewed R5 rule)",
+   "strata": {
+    "prefix1/far": {
+     "cpu_s": 35.49,
+     "estimate": "pooled dest_bin mean (conservative fallback, < 5 pilot queries)",
+     "pilot_n": 0,
+     "q2_queries": 8036
+    },
+    "prefix1/mid": {
+     "cpu_s": 41.76,
+     "estimate": "pooled dest_bin mean (conservative fallback, < 5 pilot queries)",
+     "pilot_n": 0,
+     "q2_queries": 8881
+    },
+    "prefix1/near": {
+     "cpu_s": 19.15,
+     "estimate": "stratum mean",
+     "pilot_n": 25,
+     "q2_queries": 13050
+    },
+    "prefix1/vacated": {
+     "cpu_s": 2.91,
+     "estimate": "stratum mean",
+     "pilot_n": 25,
+     "q2_queries": 4409
+    },
+    "prefix2/far": {
+     "cpu_s": 35.49,
+     "estimate": "pooled dest_bin mean (conservative fallback, < 5 pilot queries)",
+     "pilot_n": 0,
+     "q2_queries": 7985
+    },
+    "prefix2/mid": {
+     "cpu_s": 41.76,
+     "estimate": "pooled dest_bin mean (conservative fallback, < 5 pilot queries)",
+     "pilot_n": 0,
+     "q2_queries": 8931
+    },
+    "prefix2/near": {
+     "cpu_s": 22.81,
+     "estimate": "stratum mean",
+     "pilot_n": 25,
+     "q2_queries": 13051
+    },
+    "prefix2/vacated": {
+     "cpu_s": 11.62,
+     "estimate": "stratum mean",
+     "pilot_n": 25,
+     "q2_queries": 4409
+    },
+    "prefix3/far": {
+     "cpu_s": 35.49,
+     "estimate": "pooled dest_bin mean (conservative fallback, < 5 pilot queries)",
+     "pilot_n": 0,
+     "q2_queries": 7530
+    },
+    "prefix3/mid": {
+     "cpu_s": 41.76,
+     "estimate": "pooled dest_bin mean (conservative fallback, < 5 pilot queries)",
+     "pilot_n": 0,
+     "q2_queries": 8397
+    },
+    "prefix3/near": {
+     "cpu_s": 13.24,
+     "estimate": "stratum mean",
+     "pilot_n": 23,
+     "q2_queries": 12280
+    },
+    "prefix3/vacated": {
+     "cpu_s": 28.63,
+     "estimate": "stratum mean",
+     "pilot_n": 23,
+     "q2_queries": 4185
+    },
+    "root/far": {
+     "cpu_s": 35.49,
+     "estimate": "stratum mean",
+     "pilot_n": 47,
+     "q2_queries": 31262
+    },
+    "root/mid": {
+     "cpu_s": 41.76,
+     "estimate": "stratum mean",
+     "pilot_n": 53,
+     "q2_queries": 53011
+    },
+    "root/near": {
+     "cpu_s": 13.0,
+     "estimate": "stratum mean",
+     "pilot_n": 100,
+     "q2_queries": 52743
+    }
+   }
+  },
+  "free_mb": 57270.3,
+  "pilot_throughput_cpu_s_per_s": 24.36,
+  "q2_teacher_queries": 238160,
+  "wall_days_expected_no_buffer": 3.25,
+  "wall_days_with_1p5_buffer": 4.87
+ },
+ "gates": {
+  "adaptive_nested_ref64": true,
+  "adaptive_recall_vs_64": true,
+  "all_verified_witnesses_stored": true,
+  "disk_safety": true,
+  "independent_25_worker_repro": true,
+  "interrupt_matches": true,
+  "negative_diversity": true,
+  "runtime_forecast": true,
+  "serial_matches_parallel": true,
+  "v2_adaptive25_a_audit": true,
+  "v2_adaptive25_a_safety": true,
+  "v2_adaptive25_b_audit": true,
+  "v2_adaptive25_b_safety": true,
+  "v2_adaptive_interrupted_audit": true,
+  "v2_adaptive_interrupted_safety": true,
+  "v2_adaptive_serial_audit": true,
+  "v2_adaptive_serial_safety": true,
+  "v2_ref64_25_audit": true,
+  "v2_ref64_25_safety": true
+ },
+ "historical_q1_decision": {
+  "failures": [
+   "RUNTIME_FORECAST"
+  ],
+  "file": "MOCK_V2_DECISION.json",
+  "kept_unmodified": true,
+  "q1_wall_days_with_1p5_buffer": 7.62,
+  "sha256": "65a4b12ec5aa6bae4ee26c2f77054013fbf6bfc1eca4fd9fd381f6669998e4c5",
+  "verdict": "NOT_READY_TO_LAUNCH"
+ },
+ "nested": {
+  "bad": [],
+  "different": 0,
+  "shared": 346
+ },
+ "pilot": {
+  "completed": 346,
+  "negatives": 45,
+  "positives": 301,
+  "stored_witnesses": 2223
+ },
+ "quota": "Q2",
+ "quota_spec": {
+  "prefix_dests": 4,
+  "prefix_objects": 2,
+  "prefixes": 3,
+  "root_dests": 8,
+  "root_objects": 4
+ },
+ "reason": "The pre-registered Q1 decision failed only RUNTIME_FORECAST (7.62 d > 7 d with the 1.5x buffer). The user chose the smaller predeclared quota Q2 and authorized it explicitly; every other evidence gate is re-run unchanged on the stored pilots.",
+ "relative_to_reference_64": {
+  "adaptive_missed": 0,
+  "miss_fraction": 0.0,
+  "positive_reference_count": 301,
+  "strata": {
+   "block": {
+    "prefix1": {
+     "miss_frac": 0.0,
+     "missed": 0,
+     "pos64": 46
+    },
+    "prefix2": {
+     "miss_frac": 0.0,
+     "missed": 0,
+     "pos64": 42
+    },
+    "prefix3": {
+     "miss_frac": 0.0,
+     "missed": 0,
+     "pos64": 41
+    },
+    "root": {
+     "miss_frac": 0.0,
+     "missed": 0,
+     "pos64": 172
+    }
+   },
+   "dest_bin": {
+    "far": {
+     "miss_frac": 0.0,
+     "missed": 0,
+     "pos64": 40
+    },
+    "mid": {
+     "miss_frac": 0.0,
+     "missed": 0,
+     "pos64": 43
+    },
+    "near": {
+     "miss_frac": 0.0,
+     "missed": 0,
+     "pos64": 152
+    },
+    "vacated": {
+     "miss_frac": 0.0,
+     "missed": 0,
+     "pos64": 66
+    }
+   }
+  },
+  "wilson_95": [
+   0.0,
+   0.0126
+  ]
+ },
+ "reviewed_gate_sha256": "5ed7f758f5d8d22d4878b0a34c79c3e11ec7e36f3d9f083a47c9e303c224928b",
+ "user_authorization": "I authorise starting the 2D Q2 placement dataset collection on my laptop: 238,160 physical placement queries, ADAPTIVE_FULL 8\u219232 valid mode pairs, 25 workers, the existing verified boost-OFF thermal/safety configuration.",
+ "utc": "2026-11-07T15:47:00Z",
+ "verdict": "READY_TO_LAUNCH_Q2"
+}

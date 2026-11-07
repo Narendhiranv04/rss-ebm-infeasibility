@@ -1,0 +1,128 @@
+{
+ "status": "STATIC_PASS",
+ "errors": [],
+ "two_edit_queries_in_audit_subset": 1056,
+ "pilot_roots": 25,
+ "plan_root_count": 5000,
+ "snapshot": {
+  "free_disk_mb": 57270,
+  "cpu_boost": "0",
+  "allowed_logical_cpus": 32,
+  "min_disk_free_mb": 10240,
+  "mem_available_mb": 12415,
+  "full_dir_exists": false
+ },
+ "metadata_preflight_calls": {}
+}
+{
+ "verdict": "READY_TO_LAUNCH_Q2",
+ "quota": "Q2",
+ "failures": [],
+ "forecast": {
+  "q2_teacher_queries": 238160,
+  "cpu_hours_with_1p5_buffer": 2847.5,
+  "wall_days_with_1p5_buffer": 4.87,
+  "wall_days_expected_no_buffer": 3.25,
+  "disk_mb_with_1p5_buffer_and_500mb_overhead": 3613.2,
+  "free_mb": 57270.3,
+  "pilot_throughput_cpu_s_per_s": 24.36,
+  "estimators": {
+   "pilot_mean_cpu_hours_x1p5": 2167.4,
+   "composition_weighted_cpu_hours_x1p5": 2847.5,
+   "strata": {
+    "prefix1/far": {
+     "q2_queries": 8036,
+     "pilot_n": 0,
+     "cpu_s": 35.49,
+     "estimate": "pooled dest_bin mean (conservative fallback, < 5 pilot queries)"
+    },
+    "prefix1/mid": {
+     "q2_queries": 8881,
+     "pilot_n": 0,
+     "cpu_s": 41.76,
+     "estimate": "pooled dest_bin mean (conservative fallback, < 5 pilot queries)"
+    },
+    "prefix1/near": {
+     "q2_queries": 13050,
+     "pilot_n": 25,
+     "cpu_s": 19.15,
+     "estimate": "stratum mean"
+    },
+    "prefix1/vacated": {
+     "q2_queries": 4409,
+     "pilot_n": 25,
+     "cpu_s": 2.91,
+     "estimate": "stratum mean"
+    },
+    "prefix2/far": {
+     "q2_queries": 7985,
+     "pilot_n": 0,
+     "cpu_s": 35.49,
+     "estimate": "pooled dest_bin mean (conservative fallback, < 5 pilot queries)"
+    },
+    "prefix2/mid": {
+     "q2_queries": 8931,
+     "pilot_n": 0,
+     "cpu_s": 41.76,
+     "estimate": "pooled dest_bin mean (conservative fallback, < 5 pilot queries)"
+    },
+    "prefix2/near": {
+     "q2_queries": 13051,
+     "pilot_n": 25,
+     "cpu_s": 22.81,
+     "estimate": "stratum mean"
+    },
+    "prefix2/vacated": {
+     "q2_queries": 4409,
+     "pilot_n": 25,
+     "cpu_s": 11.62,
+     "estimate": "stratum mean"
+    },
+    "prefix3/far": {
+     "q2_queries": 7530,
+     "pilot_n": 0,
+     "cpu_s": 35.49,
+     "estimate": "pooled dest_bin mean (conservative fallback, < 5 pilot queries)"
+    },
+    "prefix3/mid": {
+     "q2_queries": 8397,
+     "pilot_n": 0,
+     "cpu_s": 41.76,
+     "estimate": "pooled dest_bin mean (conservative fallback, < 5 pilot queries)"
+    },
+    "prefix3/near": {
+     "q2_queries": 12280,
+     "pilot_n": 23,
+     "cpu_s": 13.24,
+     "estimate": "stratum mean"
+    },
+    "prefix3/vacated": {
+     "q2_queries": 4185,
+     "pilot_n": 23,
+     "cpu_s": 28.63,
+     "estimate": "stratum mean"
+    },
+    "root/far": {
+     "q2_queries": 31262,
+     "pilot_n": 47,
+     "cpu_s": 35.49,
+     "estimate": "stratum mean"
+    },
+    "root/mid": {
+     "q2_queries": 53011,
+     "pilot_n": 53,
+     "cpu_s": 41.76,
+     "estimate": "stratum mean"
+    },
+    "root/near": {
+     "q2_queries": 52743,
+     "pilot_n": 100,
+     "cpu_s": 13.0,
+     "estimate": "stratum mean"
+    }
+   },
+   "rule": "max(pilot mean, Q2-composition weighted) x 1.5 (reviewed R5 rule)"
+  }
+ }
+}
+FROZEN production policy (quota Q2); the full job is NOT started by this tool.

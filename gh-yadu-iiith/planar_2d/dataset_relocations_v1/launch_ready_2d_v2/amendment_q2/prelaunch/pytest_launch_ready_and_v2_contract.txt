@@ -1,0 +1,19 @@
+..............F.                                                         [100%]
+=================================== FAILURES ===================================
+_____________ test_production_guard_always_refuses_without_policy ______________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7a84f35cda30>
+
+    def test_production_guard_always_refuses_without_policy(monkeypatch):
+        target = Path(R.cfg_of(L)["full_run_dir"])
+        assert not target.exists()
+        monkeypatch.setattr(P, "plan_carry", lambda *a, **k: pytest.fail("teacher motion planner invoked"))
+        monkeypatch.setattr(R, "run", lambda *a, **k: pytest.fail("production runner invoked"))
+>       with pytest.raises(SystemExit):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE SystemExit
+
+/home/naren/Desktop/rss-placement-ready-v2/gh-yadu-iiith/planar_2d/dataset_relocations_v1/code_v2/test_v2_contract.py:111: Failed
+=========================== short test summary info ============================
+FAILED test_v2_contract.py::test_production_guard_always_refuses_without_policy
+1 failed, 15 passed in 132.51s (0:02:12)

@@ -1,0 +1,53 @@
+{
+ "decision": "LAUNCHED_Q2_RUNNING",
+ "amendment": "Q2_PRODUCTION_AMENDMENT_V1",
+ "user_authorization_verbatim": "I authorise starting the 2D Q2 placement dataset collection on my laptop: 238,160 physical placement queries, ADAPTIVE_FULL 8→32 valid mode pairs, 25 workers, the existing verified boost-OFF thermal/safety configuration.",
+ "authorization_source": "the user's execution prompt (attached contract Claude_Opus_5_5_FINAL_Dual_2D_Q2_3D_V4_Launch_Monitor_Backup.md and pasted message), recorded by Claude Opus 5.5 in session 2b63770c; no personal identity invented",
+ "history": {
+  "pre_registered_decision": "MOCK_V2_DECISION.json (sha256 65a4b12ec5aa6bae4ee26c2f77054013fbf6bfc1eca4fd9fd381f6669998e4c5, unchanged): NOT_READY_TO_LAUNCH, failures [RUNTIME_FORECAST] for Q1 (357,240 queries, 7.62 d with the 1.5x buffer > 7 d)",
+  "q2_was_not_pre_registered_as_production": "Q2 is one of the four quotas predeclared in launch_plan.QUOTAS before the pilot; it was chosen after the Q1 verdict and authorized explicitly",
+  "superseded_first_decide": "audit/superseded/production_policy.first_decide_SUPERSEDED.json (pilot-mean forecast, review fix R5) stays superseded"
+ },
+ "amendment_decision": {"file": "amendment_q2/Q2_AMENDMENT_DECISION.json", "sha256": "1cd73cda47f6a3040c9ca20e2d61805c622346b889e2eff9955ffe75d8277ce3",
+                        "verdict": "READY_TO_LAUNCH_Q2", "failures": [], "evidence_gates_identical_to_q1_decision": true,
+                        "tool": "amendment_q2/q2_amendment.py (reuses the reviewed gate's setup / static / compare_adaptive; reviewed gate sha256 5ed7f758... as registered in audit/checksums.sha256)"},
+ "frozen": {
+  "production_policy_sha256": "cf6db768eb981695045349b13d411c42732b25c97235c931dc8bc0b9baf32f44",
+  "frozen_hashes_json_sha256": "fc8706dfae95e15c38ce11bff7ab55684c886563432e8f78969574d92f55f936",
+  "query_plan_jsonl_gz_sha256": "935cd9dfd950aff2535d62eab21c5570cc4499a1e2c16cafc50ca85768f3f767",
+  "query_plan_content_sha256": "724268596b12889b... (plan_hashes.json)",
+  "split_manifest_sha256": "e253b6233c6fc7522330b43f1462a82c0640d9a57e4c1c2777bf66fc1a165ac5",
+  "launch_config_sha256": "521b5e48efd2676a17acb87f1914077e4e62b91b782cd5393b5ccd87a522d355",
+  "policy": {"coverage": "ADAPTIVE_FULL", "pairs_per_query": 8, "rescue_pairs": 32, "witness_store_max": 32, "reuse_archived": false},
+  "budget_hash": "0cd2597b0d9141fb", "pair_protocol_id": "938b09a23a581152",
+  "quota": "Q2", "quota_spec": {"root_objects": 4, "root_dests": 8, "prefixes": 3, "prefix_objects": 2, "prefix_dests": 4}
+ },
+ "counts": {"teacher_queries": 238160, "by_split": {"train": 162484, "val": 37800, "test": 37876},
+            "static_ineligible_rows_separate": 11805, "run_manifest_tasks": 249965, "roots_with_queries": 4620, "source_roots": 5000},
+ "forecast_q2": {"wall_days_expected": 3.25, "wall_days_with_1p5_buffer": 4.87, "cpu_hours_with_1p5_buffer": 2847.5,
+                 "disk_mb_with_1p5_buffer_and_500mb_overhead": 3613.2, "throughput_cpu_s_per_s": 24.36,
+                 "rule": "max(pilot mean, Q2-composition weighted) x 1.5; unseen prefix x far / mid strata use the pooled dest_bin mean"},
+ "gates_before_launch": {
+  "amendment_static": "STATIC_PASS (target-goal independence, protected-metadata independence, two-edit contexts, split identity vs v1, plan hash, baseline integrity, metadata preflight 0 teacher calls)",
+  "launch_runner_preflight_full": {"passed": true, "planner_calls": 0, "checks": "all true: selected / roots / plan / split / config / pair protocol / CPU sets / k10temp Tctl / AC / memory / disk / cpu_boost_disabled / oracle-free policy / all witnesses saved / policy frozen / no conflicting full run"},
+  "launch_plan_verify": {"query_plan_reproduced": true, "selected_unchanged": true},
+  "launch_check_integrity": "original dataset 47,384 files, smoke_20261106 1,129, smoke_repro_v2 2,461: 0 changed / 0 added; smoke code unchanged; original dataset git status clean",
+  "pytest_test_launch_ready_and_test_v2_contract": "15 passed, 1 failed: test_production_guard_always_refuses_without_policy expects a refusal because NO production policy exists; after the authorized freeze the guard correctly PASSES with the current token (checks only, no run, no directory). Its premise is pre-freeze; the refusal paths were exercised directly instead (below). The frozen test file was not edited.",
+  "refusal_no_arguments": "launch_full_2d.sh with no arguments -> REFUSED: usage ... (exit 2)",
+  "refusal_wrong_token": "launch_runner.py guard ... --confirm <wrong> -> REFUSED: confirmation token does not match the current frozen plan / split / config / policy hashes",
+  "guard_with_current_token": "PASSED (quota Q2, ADAPTIVE_FULL 8->32), nothing created",
+  "host": {"cpu_boost": "0 (OFF)", "ac_online": true, "k10temp_tctl_c_at_preflight": 62.9, "free_disk_mb": 57270, "mem_available_mb": 12415}
+ },
+ "launch": {
+  "command": "setsid bash launch_ready_2d_v2/launch_full_2d.sh --execute-full --confirm <current Q2 token, not recorded in Git>  (on the laptop HOST via flatpak-spawn --host, outside the VS Code sandbox)",
+  "invoked_utc": "2026-11-07T15:52:41Z", "coordinator_started_utc": "2026-11-07T15:53:40Z (run_manifest.json written)",
+  "coordinator_pid": 490644, "supervision": "nohup (launcher default) + setsid; re-parented to the user systemd manager; survives VS Code / shell exit",
+  "workers": 25, "worker_cpus": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 24, 17, 25, 18, 26, 19, 27, 20], "coordinator_cpus": [21, 22, 23, 28, 29, 30, 31],
+  "sleep_inhibitor": "systemd-inhibit --what=sleep:idle:handle-lid-switch --mode=block (user level) held while pid 490644 lives",
+  "run_dir": "/home/naren/Desktop/rss-placement-ready-v2/gh-yadu-iiith/planar_2d/dataset_relocations_v1/full_2d_v2",
+  "run_manifest_sha256": "359ecbf441abe8975a1f70ad4535aea0daa4742efb767bb653ba83d91c1cd147",
+  "first_packed_root": "records/2d-plus2d-srv-w0058-s005.json",
+  "evidence_at_12_min": {"queries_done": 641, "roots_packed": 9, "queries_per_h": 3143.6, "temp_c": 69.6, "pauses": 0, "frozen": false, "mem_available_mb": 12007, "labels": {"1": 423, "0": 188, "null_static_contrast": 30}}
+ },
+ "backup": "packed roots (records/, modes/, witnesses/) -> gvlab:/ssd_scratch/nav_placement2d_backup/full_2d_v2 every 10 min by the laptop relay (status4.py), rehashed on gvlab each cycle; restore test amendment_q2/restore_test_2d.json"
+}
