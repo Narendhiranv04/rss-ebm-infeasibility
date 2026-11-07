@@ -1,0 +1,51 @@
+2026-11-07T06:28:53Z tests done; starting candidates
+2026-11-07T06:28:53Z start adaptive_v1_A adaptive_v1 --workers 12 --cpus 0-11
+{"event": "end", "t": 1794033267.8035252, "wall_s": 334.2626314163208, "units_done_now": 42, "complete": true, "safety_stop": null}
+2026-11-07T06:34:27Z end adaptive_v1_A rc=0
+2026-11-07T06:34:27Z start adaptive_v1_B adaptive_v1 --workers 12 --cpus 0-11
+{"event": "end", "t": 1794033605.577176, "wall_s": 337.465665102005, "units_done_now": 42, "complete": true, "safety_stop": null}
+2026-11-07T06:40:05Z end adaptive_v1_B rc=0
+2026-11-07T06:40:05Z start fixed_4x1500 fixed_4x1500 --workers 12 --cpus 0-11
+{"event": "end", "t": 1794033904.5362632, "wall_s": 298.61282896995544, "units_done_now": 42, "complete": true, "safety_stop": null}
+2026-11-07T06:45:04Z end fixed_4x1500 rc=0
+2026-11-07T06:45:04Z start fixed_4x5000 fixed_4x5000 --workers 12 --cpus 0-11
+{"event": "end", "t": 1794034210.8476603, "wall_s": 306.02439284324646, "units_done_now": 42, "complete": true, "safety_stop": null}
+2026-11-07T06:50:10Z end fixed_4x5000 rc=0
+2026-11-07T06:50:10Z start fixed_8x5000 fixed_8x5000 --workers 12 --cpus 0-11
+{"event": "end", "t": 1794034590.1069167, "wall_s": 378.915646314621, "units_done_now": 42, "complete": true, "safety_stop": null}
+2026-11-07T06:56:30Z end fixed_8x5000 rc=0
+2026-11-07T06:56:30Z phase1 start
+2026-11-07T06:58:15Z killed pgid 2583309; remaining: 0
+2026-11-07T06:58:15Z phase2 resume
+2026-11-07T07:02:55Z phase2 rc=0
+2026-11-07T07:02:55Z start sweep_8 adaptive_v1 --workers 8 --cpus 0-7 --unit query --subset mock_v2/configs/sweep_qids.txt
+{"event": "end", "t": 1794035261.3161943, "wall_s": 285.16077303886414, "units_done_now": 167, "complete": true, "safety_stop": null}
+2026-11-07T07:07:41Z end sweep_8 rc=0
+2026-11-07T07:07:41Z start sweep_12 adaptive_v1 --workers 12 --cpus 0-11 --unit query --subset mock_v2/configs/sweep_qids.txt
+{"event": "end", "t": 1794035458.9879, "wall_s": 197.32047080993652, "units_done_now": 167, "complete": true, "safety_stop": null}
+2026-11-07T07:10:59Z end sweep_12 rc=0
+2026-11-07T07:10:59Z start sweep_16 adaptive_v1 --workers 16 --cpus 0-15 --unit query --subset mock_v2/configs/sweep_qids.txt
+{"event": "end", "t": 1794035660.0825455, "wall_s": 200.7591528892517, "units_done_now": 167, "complete": true, "safety_stop": null}
+2026-11-07T07:14:20Z end sweep_16 rc=0
+2026-11-07T07:14:20Z start sweep_18 adaptive_v1 --workers 18 --cpus 0-17 --unit query --subset mock_v2/configs/sweep_qids.txt
+{"event": "end", "t": 1794035863.9415288, "wall_s": 203.4896101951599, "units_done_now": 167, "complete": true, "safety_stop": null}
+2026-11-07T07:17:44Z end sweep_18 rc=0
+2026-11-07T07:17:44Z start serial_adaptive adaptive_v1 --workers 1 --cpus 0 --unit query --subset mock_v2/configs/serial_qids.txt
+{"event": "end", "t": 1794036388.8881216, "wall_s": 524.5884656906128, "units_done_now": 42, "complete": true, "safety_stop": null}
+2026-11-07T07:26:28Z end serial_adaptive rc=0
+2026-11-07T07:26:28Z replay reference_v2
+2026-11-07T07:30:11Z replay adaptive_v1_A
+2026-11-07T07:30:40Z replay adaptive_v1_B
+2026-11-07T07:31:10Z replay fixed_4x1500
+2026-11-07T07:31:37Z replay fixed_4x5000
+2026-11-07T07:32:07Z replay fixed_8x5000
+2026-11-07T07:32:36Z replay adaptive_v1_interrupt
+2026-11-07T07:33:05Z replay serial_adaptive
+2026-11-07T07:33:09Z finger diagnostic
+2026-11-07T07:43:52Z post-run tests
+2026-11-07T07:51:07Z integrity
+pinned-source integrity rc=0
+v1 tree unchanged rc=0
+tracked changes in pinned clone: 0
+2026-11-07T07:51:08Z analysis
+2026-11-07T08:08:14Z ALL DONE
