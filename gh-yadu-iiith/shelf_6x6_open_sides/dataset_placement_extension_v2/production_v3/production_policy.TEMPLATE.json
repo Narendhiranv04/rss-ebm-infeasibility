@@ -1,0 +1,172 @@
+{
+ "authorization": {
+  "authorized_by": null,
+  "authorized_utc": null,
+  "statement": null
+ },
+ "cpus": "0-11",
+ "frozen": {
+  "code_sha256": {
+   "collect3d.py": "1d8a3c212ddf29a5027d7d6d5b3ff43a0369c3bb0e256964a8f131b579c69f2d",
+   "guard3d.py": "ff747256bad0bbdb2f84b3f3404bbc1d23dcf712cc393342d9c1ec79d58bc73f",
+   "placement3d.py": "b8a0d1a739e9a80ed91979a9cddbebe05bb5b734692d2ac6337068243775756c",
+   "plan3d.py": "532fb41c8d6ca4abbee7e8ff96b04f7bdb01ae0ab27e29fc52458720209586e4",
+   "policy3d.py": "895d9185e5d51f5c38f7cca39edbd097a4975e498366afe3f16cf9097583775e",
+   "prod3d.py": "bdaaf6c6b98f8d26d8252d5d44676e9a96c7da4f6a9aff892f9305b190d023d0",
+   "run3d.py": "f75275be8b74ed6253f41706b1359622da300ff6c4bd64df169510d6d31be615"
+  },
+  "cpus": "0-11",
+  "early_stop": true,
+  "guard_cpu_s": 1200.0,
+  "implemented_stages": [
+   [
+    4,
+    500
+   ],
+   [
+    8,
+    1500
+   ],
+   [
+    16,
+    5000
+   ]
+  ],
+  "inputs": {
+   "cohort_manifest": {
+    "path": "production_v3/frozen/cohort_manifest.json",
+    "sha256": "36d139c8a1e5d7abe30137c1ac3a03f4d2f8cf630c915281477831925e668ef8"
+   },
+   "forecast": {
+    "path": "production_v3/frozen/forecast_first_cohort.json",
+    "sha256": "ffc8aa2a22c311e52aad9cd4be9247b228926fd50c5ad3b5ac47942dc0064f16"
+   },
+   "qc_roots": {
+    "path": "production_v3/QC_ELIGIBLE_ROOTS.json",
+    "sha256": "52137ff140bc1db25cff432f5cafbbf56cdd90fad1745bbaf5f79eb17afaf620"
+   },
+   "roster": {
+    "path": "production_v3/frozen/first_cohort_roster.jsonl.gz",
+    "sha256": "26b887eacb8bff3015d9ec01bbf91e065bfca0a35bd057b19be8f286c6f4898d"
+   },
+   "source_pin": {
+    "path": "production_v3/frozen/source_pin_first_cohort.json",
+    "sha256": "422d3c1af6b2aba09ebb50251b2b197331bc2dcb9cb64a140db47b21deef166d"
+   },
+   "split_manifest": {
+    "path": "production_v3/frozen/split_manifest_first_cohort.json",
+    "sha256": "f9d377812fbc7afb0e2fd1863d6b35f8607fa057c8f5f853f03d4493024da461"
+   }
+  },
+  "mode": "PRODUCTION_FIRST_COHORT",
+  "policy": "adaptive_v1",
+  "run_dir": "production_v3/run_first_cohort",
+  "source": {
+   "SHELF_SRC": "/home/nav/approachb3d_v3/repo/gh-yadu-iiith/shelf_6x6_open_sides/dataset_bd_classquota_without_home_position_no_overpass",
+   "files_sha256": {
+    "code/dataset-bd/bd_core.py": "f34b881c061a4d2610b46d6f70284c2f626ad6a70d85fef737a526068658d075",
+    "code/shelf66_v3/bd_3dt.py": "62dc853ccb5055eaad738a9b2eb810c1de5cb12621c1039bbd68c20b54058815",
+    "code/shelf66_v3/bd_3dt_plus.py": "c406c3cb2b71ff66f33cd8483d87f471e32c14432b6f19007c73298e39395263",
+    "code/shelf66_v3/bd_shelf.py": "ef71dcf43c6df19d4b84332876ecf02ac5356683fc063d622c18fca23318479c",
+    "code/shelf66_v3/none_audit66_v3.py": "8aa7b964b1ff82d7ef6f15c119812fbbf9c6eaca9141059f86818585d22183ec",
+    "code/shelf66_v3/reteach_shelf66_v3.py": "6c2254fe136b8bf781366ab9c5554d87dc6658cbf6a915d6eaf3fe6359e15ce3",
+    "code/shelf66_v3/run_shelf66_full.py": "102ac4bb218296375d3abc24582205e9e0be7651fc43aa03949a6306583e0cc0",
+    "raw/EXCLUDED_FIXED_OBJECT.json": "b068673e8109e71e3442d037c1659ecdca9a6441e7e32ff03f05fa11e29afabf",
+    "scene/mujoco_menagerie/ufactory_xarm7/CHANGELOG.md": "1ffbf4c8599f2cf371a488ee878d4025f6500b999640de12546b631f37f8896e",
+    "scene/mujoco_menagerie/ufactory_xarm7/LICENSE": "4fe659325706d0fc41592c8743d085a0bdf778056249f2a108943d22be916fb2",
+    "scene/mujoco_menagerie/ufactory_xarm7/README.md": "42f9df53f08a54251e832a6454107fe9eec52581d250212856e345f06b53ca76",
+    "scene/mujoco_menagerie/ufactory_xarm7/assets/base_link.stl": "cdaa4cff22f7c9cff05c6a8ed32f94fd2b11a69d37dd97a159ccee2d8dd32f13",
+    "scene/mujoco_menagerie/ufactory_xarm7/assets/end_tool.stl": "e06112781cdd615b7df536569f50addb445a6f4b4acced6d53b0742018b6c768",
+    "scene/mujoco_menagerie/ufactory_xarm7/assets/left_finger.stl": "a44756eb72f9c214cb37e61dc209cd7073fdff3e4271a7423476ef6fd090d2d4",
+    "scene/mujoco_menagerie/ufactory_xarm7/assets/left_inner_knuckle.stl": "e8e48692ad26837bb3d6a97582c89784d09948fc09bfe4e5a59017859ff04dac",
+    "scene/mujoco_menagerie/ufactory_xarm7/assets/left_outer_knuckle.stl": "501665812b08d67e764390db781e839adc6896a9540301d60adf606f57648921",
+    "scene/mujoco_menagerie/ufactory_xarm7/assets/link1.stl": "34b541122df84d2ef5fcb91b715eb19659dc15ad8d44a191dde481f780265636",
+    "scene/mujoco_menagerie/ufactory_xarm7/assets/link2.stl": "61e641cd47c169ecef779683332e00e4914db729bf02dfb61bfbe69351827455",
+    "scene/mujoco_menagerie/ufactory_xarm7/assets/link3.stl": "9e2798e7946dd70046c95455d5ba96392d0b54a6069caba91dc4ca66e1379b42",
+    "scene/mujoco_menagerie/ufactory_xarm7/assets/link4.stl": "c757fee95f873191a0633c355c07a360032960771cabbd7593a6cdb0f1ffb089",
+    "scene/mujoco_menagerie/ufactory_xarm7/assets/link5.stl": "715ad5787c5dab57589937fd47289882707b5e1eb997e340d567785b02f4ec90",
+    "scene/mujoco_menagerie/ufactory_xarm7/assets/link6.stl": "85b320aa420497827223d16d492bba8de091173374e361396fc7a5dad7bdb0cb",
+    "scene/mujoco_menagerie/ufactory_xarm7/assets/link7.stl": "97115d848fbf802cb770cd9be639ae2af993103b9d9bbb0c50c943c738a36f18",
+    "scene/mujoco_menagerie/ufactory_xarm7/assets/link_base.stl": "cf52275a913a0977595f5d12373f06583513e26fe18b8cf2827c74da94a4f0be",
+    "scene/mujoco_menagerie/ufactory_xarm7/assets/right_finger.stl": "c5dee87c7f37baf554b8456ebfe0b3e8ed0b22b8938bd1add6505c2ad6d32c7d",
+    "scene/mujoco_menagerie/ufactory_xarm7/assets/right_inner_knuckle.stl": "b41dd2c2c550281bf78d7cc6fa117b14786700e5c453560a0cb5fd6dfa0ffb3e",
+    "scene/mujoco_menagerie/ufactory_xarm7/assets/right_outer_knuckle.stl": "75ca1107d0a42a0f03802a9a49cab48419b31851ee8935f8f1ca06be1c1c91e8",
+    "scene/mujoco_menagerie/ufactory_xarm7/hand.xml": "2b404c4470c7998003f573cfc90c4fb513ef1b4d34b2fddccecbd3ef4a0e91a2",
+    "scene/mujoco_menagerie/ufactory_xarm7/scene.xml": "cb444850dc498bdfc143c1b2cb7a9752b5df999c0138d35bf19db4136b8a6ce9",
+    "scene/mujoco_menagerie/ufactory_xarm7/xarm7.png": "636e9e7a4396b54580231399dd64bb35d817814599eb160cede5886c63516228",
+    "scene/mujoco_menagerie/ufactory_xarm7/xarm7.xml": "ac6b369e0b9c5abdaca55d2c6c048102f2e1133bf550b059a8622afa4b9da433",
+    "scene/mujoco_menagerie/ufactory_xarm7/xarm7_nohand.xml": "90bcc0e2fbbe5fa95dbbafb74e56bd0106ecc6f5767a4dc3e7c511016efc023c",
+    "scene/rrt_connect.py": "d2a2e25cfc7321b66842090a42b14b0ee414147ff2ffdf7d91bd8e0d044a78db",
+    "scene/rrt_star.py": "b35ff354d6d8dfde32bc182762effa1e2f06b0a0814f1a916f3a248fbfbe193b",
+    "scene/shelf_scene.py": "a8453e249d1654dc5e25640c0613946809e68aecda70a2cb189b17c0deae3552",
+    "scene/xarm7_cabinet_env.py": "4da37932cbfb8473248600f52f2d204e3d6ccfe13badde6095f40822f351c7f0",
+    "selected.json": "cc0675f00d1263e204a68089d8ad6f9ad4cbb8da349f96bd2cf87130eb09accc"
+   }
+  },
+  "splits": [
+   "train",
+   "val",
+   "test"
+  ],
+  "stages": [
+   [
+    4,
+    500
+   ],
+   [
+    8,
+    1500
+   ],
+   [
+    16,
+    5000
+   ]
+  ],
+  "teacher_protocol": "89cbabed5d7e4847",
+  "unit": "root",
+  "version": "SHELF66V3_PLACE_PRODUCTION_V3",
+  "workers": 12
+ },
+ "guard_cpu_s": 1200.0,
+ "inputs": {
+  "cohort_manifest": "production_v3/frozen/cohort_manifest.json",
+  "forecast": "production_v3/frozen/forecast_first_cohort.json",
+  "qc_roots": "production_v3/QC_ELIGIBLE_ROOTS.json",
+  "roster": "production_v3/frozen/first_cohort_roster.jsonl.gz",
+  "source_pin": "production_v3/frozen/source_pin_first_cohort.json",
+  "split_manifest": "production_v3/frozen/split_manifest_first_cohort.json"
+ },
+ "mode": "PRODUCTION_FIRST_COHORT",
+ "policy": "adaptive_v1",
+ "run_dir": "production_v3/run_first_cohort",
+ "source_layout": {
+  "SHELF_SRC": "/home/nav/approachb3d_v3/repo/gh-yadu-iiith/shelf_6x6_open_sides/dataset_bd_classquota_without_home_position_no_overpass",
+  "what": "the native dataset directory (raw/, selected.json, code/) of the checkout the run uses; its selected.json, EXCLUDED_FIXED_OBJECT.json, generator / scene code, robot model and every roster root must equal the source pin"
+ },
+ "splits": [
+  "train",
+  "val",
+  "test"
+ ],
+ "stages": [
+  [
+   4,
+   500
+  ],
+  [
+   8,
+   1500
+  ],
+  [
+   16,
+   5000
+  ]
+ ],
+ "status": "TEMPLATE -- NOT AUTHORIZED (first-cohort collection not started)",
+ "test_authorization": null,
+ "token_procedure": "after filling `authorization`: python code/prod3d.py token <this file>  (any later change invalidates it)",
+ "unit": "root",
+ "version": "SHELF66V3_PLACE_PRODUCTION_V3",
+ "workers": 12,
+ "written_utc": "2026-11-07T11:58:28Z"
+}
