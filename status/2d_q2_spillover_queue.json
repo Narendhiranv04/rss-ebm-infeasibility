@@ -1,43 +1,68 @@
 {
- "gate3d_collection": {
+ "gate3d": {
   "facts": {
-   "coretemp_c": 46.0,
-   "cpu0_13_busy_pct": 88.8,
+   "audit_complete": true,
+   "audit_validated": 1466,
+   "coretemp_c": 45.0,
+   "cpu0_13_busy_pct": 88.6,
    "disk_free_gb": 57.5,
-   "last_end_complete": false,
-   "load1": 12.5234375,
-   "mem_avail_gb": 47.1,
+   "last_end_complete": true,
+   "load1": 12.75146484375,
+   "mem_avail_gb": 48.6,
    "project_processes": [
     {
-     "cmd": "bash -c sleep 5; cd /home/nav/approachb3d_v3/repo/gh-yadu-iiith/shelf_6x6_open_sides/dataset_placement_extension_v2 && SHELF_SRC=/home/nav/a",
-     "pid": 3264061
-    },
-    {
-     "cmd": "/home/nav/approachb3d_mock/env/bin/python code/collect4.py --policy-file /home/nav/approachb3d_v3/repo/gh-yadu-iiith/shelf_6x6_open_sides/da",
-     "pid": 3264085
+     "cmd": "/home/nav/approachb3d_mock/env/bin/python code/replay3d.py ours production_v4/run_q2_parity production_v4/frozen/q2_parity_roster_v4.jsonl.g",
+     "pid": 3513645
     }
    ],
    "queries_total": 59972,
-   "units_done": 1443,
-   "units_total": 1466
+   "replay_failures": 0,
+   "replay_replayed": null,
+   "replay_verified": null,
+   "units_done": 1466,
+   "units_total": 1466,
+   "witness_associations": 40822
   },
   "pass": false,
   "reasons": [
-   "3D collection incomplete (1443/1466 units, last end complete=False)",
-   "project compute still active on gvlab: ['bash -c sleep 5; cd /home/nav/approachb3d_v3/repo/gh-yadu-ii', '/home/nav/approachb3d_mock/env/bin/python code/collect4.py -']",
-   "3D collector lock still held",
+   "3D 100% positive-witness replay missing or not fully verified",
+   "project compute still active on gvlab: ['/home/nav/approachb3d_mock/env/bin/python code/replay3d.py o']",
    "CPUs 0-13 busy with other work (> 25%)"
   ],
-  "utc": "2026-11-07T19:00:05Z"
+  "utc": "2026-11-07T19:10:05Z"
  },
- "history": [],
+ "gate3d_collection": {
+  "facts": {
+   "coretemp_c": 24.0,
+   "cpu0_13_busy_pct": 1.2,
+   "disk_free_gb": 57.5,
+   "last_end_complete": true,
+   "load1": 3.02294921875,
+   "mem_avail_gb": 60.7,
+   "project_processes": [],
+   "queries_total": 59972,
+   "units_done": 1466,
+   "units_total": 1466
+  },
+  "pass": true,
+  "reasons": [],
+  "utc": "2026-11-07T19:02:05Z"
+ },
+ "history": [
+  [
+   "2026-11-07T19:02:01Z",
+   "WAIT_3D",
+   "VERIFY_3D"
+  ]
+ ],
  "inhibitor_probe": {
   "cron_can_inhibit": false,
   "queue_holder_listed": true,
   "t": 1794075481.9690297,
   "utc": "2026-11-07T18:18:01Z"
  },
- "last_tick_utc": "2026-11-07T19:00:01Z",
- "state": "WAIT_3D",
+ "last_tick_utc": "2026-11-07T19:10:01Z",
+ "post3d_started": "2026-11-07T19:04:01Z",
+ "state": "VERIFY_3D",
  "version": "Q2_2D_SPILLOVER_V1"
 }
