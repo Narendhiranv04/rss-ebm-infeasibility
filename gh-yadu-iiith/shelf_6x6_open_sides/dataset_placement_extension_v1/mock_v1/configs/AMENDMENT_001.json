@@ -1,0 +1,14 @@
+{
+ "amendment": "001",
+ "utc": "2026-11-06T22:58:33Z",
+ "file": "code/run3d.py",
+ "old_sha256": "706c455cece1c64ab69c70164919d4c643ffe9d7eaed09e9ad2fc43636630a6f",
+ "new_sha256": "794aaffb2116c4696ce98459eac413c2108436df8a7820354ae4ebd995fcea61",
+ "reason": "monitor thread crashed at first launch: /sys/class/hwmon/hwmon2 has no name file; sensors() now skips unreadable hwmon entries and any monitor error now stops the run (fail closed). Collector-only change: placement3d.py / policy3d.py / plan3d.py unchanged; no thresholds, policies, roster or gates changed.",
+ "aborted_run_preserved": "mock_v1/runs_aborted/reference_v1_monitor_crash (8 units written before the stop; not used as evidence)",
+ "unchanged": {
+  "code/placement3d.py": "d9d9467402d4c6e9b49f9c9e5a99b610cf9f5dc3594a76b781c162c803593c79",
+  "code/policy3d.py": "2e93800cb30e0b8d191778724543dc8a058815e2aeffc4c2d91d0b3ceefce6bc",
+  "code/plan3d.py": "5ff053d22cfd9b8ddad11bd793cd168cc05ea4778a7357b51270ce5b71a8c2e8"
+ }
+}

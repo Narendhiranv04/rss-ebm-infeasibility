@@ -1,0 +1,37 @@
+{
+ "broad_pilot": {
+  "policy": "adaptive_v1",
+  "repeats": 2,
+  "subset": "all",
+  "unit": "root"
+ },
+ "frozen_utc": "2026-11-06T22:56:49Z",
+ "guard_cpu_s": 1200,
+ "interrupt_test": {
+  "kill_after_units": 8,
+  "policy": "adaptive_v1",
+  "subset": "all",
+  "unit": "root"
+ },
+ "reference_run": {
+  "policy": "reference_v1",
+  "subset": "reference",
+  "unit": "root"
+ },
+ "worker_sweep": {
+  "configs": {
+   "12": "0-11",
+   "16": "0-15",
+   "18": "0-17",
+   "8": "0-7"
+  },
+  "policy": "adaptive_v1",
+  "serial": {
+   "cpus": "0",
+   "subset": "serial",
+   "unit": "query"
+  },
+  "subset": "all",
+  "unit": "query"
+ }
+}

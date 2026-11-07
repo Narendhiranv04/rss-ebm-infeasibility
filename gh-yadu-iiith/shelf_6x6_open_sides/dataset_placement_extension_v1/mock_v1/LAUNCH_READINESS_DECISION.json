@@ -1,0 +1,92 @@
+{
+ "decision": "MOCK_PASS",
+ "date_utc": "2026-11-07",
+ "host": "nav@gvlab (Intel Xeon Gold 5317, 12 cores / 24 logical CPUs)",
+ "meaning": "The small 3D placement-only teacher/collector is semantically correct, reproducible and physically validated under its finite policy. It does NOT mean the source dataset is complete, that all 3D grasp configurations were searched, that any confidence is calibrated, or that production collection is authorized.",
+ "full_collection_authorized": false,
+ "full_collection_launchable_from_here": false,
+ "sub_verdicts": {
+  "semantics": "PASS",
+  "determinism": "PASS",
+  "physical_witness": "PASS",
+  "negative_audit": "PASS",
+  "interrupt_resume": "PASS",
+  "storage": "PASS",
+  "source_integrity": "PASS",
+  "split_leakage": "PASS",
+  "finger_regression": "PASS (inherited conservative structure-check finger opening disclosed: 0.55% of poses)",
+  "safety": "PASS",
+  "coverage": "PASS for K0-K3 / depth 0-2 / near-mid-far-vacated / box-cylinder / clutter bands; COVERAGE_BLOCKED for K4 (no roots exist) and NONE (3 roots, 1 train, unsampled)",
+  "label_quality": "PASS",
+  "baseline_replay": "PASS",
+  "visualization": "PASS",
+  "runtime": "PASS"
+ },
+ "policy": {
+  "rule_literal_choice": "fixed_4x1500",
+  "rule_literal_basis": "cheapest passing policy on the 40-query reference subset (virtual CPU 6.34 s/query, 1/26 reference positives missed = 3.8%); adaptive_v1 virtual CPU ratio 1.175 > 1.15",
+  "recommended": "adaptive_v1",
+  "recommended_stages": [[4, 500], [8, 1500], [16, 5000]],
+  "recommendation_requires_user_confirmation": true,
+  "why_recommended_differs": [
+   "broad pilot (205 queries, reference label known for all via a disclosed post-hoc reference supplement on the 27 adaptive NEG_UNDER_POLICY queries): fixed_4x1500 misses 6/138 reference positives, all FAR destinations: far band 6/45 = 13.3% (Wilson 6.3-26.2%) > the rule's 10% stratum limit, which the 40-query subset could not evaluate (9 far reference positives < 10)",
+   "adaptive_v1 misses 0/138 overall (Wilson 0-2.7%), 0/45 far (0-7.9%)",
+   "measured CPU ratio adaptive_v1 / fixed_4x1500 on the same 205 queries = 1.10, within the rule's own 1.15 adaptive-preference margin",
+   "adaptive_v1 is the predeclared broad-pilot policy and carries the full evidence (2 runs, serial, sweeps, interrupt, replays)"
+  ],
+  "thresholds_changed": false,
+  "label_semantics": "1 = a scheduled valid, physically held grasp unit passes all 13 MuJoCo verification gates; 0 = NEG_CERTIFIED_GEOMETRY or NEG_UNDER_POLICY (BOUNDED_SEARCH / EXECUTION / DETERMINISTIC_PLAN) with full mode accounting; unlabeled = static ineligible, NO_VALID_POST_GRASP_STATE, INTERRUPTED (never 0)"
+ },
+ "workers": {
+  "recommended": 12,
+  "cpu_mask": "0-11 (physical cores; SMT siblings 12-23 and >= 6 logical CPUs left free)",
+  "sweep_queries_per_wall_s": {"1": 0.0814, "8": 0.5977, "12": 0.8567, "16": 0.8766, "18": 0.8628},
+  "steady_state_estimate_q_per_s": {"8": 0.626, "12": 0.933, "16": 0.935, "18": 0.939},
+  "cpu_inflation_vs_serial": {"8": 1.0, "12": 1.02, "16": 1.29, "18": 1.54},
+  "rule": "fastest; a config with fewer workers within 5% wins",
+  "hard_cpu_quota_available": false
+ },
+ "projection_snapshot_roster": {
+  "source": "GitHub yadu/dataset-3d @ 8032ad0bf842a490897a8247ee46312036c12546 (1,492 selected roots); live store on 10.4.25.63 NOT inspected",
+  "production_queries": 12751,
+  "production_roots_with_queries": 1376,
+  "static_contrasts_unlabeled": 2588,
+  "policy": "adaptive_v1",
+  "cpu_hours": 30.21,
+  "cpu_hours_p05_p95": [26.84, 33.5],
+  "wall_days_expected_12_workers": 0.11,
+  "wall_days_p95": 0.122,
+  "wall_days_p95_x1_5_buffer": 0.184,
+  "limit_days_with_buffer": 7.0,
+  "disk_gb": 0.461,
+  "disk_gb_x1_5_buffer": 0.692,
+  "positive_rate_pilot": 0.673,
+  "alternative_fixed_4x1500": {"cpu_hours": 27.95, "wall_days_p95_x1_5_buffer": 0.173, "disk_gb": 0.429},
+  "full_2500_root_quota_scaled": {"cpu_hours": 54.9, "wall_days_p95_x1_5_buffer": 0.334, "caveat": "K4 (510) and NONE (408) unsampled; per-query cost assumed equal to the snapshot mean"}
+ },
+ "evidence": {
+  "root": "gvlab:~/approachb3d_mock/src/gh-yadu-iiith/shelf_6x6_open_sides/dataset_placement_extension_v1",
+  "branch": "naren/shelf66v3-placement-mock-v1 (local, not committed, not pushed)",
+  "analysis": "mock_v1/validation/analysis.json",
+  "runs": "mock_v1/runs/{reference,serial,sweep_8,sweep_12,sweep_16,sweep_18,pilot_A,pilot_B,interrupt,pilot_C1,pilot_C2,supplement_reference_on_adaptive_negatives}",
+  "configs_sha256": {"selection_rule.json": "bb2d56da02a361c7003832858f37f44fcef74f9dc79ceb3384de053d2569a9bc",
+                     "run_plan.json": "f125a65dde5d36127317fe4e68910319001b54c6d624763f8e2865bfd77f45e0",
+                     "fixtures.json": "941d10bccbe84b27ec3676d9b61c0d3db46f412598227ad81ae51950b30bb436",
+                     "roster.jsonl.gz": "08e95c08fe2befda4ebe09b1fc2b98810fa14c1eb6f56e078580a1f0a3d70e7e",
+                     "split_manifest.json (split sha)": "768437e00e187116ba54196b01c213817fb5c5491d66f36d8943064455d5d98f",
+                     "production_roster_design.jsonl.gz": "b159fe29cfdfed6947df0b3dce377fdd4edc00ddd60bc12901bd5011e283e489"},
+  "teacher_protocol": "SHELF66V3_PLACE_V1 d00f1d83541bb975 on XARM7_SHELF66_LEVELGRASP_V1:cd7f78f44022 / source config 8d521b1f6d23db23",
+  "amendments": ["AMENDMENT_001: run3d.py monitor crash fix (fail closed)", "AMENDMENT_002: policy3d.py pre-route bookkeeping for exact virtual accounting"],
+  "source_manifest_digest": "4c5d5d3f967819c96802758d006f08da0dd451513372449a3a38e133427833aa (12,424 entries, unchanged at the end)"
+ },
+ "unresolved_issues": [
+  "Live SHELF66V3 store (user1@10.4.25.63) not inspected; production roster must be rebuilt from it after a read-only copy and re-audit",
+  "K3 incomplete (264/357), K4 absent, NONE 3: parent-dataset generation issue; K4/NONE costs unmeasured",
+  "Policy choice: confirm adaptive_v1 (recommended) or the rule-literal fixed_4x1500 (far-band under-labelling)",
+  "pick-inaccessible / held-placeable fixture exists at mode level only (query-level not found in ~400 dev queries)",
+  "Structure check keeps the source's fully open finger default (conservative; 0.55% of poses)",
+  "run3d.py accepts train rows only; a reviewed v2 collector + production_policy.json are required before any full collection",
+  "No hard CPU quota on gvlab (cgroup controllers: memory, pids); ceiling enforced by affinity + monitor"
+ ],
+ "not_done_by_design": ["full 3D placement collection", "new source roots / K4 or NONE quota filling", "changes to the source generator or dataset", "2D production", "sampler or X/Y training", "push / merge / commit"]
+}

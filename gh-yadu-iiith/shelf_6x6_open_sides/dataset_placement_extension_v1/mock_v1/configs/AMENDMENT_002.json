@@ -1,0 +1,12 @@
+{
+ "amendment": "002",
+ "utc": "2026-11-06T23:40:20Z",
+ "file": "code/policy3d.py",
+ "old_sha256": "2e93800cb30e0b8d191778724543dc8a058815e2aeffc4c2d91d0b3ceefce6bc",
+ "new_sha256": "18faed677b0d045cd14531c2e3618dcea8ab2252751a190681b3a70829ebe2db",
+ "trigger": "predeclared determinism gate (virtual adaptive_v1 replayed from reference_v1 == real adaptive_v1, counted plan/exec work) failed on 3/36 reference queries; labels, unit states, verified ranks and witness ids matched 36/36",
+ "cause": "policy3d.virtual() charged a budget-truncated unit (route cut at B < route iterations) with the reference test's POST-route chain work; the record had no explicit pre-route work",
+ "fix": "run_mode now records work_pre_route / cpu_pre_route; virtual() charges pre-route + the first B route iterations only. Bookkeeping only: screening, planning, execution, verification, labels and the frozen selection rule / thresholds are unchanged",
+ "rerun": "reference subset only (runs/reference, same policy reference_v1, same roster); superseded run kept at runs_superseded/reference_v1a_pre_amendment_002",
+ "not_rerun": "pilot_A/B, serial, sweeps, interrupt: teacher outcomes are unaffected; their records lack only the new bookkeeping fields"
+}

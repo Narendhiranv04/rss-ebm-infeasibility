@@ -1,0 +1,150 @@
+{
+ "code": {
+  "placement3d.py": "d9d9467402d4c6e9b49f9c9e5a99b610cf9f5dc3594a76b781c162c803593c79",
+  "plan3d.py": "5ff053d22cfd9b8ddad11bd793cd168cc05ea4778a7357b51270ce5b71a8c2e8",
+  "policy3d.py": "2e93800cb30e0b8d191778724543dc8a058815e2aeffc4c2d91d0b3ceefce6bc",
+  "run3d.py": "794aaffb2116c4696ce98459eac413c2108436df8a7820354ae4ebd995fcea61"
+ },
+ "guard_cpu_s": 1200.0,
+ "policy": "reference_v1",
+ "protocol": [
+  "f6cae49280338fa5",
+  {
+   "check_width": "grasp open_width in every object check (SHELF66V3); structure check as source (default finger qpos)",
+   "ik_candidates": "solved at the pose rounded to the source cache key (1e-4 m), cache shared per object set",
+   "milestones": [
+    500,
+    1500,
+    5000
+   ],
+   "mode_order": "policy3d.ranked: k-th azimuth nearest the robot, grip height alternating, then the other heights; IK branches nearest q_ready",
+   "name": "SHELF66V3_PLACE_V1",
+   "robot_protocol": "XARM7_SHELF66_LEVELGRASP_V1:cd7f78f44022",
+   "seed": 0,
+   "source_teacher_config": "8d521b1f6d23db23",
+   "sources": {
+    "bd_3dt.py": "62dc853ccb5055ea",
+    "bd_core.py": "f34b881c061a4d26",
+    "bd_shelf.py": "ef71dcf43c6df19d",
+    "placement3d.py": "d9d9467402d4c6e9",
+    "rrt_connect.py": "d2a2e25cfc7321b6",
+    "rrt_star.py": "b35ff354d6d8dfde",
+    "shelf_scene.py": "a8453e249d1654dc",
+    "xarm7_cabinet_env.py": "4da37932cbfb8473"
+   },
+   "steps": [
+    50,
+    400,
+    300,
+    40,
+    200,
+    10
+   ],
+   "tol": {
+    "attach_drift_m": 0.01,
+    "envelope_every": 2,
+    "envelope_margin_m": 0.0,
+    "hold_shift_m": 0.01,
+    "lift_frac": 0.3,
+    "neighbour_m": 0.004,
+    "settled_mps": 0.02,
+    "tilt_deg": 10.0,
+    "xy_m": 0.02,
+    "z_m": 0.01
+   }
+  }
+ ],
+ "roots": "",
+ "roster_sha256": "08e95c08fe2befda4ebe09b1fc2b98810fa14c1eb6f56e078580a1f0a3d70e7e",
+ "stages": [
+  [
+   32,
+   5000
+  ]
+ ],
+ "subset": "reference",
+ "units": {
+  "3ds66-lap-w0011-s023": [
+   "3ds66-lap-w0011-s023:q2",
+   "3ds66-lap-w0011-s023:q5"
+  ],
+  "3ds66-lap-w0015-s004": [
+   "3ds66-lap-w0015-s004:q0",
+   "3ds66-lap-w0015-s004:q4"
+  ],
+  "3ds66-lap-w0016-s015": [
+   "3ds66-lap-w0016-s015:q0",
+   "3ds66-lap-w0016-s015:q4"
+  ],
+  "3ds66-srv-w0002-s002": [
+   "3ds66-srv-w0002-s002:q1",
+   "3ds66-srv-w0002-s002:q6"
+  ],
+  "3ds66-srv-w0003-s022": [
+   "3ds66-srv-w0003-s022:q0",
+   "3ds66-srv-w0003-s022:q9"
+  ],
+  "3ds66-srv-w0005-s005": [
+   "3ds66-srv-w0005-s005:q1",
+   "3ds66-srv-w0005-s005:q6"
+  ],
+  "3ds66-srv-w0008-s015": [
+   "3ds66-srv-w0008-s015:q1"
+  ],
+  "3ds66-srv-w0012-s007": [
+   "3ds66-srv-w0012-s007:q2",
+   "3ds66-srv-w0012-s007:q9"
+  ],
+  "3ds66-srv-w0023-s002": [
+   "3ds66-srv-w0023-s002:q3",
+   "3ds66-srv-w0023-s002:q8"
+  ],
+  "3ds66-srv-w0025-s014": [
+   "3ds66-srv-w0025-s014:q3",
+   "3ds66-srv-w0025-s014:q4"
+  ],
+  "3ds66-srv-w0029-s016": [
+   "3ds66-srv-w0029-s016:q2"
+  ],
+  "3ds66-srv-w0030-s004": [
+   "3ds66-srv-w0030-s004:q1",
+   "3ds66-srv-w0030-s004:q7"
+  ],
+  "3ds66-srv-w0045-s021": [
+   "3ds66-srv-w0045-s021:q1",
+   "3ds66-srv-w0045-s021:q6"
+  ],
+  "3ds66-srv3-w0049-s003": [
+   "3ds66-srv3-w0049-s003:q3",
+   "3ds66-srv3-w0049-s003:q4"
+  ],
+  "3ds66-srv3-w0056-s022": [
+   "3ds66-srv3-w0056-s022:q0",
+   "3ds66-srv3-w0056-s022:q9"
+  ],
+  "3ds66-srv3-w0058-s016": [
+   "3ds66-srv3-w0058-s016:q0",
+   "3ds66-srv3-w0058-s016:q4"
+  ],
+  "3ds66-srv3-w0059-s002": [
+   "3ds66-srv3-w0059-s002:q1",
+   "3ds66-srv3-w0059-s002:q7"
+  ],
+  "3ds66-srv3-w0064-s013": [
+   "3ds66-srv3-w0064-s013:q3",
+   "3ds66-srv3-w0064-s013:q8"
+  ],
+  "3ds66-srv3-w0067-s005": [
+   "3ds66-srv3-w0067-s005:q2",
+   "3ds66-srv3-w0067-s005:q5"
+  ],
+  "3ds66-srv3-w0079-s020": [
+   "3ds66-srv3-w0079-s020:q0",
+   "3ds66-srv3-w0079-s020:q9"
+  ],
+  "3ds66-srv3-w0090-s018": [
+   "3ds66-srv3-w0090-s018:q3",
+   "3ds66-srv3-w0090-s018:q4"
+  ]
+ }
+}

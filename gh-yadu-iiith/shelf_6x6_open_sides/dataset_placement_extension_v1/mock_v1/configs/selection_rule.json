@@ -1,0 +1,273 @@
+{
+ "candidate_policies": {
+  "adaptive_v1": [
+   [
+    4,
+    500
+   ],
+   [
+    8,
+    1500
+   ],
+   [
+    16,
+    5000
+   ]
+  ],
+  "fixed_16x1500": [
+   [
+    16,
+    1500
+   ]
+  ],
+  "fixed_16x500": [
+   [
+    16,
+    500
+   ]
+  ],
+  "fixed_16x5000": [
+   [
+    16,
+    5000
+   ]
+  ],
+  "fixed_32x1500": [
+   [
+    32,
+    1500
+   ]
+  ],
+  "fixed_32x500": [
+   [
+    32,
+    500
+   ]
+  ],
+  "fixed_32x5000": [
+   [
+    32,
+    5000
+   ]
+  ],
+  "fixed_4x1500": [
+   [
+    4,
+    1500
+   ]
+  ],
+  "fixed_4x500": [
+   [
+    4,
+    500
+   ]
+  ],
+  "fixed_4x5000": [
+   [
+    4,
+    5000
+   ]
+  ],
+  "fixed_8x1500": [
+   [
+    8,
+    1500
+   ]
+  ],
+  "fixed_8x500": [
+   [
+    8,
+    500
+   ]
+  ],
+  "fixed_8x5000": [
+   [
+    8,
+    5000
+   ]
+  ],
+  "reference_v1": [
+   [
+    32,
+    5000
+   ]
+  ]
+ },
+ "event": "V_place(S_hyp, o, d; PI_PLACE_3D): certified post-grasp state -> lift -> carry -> lower -> release -> retreat -> settle; no free move, hover, approach, closure test, pick, sequencing, ready return or target-goal test",
+ "frozen_utc": "2026-11-06T22:56:49Z",
+ "gates": {
+  "baseline_replay": {
+   "a_unchanged_source_replay_agreement_min": 0.95,
+   "b_placement_only_conversion": "reported + analysed"
+  },
+  "coverage": {
+   "else": "COVERAGE_BLOCKED for that stratum",
+   "min_labeled_per_stratum": 1,
+   "strata": {
+    "K": [
+     "0",
+     "1",
+     "2",
+     "3"
+    ],
+    "band": [
+     "near",
+     "mid",
+     "far",
+     "vacated"
+    ],
+    "between_band": [
+     "0",
+     "1-2",
+     "3+"
+    ],
+    "depth": [
+     0,
+     1,
+     2
+    ],
+    "shape": [
+     "box",
+     "cylinder"
+    ]
+   }
+  },
+  "determinism": [
+   "0 canonical mismatches: pilot run A vs run B (chosen workers)",
+   "serial vs parallel on shared queries",
+   "sweep runs (unit=query, cold cache) vs pilot (unit=root) on shared queries",
+   "virtual adaptive_v1 replayed from reference_v1 == real adaptive_v1 on every reference query (label, unit states, verified rank, witness id, counted plan/exec work)"
+  ],
+  "finger_regression": "object checks at the grasp open width (instrumented test); held state both fingers in contact",
+  "interrupt": "SIGKILL of the test-owned process group mid-run, resume with the same command: canonical output == uninterrupted run",
+  "label_quality": {
+   "min_negative_lineages": 5,
+   "min_ref_positive_lineages": 10
+  },
+  "runtime": {
+   "buffer": 1.5,
+   "forecast": "production roster x per-stratum measured CPU, root-lineage bootstrap (2000)",
+   "limit_days_with_buffer": 7.0
+  },
+  "safety": {
+   "ceiling_logical_cpus": 18,
+   "monitor_violations": 0,
+   "repeats_at_chosen_workers": 2,
+   "reserve_outside_mask": 6
+  },
+  "semantics": [
+   "witness phases subset of {lift,carry,lower,release,retreat,settle}",
+   "every label 1 has a stored witness with all verify gates true",
+   "pick_inaccessible_held_placeable fixture labeled 1 (mode level: every placement-verified pose of the query is pick-inaccessible under the source pick policy, 5000-iteration free move; the all-32-pose query-level case was searched in 400+ dev queries and not found)",
+   "no unlabeled status ever stored with label 0",
+   "pytest suite passes (15 tests)"
+  ],
+  "source_integrity": "audit/source_manifest.json.gz re-hash: 0 changes; git status of the source dataset clean",
+  "split_leakage": "every mock query train; lineage groups closed; roster code reads no protected metadata",
+  "storage": [
+   "every packed witness loads and re-hashes to its id",
+   "fresh-process replay re-verifies every stored positive (0 failures)"
+  ],
+  "visualization": [
+   "scene stills root / 1-edit / 2-edit",
+   ">=1 verified witness GIF",
+   ">=1 negative case figure",
+   "budget/mode plots",
+   "throughput + resource traces"
+  ]
+ },
+ "hashes": {
+  "fixtures": "941d10bccbe84b27ec3676d9b61c0d3db46f412598227ad81ae51950b30bb436",
+  "production_roster_design": "b159fe29cfdfed6947df0b3dce377fdd4edc00ddd60bc12901bd5011e283e489",
+  "roster": "08e95c08fe2befda4ebe09b1fc2b98810fa14c1eb6f56e078580a1f0a3d70e7e",
+  "split": "8dd14cb36c575a2af8ebca892632e2503266ec95b4ba4ecf341affe054b297b1",
+  "support_code_at_freeze": {
+   "audit3d.py": "79ac99a2a8e04717af304237ae7aa2863b556e88c1a1006d673da33a4276db31",
+   "f1_recheck.py": "5e3ed32e1a52899ff57aa2ad4a306eb2e7cd4697f3e0eea7eb076701b9fa0624",
+   "f1_search.py": "7065597bd8af2c1664af7c54292247ce212d85ceddb0ddadd873add948e0d560",
+   "figs3d.py": "fb5a24a3daeabf8fa2d16f40055aca3a65f6c18594305121b73eb3557fb02e4c",
+   "fixtures3d.py": "e3f0ddaa581c4f5bd88ae93d81dc73e3e19e8e00308d2b1586f775a8d325a380",
+   "placement3d.py": "d9d9467402d4c6e9b49f9c9e5a99b610cf9f5dc3594a76b781c162c803593c79",
+   "plan3d.py": "5ff053d22cfd9b8ddad11bd793cd168cc05ea4778a7357b51270ce5b71a8c2e8",
+   "policy3d.py": "2e93800cb30e0b8d191778724543dc8a058815e2aeffc4c2d91d0b3ceefce6bc",
+   "replay3d.py": "af723fbf53022eaa2ad7d8415fa13a3448e9106d18b2cef08600bd55fd15e0d3",
+   "report3d.py": "1a0219ee3c0300580be9b9ff95e845fd022de5b0cf4fe38900538c5bf68eb834",
+   "run3d.py": "706c455cece1c64ab69c70164919d4c643ffe9d7eaed09e9ad2fc43636630a6f",
+   "test_mock3d.py": "193698a9ed9501b3c7fa266a43467424658d485b0afd415d82755474186b4a6b"
+  },
+  "teacher_code": {
+   "placement3d.py": "d9d9467402d4c6e9b49f9c9e5a99b610cf9f5dc3594a76b781c162c803593c79",
+   "plan3d.py": "5ff053d22cfd9b8ddad11bd793cd168cc05ea4778a7357b51270ce5b71a8c2e8",
+   "policy3d.py": "2e93800cb30e0b8d191778724543dc8a058815e2aeffc4c2d91d0b3ceefce6bc",
+   "run3d.py": "706c455cece1c64ab69c70164919d4c643ffe9d7eaed09e9ad2fc43636630a6f"
+  }
+ },
+ "labels": {
+  "0": "NEG_CERTIFIED_GEOMETRY | NEG_UNDER_POLICY (kind BOUNDED_SEARCH / EXECUTION / DETERMINISTIC_PLAN)",
+  "1": "a scheduled unit passes every placement3d.verify gate (MuJoCo-executed)",
+  "unlabeled": "static ineligible, NO_VALID_POST_GRASP_STATE, INTERRUPTED (CPU guard / admin / safety stop), scene not settled"
+ },
+ "policy_selection": {
+  "broad_pilot_policy": "adaptive_v1 (predeclared initial modest policy; its labels equal fixed_16x5000 labels by construction)",
+  "choose": "lowest virtual mean CPU-s/query among passing policies; adaptive_v1 preferred if within 1.15x of it",
+  "ci": "Wilson 95% (reported; not a pass criterion at n<=60)",
+  "paired": "reference label in {0,1}; a reference 0 with any UNRESOLVED unit is censored for negative-side metrics only",
+  "reference": "reference_v1 on the predeclared reference subset (roster rows with reference=true)",
+  "rel_missed_positive_max_overall": 0.05,
+  "rel_missed_positive_max_stratum": 0.1,
+  "strata": [
+   "K",
+   "depth",
+   "band",
+   "shape"
+  ],
+  "stratum_min_ref_positives": 10
+ },
+ "teacher": {
+  "check_width": "grasp open_width in every object check (SHELF66V3); structure check as source (default finger qpos)",
+  "ik_candidates": "solved at the pose rounded to the source cache key (1e-4 m), cache shared per object set",
+  "milestones": [
+   500,
+   1500,
+   5000
+  ],
+  "mode_order": "policy3d.ranked: k-th azimuth nearest the robot, grip height alternating, then the other heights; IK branches nearest q_ready",
+  "name": "SHELF66V3_PLACE_V1",
+  "robot_protocol": "XARM7_SHELF66_LEVELGRASP_V1:cd7f78f44022",
+  "seed": 0,
+  "source_teacher_config": "8d521b1f6d23db23",
+  "sources": {
+   "bd_3dt.py": "62dc853ccb5055ea",
+   "bd_core.py": "f34b881c061a4d26",
+   "bd_shelf.py": "ef71dcf43c6df19d",
+   "placement3d.py": "d9d9467402d4c6e9",
+   "rrt_connect.py": "d2a2e25cfc7321b6",
+   "rrt_star.py": "b35ff354d6d8dfde",
+   "shelf_scene.py": "a8453e249d1654dc",
+   "xarm7_cabinet_env.py": "4da37932cbfb8473"
+  },
+  "steps": [
+   50,
+   400,
+   300,
+   40,
+   200,
+   10
+  ],
+  "tol": {
+   "attach_drift_m": 0.01,
+   "envelope_every": 2,
+   "envelope_margin_m": 0.0,
+   "hold_shift_m": 0.01,
+   "lift_frac": 0.3,
+   "neighbour_m": 0.004,
+   "settled_mps": 0.02,
+   "tilt_deg": 10.0,
+   "xy_m": 0.02,
+   "z_m": 0.01
+  }
+ },
+ "teacher_hash": "f6cae49280338fa5",
+ "version": "SHELF66V3_PLACE_MOCK_V1_SELECTION_RULE",
+ "worker_choice": "highest queries/wall-s on the matched sweep subset; a config with fewer workers within 5% wins"
+}
