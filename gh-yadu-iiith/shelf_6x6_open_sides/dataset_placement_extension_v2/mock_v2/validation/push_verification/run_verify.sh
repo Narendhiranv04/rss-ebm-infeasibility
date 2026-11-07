@@ -1,0 +1,8 @@
+set -u; export PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=1
+cd ~/approachb3d_mock/verify_clone/gh-yadu-iiith/shelf_6x6_open_sides/dataset_placement_extension_v2
+taskset -c 0 ~/approachb3d_mock/env/bin/python ~/approachb3d_mock/verify_clone.py ~/approachb3d_mock/verify_clone ~/approachb3d_mock/src/gh-yadu-iiith/shelf_6x6_open_sides/dataset_placement_extension_v2 ~/approachb3d_mock/verify_out/verify_clone.json > ~/approachb3d_mock/verify_out/verify_clone.log 2>&1; echo "verify rc=$?"
+~/approachb3d_mock/env/bin/python code/replay3d.py ours mock_v2/runs/adaptive_v1_A mock_v2/roster_v2.jsonl.gz ~/approachb3d_mock/verify_out/clone_replay_adaptive_v1_A.json --workers 12 --cpus 0-11 > ~/approachb3d_mock/verify_out/clone_replay_A.log 2>&1; echo "replay A rc=$?"
+~/approachb3d_mock/env/bin/python code/replay3d.py ours mock_v2/runs/serial_adaptive mock_v2/roster_v2.jsonl.gz ~/approachb3d_mock/verify_out/clone_replay_serial.json --workers 12 --cpus 0-11 > ~/approachb3d_mock/verify_out/clone_replay_serial.log 2>&1; echo "replay serial rc=$?"
+cd ~/approachb3d_mock/verify_clone/gh-yadu-iiith/shelf_6x6_open_sides/dataset_placement_extension_v1 && taskset -c 0 ~/approachb3d_mock/env/bin/python code/replay3d.py ours mock_v1/runs/reference mock_v1/roster.jsonl.gz ~/approachb3d_mock/verify_out/clone_v1_replay_reference.json > ~/approachb3d_mock/verify_out/clone_v1_replay.log 2>&1; echo "v1 replay rc=$?"
+cd ~/approachb3d_mock/verify_clone/gh-yadu-iiith/shelf_6x6_open_sides/dataset_placement_extension_v2 && RUN3D_TEST_CPU=1 taskset -c 0,1 ~/approachb3d_mock/env/bin/python -m pytest -q -p no:cacheprovider code/test_mock3d_v2.py > ~/approachb3d_mock/verify_out/clone_pytest.txt 2>&1; echo "pytest rc=$?"
+echo VERIFY_ALL_DONE
