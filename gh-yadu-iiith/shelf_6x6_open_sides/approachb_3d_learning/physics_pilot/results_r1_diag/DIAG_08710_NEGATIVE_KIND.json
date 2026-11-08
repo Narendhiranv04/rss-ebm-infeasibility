@@ -1,0 +1,69 @@
+{
+ "item": "S2X-3ds66-srv3-w0090-s023-08710",
+ "chunk": "CHUNK045",
+ "supervisor_stop": "STOPPED_DISCREPANCY 2026-11-08T12:57:01Z",
+ "finding": "label agrees (stored attempt failed at relocation_3 by PLANNING; re-query finds no plan on every host); only the negative SUBTYPE differs: archived record NO_PLAN_FOUND vs re-query CERTIFIED (all 32 grasps fail deterministic geometric checks)",
+ "reproduced_on": {
+  "gvlab_cpu16": {
+   "ok": false,
+   "failure": "PLANNING",
+   "replan_found": false,
+   "kind": "CERTIFIED",
+   "recorded_kind": "NO_PLAN_FOUND",
+   "agrees_with_record": false
+  },
+  "blackwell_ecore19": {
+   "ok": false,
+   "failure": "PLANNING",
+   "replan_found": false,
+   "kind": "CERTIFIED",
+   "recorded_kind": "NO_PLAN_FOUND",
+   "agrees_with_record": false
+  },
+  "blackwell_pcore0": {
+   "ok": false,
+   "failure": "PLANNING",
+   "replan_found": false,
+   "kind": "CERTIFIED",
+   "recorded_kind": "NO_PLAN_FOUND",
+   "agrees_with_record": false
+  }
+ },
+ "per_grasp_reasons_identical_across_hosts": true,
+ "grasp_reasons": {
+  "0": "the hand (closing axis -90 deg) would overlap a neighbour at the goal",
+  "1": "the hand (closing axis -113 deg) would overlap a neighbour at the goal",
+  "2": "the arm / hand would hit o03, o03 near [ 0.528 -0.04   0.628]",
+  "3": "the arm / hand would hit o00, o00 near [ 0.528 -0.033  0.628]",
+  "4": "the arm / hand would hit o03, o03 near [ 0.528 -0.042  0.628]",
+  "5": "the arm / hand would hit o00, o01, o00, o01 near [ 0.53  -0.033  0.628]",
+  "6": "the arm / hand would hit o03, o03 near [ 0.53  -0.042  0.628]",
+  "7": "the arm / hand would hit o00, o01, o00, o01 near [ 0.532 -0.033  0.628]",
+  "8": "the arm / hand would hit t0, o03, t0, o03 near [ 0.532 -0.043  0.628]",
+  "9": "grasp pose [ 0.532 -0.038  0.628] is out of reach (or the arm would hit the structure ther",
+  "10": "grasp pose [ 0.532 -0.038  0.628] is out of reach (or the arm would hit the structure ther",
+  "11": "grasp pose [ 0.532 -0.038  0.628] is out of reach (or the arm would hit the structure ther",
+  "12": "grasp pose [ 0.532 -0.038  0.628] is out of reach (or the arm would hit the structure ther",
+  "13": "grasp pose [ 0.532 -0.038  0.628] is out of reach (or the arm would hit the structure ther",
+  "14": "grasp pose [ 0.532 -0.038  0.628] is out of reach (or the arm would hit the structure ther",
+  "15": "grasp pose [ 0.532 -0.038  0.628] is out of reach (or the arm would hit the structure ther",
+  "16": "the hand (closing axis -90 deg) would overlap a neighbour at the goal",
+  "17": "the arm / hand would hit the arm_ceiling near [ 0.523 -0.034  0.694]",
+  "18": "the arm / hand would hit o03, o03 near [ 0.528 -0.04   0.694]",
+  "19": "the arm / hand would hit o00, o00 near [ 0.528 -0.033  0.694]",
+  "20": "the arm / hand would hit o03, o03 near [ 0.528 -0.042  0.694]",
+  "21": "the arm / hand would hit o00, o01, o00, o01 near [ 0.53  -0.033  0.694]",
+  "22": "the arm / hand would hit o03, o03 near [ 0.53  -0.042  0.694]",
+  "23": "the arm / hand would hit o00, o01, o00, o01 near [ 0.532 -0.033  0.694]",
+  "24": "the arm / hand would hit t0, o03, o03 near [ 0.532 -0.043  0.694]",
+  "25": "grasp pose [ 0.532 -0.038  0.694] is out of reach (or the arm would hit the structure ther",
+  "26": "grasp pose [ 0.532 -0.038  0.694] is out of reach (or the arm would hit the structure ther",
+  "27": "grasp pose [ 0.532 -0.038  0.694] is out of reach (or the arm would hit the structure ther",
+  "28": "grasp pose [ 0.532 -0.038  0.694] is out of reach (or the arm would hit the structure ther",
+  "29": "grasp pose [ 0.532 -0.038  0.694] is out of reach (or the arm would hit the structure ther",
+  "30": "grasp pose [ 0.532 -0.038  0.694] is out of reach (or the arm would hit the structure ther",
+  "31": "grasp pose [ 0.532 -0.038  0.694] is out of reach (or the arm would hit the structure ther"
+ },
+ "kind_rule": "def kind(why):\n    r = list(why.values())\n    if r and all(\"overlap a neighbour\" in x or \"would hit\" in x or \"occupied\" in x for x in r):\n        return \"CERTIFIED\"                    # every grasp fails a deterministic geometric check of the protocol (no search involved)\n    return \"NO_PLAN_FOUND\"\n",
+ "interpretation": "not a Blackwell/host artefact; the archived production record (srv3 worker) disagrees with the pinned teacher on this state; item stays MISSING (no label written) under the strict gate"
+}
