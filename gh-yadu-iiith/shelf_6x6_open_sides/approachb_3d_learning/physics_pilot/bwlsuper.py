@@ -32,6 +32,7 @@ def main():
     ap.add_argument("--order", help="explicit chunk order, e.g. 2-10,38-46,11-37 (membership unchanged; overrides --first/--last)")
     ap.add_argument("--cpu-cap-h", type=float, default=60.0); ap.add_argument("--reserve-h", type=float, default=1.5)
     ap.add_argument("--wall-cap-h", type=float, default=42.0); ap.add_argument("--cpus", default="16,17")
+    ap.add_argument("--host-guard", default="gvlab")
     a = ap.parse_args()
     out = Path(a.out); out.mkdir(parents=True, exist_ok=True)
     ledger_f, state_f = out / "R1_BUDGET_LEDGER.json", out / "SUPERVISOR_STATE.json"
@@ -56,7 +57,8 @@ def main():
         state("RUNNING", chunk=phase, cpu_h=used)
         t0, wall_left = time.time(), int(a.wall_cap_h * 3600 - (time.time() - ledger["t0"]))
         procs = [subprocess.Popen(["taskset", "-c", cpus[i], "nice", "-n", "19", "ionice", "-c3", py, str(HERE / "bwlphys.py"), "work", "--manifest", a.manifest,
-                                   "--phase", phase, "--shard", f"{i}/{len(cpus)}", "--out", str(out), "--wall-cap-s", str(max(60, wall_left))],
+                                   "--phase", phase, "--shard", f"{i}/{len(cpus)}", "--out", str(out), "--wall-cap-s", str(max(60, wall_left)),
+                                   "--host-guard", a.host_guard],
                                   stdout=open(out / f"worker_{phase}_{i}.log", "a"), stderr=subprocess.STDOUT) for i in range(len(cpus))]
         state("RUNNING", chunk=phase, workers=[p.pid for p in procs], cpu_h=used)
         for p in procs:

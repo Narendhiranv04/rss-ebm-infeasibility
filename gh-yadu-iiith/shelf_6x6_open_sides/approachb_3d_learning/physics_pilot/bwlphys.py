@@ -277,6 +277,34 @@ def guard(lim):
     f = {"pkg_temp_c": t, "mem_available_gb": mem["MemAvailable"] / 2**20, "swap_used_mb": swap, "load1": os.getloadavg()[0]}
     bad = [k for k, ok in (("TEMP", t is not None and t < lim["temp"]), ("SENSOR", t is not None), ("MEM", f["mem_available_gb"] >= lim["mem_gb"]),
                            ("SWAP_GROWTH", swap - lim["swap0"] <= lim["swap_growth_mb"])) if not ok]
+    if lim.get("host") == "blackwell":                                        # shared host: yield to collaborators, keep >= 4 cores idle
+        def stat():
+            return [list(map(int, l.split()[1:])) for l in Path("/proc/stat").read_text().splitlines() if l.startswith("cpu") and l[3].isdigit()]
+        a = stat(); time.sleep(1.0); b = stat()
+        busy = [1 - (y[3] + y[4] - x[3] - x[4]) / max(1, sum(y) - sum(x)) for x, y in zip(a, b)]
+        f["idle_cores"] = sum(1 for u in busy if u < 0.5)
+        yp = ("yadu_bd/venv/bin/python", "run_3dt_plus.py", "collect4.py", "collect3d.py")
+        procs = []
+        for d in Path("/proc").iterdir():
+            if d.name.isdigit():
+                try:
+                    c = (d / "cmdline").read_bytes().replace(b"\0", b" ").decode(errors="replace")
+                except OSError:
+                    continue
+                if any(k in c for k in yp) and not c.startswith(("bash", "sh ", "tmux")):
+                    procs.append(int(d.name))
+        f["yield_processes"] = len(procs)
+        q = {}
+        try:
+            sys.path.insert(0, str(Path.home() / "approachb_3d_learning/src"))
+            import guard as G
+            cfg = G.load_cfg()
+            q = {Path(qf).name: len(G.queue_pending(qf, sf)) for qf, sf in cfg["yield_queue_files"]}      # same rule as guard.probe
+        except Exception as err:                                              # unreadable queue state fails closed
+            q = {"ERROR": repr(err)[:80]}
+        f["queue_pending"] = q
+        bad += [k for k, ok in (("IDLE_CORES_LT_4", f["idle_cores"] >= 4), ("YIELD_TO_COLLABORATOR", not procs),
+                                ("QUEUE", not any(v for v in q.values() if isinstance(v, int)) and "ERROR" not in q)) if not ok]
     return f, bad
 
 
@@ -285,7 +313,8 @@ def cmd_work(a):
     out = Path(a.out); (out / "items").mkdir(parents=True, exist_ok=True)
     i, n = map(int, a.shard.split("/"))
     items = [x for k, x in enumerate(x for x in man["items"] if x["phase"] in a.phase.split(",")) if k % n == i]
-    lim = {"temp": 75.0, "mem_gb": 16.0, "swap_growth_mb": 256.0, "swap0": guard({"temp": 999, "mem_gb": 0, "swap_growth_mb": 1e9, "swap0": 0})[0]["swap_used_mb"]}
+    lim = {"temp": 75.0 if a.host_guard == "gvlab" else 85.0, "mem_gb": 16.0 if a.host_guard == "gvlab" else 40.0, "swap_growth_mb": 256.0, "host": a.host_guard,
+           "swap0": guard({"temp": 999, "mem_gb": 0, "swap_growth_mb": 1e9, "swap0": 0})[0]["swap_used_mb"]}
     log = open(out / f"work_{i}of{n}.jsonl", "a")
     t_start = time.time()
     for it in items:
@@ -327,6 +356,7 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("cmd", choices=["policy", "work", "item", "trace"]); ap.add_argument("--manifest"); ap.add_argument("--out", required=True)
     ap.add_argument("--phase", default="SMOKE"); ap.add_argument("--shard", default="0/1"); ap.add_argument("--item"); ap.add_argument("--mode", default="teacher")
-    ap.add_argument("--timeout-s", type=int, default=900); ap.add_argument("--every", type=int, default=40); ap.add_argument("--wall-cap-s", type=int, default=3 * 3600)
+    ap.add_argument("--timeout-s", type=int, default=900); ap.add_argument("--every", type=int, default=40)
+    ap.add_argument("--host-guard", default="gvlab", choices=["gvlab", "blackwell"]); ap.add_argument("--wall-cap-s", type=int, default=3 * 3600)
     a = ap.parse_args()
     {"policy": cmd_policy, "work": cmd_work, "item": cmd_item, "trace": cmd_trace}[a.cmd](a)

@@ -21,16 +21,18 @@ Q=/home/naren/Desktop/rss-placement-ready-v2/gh-yadu-iiith/planar_2d/dataset_rel
 LQ=$(ls $Q/records 2>/dev/null | wc -l)
 LS=$(python3 -c "import json;d=json.load(open('$Q/status.json'));print(json.dumps({'updated':d['updated'],'pid':d['pid'],'inflight':d['inflight']}))" 2>/dev/null)
 LA=$(flatpak-spawn --host sh -c "ps -p \$(python3 -c \"import json;print(json.load(open('$Q/status.json'))['pid'])\") >/dev/null && echo alive || echo DEAD" 2>/dev/null)
-S=$(ssh -o BatchMode=yes -o ConnectTimeout=15 user1@10.4.25.63 'echo "{\"yadu_procs\": $(ps -eo args | grep -c "[y]adu_bd/venv/bin/python"), \"gpu\": \"$(nvidia-smi --query-gpu=utilization.gpu,memory.used --format=csv,noheader)\", \"ours\": $(ps -eo args | grep -c "[v]env/bin/python src/")}"' 2>/dev/null)
-python3 - "$G" "$LQ" "$LS" "$LA" "$S" "$P/progress/STATUS.json" <<'EOF'
+S=$(ssh -o BatchMode=yes -o ConnectTimeout=15 user1@10.4.25.63 'echo "{\"yadu_procs\": $(ps -eo args | grep -c "[y]adu_bd/venv/bin/python"), \"gpu\": \"$(nvidia-smi --query-gpu=utilization.gpu,memory.used --format=csv,noheader)\", \"ours\": $(ps -eo args | grep -c "[v]env.*/bin/python.*\(src/\|bwlphys\|bwlsuper\)"), \"idle_cores\": $(python3 -c "import time;r=lambda:[list(map(int,l.split()[1:])) for l in open(\"/proc/stat\") if l.startswith(\"cpu\") and l[3].isdigit()];a=r();time.sleep(1);b=r();print(sum(1 for x,y in zip(a,b) if (y[3]+y[4]-x[3]-x[4])/max(1,sum(y)-sum(x))>0.5))")}"' 2>/dev/null)
+GI=$(ssh -o BatchMode=yes -o ConnectTimeout=15 gvlab 'python3 -c "import time;r=lambda:[list(map(int,l.split()[1:])) for l in open(\"/proc/stat\") if l.startswith(\"cpu\") and l[3].isdigit()];a=r();time.sleep(1);b=r();print(sum(1 for x,y in zip(a,b) if (y[3]+y[4]-x[3]-x[4])/max(1,sum(y)-sum(x))>0.5))"' 2>/dev/null)
+python3 - "$G" "$LQ" "$LS" "$LA" "$S" "$P/progress/STATUS.json" "$GI" <<'EOF'
 import json, sys, time
-g, lq, ls, la, s, out = sys.argv[1:7]
+g, lq, ls, la, s, out, gi = sys.argv[1:8]
 d = {"utc": time.strftime("%FT%TZ", time.gmtime()), "gvlab_r1": json.loads(g) if g else "UNREACHABLE", "laptop_q2": {"roots": int(lq), "status": json.loads(ls) if ls else None, "coordinator": la},
-     "training_server": json.loads(s) if s else "UNREACHABLE", "caps": {"r1_cpu_h": 60, "r1_wall_h": 42, "r2_cpu_h": 6, "gpu_h": 6}}
+     "training_server": json.loads(s) if s else "UNREACHABLE", "caps": {"r1_cpu_h": 60, "r1_wall_h": 42, "r2_cpu_h": 6, "gpu_h": 6},
+     "gvlab_idle_cores": int(gi) if gi.strip().isdigit() else None, "plan": "EXECUTION_PLAN_20261108.md (rule: >= 4 idle cores on gvlab / Blackwell)"}
 open(out, "w").write(json.dumps(d, indent=1))
 r = d["gvlab_r1"]
 print(f"{d['utc']} | R1 {r.get('state')} {r.get('chunk')} done {r.get('chunks_done')}/52 cpu {r.get('cpu_h', 0):.2f}h disc {r.get('discrepancies')} finals {r.get('finals')} "
-      f"stops {r.get('stop_files')} temp {(r.get('guard') or {}).get('pkg_temp_c')} | Q2 gvlab {r.get('q2_gvlab_roots')} laptop {lq} ({la}) | server {d['training_server']}" if isinstance(r, dict) else str(d))
+      f"stops {r.get('stop_files')} temp {(r.get('guard') or {}).get('pkg_temp_c')} gvlab_idle {d['gvlab_idle_cores']} | Q2 gvlab {r.get('q2_gvlab_roots')} laptop {lq} ({la}) | server {d['training_server']}" if isinstance(r, dict) else str(d))
 EOF
 cd $REPO && git add $P/progress/STATUS.json && if ! git diff --cached --quiet; then git commit -q -m "approachb_3d_learning: R1 progress tick $(date -u +%FT%TZ)
 
