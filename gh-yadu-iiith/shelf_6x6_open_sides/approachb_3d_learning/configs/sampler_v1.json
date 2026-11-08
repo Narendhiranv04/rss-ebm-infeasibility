@@ -1,0 +1,12 @@
+{
+ "experiment": "SAMPLER_V1",
+ "derived": "snapshots/v4full_82926152fa9cc345_derived",
+ "hidden": 128, "zdim": 8, "ode_steps": 32, "nfeat": 14,
+ "batch": 512, "lr": 0.001, "wd": 0.0001,
+ "max_epochs": 60, "patience": 8, "walltime_min_per_run": 20,
+ "beta_kl_max": 1.0, "beta_warmup_epochs": 10,
+ "train_seeds": [0, 1, 2],
+ "M": [1, 2, 4, 8], "raw_cap_factor": 8, "eval_seeds": [0, 1, 2],
+ "selection": "best val loss checkpoint per member; families compared on VAL; TEST once after `freeze`",
+ "fairness": "every sampler: same snapshot, same legality mask, same raw cap 8M sampled with replacement, first M unique kept"
+}

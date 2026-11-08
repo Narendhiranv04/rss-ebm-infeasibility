@@ -1,0 +1,253 @@
+{
+ "snapshot_id": "82926152fa9cc345",
+ "kind": "FULL_COMPLETE_V4",
+ "queries": 59972,
+ "contexts": 10610,
+ "roots_by_split": {
+  "train": 1036,
+  "val": 226,
+  "test": 204
+ },
+ "labels_by_split": {
+  "train": {
+   "VERIFIED": 29175,
+   "NEG_CERTIFIED_GEOMETRY": 5274,
+   "NEG_UNDER_POLICY": 4703,
+   "UNLABELED_NO_VALID_POST_GRASP_STATE": 3460
+  },
+  "val": {
+   "VERIFIED": 6025,
+   "NEG_CERTIFIED_GEOMETRY": 1089,
+   "NEG_UNDER_POLICY": 974,
+   "UNLABELED_NO_VALID_POST_GRASP_STATE": 664
+  },
+  "test": {
+   "VERIFIED": 5622,
+   "NEG_CERTIFIED_GEOMETRY": 1209,
+   "NEG_UNDER_POLICY": 965,
+   "UNLABELED_NO_VALID_POST_GRASP_STATE": 812
+  }
+ },
+ "verification": {
+  "audit": {
+   "complete": true,
+   "queries": 59972,
+   "validated": 1466,
+   "witness_associations": 40822
+  },
+  "ledger_units_done": 1466,
+  "replay": {
+   "max_obj_end_diff_m": 0,
+   "max_q_exec_diff": 0,
+   "replayed": 40822,
+   "unique_witnesses": 38833,
+   "verified": 40822
+  },
+  "source_roots_checked_against_pin": 1466,
+  "unit_json_checked_against_gvlab_backup_index": 1466,
+  "witness_layer": "separate read-only layer <snapshot>_witnesses, verified file-by-file by `attach-witnesses`",
+  "witness_npz_bound_from_gvlab_index": 1465
+ },
+ "binding": {
+  "inputs": {
+   "cohort_manifest": {
+    "path": "production_v4/frozen/roster_manifest_v4.json",
+    "sha256": "bd08f4846a5bf6239b14500b760b660d4848f774db6e9840ff408a637368bd4e"
+   },
+   "forecast": {
+    "path": "production_v4/frozen/forecast_v4.json",
+    "sha256": "f03a28a6cedfff38115a8f1dee0f0d9a36e9171b6352d421556ccef0c05e8e6b"
+   },
+   "qc_roots": {
+    "path": "production_v3/QC_ELIGIBLE_ROOTS.json",
+    "sha256": "52137ff140bc1db25cff432f5cafbbf56cdd90fad1745bbaf5f79eb17afaf620"
+   },
+   "roster": {
+    "path": "production_v4/frozen/q2_parity_roster_v4.jsonl.gz",
+    "sha256": "80134f632997141111c518903a382585a635f811bd24c62673f3fb64110cb634"
+   },
+   "source_pin": {
+    "path": "production_v3/frozen/source_pin_first_cohort.json",
+    "sha256": "422d3c1af6b2aba09ebb50251b2b197331bc2dcb9cb64a140db47b21deef166d"
+   },
+   "split_manifest": {
+    "path": "production_v3/frozen/split_manifest_first_cohort.json",
+    "sha256": "f9d377812fbc7afb0e2fd1863d6b35f8607fa057c8f5f853f03d4493024da461"
+   }
+  },
+  "policy": "adaptive_v1",
+  "policy_file_sha256": "66d03a82855a3f951c88231424f56ad1a6218398a1d05251e572da877208c1ff",
+  "protocol_id": "89cbabed5d7e4847",
+  "roster_sha256": "80134f632997141111c518903a382585a635f811bd24c62673f3fb64110cb634",
+  "stages": [
+   [
+    4,
+    500
+   ],
+   [
+    8,
+    1500
+   ],
+   [
+    16,
+    5000
+   ]
+  ],
+  "upstream_commit": "6c72eb4be17b"
+ },
+ "roots_in_more_than_one_split": 0,
+ "scene_layouts_in_more_than_one_split": 0,
+ "strata_all_splits": {
+  "shape": {
+   "box": {
+    "n": 28616,
+    "pos_rate_labeled": 0.734
+   },
+   "cylinder": {
+    "n": 31356,
+    "pos_rate_labeled": 0.749
+   }
+  },
+  "height_bin": {
+   "medium": {
+    "n": 20044,
+    "pos_rate_labeled": 0.763
+   },
+   "short": {
+    "n": 19968,
+    "pos_rate_labeled": 0.692
+   },
+   "tall": {
+    "n": 19960,
+    "pos_rate_labeled": 0.765
+   }
+  },
+  "block": {
+   "prefix1": {
+    "n": 9224,
+    "pos_rate_labeled": 0.732
+   },
+   "prefix2": {
+    "n": 9224,
+    "pos_rate_labeled": 0.737
+   },
+   "prefix3": {
+    "n": 6460,
+    "pos_rate_labeled": 0.666
+   },
+   "root": {
+    "n": 35064,
+    "pos_rate_labeled": 0.759
+   }
+  },
+  "band": {
+   "far": {
+    "n": 12604,
+    "pos_rate_labeled": 0.66
+   },
+   "mid": {
+    "n": 20370,
+    "pos_rate_labeled": 0.7
+   },
+   "near": {
+    "n": 23390,
+    "pos_rate_labeled": 0.818
+   },
+   "vacated": {
+    "n": 3608,
+    "pos_rate_labeled": 0.761
+   }
+  },
+  "depth": {
+   "0": {
+    "n": 35064,
+    "pos_rate_labeled": 0.759
+   },
+   "1": {
+    "n": 18448,
+    "pos_rate_labeled": 0.734
+   },
+   "2": {
+    "n": 6460,
+    "pos_rate_labeled": 0.666
+   }
+  },
+  "n_obj": {
+   "2": {
+    "n": 1312,
+    "pos_rate_labeled": 0.966
+   },
+   "3": {
+    "n": 7152,
+    "pos_rate_labeled": 0.882
+   },
+   "4": {
+    "n": 17292,
+    "pos_rate_labeled": 0.792
+   },
+   "5": {
+    "n": 21448,
+    "pos_rate_labeled": 0.678
+   },
+   "6": {
+    "n": 6776,
+    "pos_rate_labeled": 0.675
+   },
+   "7": {
+    "n": 3696,
+    "pos_rate_labeled": 0.659
+   },
+   "8": {
+    "n": 2296,
+    "pos_rate_labeled": 0.606
+   }
+  },
+  "source_bin": {
+   "far": {
+    "n": 19956,
+    "pos_rate_labeled": 0.63
+   },
+   "mid": {
+    "n": 20776,
+    "pos_rate_labeled": 0.745
+   },
+   "near": {
+    "n": 19240,
+    "pos_rate_labeled": 0.829
+   }
+  },
+  "K": {
+   "0": {
+    "n": 13680,
+    "pos_rate_labeled": 0.705
+   },
+   "1": {
+    "n": 11916,
+    "pos_rate_labeled": 0.781
+   },
+   "2": {
+    "n": 15620,
+    "pos_rate_labeled": 0.745
+   },
+   "3": {
+    "n": 18756,
+    "pos_rate_labeled": 0.739
+   }
+  }
+ },
+ "static_contrasts": {
+  "count": 4616,
+  "use": "separate auxiliary stream; never physical negatives; not used here"
+ },
+ "train_generator_support": {
+  "positive_examples": 29175,
+  "contexts_with_positive": 6513,
+  "positives_per_context_mean": 4.48
+ },
+ "notes": [
+  "K is a reporting field only (never an input)",
+  "UNLABELED rows are excluded from binary negatives",
+  "NEG_UNDER_POLICY is operational (bounded adaptive_v1 search), not impossibility",
+  "Q2 destinations are a stratified subsample (<= 8 per object), so untested cells are UNKNOWN, never negative"
+ ]
+}

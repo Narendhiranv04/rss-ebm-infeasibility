@@ -1,0 +1,53 @@
+{
+ "facts": {
+  "utc": "2026-11-08T00:54:26Z",
+  "gpu": {
+   "name": "NVIDIA RTX PRO 5000 Blackwell",
+   "mem_used_mb": 2.0,
+   "mem_total_mb": 48935.0,
+   "temp_c": 25.0,
+   "util_pct": 0.0,
+   "power_w": 3.42,
+   "our_mem_mb": 0,
+   "foreign_procs": []
+  },
+  "cpu_pkg_temp_c": 33.0,
+  "mem_available_gb": 121.6,
+  "disk_free_gb": 117.2,
+  "load1": 0.283203125,
+  "other_cpus_busy_mean_pct": 0.1,
+  "our_cpu_busy_pct": 0.0,
+  "queue_pending": {
+   "bigbox_g0.q": 0,
+   "bigbox_cpu.q": 0
+  },
+  "yield_processes": []
+ },
+ "violations": [],
+ "pass": true,
+ "thresholds": {
+  "gpu_index": 0,
+  "cpu": 7,
+  "gpu_temp_max_c": 80,
+  "gpu_vram_budget_mb": 8192,
+  "gpu_power_max_w": 250,
+  "cpu_pkg_temp_max_c": 85,
+  "mem_available_min_gb": 40,
+  "disk_free_min_gb": 30,
+  "disk_path": "/home/user1",
+  "other_cpus_busy_max_pct": 25.0,
+  "load1_max": 6.0,
+  "foreign_gpu_procs_allowed": 0,
+  "yield_process_patterns": [
+   "yadu_bd/venv/bin/python",
+   "run_3dt_plus.py",
+   "collect4.py",
+   "collect3d.py",
+   "replay3d.py"
+  ],
+  "period_s": 10,
+  "consecutive": 2,
+  "grace_s": 60,
+  "_comment": "Thresholds measured on user1@10.4.25.63 at 2026-11-08T00:31Z (idle: GPU 24 C / 2 MiB, CPU pkg 28 C, load 0.04, 121 GB available, 117 GB free on /). coretemp temp1_max = 85 C, temp1_crit = 105 C. yadu's watchdog stops its runs below 16 GB available, so ours stops at 40 GB. Not imported from the laptop or gvlab."
+ }
+}

@@ -1,0 +1,33 @@
+{
+ "version": "APPROACHB_3D_LEARNING_KICKOFF_V1",
+ "decided_utc": "2026-11-08T01:30Z",
+ "states": {
+  "server": "GPU_TRAINING_ALLOWED_UNDER_GUARD",
+  "dataset": "FULL_COMPLETE_V4_SNAPSHOT_VERIFIED (v4full_82926152fa9cc345)",
+  "sampler": "SAMPLER_GPU_TRAINED_ON_FULL_SNAPSHOT",
+  "xy": "XY_BLOCKED_MISSING_SEQUENCE_LABELS"
+ },
+ "sampler": {
+  "result": "cVAE > flow matching > uniform on hit, recall and known-label precision (val and test, 3x3 seeds); a band-stratified control matches cVAE hit (roster design bias) but has lower precision; a discriminative ranker has the highest precision (0.91) and AUROC 0.93; 3D object context helps the ranker (AUROC +0.024) but not the positives-only generators",
+  "go": "GO for next-stage sampler work on GPU",
+  "recommended_next": ["cVAE proposals re-ranked / filtered by the ranker (frozen M, same fairness protocol)",
+                       "a separate, budgeted teacher evaluation of UNTESTED proposals on an authorized physics host (not this server) to measure unbiased success beyond the Q2 tested support",
+                       "inclusion-probability weighting (roster k/n) to separate feasibility from the Q2 selection design"],
+  "evidence": ["reports/04_SAMPLER_RESULTS.md", "reports/04_SAMPLER_RESULTS.json", "reports/results/eval_val.json", "reports/results/eval_test.json",
+               "reports/results/FROZEN_FOR_TEST.json", "reports/figures/"]
+ },
+ "xy": {
+  "existing_model": "found: latent-causal-tamp approach-b-xy-v1 e113c6680 (bxy_core / bxy_p11 / bxy_p17), the finalized scene-first root-consistent F2/F3/F5 model; 2D status APPROACH_B_2D_CLOSED_PRIMARY_NOT_ESTABLISHED_ORDER_SUPPORTED",
+  "3d_adapter": "implemented (src/xy3d.py): exact math == brute force (1.8e-15), normalization, arms COUPLED / UNCOUPLED / DIRECT / ORDER_INVARIANT, shared Y per endpoint, order sensitivity; SYNTHETIC GPU proof recovers planted coefficients",
+  "go": "NO-GO for real 3D X/Y training until 3D X labels exist",
+  "blocker": "no genuine 3D X record: no ordered relocation sequence from S0/q0 with carried robot state and a terminal connector to q_ref (labels.B appends the target from the achieved state; V_place is single placement)",
+  "available_3d_y": "7,012 target-only attempts from the ready pose (labels.original 1,582 + labels.D 5,430) are semantically Y; D edits are limited to designated parking cells",
+  "required_labels": "3D X teacher query per ordered correction (sequential pick/transfer/place with carried state, terminal connector to q_ready, independent replay, complete witnesses with joint travel), every order of each move set for AB/BA, no-op / redundant controls, inherited split; Y from q_ref in each new endpoint scene; generated on an authorized physics host, not the training server",
+  "evidence": ["reports/05_XY_MODEL_AND_LABEL_AUDIT.md", "reports/xy3d_label_inventory.json", "reports/xy3d_selftest_cpu.json", "reports/xy3d_synthetic_gpu.json"]
+ },
+ "unresolved_dependencies": [
+  "3D X/Y teacher labels (physics host + authorization)",
+  "durable off-site checkpoint backup beyond the server's second disk and the laptop mirror",
+  "gvlab -> training-server SSH is not configured (data relayed via the laptop; not changed)"
+ ]
+}

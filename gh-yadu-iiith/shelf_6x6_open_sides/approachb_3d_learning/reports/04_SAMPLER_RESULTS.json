@@ -1,0 +1,3561 @@
+{
+ "experiment": "SAMPLER_V1",
+ "snapshot": "v4full_82926152fa9cc345",
+ "selection_frozen_before_test": "2026-11-08T01:13:17Z",
+ "fairness": "same contexts, legality mask, raw cap 8M with replacement, first M unique; 3 train seeds x 3 eval seeds (controls: 3 eval seeds)",
+ "splits": {
+  "val": {
+   "contexts_evaluated": 1425,
+   "contexts_with_positive": 1336,
+   "peak_vram_mb": 524.6,
+   "samplers": {
+    "cvae_geo": {
+     "members": 3,
+     "by_M": {
+      "1": {
+       "hit_at_M": {
+        "mean": 0.2554,
+        "std": 0.0048
+       },
+       "known_label_precision": {
+        "mean": 0.831,
+        "std": 0.0144
+       },
+       "pos_recall": {
+        "mean": 0.0566,
+        "std": 0.0011
+       },
+       "labeled_support": {
+        "mean": 0.2882,
+        "std": 0.0051
+       },
+       "known_negative_rate": {
+        "mean": 0.0487,
+        "std": 0.0045
+       },
+       "duplicate_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_illegal_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "unique_per_context": {
+        "mean": 1.0,
+        "std": 0.0
+       },
+       "gpu_latency_us_per_context": 19.6
+      },
+      "2": {
+       "hit_at_M": {
+        "mean": 0.4269,
+        "std": 0.0074
+       },
+       "known_label_precision": {
+        "mean": 0.8258,
+        "std": 0.0124
+       },
+       "pos_recall": {
+        "mean": 0.1087,
+        "std": 0.0018
+       },
+       "labeled_support": {
+        "mean": 0.2784,
+        "std": 0.0057
+       },
+       "known_negative_rate": {
+        "mean": 0.0485,
+        "std": 0.0042
+       },
+       "duplicate_rate": {
+        "mean": 0.0312,
+        "std": 0.0014
+       },
+       "raw_illegal_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "unique_per_context": {
+        "mean": 2.0,
+        "std": 0.0
+       },
+       "mean_pairwise_cell_distance": 2.862,
+       "gpu_latency_us_per_context": 5.25
+      },
+      "4": {
+       "hit_at_M": {
+        "mean": 0.6749,
+        "std": 0.0132
+       },
+       "known_label_precision": {
+        "mean": 0.8203,
+        "std": 0.005
+       },
+       "pos_recall": {
+        "mean": 0.2136,
+        "std": 0.0047
+       },
+       "labeled_support": {
+        "mean": 0.2752,
+        "std": 0.0053
+       },
+       "known_negative_rate": {
+        "mean": 0.0495,
+        "std": 0.0014
+       },
+       "duplicate_rate": {
+        "mean": 0.0958,
+        "std": 0.0042
+       },
+       "raw_illegal_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "unique_per_context": {
+        "mean": 4.0,
+        "std": 0.0
+       },
+       "mean_pairwise_cell_distance": 2.899,
+       "gpu_latency_us_per_context": 1.0
+      },
+      "8": {
+       "hit_at_M": {
+        "mean": 0.871,
+        "std": 0.0075
+       },
+       "known_label_precision": {
+        "mean": 0.808,
+        "std": 0.0055
+       },
+       "pos_recall": {
+        "mean": 0.3864,
+        "std": 0.0041
+       },
+       "labeled_support": {
+        "mean": 0.2527,
+        "std": 0.0016
+       },
+       "known_negative_rate": {
+        "mean": 0.0485,
+        "std": 0.0013
+       },
+       "duplicate_rate": {
+        "mean": 0.2248,
+        "std": 0.0071
+       },
+       "raw_illegal_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "unique_per_context": {
+        "mean": 8.0,
+        "std": 0.0
+       },
+       "mean_pairwise_cell_distance": 2.953,
+       "gpu_latency_us_per_context": 1.16
+      }
+     },
+     "heldout_positive_nll_nats": {
+      "mean": 3.1812,
+      "std": 0.0026
+     },
+     "by_stratum_M4_seed0": {
+      "shape": {
+       "box": {
+        "hit": 0.696,
+        "prec": 0.823,
+        "n": 650
+       },
+       "cylinder": {
+        "hit": 0.648,
+        "prec": 0.813,
+        "n": 775
+       }
+      },
+      "height_bin": {
+       "medium": {
+        "hit": 0.692,
+        "prec": 0.869,
+        "n": 476
+       },
+       "short": {
+        "hit": 0.628,
+        "prec": 0.739,
+        "n": 452
+       },
+       "tall": {
+        "hit": 0.684,
+        "prec": 0.84,
+        "n": 497
+       }
+      },
+      "block": {
+       "prefix1": {
+        "hit": 0.554,
+        "prec": 0.821,
+        "n": 312
+       },
+       "prefix2": {
+        "hit": 0.593,
+        "prec": 0.808,
+        "n": 308
+       },
+       "prefix3": {
+        "hit": 0.569,
+        "prec": 0.787,
+        "n": 208
+       },
+       "root": {
+        "hit": 0.8,
+        "prec": 0.826,
+        "n": 597
+       }
+      },
+      "n_obj": {
+       "2": {
+        "hit": 0.818,
+        "prec": 0.975,
+        "n": 33
+       },
+       "3": {
+        "hit": 0.646,
+        "prec": 0.892,
+        "n": 199
+       },
+       "4": {
+        "hit": 0.648,
+        "prec": 0.865,
+        "n": 425
+       },
+       "5": {
+        "hit": 0.688,
+        "prec": 0.775,
+        "n": 521
+       },
+       "6": {
+        "hit": 0.646,
+        "prec": 0.751,
+        "n": 161
+       },
+       "7": {
+        "hit": 0.73,
+        "prec": 0.812,
+        "n": 43
+       },
+       "8": {
+        "hit": 0.7,
+        "prec": 0.768,
+        "n": 43
+       }
+      }
+     }
+    },
+    "cvae": {
+     "members": 3,
+     "by_M": {
+      "1": {
+       "hit_at_M": {
+        "mean": 0.2561,
+        "std": 0.0053
+       },
+       "known_label_precision": {
+        "mean": 0.8354,
+        "std": 0.0152
+       },
+       "pos_recall": {
+        "mean": 0.0568,
+        "std": 0.0012
+       },
+       "labeled_support": {
+        "mean": 0.2874,
+        "std": 0.0057
+       },
+       "known_negative_rate": {
+        "mean": 0.0473,
+        "std": 0.0048
+       },
+       "duplicate_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_illegal_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "unique_per_context": {
+        "mean": 1.0,
+        "std": 0.0
+       },
+       "gpu_latency_us_per_context": 0.7
+      },
+      "2": {
+       "hit_at_M": {
+        "mean": 0.4292,
+        "std": 0.009
+       },
+       "known_label_precision": {
+        "mean": 0.8294,
+        "std": 0.0109
+       },
+       "pos_recall": {
+        "mean": 0.1089,
+        "std": 0.0024
+       },
+       "labeled_support": {
+        "mean": 0.2775,
+        "std": 0.0065
+       },
+       "known_negative_rate": {
+        "mean": 0.0474,
+        "std": 0.0036
+       },
+       "duplicate_rate": {
+        "mean": 0.0324,
+        "std": 0.0018
+       },
+       "raw_illegal_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "unique_per_context": {
+        "mean": 2.0,
+        "std": 0.0
+       },
+       "mean_pairwise_cell_distance": 2.862,
+       "gpu_latency_us_per_context": 0.84
+      },
+      "4": {
+       "hit_at_M": {
+        "mean": 0.6733,
+        "std": 0.0149
+       },
+       "known_label_precision": {
+        "mean": 0.8189,
+        "std": 0.0054
+       },
+       "pos_recall": {
+        "mean": 0.2131,
+        "std": 0.0052
+       },
+       "labeled_support": {
+        "mean": 0.2751,
+        "std": 0.0065
+       },
+       "known_negative_rate": {
+        "mean": 0.0498,
+        "std": 0.0019
+       },
+       "duplicate_rate": {
+        "mean": 0.0965,
+        "std": 0.0046
+       },
+       "raw_illegal_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "unique_per_context": {
+        "mean": 4.0,
+        "std": 0.0
+       },
+       "mean_pairwise_cell_distance": 2.909,
+       "gpu_latency_us_per_context": 0.94
+      },
+      "8": {
+       "hit_at_M": {
+        "mean": 0.8731,
+        "std": 0.0083
+       },
+       "known_label_precision": {
+        "mean": 0.8093,
+        "std": 0.0059
+       },
+       "pos_recall": {
+        "mean": 0.3871,
+        "std": 0.0037
+       },
+       "labeled_support": {
+        "mean": 0.2528,
+        "std": 0.0013
+       },
+       "known_negative_rate": {
+        "mean": 0.0482,
+        "std": 0.0015
+       },
+       "duplicate_rate": {
+        "mean": 0.228,
+        "std": 0.005
+       },
+       "raw_illegal_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "unique_per_context": {
+        "mean": 8.0,
+        "std": 0.0
+       },
+       "mean_pairwise_cell_distance": 2.956,
+       "gpu_latency_us_per_context": 1.14
+      }
+     },
+     "heldout_positive_nll_nats": {
+      "mean": 3.1846,
+      "std": 0.0033
+     },
+     "by_stratum_M4_seed0": {
+      "shape": {
+       "box": {
+        "hit": 0.696,
+        "prec": 0.837,
+        "n": 650
+       },
+       "cylinder": {
+        "hit": 0.635,
+        "prec": 0.807,
+        "n": 775
+       }
+      },
+      "height_bin": {
+       "medium": {
+        "hit": 0.679,
+        "prec": 0.866,
+        "n": 476
+       },
+       "short": {
+        "hit": 0.63,
+        "prec": 0.748,
+        "n": 452
+       },
+       "tall": {
+        "hit": 0.676,
+        "prec": 0.845,
+        "n": 497
+       }
+      },
+      "block": {
+       "prefix1": {
+        "hit": 0.55,
+        "prec": 0.814,
+        "n": 312
+       },
+       "prefix2": {
+        "hit": 0.604,
+        "prec": 0.809,
+        "n": 308
+       },
+       "prefix3": {
+        "hit": 0.543,
+        "prec": 0.78,
+        "n": 208
+       },
+       "root": {
+        "hit": 0.789,
+        "prec": 0.835,
+        "n": 597
+       }
+      },
+      "n_obj": {
+       "2": {
+        "hit": 0.848,
+        "prec": 0.976,
+        "n": 33
+       },
+       "3": {
+        "hit": 0.626,
+        "prec": 0.891,
+        "n": 199
+       },
+       "4": {
+        "hit": 0.648,
+        "prec": 0.875,
+        "n": 425
+       },
+       "5": {
+        "hit": 0.686,
+        "prec": 0.781,
+        "n": 521
+       },
+       "6": {
+        "hit": 0.625,
+        "prec": 0.743,
+        "n": 161
+       },
+       "7": {
+        "hit": 0.73,
+        "prec": 0.816,
+        "n": 43
+       },
+       "8": {
+        "hit": 0.65,
+        "prec": 0.732,
+        "n": 43
+       }
+      }
+     }
+    },
+    "fm_geo": {
+     "members": 3,
+     "by_M": {
+      "1": {
+       "hit_at_M": {
+        "mean": 0.1934,
+        "std": 0.0101
+       },
+       "known_label_precision": {
+        "mean": 0.7917,
+        "std": 0.0143
+       },
+       "pos_recall": {
+        "mean": 0.0429,
+        "std": 0.0022
+       },
+       "labeled_support": {
+        "mean": 0.2289,
+        "std": 0.0101
+       },
+       "known_negative_rate": {
+        "mean": 0.0476,
+        "std": 0.0033
+       },
+       "duplicate_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_illegal_rate": {
+        "mean": 0.2357,
+        "std": 0.0112
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.1157,
+        "std": 0.0084
+       },
+       "unique_per_context": {
+        "mean": 1.0,
+        "std": 0.0
+       },
+       "gpu_latency_us_per_context": 4.42
+      },
+      "2": {
+       "hit_at_M": {
+        "mean": 0.3393,
+        "std": 0.0131
+       },
+       "known_label_precision": {
+        "mean": 0.795,
+        "std": 0.0146
+       },
+       "pos_recall": {
+        "mean": 0.0834,
+        "std": 0.0033
+       },
+       "labeled_support": {
+        "mean": 0.2218,
+        "std": 0.0063
+       },
+       "known_negative_rate": {
+        "mean": 0.0454,
+        "std": 0.003
+       },
+       "duplicate_rate": {
+        "mean": 0.0242,
+        "std": 0.002
+       },
+       "raw_illegal_rate": {
+        "mean": 0.2431,
+        "std": 0.0038
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.1183,
+        "std": 0.0047
+       },
+       "unique_per_context": {
+        "mean": 2.0,
+        "std": 0.0
+       },
+       "mean_pairwise_cell_distance": 2.66,
+       "gpu_latency_us_per_context": 4.32
+      },
+      "4": {
+       "hit_at_M": {
+        "mean": 0.5637,
+        "std": 0.009
+       },
+       "known_label_precision": {
+        "mean": 0.7832,
+        "std": 0.0099
+       },
+       "pos_recall": {
+        "mean": 0.1656,
+        "std": 0.0042
+       },
+       "labeled_support": {
+        "mean": 0.2235,
+        "std": 0.0036
+       },
+       "known_negative_rate": {
+        "mean": 0.0484,
+        "std": 0.0019
+       },
+       "duplicate_rate": {
+        "mean": 0.0718,
+        "std": 0.0031
+       },
+       "raw_illegal_rate": {
+        "mean": 0.2412,
+        "std": 0.0043
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.1154,
+        "std": 0.0044
+       },
+       "unique_per_context": {
+        "mean": 4.0,
+        "std": 0.0
+       },
+       "mean_pairwise_cell_distance": 2.681,
+       "gpu_latency_us_per_context": 7.94
+      },
+      "8": {
+       "hit_at_M": {
+        "mean": 0.807,
+        "std": 0.0127
+       },
+       "known_label_precision": {
+        "mean": 0.7892,
+        "std": 0.0096
+       },
+       "pos_recall": {
+        "mean": 0.3275,
+        "std": 0.0089
+       },
+       "labeled_support": {
+        "mean": 0.2193,
+        "std": 0.0036
+       },
+       "known_negative_rate": {
+        "mean": 0.0462,
+        "std": 0.0015
+       },
+       "duplicate_rate": {
+        "mean": 0.1713,
+        "std": 0.0063
+       },
+       "raw_illegal_rate": {
+        "mean": 0.2472,
+        "std": 0.0056
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.1188,
+        "std": 0.0045
+       },
+       "unique_per_context": {
+        "mean": 8.0,
+        "std": 0.0
+       },
+       "mean_pairwise_cell_distance": 2.722,
+       "gpu_latency_us_per_context": 16.54
+      }
+     },
+     "by_stratum_M4_seed0": {
+      "shape": {
+       "box": {
+        "hit": 0.557,
+        "prec": 0.783,
+        "n": 650
+       },
+       "cylinder": {
+        "hit": 0.547,
+        "prec": 0.793,
+        "n": 775
+       }
+      },
+      "height_bin": {
+       "medium": {
+        "hit": 0.6,
+        "prec": 0.863,
+        "n": 476
+       },
+       "short": {
+        "hit": 0.471,
+        "prec": 0.658,
+        "n": 452
+       },
+       "tall": {
+        "hit": 0.573,
+        "prec": 0.818,
+        "n": 497
+       }
+      },
+      "block": {
+       "prefix1": {
+        "hit": 0.464,
+        "prec": 0.726,
+        "n": 312
+       },
+       "prefix2": {
+        "hit": 0.467,
+        "prec": 0.808,
+        "n": 308
+       },
+       "prefix3": {
+        "hit": 0.447,
+        "prec": 0.717,
+        "n": 208
+       },
+       "root": {
+        "hit": 0.672,
+        "prec": 0.815,
+        "n": 597
+       }
+      },
+      "n_obj": {
+       "2": {
+        "hit": 0.818,
+        "prec": 0.977,
+        "n": 33
+       },
+       "3": {
+        "hit": 0.585,
+        "prec": 0.897,
+        "n": 199
+       },
+       "4": {
+        "hit": 0.529,
+        "prec": 0.787,
+        "n": 425
+       },
+       "5": {
+        "hit": 0.526,
+        "prec": 0.75,
+        "n": 521
+       },
+       "6": {
+        "hit": 0.597,
+        "prec": 0.75,
+        "n": 161
+       },
+       "7": {
+        "hit": 0.568,
+        "prec": 0.784,
+        "n": 43
+       },
+       "8": {
+        "hit": 0.525,
+        "prec": 0.714,
+        "n": 43
+       }
+      }
+     }
+    },
+    "fm": {
+     "members": 3,
+     "by_M": {
+      "1": {
+       "hit_at_M": {
+        "mean": 0.1919,
+        "std": 0.0099
+       },
+       "known_label_precision": {
+        "mean": 0.7945,
+        "std": 0.0164
+       },
+       "pos_recall": {
+        "mean": 0.0425,
+        "std": 0.0022
+       },
+       "labeled_support": {
+        "mean": 0.2264,
+        "std": 0.0093
+       },
+       "known_negative_rate": {
+        "mean": 0.0465,
+        "std": 0.0036
+       },
+       "duplicate_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_illegal_rate": {
+        "mean": 0.2362,
+        "std": 0.0099
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.1158,
+        "std": 0.0087
+       },
+       "unique_per_context": {
+        "mean": 1.0,
+        "std": 0.0
+       },
+       "gpu_latency_us_per_context": 3.49
+      },
+      "2": {
+       "hit_at_M": {
+        "mean": 0.3392,
+        "std": 0.0115
+       },
+       "known_label_precision": {
+        "mean": 0.7919,
+        "std": 0.0137
+       },
+       "pos_recall": {
+        "mean": 0.0831,
+        "std": 0.0027
+       },
+       "labeled_support": {
+        "mean": 0.2218,
+        "std": 0.0052
+       },
+       "known_negative_rate": {
+        "mean": 0.0461,
+        "std": 0.003
+       },
+       "duplicate_rate": {
+        "mean": 0.0239,
+        "std": 0.0009
+       },
+       "raw_illegal_rate": {
+        "mean": 0.2426,
+        "std": 0.0036
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.1189,
+        "std": 0.0054
+       },
+       "unique_per_context": {
+        "mean": 2.0,
+        "std": 0.0
+       },
+       "mean_pairwise_cell_distance": 2.66,
+       "gpu_latency_us_per_context": 4.3
+      },
+      "4": {
+       "hit_at_M": {
+        "mean": 0.5628,
+        "std": 0.0094
+       },
+       "known_label_precision": {
+        "mean": 0.7835,
+        "std": 0.0107
+       },
+       "pos_recall": {
+        "mean": 0.1657,
+        "std": 0.0046
+       },
+       "labeled_support": {
+        "mean": 0.2235,
+        "std": 0.004
+       },
+       "known_negative_rate": {
+        "mean": 0.0483,
+        "std": 0.002
+       },
+       "duplicate_rate": {
+        "mean": 0.0719,
+        "std": 0.0031
+       },
+       "raw_illegal_rate": {
+        "mean": 0.2417,
+        "std": 0.0052
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.1165,
+        "std": 0.0046
+       },
+       "unique_per_context": {
+        "mean": 4.0,
+        "std": 0.0
+       },
+       "mean_pairwise_cell_distance": 2.684,
+       "gpu_latency_us_per_context": 7.9
+      },
+      "8": {
+       "hit_at_M": {
+        "mean": 0.8069,
+        "std": 0.0125
+       },
+       "known_label_precision": {
+        "mean": 0.7882,
+        "std": 0.01
+       },
+       "pos_recall": {
+        "mean": 0.3259,
+        "std": 0.0086
+       },
+       "labeled_support": {
+        "mean": 0.2185,
+        "std": 0.0032
+       },
+       "known_negative_rate": {
+        "mean": 0.0462,
+        "std": 0.0017
+       },
+       "duplicate_rate": {
+        "mean": 0.1712,
+        "std": 0.0047
+       },
+       "raw_illegal_rate": {
+        "mean": 0.2479,
+        "std": 0.0054
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.1196,
+        "std": 0.0047
+       },
+       "unique_per_context": {
+        "mean": 8.0,
+        "std": 0.0
+       },
+       "mean_pairwise_cell_distance": 2.725,
+       "gpu_latency_us_per_context": 16.49
+      }
+     },
+     "by_stratum_M4_seed0": {
+      "shape": {
+       "box": {
+        "hit": 0.57,
+        "prec": 0.796,
+        "n": 650
+       },
+       "cylinder": {
+        "hit": 0.557,
+        "prec": 0.797,
+        "n": 775
+       }
+      },
+      "height_bin": {
+       "medium": {
+        "hit": 0.596,
+        "prec": 0.862,
+        "n": 476
+       },
+       "short": {
+        "hit": 0.496,
+        "prec": 0.678,
+        "n": 452
+       },
+       "tall": {
+        "hit": 0.587,
+        "prec": 0.826,
+        "n": 497
+       }
+      },
+      "block": {
+       "prefix1": {
+        "hit": 0.474,
+        "prec": 0.752,
+        "n": 312
+       },
+       "prefix2": {
+        "hit": 0.481,
+        "prec": 0.813,
+        "n": 308
+       },
+       "prefix3": {
+        "hit": 0.452,
+        "prec": 0.732,
+        "n": 208
+       },
+       "root": {
+        "hit": 0.685,
+        "prec": 0.816,
+        "n": 597
+       }
+      },
+      "n_obj": {
+       "2": {
+        "hit": 0.848,
+        "prec": 0.977,
+        "n": 33
+       },
+       "3": {
+        "hit": 0.595,
+        "prec": 0.912,
+        "n": 199
+       },
+       "4": {
+        "hit": 0.536,
+        "prec": 0.793,
+        "n": 425
+       },
+       "5": {
+        "hit": 0.554,
+        "prec": 0.762,
+        "n": 521
+       },
+       "6": {
+        "hit": 0.576,
+        "prec": 0.758,
+        "n": 161
+       },
+       "7": {
+        "hit": 0.541,
+        "prec": 0.763,
+        "n": 43
+       },
+       "8": {
+        "hit": 0.525,
+        "prec": 0.721,
+        "n": 43
+       }
+      }
+     }
+    },
+    "uniform": {
+     "members": 1,
+     "by_M": {
+      "1": {
+       "hit_at_M": {
+        "mean": 0.146,
+        "std": 0.0079
+       },
+       "known_label_precision": {
+        "mean": 0.7674,
+        "std": 0.0142
+       },
+       "pos_recall": {
+        "mean": 0.0324,
+        "std": 0.0018
+       },
+       "labeled_support": {
+        "mean": 0.1782,
+        "std": 0.0073
+       },
+       "known_negative_rate": {
+        "mean": 0.0414,
+        "std": 0.0021
+       },
+       "duplicate_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_illegal_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "unique_per_context": {
+        "mean": 1.0,
+        "std": 0.0
+       },
+       "gpu_latency_us_per_context": 0.66
+      },
+      "2": {
+       "hit_at_M": {
+        "mean": 0.259,
+        "std": 0.0079
+       },
+       "known_label_precision": {
+        "mean": 0.7389,
+        "std": 0.0247
+       },
+       "pos_recall": {
+        "mean": 0.0619,
+        "std": 0.0021
+       },
+       "labeled_support": {
+        "mean": 0.177,
+        "std": 0.0002
+       },
+       "known_negative_rate": {
+        "mean": 0.0462,
+        "std": 0.0044
+       },
+       "duplicate_rate": {
+        "mean": 0.0161,
+        "std": 0.0009
+       },
+       "raw_illegal_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "unique_per_context": {
+        "mean": 2.0,
+        "std": 0.0
+       },
+       "mean_pairwise_cell_distance": 3.202,
+       "gpu_latency_us_per_context": 0.59
+      },
+      "4": {
+       "hit_at_M": {
+        "mean": 0.4568,
+        "std": 0.0061
+       },
+       "known_label_precision": {
+        "mean": 0.7431,
+        "std": 0.0129
+       },
+       "pos_recall": {
+        "mean": 0.1263,
+        "std": 0.0041
+       },
+       "labeled_support": {
+        "mean": 0.1796,
+        "std": 0.0069
+       },
+       "known_negative_rate": {
+        "mean": 0.0462,
+        "std": 0.0036
+       },
+       "duplicate_rate": {
+        "mean": 0.0497,
+        "std": 0.0021
+       },
+       "raw_illegal_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "unique_per_context": {
+        "mean": 4.0,
+        "std": 0.0
+       },
+       "mean_pairwise_cell_distance": 3.194,
+       "gpu_latency_us_per_context": 0.62
+      },
+      "8": {
+       "hit_at_M": {
+        "mean": 0.6896,
+        "std": 0.0065
+       },
+       "known_label_precision": {
+        "mean": 0.7434,
+        "std": 0.0096
+       },
+       "pos_recall": {
+        "mean": 0.2491,
+        "std": 0.0028
+       },
+       "labeled_support": {
+        "mean": 0.1771,
+        "std": 0.0025
+       },
+       "known_negative_rate": {
+        "mean": 0.0455,
+        "std": 0.0022
+       },
+       "duplicate_rate": {
+        "mean": 0.1178,
+        "std": 0.0019
+       },
+       "raw_illegal_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "unique_per_context": {
+        "mean": 8.0,
+        "std": 0.0
+       },
+       "mean_pairwise_cell_distance": 3.185,
+       "gpu_latency_us_per_context": 0.64
+      }
+     },
+     "heldout_positive_nll_nats": {
+      "mean": 3.4504,
+      "std": 0.0
+     },
+     "by_stratum_M4_seed0": {
+      "shape": {
+       "box": {
+        "hit": 0.462,
+        "prec": 0.721,
+        "n": 650
+       },
+       "cylinder": {
+        "hit": 0.463,
+        "prec": 0.729,
+        "n": 775
+       }
+      },
+      "height_bin": {
+       "medium": {
+        "hit": 0.441,
+        "prec": 0.745,
+        "n": 476
+       },
+       "short": {
+        "hit": 0.464,
+        "prec": 0.683,
+        "n": 452
+       },
+       "tall": {
+        "hit": 0.482,
+        "prec": 0.745,
+        "n": 497
+       }
+      },
+      "block": {
+       "prefix1": {
+        "hit": 0.398,
+        "prec": 0.725,
+        "n": 312
+       },
+       "prefix2": {
+        "hit": 0.368,
+        "prec": 0.749,
+        "n": 308
+       },
+       "prefix3": {
+        "hit": 0.34,
+        "prec": 0.692,
+        "n": 208
+       },
+       "root": {
+        "hit": 0.582,
+        "prec": 0.725,
+        "n": 597
+       }
+      },
+      "n_obj": {
+       "2": {
+        "hit": 0.697,
+        "prec": 0.972,
+        "n": 33
+       },
+       "3": {
+        "hit": 0.467,
+        "prec": 0.865,
+        "n": 199
+       },
+       "4": {
+        "hit": 0.466,
+        "prec": 0.776,
+        "n": 425
+       },
+       "5": {
+        "hit": 0.434,
+        "prec": 0.64,
+        "n": 521
+       },
+       "6": {
+        "hit": 0.472,
+        "prec": 0.689,
+        "n": 161
+       },
+       "7": {
+        "hit": 0.514,
+        "prec": 0.69,
+        "n": 43
+       },
+       "8": {
+        "hit": 0.475,
+        "prec": 0.667,
+        "n": 43
+       }
+      }
+     }
+    },
+    "stratified": {
+     "members": 1,
+     "by_M": {
+      "1": {
+       "hit_at_M": {
+        "mean": 0.4004,
+        "std": 0.0048
+       },
+       "known_label_precision": {
+        "mean": 0.821,
+        "std": 0.0128
+       },
+       "pos_recall": {
+        "mean": 0.0888,
+        "std": 0.0011
+       },
+       "labeled_support": {
+        "mean": 0.4573,
+        "std": 0.0018
+       },
+       "known_negative_rate": {
+        "mean": 0.0819,
+        "std": 0.0062
+       },
+       "duplicate_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_illegal_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "unique_per_context": {
+        "mean": 1.0,
+        "std": 0.0
+       },
+       "gpu_latency_us_per_context": 4.16
+      },
+      "2": {
+       "hit_at_M": {
+        "mean": 0.4573,
+        "std": 0.0079
+       },
+       "known_label_precision": {
+        "mean": 0.7892,
+        "std": 0.0024
+       },
+       "pos_recall": {
+        "mean": 0.1116,
+        "std": 0.0026
+       },
+       "labeled_support": {
+        "mean": 0.2991,
+        "std": 0.0066
+       },
+       "known_negative_rate": {
+        "mean": 0.063,
+        "std": 0.0014
+       },
+       "duplicate_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_illegal_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "unique_per_context": {
+        "mean": 2.0,
+        "std": 0.0
+       },
+       "mean_pairwise_cell_distance": 2.779,
+       "gpu_latency_us_per_context": 1.67
+      },
+      "4": {
+       "hit_at_M": {
+        "mean": 0.6996,
+        "std": 0.0138
+       },
+       "known_label_precision": {
+        "mean": 0.7796,
+        "std": 0.008
+       },
+       "pos_recall": {
+        "mean": 0.2203,
+        "std": 0.0057
+       },
+       "labeled_support": {
+        "mean": 0.2987,
+        "std": 0.0049
+       },
+       "known_negative_rate": {
+        "mean": 0.0658,
+        "std": 0.0015
+       },
+       "duplicate_rate": {
+        "mean": 0.0634,
+        "std": 0.0041
+       },
+       "raw_illegal_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "unique_per_context": {
+        "mean": 4.0,
+        "std": 0.0
+       },
+       "mean_pairwise_cell_distance": 3.152,
+       "gpu_latency_us_per_context": 2.64
+      },
+      "8": {
+       "hit_at_M": {
+        "mean": 0.863,
+        "std": 0.0096
+       },
+       "known_label_precision": {
+        "mean": 0.7699,
+        "std": 0.0042
+       },
+       "pos_recall": {
+        "mean": 0.3781,
+        "std": 0.0048
+       },
+       "labeled_support": {
+        "mean": 0.2595,
+        "std": 0.0024
+       },
+       "known_negative_rate": {
+        "mean": 0.0597,
+        "std": 0.001
+       },
+       "duplicate_rate": {
+        "mean": 0.1521,
+        "std": 0.0036
+       },
+       "raw_illegal_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "unique_per_context": {
+        "mean": 8.0,
+        "std": 0.0
+       },
+       "mean_pairwise_cell_distance": 3.14,
+       "gpu_latency_us_per_context": 4.6
+      }
+     },
+     "by_stratum_M4_seed0": {
+      "shape": {
+       "box": {
+        "hit": 0.703,
+        "prec": 0.781,
+        "n": 650
+       },
+       "cylinder": {
+        "hit": 0.667,
+        "prec": 0.776,
+        "n": 775
+       }
+      },
+      "height_bin": {
+       "medium": {
+        "hit": 0.653,
+        "prec": 0.818,
+        "n": 476
+       },
+       "short": {
+        "hit": 0.705,
+        "prec": 0.714,
+        "n": 452
+       },
+       "tall": {
+        "hit": 0.695,
+        "prec": 0.805,
+        "n": 497
+       }
+      },
+      "block": {
+       "prefix1": {
+        "hit": 0.581,
+        "prec": 0.756,
+        "n": 312
+       },
+       "prefix2": {
+        "hit": 0.544,
+        "prec": 0.752,
+        "n": 308
+       },
+       "prefix3": {
+        "hit": 0.548,
+        "prec": 0.717,
+        "n": 208
+       },
+       "root": {
+        "hit": 0.848,
+        "prec": 0.803,
+        "n": 597
+       }
+      },
+      "n_obj": {
+       "2": {
+        "hit": 0.818,
+        "prec": 0.977,
+        "n": 33
+       },
+       "3": {
+        "hit": 0.672,
+        "prec": 0.902,
+        "n": 199
+       },
+       "4": {
+        "hit": 0.665,
+        "prec": 0.838,
+        "n": 425
+       },
+       "5": {
+        "hit": 0.688,
+        "prec": 0.724,
+        "n": 521
+       },
+       "6": {
+        "hit": 0.729,
+        "prec": 0.696,
+        "n": 161
+       },
+       "7": {
+        "hit": 0.622,
+        "prec": 0.717,
+        "n": 43
+       },
+       "8": {
+        "hit": 0.65,
+        "prec": 0.648,
+        "n": 43
+       }
+      }
+     }
+    },
+    "ranker": {
+     "members": 3,
+     "by_M": {
+      "1": {
+       "hit_at_M": {
+        "mean": 0.1911,
+        "std": 0.0074
+       },
+       "known_label_precision": {
+        "mean": 0.9516,
+        "std": 0.0058
+       },
+       "pos_recall": {
+        "mean": 0.0424,
+        "std": 0.0016
+       },
+       "labeled_support": {
+        "mean": 0.1883,
+        "std": 0.0073
+       },
+       "known_negative_rate": {
+        "mean": 0.0091,
+        "std": 0.0011
+       },
+       "duplicate_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_illegal_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "unique_per_context": {
+        "mean": 1.0,
+        "std": 0.0
+       }
+      },
+      "2": {
+       "hit_at_M": {
+        "mean": 0.3221,
+        "std": 0.0104
+       },
+       "known_label_precision": {
+        "mean": 0.9474,
+        "std": 0.0028
+       },
+       "pos_recall": {
+        "mean": 0.0827,
+        "std": 0.0031
+       },
+       "labeled_support": {
+        "mean": 0.1844,
+        "std": 0.0072
+       },
+       "known_negative_rate": {
+        "mean": 0.0097,
+        "std": 0.0008
+       },
+       "duplicate_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_illegal_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "unique_per_context": {
+        "mean": 2.0,
+        "std": 0.0
+       },
+       "mean_pairwise_cell_distance": 1.227
+      },
+      "4": {
+       "hit_at_M": {
+        "mean": 0.5519,
+        "std": 0.0091
+       },
+       "known_label_precision": {
+        "mean": 0.9407,
+        "std": 0.0036
+       },
+       "pos_recall": {
+        "mean": 0.1684,
+        "std": 0.0031
+       },
+       "labeled_support": {
+        "mean": 0.1892,
+        "std": 0.0032
+       },
+       "known_negative_rate": {
+        "mean": 0.0112,
+        "std": 0.0007
+       },
+       "duplicate_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_illegal_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "unique_per_context": {
+        "mean": 4.0,
+        "std": 0.0
+       },
+       "mean_pairwise_cell_distance": 1.675
+      },
+      "8": {
+       "hit_at_M": {
+        "mean": 0.8166,
+        "std": 0.0016
+       },
+       "known_label_precision": {
+        "mean": 0.9246,
+        "std": 0.0024
+       },
+       "pos_recall": {
+        "mean": 0.3401,
+        "std": 0.0058
+       },
+       "labeled_support": {
+        "mean": 0.1944,
+        "std": 0.0028
+       },
+       "known_negative_rate": {
+        "mean": 0.0146,
+        "std": 0.0003
+       },
+       "duplicate_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_illegal_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "unique_per_context": {
+        "mean": 8.0,
+        "std": 0.0
+       },
+       "mean_pairwise_cell_distance": 2.087
+      }
+     },
+     "ranker_calibration": {
+      "brier": 0.0936,
+      "ece_10bin": 0.0242,
+      "auroc": 0.9293,
+      "base_rate": 0.7449,
+      "n": 8088
+     }
+    }
+   }
+  },
+  "test": {
+   "contexts_evaluated": 1385,
+   "contexts_with_positive": 1276,
+   "peak_vram_mb": 524.5,
+   "samplers": {
+    "cvae_geo": {
+     "members": 3,
+     "by_M": {
+      "1": {
+       "hit_at_M": {
+        "mean": 0.2385,
+        "std": 0.0066
+       },
+       "known_label_precision": {
+        "mean": 0.7965,
+        "std": 0.0141
+       },
+       "pos_recall": {
+        "mean": 0.0541,
+        "std": 0.0015
+       },
+       "labeled_support": {
+        "mean": 0.2759,
+        "std": 0.0059
+       },
+       "known_negative_rate": {
+        "mean": 0.0562,
+        "std": 0.0041
+       },
+       "duplicate_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_illegal_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "unique_per_context": {
+        "mean": 1.0,
+        "std": 0.0
+       },
+       "gpu_latency_us_per_context": 20.36
+      },
+      "2": {
+       "hit_at_M": {
+        "mean": 0.4209,
+        "std": 0.0085
+       },
+       "known_label_precision": {
+        "mean": 0.798,
+        "std": 0.0071
+       },
+       "pos_recall": {
+        "mean": 0.1071,
+        "std": 0.002
+       },
+       "labeled_support": {
+        "mean": 0.2724,
+        "std": 0.0052
+       },
+       "known_negative_rate": {
+        "mean": 0.055,
+        "std": 0.0024
+       },
+       "duplicate_rate": {
+        "mean": 0.0337,
+        "std": 0.0039
+       },
+       "raw_illegal_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "unique_per_context": {
+        "mean": 2.0,
+        "std": 0.0
+       },
+       "mean_pairwise_cell_distance": 2.862,
+       "gpu_latency_us_per_context": 5.51
+      },
+      "4": {
+       "hit_at_M": {
+        "mean": 0.6502,
+        "std": 0.0154
+       },
+       "known_label_precision": {
+        "mean": 0.8006,
+        "std": 0.0095
+       },
+       "pos_recall": {
+        "mean": 0.2104,
+        "std": 0.0033
+       },
+       "labeled_support": {
+        "mean": 0.2667,
+        "std": 0.0026
+       },
+       "known_negative_rate": {
+        "mean": 0.0532,
+        "std": 0.0026
+       },
+       "duplicate_rate": {
+        "mean": 0.1007,
+        "std": 0.0059
+       },
+       "raw_illegal_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "unique_per_context": {
+        "mean": 4.0,
+        "std": 0.0
+       },
+       "mean_pairwise_cell_distance": 2.89,
+       "gpu_latency_us_per_context": 1.03
+      },
+      "8": {
+       "hit_at_M": {
+        "mean": 0.877,
+        "std": 0.0069
+       },
+       "known_label_precision": {
+        "mean": 0.7964,
+        "std": 0.0036
+       },
+       "pos_recall": {
+        "mean": 0.3991,
+        "std": 0.0055
+       },
+       "labeled_support": {
+        "mean": 0.2543,
+        "std": 0.0031
+       },
+       "known_negative_rate": {
+        "mean": 0.0518,
+        "std": 0.001
+       },
+       "duplicate_rate": {
+        "mean": 0.233,
+        "std": 0.0067
+       },
+       "raw_illegal_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "unique_per_context": {
+        "mean": 7.9999,
+        "std": 0.0002
+       },
+       "mean_pairwise_cell_distance": 2.947,
+       "gpu_latency_us_per_context": 1.19
+      }
+     },
+     "heldout_positive_nll_nats": {
+      "mean": 3.1765,
+      "std": 0.0018
+     },
+     "by_stratum_M4_seed0": {
+      "shape": {
+       "box": {
+        "hit": 0.649,
+        "prec": 0.81,
+        "n": 702
+       },
+       "cylinder": {
+        "hit": 0.65,
+        "prec": 0.804,
+        "n": 683
+       }
+      },
+      "height_bin": {
+       "medium": {
+        "hit": 0.681,
+        "prec": 0.815,
+        "n": 470
+       },
+       "short": {
+        "hit": 0.637,
+        "prec": 0.786,
+        "n": 445
+       },
+       "tall": {
+        "hit": 0.631,
+        "prec": 0.819,
+        "n": 470
+       }
+      },
+      "block": {
+       "prefix1": {
+        "hit": 0.522,
+        "prec": 0.8,
+        "n": 300
+       },
+       "prefix2": {
+        "hit": 0.573,
+        "prec": 0.79,
+        "n": 308
+       },
+       "prefix3": {
+        "hit": 0.525,
+        "prec": 0.659,
+        "n": 213
+       },
+       "root": {
+        "hit": 0.794,
+        "prec": 0.844,
+        "n": 564
+       }
+      },
+      "n_obj": {
+       "2": {
+        "hit": 0.778,
+        "prec": 1.0,
+        "n": 18
+       },
+       "3": {
+        "hit": 0.647,
+        "prec": 0.924,
+        "n": 157
+       },
+       "4": {
+        "hit": 0.592,
+        "prec": 0.855,
+        "n": 430
+       },
+       "5": {
+        "hit": 0.694,
+        "prec": 0.776,
+        "n": 444
+       },
+       "6": {
+        "hit": 0.65,
+        "prec": 0.77,
+        "n": 200
+       },
+       "7": {
+        "hit": 0.736,
+        "prec": 0.731,
+        "n": 61
+       },
+       "8": {
+        "hit": 0.65,
+        "prec": 0.663,
+        "n": 75
+       }
+      }
+     }
+    },
+    "cvae": {
+     "members": 3,
+     "by_M": {
+      "1": {
+       "hit_at_M": {
+        "mean": 0.2398,
+        "std": 0.0041
+       },
+       "known_label_precision": {
+        "mean": 0.7945,
+        "std": 0.0184
+       },
+       "pos_recall": {
+        "mean": 0.0544,
+        "std": 0.0009
+       },
+       "labeled_support": {
+        "mean": 0.2781,
+        "std": 0.0037
+       },
+       "known_negative_rate": {
+        "mean": 0.0572,
+        "std": 0.0056
+       },
+       "duplicate_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_illegal_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "unique_per_context": {
+        "mean": 1.0,
+        "std": 0.0
+       },
+       "gpu_latency_us_per_context": 0.72
+      },
+      "2": {
+       "hit_at_M": {
+        "mean": 0.4248,
+        "std": 0.011
+       },
+       "known_label_precision": {
+        "mean": 0.8008,
+        "std": 0.0076
+       },
+       "pos_recall": {
+        "mean": 0.1081,
+        "std": 0.0029
+       },
+       "labeled_support": {
+        "mean": 0.2739,
+        "std": 0.0058
+       },
+       "known_negative_rate": {
+        "mean": 0.0546,
+        "std": 0.0019
+       },
+       "duplicate_rate": {
+        "mean": 0.0349,
+        "std": 0.0031
+       },
+       "raw_illegal_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "unique_per_context": {
+        "mean": 2.0,
+        "std": 0.0
+       },
+       "mean_pairwise_cell_distance": 2.847,
+       "gpu_latency_us_per_context": 0.87
+      },
+      "4": {
+       "hit_at_M": {
+        "mean": 0.6551,
+        "std": 0.0147
+       },
+       "known_label_precision": {
+        "mean": 0.8012,
+        "std": 0.0099
+       },
+       "pos_recall": {
+        "mean": 0.2105,
+        "std": 0.0028
+       },
+       "labeled_support": {
+        "mean": 0.2666,
+        "std": 0.0025
+       },
+       "known_negative_rate": {
+        "mean": 0.053,
+        "std": 0.0028
+       },
+       "duplicate_rate": {
+        "mean": 0.103,
+        "std": 0.004
+       },
+       "raw_illegal_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "unique_per_context": {
+        "mean": 4.0,
+        "std": 0.0
+       },
+       "mean_pairwise_cell_distance": 2.884,
+       "gpu_latency_us_per_context": 0.97
+      },
+      "8": {
+       "hit_at_M": {
+        "mean": 0.8791,
+        "std": 0.0054
+       },
+       "known_label_precision": {
+        "mean": 0.7978,
+        "std": 0.0038
+       },
+       "pos_recall": {
+        "mean": 0.4003,
+        "std": 0.0052
+       },
+       "labeled_support": {
+        "mean": 0.2546,
+        "std": 0.0026
+       },
+       "known_negative_rate": {
+        "mean": 0.0515,
+        "std": 0.0009
+       },
+       "duplicate_rate": {
+        "mean": 0.2366,
+        "std": 0.0069
+       },
+       "raw_illegal_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "unique_per_context": {
+        "mean": 7.9998,
+        "std": 0.0003
+       },
+       "mean_pairwise_cell_distance": 2.946,
+       "gpu_latency_us_per_context": 1.16
+      }
+     },
+     "heldout_positive_nll_nats": {
+      "mean": 3.1777,
+      "std": 0.0024
+     },
+     "by_stratum_M4_seed0": {
+      "shape": {
+       "box": {
+        "hit": 0.64,
+        "prec": 0.804,
+        "n": 702
+       },
+       "cylinder": {
+        "hit": 0.636,
+        "prec": 0.809,
+        "n": 683
+       }
+      },
+      "height_bin": {
+       "medium": {
+        "hit": 0.671,
+        "prec": 0.813,
+        "n": 470
+       },
+       "short": {
+        "hit": 0.624,
+        "prec": 0.796,
+        "n": 445
+       },
+       "tall": {
+        "hit": 0.618,
+        "prec": 0.807,
+        "n": 470
+       }
+      },
+      "block": {
+       "prefix1": {
+        "hit": 0.493,
+        "prec": 0.791,
+        "n": 300
+       },
+       "prefix2": {
+        "hit": 0.573,
+        "prec": 0.789,
+        "n": 308
+       },
+       "prefix3": {
+        "hit": 0.514,
+        "prec": 0.673,
+        "n": 213
+       },
+       "root": {
+        "hit": 0.785,
+        "prec": 0.842,
+        "n": 564
+       }
+      },
+      "n_obj": {
+       "2": {
+        "hit": 0.778,
+        "prec": 1.0,
+        "n": 18
+       },
+       "3": {
+        "hit": 0.641,
+        "prec": 0.929,
+        "n": 157
+       },
+       "4": {
+        "hit": 0.588,
+        "prec": 0.841,
+        "n": 430
+       },
+       "5": {
+        "hit": 0.676,
+        "prec": 0.776,
+        "n": 444
+       },
+       "6": {
+        "hit": 0.621,
+        "prec": 0.769,
+        "n": 200
+       },
+       "7": {
+        "hit": 0.698,
+        "prec": 0.743,
+        "n": 61
+       },
+       "8": {
+        "hit": 0.683,
+        "prec": 0.681,
+        "n": 75
+       }
+      }
+     }
+    },
+    "fm_geo": {
+     "members": 3,
+     "by_M": {
+      "1": {
+       "hit_at_M": {
+        "mean": 0.1878,
+        "std": 0.0076
+       },
+       "known_label_precision": {
+        "mean": 0.7715,
+        "std": 0.0143
+       },
+       "pos_recall": {
+        "mean": 0.0426,
+        "std": 0.0017
+       },
+       "labeled_support": {
+        "mean": 0.2244,
+        "std": 0.0101
+       },
+       "known_negative_rate": {
+        "mean": 0.0513,
+        "std": 0.0047
+       },
+       "duplicate_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_illegal_rate": {
+        "mean": 0.2489,
+        "std": 0.0117
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.1097,
+        "std": 0.0083
+       },
+       "unique_per_context": {
+        "mean": 1.0,
+        "std": 0.0
+       },
+       "gpu_latency_us_per_context": 4.85
+      },
+      "2": {
+       "hit_at_M": {
+        "mean": 0.3398,
+        "std": 0.0166
+       },
+       "known_label_precision": {
+        "mean": 0.7562,
+        "std": 0.0117
+       },
+       "pos_recall": {
+        "mean": 0.0853,
+        "std": 0.0042
+       },
+       "labeled_support": {
+        "mean": 0.2288,
+        "std": 0.0088
+       },
+       "known_negative_rate": {
+        "mean": 0.0557,
+        "std": 0.0024
+       },
+       "duplicate_rate": {
+        "mean": 0.0246,
+        "std": 0.002
+       },
+       "raw_illegal_rate": {
+        "mean": 0.2499,
+        "std": 0.0084
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.1152,
+        "std": 0.0044
+       },
+       "unique_per_context": {
+        "mean": 2.0,
+        "std": 0.0
+       },
+       "mean_pairwise_cell_distance": 2.664,
+       "gpu_latency_us_per_context": 4.43
+      },
+      "4": {
+       "hit_at_M": {
+        "mean": 0.5576,
+        "std": 0.0225
+       },
+       "known_label_precision": {
+        "mean": 0.7562,
+        "std": 0.0087
+       },
+       "pos_recall": {
+        "mean": 0.1666,
+        "std": 0.0078
+       },
+       "labeled_support": {
+        "mean": 0.2236,
+        "std": 0.009
+       },
+       "known_negative_rate": {
+        "mean": 0.0545,
+        "std": 0.0022
+       },
+       "duplicate_rate": {
+        "mean": 0.0719,
+        "std": 0.0032
+       },
+       "raw_illegal_rate": {
+        "mean": 0.2535,
+        "std": 0.0072
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.1134,
+        "std": 0.0054
+       },
+       "unique_per_context": {
+        "mean": 4.0,
+        "std": 0.0
+       },
+       "mean_pairwise_cell_distance": 2.688,
+       "gpu_latency_us_per_context": 8.1
+      },
+      "8": {
+       "hit_at_M": {
+        "mean": 0.8098,
+        "std": 0.0096
+       },
+       "known_label_precision": {
+        "mean": 0.77,
+        "std": 0.007
+       },
+       "pos_recall": {
+        "mean": 0.3328,
+        "std": 0.0076
+       },
+       "labeled_support": {
+        "mean": 0.2193,
+        "std": 0.0032
+       },
+       "known_negative_rate": {
+        "mean": 0.0504,
+        "std": 0.001
+       },
+       "duplicate_rate": {
+        "mean": 0.1727,
+        "std": 0.006
+       },
+       "raw_illegal_rate": {
+        "mean": 0.2529,
+        "std": 0.0038
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.1171,
+        "std": 0.0032
+       },
+       "unique_per_context": {
+        "mean": 8.0,
+        "std": 0.0
+       },
+       "mean_pairwise_cell_distance": 2.724,
+       "gpu_latency_us_per_context": 16.69
+      }
+     },
+     "by_stratum_M4_seed0": {
+      "shape": {
+       "box": {
+        "hit": 0.524,
+        "prec": 0.758,
+        "n": 702
+       },
+       "cylinder": {
+        "hit": 0.529,
+        "prec": 0.747,
+        "n": 683
+       }
+      },
+      "height_bin": {
+       "medium": {
+        "hit": 0.535,
+        "prec": 0.739,
+        "n": 470
+       },
+       "short": {
+        "hit": 0.498,
+        "prec": 0.723,
+        "n": 445
+       },
+       "tall": {
+        "hit": 0.545,
+        "prec": 0.795,
+        "n": 470
+       }
+      },
+      "block": {
+       "prefix1": {
+        "hit": 0.391,
+        "prec": 0.74,
+        "n": 300
+       },
+       "prefix2": {
+        "hit": 0.455,
+        "prec": 0.724,
+        "n": 308
+       },
+       "prefix3": {
+        "hit": 0.435,
+        "prec": 0.661,
+        "n": 213
+       },
+       "root": {
+        "hit": 0.662,
+        "prec": 0.781,
+        "n": 564
+       }
+      },
+      "n_obj": {
+       "2": {
+        "hit": 0.556,
+        "prec": 0.909,
+        "n": 18
+       },
+       "3": {
+        "hit": 0.506,
+        "prec": 0.825,
+        "n": 157
+       },
+       "4": {
+        "hit": 0.496,
+        "prec": 0.802,
+        "n": 430
+       },
+       "5": {
+        "hit": 0.537,
+        "prec": 0.721,
+        "n": 444
+       },
+       "6": {
+        "hit": 0.554,
+        "prec": 0.763,
+        "n": 200
+       },
+       "7": {
+        "hit": 0.585,
+        "prec": 0.673,
+        "n": 61
+       },
+       "8": {
+        "hit": 0.583,
+        "prec": 0.595,
+        "n": 75
+       }
+      }
+     }
+    },
+    "fm": {
+     "members": 3,
+     "by_M": {
+      "1": {
+       "hit_at_M": {
+        "mean": 0.188,
+        "std": 0.0058
+       },
+       "known_label_precision": {
+        "mean": 0.7696,
+        "std": 0.0111
+       },
+       "pos_recall": {
+        "mean": 0.0427,
+        "std": 0.0013
+       },
+       "labeled_support": {
+        "mean": 0.2251,
+        "std": 0.0073
+       },
+       "known_negative_rate": {
+        "mean": 0.0519,
+        "std": 0.0034
+       },
+       "duplicate_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_illegal_rate": {
+        "mean": 0.2506,
+        "std": 0.013
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.1105,
+        "std": 0.0096
+       },
+       "unique_per_context": {
+        "mean": 1.0,
+        "std": 0.0
+       },
+       "gpu_latency_us_per_context": 3.57
+      },
+      "2": {
+       "hit_at_M": {
+        "mean": 0.3417,
+        "std": 0.0162
+       },
+       "known_label_precision": {
+        "mean": 0.7562,
+        "std": 0.0143
+       },
+       "pos_recall": {
+        "mean": 0.086,
+        "std": 0.0042
+       },
+       "labeled_support": {
+        "mean": 0.2307,
+        "std": 0.0086
+       },
+       "known_negative_rate": {
+        "mean": 0.0562,
+        "std": 0.003
+       },
+       "duplicate_rate": {
+        "mean": 0.0242,
+        "std": 0.0018
+       },
+       "raw_illegal_rate": {
+        "mean": 0.2504,
+        "std": 0.0076
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.116,
+        "std": 0.0046
+       },
+       "unique_per_context": {
+        "mean": 2.0,
+        "std": 0.0
+       },
+       "mean_pairwise_cell_distance": 2.665,
+       "gpu_latency_us_per_context": 4.4
+      },
+      "4": {
+       "hit_at_M": {
+        "mean": 0.5575,
+        "std": 0.0223
+       },
+       "known_label_precision": {
+        "mean": 0.7557,
+        "std": 0.0104
+       },
+       "pos_recall": {
+        "mean": 0.1665,
+        "std": 0.0076
+       },
+       "labeled_support": {
+        "mean": 0.2235,
+        "std": 0.0088
+       },
+       "known_negative_rate": {
+        "mean": 0.0546,
+        "std": 0.0027
+       },
+       "duplicate_rate": {
+        "mean": 0.0716,
+        "std": 0.0029
+       },
+       "raw_illegal_rate": {
+        "mean": 0.2538,
+        "std": 0.0074
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.1141,
+        "std": 0.0059
+       },
+       "unique_per_context": {
+        "mean": 4.0,
+        "std": 0.0
+       },
+       "mean_pairwise_cell_distance": 2.69,
+       "gpu_latency_us_per_context": 8.06
+      },
+      "8": {
+       "hit_at_M": {
+        "mean": 0.8105,
+        "std": 0.009
+       },
+       "known_label_precision": {
+        "mean": 0.7685,
+        "std": 0.0064
+       },
+       "pos_recall": {
+        "mean": 0.3322,
+        "std": 0.0071
+       },
+       "labeled_support": {
+        "mean": 0.2193,
+        "std": 0.003
+       },
+       "known_negative_rate": {
+        "mean": 0.0508,
+        "std": 0.0008
+       },
+       "duplicate_rate": {
+        "mean": 0.1725,
+        "std": 0.0061
+       },
+       "raw_illegal_rate": {
+        "mean": 0.2534,
+        "std": 0.0041
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.1174,
+        "std": 0.004
+       },
+       "unique_per_context": {
+        "mean": 8.0,
+        "std": 0.0
+       },
+       "mean_pairwise_cell_distance": 2.725,
+       "gpu_latency_us_per_context": 16.62
+      }
+     },
+     "by_stratum_M4_seed0": {
+      "shape": {
+       "box": {
+        "hit": 0.527,
+        "prec": 0.758,
+        "n": 702
+       },
+       "cylinder": {
+        "hit": 0.537,
+        "prec": 0.74,
+        "n": 683
+       }
+      },
+      "height_bin": {
+       "medium": {
+        "hit": 0.542,
+        "prec": 0.742,
+        "n": 470
+       },
+       "short": {
+        "hit": 0.505,
+        "prec": 0.721,
+        "n": 445
+       },
+       "tall": {
+        "hit": 0.548,
+        "prec": 0.784,
+        "n": 470
+       }
+      },
+      "block": {
+       "prefix1": {
+        "hit": 0.402,
+        "prec": 0.736,
+        "n": 300
+       },
+       "prefix2": {
+        "hit": 0.448,
+        "prec": 0.726,
+        "n": 308
+       },
+       "prefix3": {
+        "hit": 0.429,
+        "prec": 0.645,
+        "n": 213
+       },
+       "root": {
+        "hit": 0.675,
+        "prec": 0.778,
+        "n": 564
+       }
+      },
+      "n_obj": {
+       "2": {
+        "hit": 0.611,
+        "prec": 0.923,
+        "n": 18
+       },
+       "3": {
+        "hit": 0.519,
+        "prec": 0.836,
+        "n": 157
+       },
+       "4": {
+        "hit": 0.499,
+        "prec": 0.795,
+        "n": 430
+       },
+       "5": {
+        "hit": 0.534,
+        "prec": 0.712,
+        "n": 444
+       },
+       "6": {
+        "hit": 0.571,
+        "prec": 0.764,
+        "n": 200
+       },
+       "7": {
+        "hit": 0.585,
+        "prec": 0.661,
+        "n": 61
+       },
+       "8": {
+        "hit": 0.6,
+        "prec": 0.605,
+        "n": 75
+       }
+      }
+     }
+    },
+    "uniform": {
+     "members": 1,
+     "by_M": {
+      "1": {
+       "hit_at_M": {
+        "mean": 0.1447,
+        "std": 0.0054
+       },
+       "known_label_precision": {
+        "mean": 0.6927,
+        "std": 0.0399
+       },
+       "pos_recall": {
+        "mean": 0.0328,
+        "std": 0.0012
+       },
+       "labeled_support": {
+        "mean": 0.1928,
+        "std": 0.0062
+       },
+       "known_negative_rate": {
+        "mean": 0.0594,
+        "std": 0.0092
+       },
+       "duplicate_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_illegal_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "unique_per_context": {
+        "mean": 1.0,
+        "std": 0.0
+       },
+       "gpu_latency_us_per_context": 0.67
+      },
+      "2": {
+       "hit_at_M": {
+        "mean": 0.2641,
+        "std": 0.0217
+       },
+       "known_label_precision": {
+        "mean": 0.7316,
+        "std": 0.0174
+       },
+       "pos_recall": {
+        "mean": 0.0642,
+        "std": 0.0053
+       },
+       "labeled_support": {
+        "mean": 0.178,
+        "std": 0.0138
+       },
+       "known_negative_rate": {
+        "mean": 0.0478,
+        "std": 0.0049
+       },
+       "duplicate_rate": {
+        "mean": 0.0171,
+        "std": 0.0022
+       },
+       "raw_illegal_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "unique_per_context": {
+        "mean": 2.0,
+        "std": 0.0
+       },
+       "mean_pairwise_cell_distance": 3.21,
+       "gpu_latency_us_per_context": 0.61
+      },
+      "4": {
+       "hit_at_M": {
+        "mean": 0.4511,
+        "std": 0.0029
+       },
+       "known_label_precision": {
+        "mean": 0.7129,
+        "std": 0.0033
+       },
+       "pos_recall": {
+        "mean": 0.1288,
+        "std": 0.0007
+       },
+       "labeled_support": {
+        "mean": 0.1834,
+        "std": 0.0004
+       },
+       "known_negative_rate": {
+        "mean": 0.0526,
+        "std": 0.0006
+       },
+       "duplicate_rate": {
+        "mean": 0.0492,
+        "std": 0.0023
+       },
+       "raw_illegal_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "unique_per_context": {
+        "mean": 4.0,
+        "std": 0.0
+       },
+       "mean_pairwise_cell_distance": 3.187,
+       "gpu_latency_us_per_context": 0.63
+      },
+      "8": {
+       "hit_at_M": {
+        "mean": 0.7095,
+        "std": 0.0064
+       },
+       "known_label_precision": {
+        "mean": 0.7251,
+        "std": 0.0093
+       },
+       "pos_recall": {
+        "mean": 0.2607,
+        "std": 0.0043
+       },
+       "labeled_support": {
+        "mean": 0.1824,
+        "std": 0.0014
+       },
+       "known_negative_rate": {
+        "mean": 0.0502,
+        "std": 0.0016
+       },
+       "duplicate_rate": {
+        "mean": 0.1187,
+        "std": 0.002
+       },
+       "raw_illegal_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "unique_per_context": {
+        "mean": 8.0,
+        "std": 0.0
+       },
+       "mean_pairwise_cell_distance": 3.197,
+       "gpu_latency_us_per_context": 0.66
+      }
+     },
+     "heldout_positive_nll_nats": {
+      "mean": 3.4443,
+      "std": 0.0
+     },
+     "by_stratum_M4_seed0": {
+      "shape": {
+       "box": {
+        "hit": 0.437,
+        "prec": 0.709,
+        "n": 702
+       },
+       "cylinder": {
+        "hit": 0.466,
+        "prec": 0.719,
+        "n": 683
+       }
+      },
+      "height_bin": {
+       "medium": {
+        "hit": 0.484,
+        "prec": 0.746,
+        "n": 470
+       },
+       "short": {
+        "hit": 0.433,
+        "prec": 0.695,
+        "n": 445
+       },
+       "tall": {
+        "hit": 0.437,
+        "prec": 0.698,
+        "n": 470
+       }
+      },
+      "block": {
+       "prefix1": {
+        "hit": 0.359,
+        "prec": 0.769,
+        "n": 300
+       },
+       "prefix2": {
+        "hit": 0.355,
+        "prec": 0.675,
+        "n": 308
+       },
+       "prefix3": {
+        "hit": 0.345,
+        "prec": 0.565,
+        "n": 213
+       },
+       "root": {
+        "hit": 0.583,
+        "prec": 0.746,
+        "n": 564
+       }
+      },
+      "n_obj": {
+       "2": {
+        "hit": 0.556,
+        "prec": 0.895,
+        "n": 18
+       },
+       "3": {
+        "hit": 0.462,
+        "prec": 0.897,
+        "n": 157
+       },
+       "4": {
+        "hit": 0.477,
+        "prec": 0.796,
+        "n": 430
+       },
+       "5": {
+        "hit": 0.405,
+        "prec": 0.614,
+        "n": 444
+       },
+       "6": {
+        "hit": 0.463,
+        "prec": 0.692,
+        "n": 200
+       },
+       "7": {
+        "hit": 0.491,
+        "prec": 0.667,
+        "n": 61
+       },
+       "8": {
+        "hit": 0.45,
+        "prec": 0.523,
+        "n": 75
+       }
+      }
+     }
+    },
+    "stratified": {
+     "members": 1,
+     "by_M": {
+      "1": {
+       "hit_at_M": {
+        "mean": 0.3887,
+        "std": 0.0055
+       },
+       "known_label_precision": {
+        "mean": 0.7932,
+        "std": 0.0096
+       },
+       "pos_recall": {
+        "mean": 0.0882,
+        "std": 0.0012
+       },
+       "labeled_support": {
+        "mean": 0.4515,
+        "std": 0.0009
+       },
+       "known_negative_rate": {
+        "mean": 0.0934,
+        "std": 0.0041
+       },
+       "duplicate_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_illegal_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "unique_per_context": {
+        "mean": 1.0,
+        "std": 0.0
+       },
+       "gpu_latency_us_per_context": 4.34
+      },
+      "2": {
+       "hit_at_M": {
+        "mean": 0.4517,
+        "std": 0.0043
+       },
+       "known_label_precision": {
+        "mean": 0.7666,
+        "std": 0.0127
+       },
+       "pos_recall": {
+        "mean": 0.1125,
+        "std": 0.0013
+       },
+       "labeled_support": {
+        "mean": 0.2981,
+        "std": 0.0081
+       },
+       "known_negative_rate": {
+        "mean": 0.0697,
+        "std": 0.0056
+       },
+       "duplicate_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_illegal_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "unique_per_context": {
+        "mean": 2.0,
+        "std": 0.0
+       },
+       "mean_pairwise_cell_distance": 2.8,
+       "gpu_latency_us_per_context": 1.73
+      },
+      "4": {
+       "hit_at_M": {
+        "mean": 0.6881,
+        "std": 0.0112
+       },
+       "known_label_precision": {
+        "mean": 0.758,
+        "std": 0.0105
+       },
+       "pos_recall": {
+        "mean": 0.2197,
+        "std": 0.0013
+       },
+       "labeled_support": {
+        "mean": 0.2942,
+        "std": 0.0036
+       },
+       "known_negative_rate": {
+        "mean": 0.0712,
+        "std": 0.0039
+       },
+       "duplicate_rate": {
+        "mean": 0.0628,
+        "std": 0.0028
+       },
+       "raw_illegal_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "unique_per_context": {
+        "mean": 4.0,
+        "std": 0.0
+       },
+       "mean_pairwise_cell_distance": 3.142,
+       "gpu_latency_us_per_context": 2.72
+      },
+      "8": {
+       "hit_at_M": {
+        "mean": 0.8613,
+        "std": 0.0074
+       },
+       "known_label_precision": {
+        "mean": 0.7408,
+        "std": 0.0022
+       },
+       "pos_recall": {
+        "mean": 0.3794,
+        "std": 0.0006
+       },
+       "labeled_support": {
+        "mean": 0.2599,
+        "std": 0.0005
+       },
+       "known_negative_rate": {
+        "mean": 0.0674,
+        "std": 0.0007
+       },
+       "duplicate_rate": {
+        "mean": 0.1545,
+        "std": 0.001
+       },
+       "raw_illegal_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "unique_per_context": {
+        "mean": 8.0,
+        "std": 0.0
+       },
+       "mean_pairwise_cell_distance": 3.129,
+       "gpu_latency_us_per_context": 4.76
+      }
+     },
+     "by_stratum_M4_seed0": {
+      "shape": {
+       "box": {
+        "hit": 0.686,
+        "prec": 0.777,
+        "n": 702
+       },
+       "cylinder": {
+        "hit": 0.671,
+        "prec": 0.76,
+        "n": 683
+       }
+      },
+      "height_bin": {
+       "medium": {
+        "hit": 0.725,
+        "prec": 0.782,
+        "n": 470
+       },
+       "short": {
+        "hit": 0.667,
+        "prec": 0.722,
+        "n": 445
+       },
+       "tall": {
+        "hit": 0.645,
+        "prec": 0.8,
+        "n": 470
+       }
+      },
+      "block": {
+       "prefix1": {
+        "hit": 0.634,
+        "prec": 0.752,
+        "n": 300
+       },
+       "prefix2": {
+        "hit": 0.53,
+        "prec": 0.732,
+        "n": 308
+       },
+       "prefix3": {
+        "hit": 0.548,
+        "prec": 0.651,
+        "n": 213
+       },
+       "root": {
+        "hit": 0.82,
+        "prec": 0.808,
+        "n": 564
+       }
+      },
+      "n_obj": {
+       "2": {
+        "hit": 0.889,
+        "prec": 1.0,
+        "n": 18
+       },
+       "3": {
+        "hit": 0.635,
+        "prec": 0.861,
+        "n": 157
+       },
+       "4": {
+        "hit": 0.674,
+        "prec": 0.823,
+        "n": 430
+       },
+       "5": {
+        "hit": 0.706,
+        "prec": 0.737,
+        "n": 444
+       },
+       "6": {
+        "hit": 0.644,
+        "prec": 0.724,
+        "n": 200
+       },
+       "7": {
+        "hit": 0.66,
+        "prec": 0.707,
+        "n": 61
+       },
+       "8": {
+        "hit": 0.7,
+        "prec": 0.6,
+        "n": 75
+       }
+      }
+     }
+    },
+    "ranker": {
+     "members": 3,
+     "by_M": {
+      "1": {
+       "hit_at_M": {
+        "mean": 0.1821,
+        "std": 0.0126
+       },
+       "known_label_precision": {
+        "mean": 0.9064,
+        "std": 0.0088
+       },
+       "pos_recall": {
+        "mean": 0.0413,
+        "std": 0.0029
+       },
+       "labeled_support": {
+        "mean": 0.1851,
+        "std": 0.0128
+       },
+       "known_negative_rate": {
+        "mean": 0.0173,
+        "std": 0.002
+       },
+       "duplicate_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_illegal_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "unique_per_context": {
+        "mean": 1.0,
+        "std": 0.0
+       }
+      },
+      "2": {
+       "hit_at_M": {
+        "mean": 0.3169,
+        "std": 0.0156
+       },
+       "known_label_precision": {
+        "mean": 0.8993,
+        "std": 0.0075
+       },
+       "pos_recall": {
+        "mean": 0.0789,
+        "std": 0.004
+       },
+       "labeled_support": {
+        "mean": 0.178,
+        "std": 0.0091
+       },
+       "known_negative_rate": {
+        "mean": 0.0179,
+        "std": 0.0017
+       },
+       "duplicate_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_illegal_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "unique_per_context": {
+        "mean": 2.0,
+        "std": 0.0
+       },
+       "mean_pairwise_cell_distance": 1.217
+      },
+      "4": {
+       "hit_at_M": {
+        "mean": 0.5345,
+        "std": 0.0122
+       },
+       "known_label_precision": {
+        "mean": 0.9064,
+        "std": 0.0044
+       },
+       "pos_recall": {
+        "mean": 0.1594,
+        "std": 0.0061
+       },
+       "labeled_support": {
+        "mean": 0.1784,
+        "std": 0.006
+       },
+       "known_negative_rate": {
+        "mean": 0.0167,
+        "std": 0.0004
+       },
+       "duplicate_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_illegal_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "unique_per_context": {
+        "mean": 4.0,
+        "std": 0.0
+       },
+       "mean_pairwise_cell_distance": 1.668
+      },
+      "8": {
+       "hit_at_M": {
+        "mean": 0.7983,
+        "std": 0.0059
+       },
+       "known_label_precision": {
+        "mean": 0.8997,
+        "std": 0.0026
+       },
+       "pos_recall": {
+        "mean": 0.3276,
+        "std": 0.0066
+       },
+       "labeled_support": {
+        "mean": 0.1847,
+        "std": 0.0034
+       },
+       "known_negative_rate": {
+        "mean": 0.0185,
+        "std": 0.0004
+       },
+       "duplicate_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_illegal_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "raw_out_of_domain_rate": {
+        "mean": 0.0,
+        "std": 0.0
+       },
+       "unique_per_context": {
+        "mean": 8.0,
+        "std": 0.0
+       },
+       "mean_pairwise_cell_distance": 2.088
+      }
+     },
+     "ranker_calibration": {
+      "brier": 0.0947,
+      "ece_10bin": 0.0232,
+      "auroc": 0.9306,
+      "base_rate": 0.7211,
+      "n": 7796
+     }
+    }
+   }
+  }
+ },
+ "training_runs": {
+  "cvae_geo_s0": {
+   "status": "EARLY_STOPPED",
+   "epochs": 33,
+   "best_val_loss": 3.1761439206689226,
+   "wall_s": 30.3,
+   "peak_vram_mb": 113.8,
+   "best_sha256": "8415f0e7561c033cd3e0316e07d3e6de4c1c57a08d6691dae09535386999b8a3"
+  },
+  "cvae_geo_s1": {
+   "status": "EARLY_STOPPED",
+   "epochs": 30,
+   "best_val_loss": 3.18075573624417,
+   "wall_s": 30.0,
+   "peak_vram_mb": 113.8,
+   "best_sha256": "bc5e9bc4aab8e5d3c8b974c1e44a519757e145940b4066e714b8e7244a8bcf14"
+  },
+  "cvae_geo_s2": {
+   "status": "EARLY_STOPPED",
+   "epochs": 36,
+   "best_val_loss": 3.1813039833084678,
+   "wall_s": 30.7,
+   "peak_vram_mb": 113.8,
+   "best_sha256": "a71a26cd6f115dd8e2c8f78f11c5a4578badac51af8ffbfc5ad0dc9db39b14c5"
+  },
+  "cvae_s0": {
+   "status": "EARLY_STOPPED",
+   "epochs": 33,
+   "best_val_loss": 3.1772443743266505,
+   "wall_s": 30.3,
+   "peak_vram_mb": 113.8,
+   "best_sha256": "28b3f16731741ccf5eaa7d81906dbaf5d5f9ae186873b4428f2fc150278acd91"
+  },
+  "cvae_s1": {
+   "status": "EARLY_STOPPED",
+   "epochs": 28,
+   "best_val_loss": 3.1839602819814723,
+   "wall_s": 29.8,
+   "peak_vram_mb": 113.8,
+   "best_sha256": "db6ba45a75594cc47a615f29a2e7adcc4ea5c3508836044209827cf199fd13e0"
+  },
+  "cvae_s2": {
+   "status": "EARLY_STOPPED",
+   "epochs": 36,
+   "best_val_loss": 3.184634950962304,
+   "wall_s": 30.8,
+   "peak_vram_mb": 113.8,
+   "best_sha256": "b15c41aac6cdc44600fa5ad854461f9390b3b58371f72008201c0220a9c4c7e1"
+  },
+  "fm_geo_s0": {
+   "status": "EARLY_STOPPED",
+   "epochs": 19,
+   "best_val_loss": 1.6448753337741393,
+   "wall_s": 28.6,
+   "peak_vram_mb": 113.4,
+   "best_sha256": "e04b9ae526c5f7f147cbf482c9b0c1f3315598bfa31a8882f2abdf8355489eaf"
+  },
+  "fm_geo_s1": {
+   "status": "EARLY_STOPPED",
+   "epochs": 19,
+   "best_val_loss": 1.6536053818390082,
+   "wall_s": 28.6,
+   "peak_vram_mb": 113.4,
+   "best_sha256": "c5fa4df8616e0aaad20868d49906b13d6e388f6ba857e0412de3d6a10f07e2e6"
+  },
+  "fm_geo_s2": {
+   "status": "EARLY_STOPPED",
+   "epochs": 29,
+   "best_val_loss": 1.627447165493154,
+   "wall_s": 29.6,
+   "peak_vram_mb": 113.4,
+   "best_sha256": "72bb223acf6c76e40b0e1faeee3cc41357fb7b0247f9fa6a0b9ba4c36e9686a5"
+  },
+  "fm_s0": {
+   "status": "EARLY_STOPPED",
+   "epochs": 19,
+   "best_val_loss": 1.6457232668785633,
+   "wall_s": 28.7,
+   "peak_vram_mb": 113.4,
+   "best_sha256": "77a9143b9e806cb6c3669236af72ab7bb63f3086b4e916eb746ae49cfbbe6519"
+  },
+  "fm_s1": {
+   "status": "EARLY_STOPPED",
+   "epochs": 19,
+   "best_val_loss": 1.6532690190873205,
+   "wall_s": 28.6,
+   "peak_vram_mb": 113.4,
+   "best_sha256": "5ba74215d909c579ea3abbce9863877cb3e9452476863d21eebc5dbf68518f0d"
+  },
+  "fm_s2": {
+   "status": "EARLY_STOPPED",
+   "epochs": 29,
+   "best_val_loss": 1.628429024387692,
+   "wall_s": 29.7,
+   "peak_vram_mb": 113.4,
+   "best_sha256": "5073aaa45fd1bb8ff151163bf86f6da3e20117d49d0177e45eeff302a2987dc2"
+  },
+  "ranker_s0": {
+   "status": "EARLY_STOPPED",
+   "epochs": 25,
+   "best_val_loss": 0.3069273857759085,
+   "wall_s": 29.9,
+   "peak_vram_mb": 285.8,
+   "best_sha256": "51cb9eb7ededd8604c2ea2d4929ea69a8561cc5064d93bf9cc05c48f389346f8"
+  },
+  "ranker_s1": {
+   "status": "EARLY_STOPPED",
+   "epochs": 37,
+   "best_val_loss": 0.28954163706621006,
+   "wall_s": 31.5,
+   "peak_vram_mb": 285.8,
+   "best_sha256": "ca6fc2d1691b59a7ed80ca06964f212951c66c354d47805b6b8a17304168c32a"
+  },
+  "ranker_s2": {
+   "status": "EARLY_STOPPED",
+   "epochs": 37,
+   "best_val_loss": 0.28536800225104114,
+   "wall_s": 31.4,
+   "peak_vram_mb": 285.8,
+   "best_sha256": "204edfc2cf14595656540037245b952e3f83f8e74854434fc80a623189f4b0c4"
+  }
+ },
+ "resource_trace": {
+  "watchdog_probes": 75,
+  "probes_with_violation": 0,
+  "max": {
+   "gpu_temp": 39.0,
+   "our_vram": 536.0,
+   "cpu_temp": 59.0,
+   "other_busy": 2.3,
+   "power": 51.62
+  }
+ }
+}

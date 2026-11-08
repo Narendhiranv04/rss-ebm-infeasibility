@@ -1,0 +1,108 @@
+{
+ "host": "user1@10.4.25.63 (hostname 'server'), Ubuntu kernel 6.8.0-147-generic",
+ "audited_utc": "2026-11-08T00:31:49Z",
+ "hardware": {
+  "cpu": "Intel Core Ultra 9 285K, 24 logical CPUs (no SMT): P-cores 0-7 (6.9-7.2 GHz max), E-cores 8-23 (6.5 GHz)",
+  "ram_gb": 125,
+  "swap_gb": 8,
+  "gpu": "1x NVIDIA RTX PRO 5000 Blackwell, 48,935 MiB, driver 595.99.02, power limit 300 W",
+  "disks": {
+   "/": "460 GB nvme0n1p3, 117 GB free (74% used)",
+   "/data": "7.3 TB nvme1n1p1, 3.0 TB free"
+  },
+  "sensors": {
+   "cpu": "coretemp hwmon3 'Package id 0' (temp1_max 85 C, temp1_crit 105 C)",
+   "gpu": "nvidia-smi temperature/power/memory/compute-apps"
+  }
+ },
+ "at_audit": {
+  "gpu_mem_used_mib": 2,
+  "gpu_util_pct": 0,
+  "gpu_temp_c": 24,
+  "gpu_power_w": 2.9,
+  "gpu_compute_processes": [],
+  "load1": 0.04,
+  "per_cpu_busy_pct_max": 3,
+  "mem_available_gb": 121,
+  "cpu_pkg_temp_c": 28
+ },
+ "other_workloads": [
+  {
+   "owner": "saket",
+   "what": "VS Code / language server (node), idle (~1.4% of one CPU)",
+   "action": "untouched"
+  },
+  {
+   "owner": "sajid (via the shared user1 uid)",
+   "what": "tmux idn_q_bigbox_g0: qrun.sh GPU queue for GPU 0 with QGUARD=1; 199/199 lines started, last job ended 2026-11-06 20:06; polls every 60 s",
+   "action": "read-only; our watchdog YIELDS (stops our training) if a new line appears in bigbox_g0.q or bigbox_cpu.q, and on any foreign GPU process"
+  },
+  {
+   "owner": "sajid",
+   "what": "tmux idn_q_bigbox_cpu: qrun.sh CPU queue (QGUARD=0, GPU -1), idle since 2026-11-06",
+   "action": "read-only; same yield rule"
+  },
+  {
+   "owner": "sajid",
+   "what": "tmux wma_offload_g2: rsync PNG offload from gvlab2 every 15 min",
+   "action": "untouched"
+  },
+  {
+   "owner": "yadu (3D native generator)",
+   "what": "tmux yadu3d: run_3dt_server.sh runner has EXITED; watchdog.sh remains (STOPs yadu runs and pkills yadu_bd/venv python if MemAvailable < 16 GB or a thermal zone > 100 C); an inbound rsync into yadu_bd/runs/.../dataset_2500_raw_shelf66v3 was observed and finished",
+   "action": "read-only; we never use yadu_bd/venv; our RAM floor is 40 GB (> 16 GB); our watchdog yields if any yadu_bd/venv python or run_3dt_plus.py process starts"
+  }
+ ],
+ "answers": {
+  "suitable_gpu_unused": "YES: 1 GPU, 2 MiB used, 0% util, no compute process at audit and at every preflight",
+  "cpu_allowance": "ONE logical CPU: CPU 7 (an idle P-core; saket's node runs on CPU 2-6). Trainer, its watchdog and every helper are pinned with taskset -c 7, nice 10-15, 1 torch/BLAS thread, no DataLoader workers",
+  "headroom": "RAM 121 GB available (floor 40 GB), disk 117 GB free on / (floor 30 GB), VRAM budget 8,192 MiB of 48,935 (per-process fraction set in torch); one learner at a time",
+  "mutable_generator_dirs": "NONE used: yadu_bd/, /data/sajid, /data/saket are read-only to this project; our workspace is ~/approachb_3d_learning only"
+ },
+ "thresholds": {
+  "gpu_temp_max_c": 80,
+  "gpu_vram_budget_mb": 8192,
+  "gpu_power_max_w": 250,
+  "cpu_pkg_temp_max_c": 85,
+  "mem_available_min_gb": 40,
+  "disk_free_min_gb": 30,
+  "other_cpus_busy_max_pct": 25.0,
+  "load1_max": 6.0,
+  "foreign_gpu_procs_allowed": 0,
+  "period_s": 10,
+  "consecutive": 2,
+  "grace_s": 60
+ },
+ "threshold_rationale": "measured on this host (idle 24 C GPU / 28 C package; coretemp temp1_max 85 C; yadu watchdog floor 16 GB); not imported from the laptop or gvlab",
+ "preflight_guard_probe": {
+  "pass": true,
+  "violations": [],
+  "facts": {
+   "utc": "2026-11-08T00:54:26Z",
+   "gpu": {
+    "name": "NVIDIA RTX PRO 5000 Blackwell",
+    "mem_used_mb": 2.0,
+    "mem_total_mb": 48935.0,
+    "temp_c": 25.0,
+    "util_pct": 0.0,
+    "power_w": 3.42,
+    "our_mem_mb": 0,
+    "foreign_procs": []
+   },
+   "cpu_pkg_temp_c": 33.0,
+   "mem_available_gb": 121.6,
+   "disk_free_gb": 117.2,
+   "load1": 0.283203125,
+   "other_cpus_busy_mean_pct": 0.1,
+   "our_cpu_busy_pct": 0.0,
+   "queue_pending": {
+    "bigbox_g0.q": 0,
+    "bigbox_cpu.q": 0
+   },
+   "yield_processes": []
+  }
+ },
+ "watchdog_selftest": "PASS twice: forced violation stopped ONLY the dummy child in 8.1-8.2 s and wrote STOP_RESOURCE (runs/guard_selftest_*)",
+ "environment": "~/approachb_3d_learning/venv (python3 -m venv --without-pip + get-pip; python3-venv absent and no sudo used): torch 2.11.0+cu128, numpy, matplotlib, pytest; no shared env modified; pip --no-cache-dir",
+ "decision": "GPU_TRAINING_ALLOWED_UNDER_GUARD"
+}
