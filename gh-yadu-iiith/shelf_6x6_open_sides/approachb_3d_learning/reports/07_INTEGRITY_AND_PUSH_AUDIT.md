@@ -59,7 +59,7 @@ All of these are on the training server at `~/approachb_3d_learning/snapshots/`,
 - Only `gh-yadu-iiith/shelf_6x6_open_sides/approachb_3d_learning/` was added.
 - No force push. No collector branch, production file or frozen artefact was modified. Nothing was merged into main.
 - No secrets: the policy's authorization and token fields were stripped before the policy left the laptop, and no token appears in any committed file.
-- The commit hash and the `ls-remote` verification are in the final handoff message.
+- Kickoff commit `cfcdb335134a7e074653f3a5cdc62baa8128f3c5`, pushed as a new branch; `git ls-remote` confirmed the remote head equals it.
 
 ## What did not change
 
