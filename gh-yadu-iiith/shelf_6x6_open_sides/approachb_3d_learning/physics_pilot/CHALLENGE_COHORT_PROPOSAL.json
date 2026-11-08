@@ -1,0 +1,777 @@
+{
+ "cohort": "BWL_HARD_ORDER_CHALLENGE_V1 (proposal)",
+ "roots": 75,
+ "membership": {
+  "CHALLENGE_DEV_TRAIN": 47,
+  "CHALLENGE_HOLDOUT": 13,
+  "CHALLENGE_DEV_VAL": 15
+ },
+ "assignment": {
+  "lineage->train": 41,
+  "unlinked->seeded": 19,
+  "lineage->val": 10,
+  "lineage->test": 5
+ },
+ "by_K": {
+  "2": 28,
+  "3": 40,
+  "4": 7
+ },
+ "same_endpoint_groups": 75,
+ "relocation_discordant_groups": 72,
+ "composite_discordant_groups": 72,
+ "rule": "(predeclared here, applied mechanically; the frozen cohort split and its test set are NOT changed):\n  * lineage link = same parent_family_id as a cohort root, OR an identical layout (objects + initial cells + goal) to a cohort root;\n  * linked roots inherit the strictest linked split (test > val > train), so no challenge root can leak lineage into development:\n      train -> CHALLENGE_DEV_TRAIN, val -> CHALLENGE_DEV_VAL, test -> CHALLENGE_HOLDOUT;\n  * unlinked roots: sha256('BWL_CHALLENGE|'+root) order, the first 40 % -> CHALLENGE_HOLDOUT, the rest -> CHALLENGE_DEV_TRAIN (half of those,\n    by the same order, -> CHALLENGE_DEV_VAL).\nDisclosure: the stored composite B outcomes of these roots were inspected in aggregate (reuse audit; this script counts order discordance), so\nCHALLENGE_HOLDOUT is 'aggregate-inspected', not a pristine blind test; its X / Y labels do not exist yet and must be collected under BD3DS66_X_V1.",
+ "rows": [
+  {
+   "root_id": "3ds66-lap-w0015-s022",
+   "observed_K": 2,
+   "member": "CHALLENGE_DEV_TRAIN",
+   "assignment": "lineage->train",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-lap-w0017-s023",
+   "observed_K": 2,
+   "member": "CHALLENGE_DEV_TRAIN",
+   "assignment": "unlinked->seeded",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-lap-w0042-s022",
+   "observed_K": 2,
+   "member": "CHALLENGE_DEV_TRAIN",
+   "assignment": "lineage->train",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-lap3-w0051-s008",
+   "observed_K": 3,
+   "member": "CHALLENGE_DEV_TRAIN",
+   "assignment": "lineage->train",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-lap3-w0051-s013",
+   "observed_K": 4,
+   "member": "CHALLENGE_DEV_TRAIN",
+   "assignment": "lineage->train",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 3
+  },
+  {
+   "root_id": "3ds66-lap3-w0055-s003",
+   "observed_K": 3,
+   "member": "CHALLENGE_HOLDOUT",
+   "assignment": "unlinked->seeded",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-lap3-w0092-s022",
+   "observed_K": 2,
+   "member": "CHALLENGE_HOLDOUT",
+   "assignment": "unlinked->seeded",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-lap3-w0105-s010",
+   "observed_K": 2,
+   "member": "CHALLENGE_DEV_VAL",
+   "assignment": "lineage->val",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv-w0000-s009",
+   "observed_K": 2,
+   "member": "CHALLENGE_DEV_TRAIN",
+   "assignment": "lineage->train",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 0,
+   "composite_discordant_groups": 0,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv-w0001-s018",
+   "observed_K": 2,
+   "member": "CHALLENGE_DEV_TRAIN",
+   "assignment": "lineage->train",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv-w0003-s004",
+   "observed_K": 4,
+   "member": "CHALLENGE_DEV_TRAIN",
+   "assignment": "lineage->train",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 3
+  },
+  {
+   "root_id": "3ds66-srv-w0003-s008",
+   "observed_K": 2,
+   "member": "CHALLENGE_DEV_TRAIN",
+   "assignment": "lineage->train",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv-w0006-s018",
+   "observed_K": 2,
+   "member": "CHALLENGE_DEV_TRAIN",
+   "assignment": "unlinked->seeded",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv-w0009-s020",
+   "observed_K": 3,
+   "member": "CHALLENGE_DEV_TRAIN",
+   "assignment": "lineage->train",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 3
+  },
+  {
+   "root_id": "3ds66-srv-w0019-s012",
+   "observed_K": 3,
+   "member": "CHALLENGE_DEV_VAL",
+   "assignment": "lineage->val",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 3
+  },
+  {
+   "root_id": "3ds66-srv-w0026-s019",
+   "observed_K": 2,
+   "member": "CHALLENGE_HOLDOUT",
+   "assignment": "unlinked->seeded",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 3
+  },
+  {
+   "root_id": "3ds66-srv-w0027-s021",
+   "observed_K": 2,
+   "member": "CHALLENGE_DEV_TRAIN",
+   "assignment": "lineage->train",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv-w0044-s014",
+   "observed_K": 4,
+   "member": "CHALLENGE_DEV_TRAIN",
+   "assignment": "lineage->train",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 3
+  },
+  {
+   "root_id": "3ds66-srv3-w0049-s004",
+   "observed_K": 3,
+   "member": "CHALLENGE_DEV_TRAIN",
+   "assignment": "lineage->train",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 3
+  },
+  {
+   "root_id": "3ds66-srv3-w0051-s013",
+   "observed_K": 2,
+   "member": "CHALLENGE_DEV_TRAIN",
+   "assignment": "lineage->train",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0051-s015",
+   "observed_K": 2,
+   "member": "CHALLENGE_DEV_TRAIN",
+   "assignment": "lineage->train",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 4
+  },
+  {
+   "root_id": "3ds66-srv3-w0052-s007",
+   "observed_K": 3,
+   "member": "CHALLENGE_HOLDOUT",
+   "assignment": "unlinked->seeded",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0052-s009",
+   "observed_K": 3,
+   "member": "CHALLENGE_DEV_VAL",
+   "assignment": "lineage->val",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0053-s007",
+   "observed_K": 3,
+   "member": "CHALLENGE_DEV_TRAIN",
+   "assignment": "lineage->train",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0053-s011",
+   "observed_K": 3,
+   "member": "CHALLENGE_DEV_VAL",
+   "assignment": "unlinked->seeded",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0057-s004",
+   "observed_K": 3,
+   "member": "CHALLENGE_HOLDOUT",
+   "assignment": "lineage->test",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0057-s012",
+   "observed_K": 2,
+   "member": "CHALLENGE_DEV_TRAIN",
+   "assignment": "lineage->train",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0063-s009",
+   "observed_K": 3,
+   "member": "CHALLENGE_DEV_TRAIN",
+   "assignment": "lineage->train",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0066-s023",
+   "observed_K": 2,
+   "member": "CHALLENGE_HOLDOUT",
+   "assignment": "lineage->test",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0067-s016",
+   "observed_K": 2,
+   "member": "CHALLENGE_DEV_TRAIN",
+   "assignment": "unlinked->seeded",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0068-s007",
+   "observed_K": 3,
+   "member": "CHALLENGE_DEV_VAL",
+   "assignment": "lineage->val",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0070-s000",
+   "observed_K": 2,
+   "member": "CHALLENGE_DEV_TRAIN",
+   "assignment": "lineage->train",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0071-s003",
+   "observed_K": 3,
+   "member": "CHALLENGE_DEV_TRAIN",
+   "assignment": "unlinked->seeded",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0071-s009",
+   "observed_K": 3,
+   "member": "CHALLENGE_DEV_TRAIN",
+   "assignment": "lineage->train",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0071-s014",
+   "observed_K": 3,
+   "member": "CHALLENGE_DEV_TRAIN",
+   "assignment": "lineage->train",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0072-s005",
+   "observed_K": 2,
+   "member": "CHALLENGE_DEV_TRAIN",
+   "assignment": "lineage->train",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0073-s001",
+   "observed_K": 3,
+   "member": "CHALLENGE_DEV_TRAIN",
+   "assignment": "unlinked->seeded",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0073-s011",
+   "observed_K": 3,
+   "member": "CHALLENGE_DEV_TRAIN",
+   "assignment": "lineage->train",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0073-s018",
+   "observed_K": 3,
+   "member": "CHALLENGE_DEV_VAL",
+   "assignment": "lineage->val",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0078-s012",
+   "observed_K": 4,
+   "member": "CHALLENGE_HOLDOUT",
+   "assignment": "lineage->test",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0078-s017",
+   "observed_K": 3,
+   "member": "CHALLENGE_HOLDOUT",
+   "assignment": "unlinked->seeded",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0079-s022",
+   "observed_K": 3,
+   "member": "CHALLENGE_DEV_VAL",
+   "assignment": "lineage->val",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0081-s001",
+   "observed_K": 3,
+   "member": "CHALLENGE_DEV_TRAIN",
+   "assignment": "lineage->train",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0082-s016",
+   "observed_K": 4,
+   "member": "CHALLENGE_DEV_VAL",
+   "assignment": "lineage->val",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0083-s003",
+   "observed_K": 2,
+   "member": "CHALLENGE_HOLDOUT",
+   "assignment": "lineage->test",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0086-s014",
+   "observed_K": 3,
+   "member": "CHALLENGE_DEV_VAL",
+   "assignment": "unlinked->seeded",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0087-s006",
+   "observed_K": 3,
+   "member": "CHALLENGE_DEV_VAL",
+   "assignment": "unlinked->seeded",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0089-s005",
+   "observed_K": 2,
+   "member": "CHALLENGE_DEV_TRAIN",
+   "assignment": "lineage->train",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0089-s010",
+   "observed_K": 3,
+   "member": "CHALLENGE_HOLDOUT",
+   "assignment": "unlinked->seeded",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0089-s011",
+   "observed_K": 2,
+   "member": "CHALLENGE_DEV_TRAIN",
+   "assignment": "lineage->train",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0089-s022",
+   "observed_K": 4,
+   "member": "CHALLENGE_DEV_TRAIN",
+   "assignment": "lineage->train",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0090-s017",
+   "observed_K": 3,
+   "member": "CHALLENGE_DEV_TRAIN",
+   "assignment": "lineage->train",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0091-s007",
+   "observed_K": 3,
+   "member": "CHALLENGE_DEV_VAL",
+   "assignment": "unlinked->seeded",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0091-s012",
+   "observed_K": 3,
+   "member": "CHALLENGE_DEV_TRAIN",
+   "assignment": "lineage->train",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0091-s021",
+   "observed_K": 3,
+   "member": "CHALLENGE_DEV_TRAIN",
+   "assignment": "lineage->train",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0092-s006",
+   "observed_K": 2,
+   "member": "CHALLENGE_DEV_VAL",
+   "assignment": "unlinked->seeded",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0093-s009",
+   "observed_K": 3,
+   "member": "CHALLENGE_DEV_TRAIN",
+   "assignment": "unlinked->seeded",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0095-s000",
+   "observed_K": 3,
+   "member": "CHALLENGE_DEV_TRAIN",
+   "assignment": "lineage->train",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0095-s006",
+   "observed_K": 2,
+   "member": "CHALLENGE_HOLDOUT",
+   "assignment": "lineage->test",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0097-s000",
+   "observed_K": 2,
+   "member": "CHALLENGE_DEV_TRAIN",
+   "assignment": "lineage->train",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 0,
+   "composite_discordant_groups": 0,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0097-s009",
+   "observed_K": 3,
+   "member": "CHALLENGE_DEV_TRAIN",
+   "assignment": "lineage->train",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0098-s007",
+   "observed_K": 2,
+   "member": "CHALLENGE_DEV_TRAIN",
+   "assignment": "lineage->train",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0098-s012",
+   "observed_K": 2,
+   "member": "CHALLENGE_DEV_TRAIN",
+   "assignment": "lineage->train",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0098-s018",
+   "observed_K": 3,
+   "member": "CHALLENGE_DEV_VAL",
+   "assignment": "lineage->val",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0098-s023",
+   "observed_K": 3,
+   "member": "CHALLENGE_DEV_TRAIN",
+   "assignment": "lineage->train",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0100-s007",
+   "observed_K": 3,
+   "member": "CHALLENGE_DEV_TRAIN",
+   "assignment": "lineage->train",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0100-s019",
+   "observed_K": 2,
+   "member": "CHALLENGE_DEV_TRAIN",
+   "assignment": "lineage->train",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 0,
+   "composite_discordant_groups": 0,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0101-s007",
+   "observed_K": 4,
+   "member": "CHALLENGE_DEV_TRAIN",
+   "assignment": "lineage->train",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0101-s020",
+   "observed_K": 3,
+   "member": "CHALLENGE_DEV_VAL",
+   "assignment": "lineage->val",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0102-s005",
+   "observed_K": 3,
+   "member": "CHALLENGE_DEV_VAL",
+   "assignment": "lineage->val",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0102-s019",
+   "observed_K": 3,
+   "member": "CHALLENGE_HOLDOUT",
+   "assignment": "unlinked->seeded",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0102-s022",
+   "observed_K": 3,
+   "member": "CHALLENGE_DEV_TRAIN",
+   "assignment": "lineage->train",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0103-s015",
+   "observed_K": 3,
+   "member": "CHALLENGE_DEV_TRAIN",
+   "assignment": "lineage->train",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0105-s006",
+   "observed_K": 2,
+   "member": "CHALLENGE_DEV_TRAIN",
+   "assignment": "lineage->train",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  },
+  {
+   "root_id": "3ds66-srv3-w0106-s015",
+   "observed_K": 3,
+   "member": "CHALLENGE_HOLDOUT",
+   "assignment": "unlinked->seeded",
+   "same_endpoint_groups": 1,
+   "relocation_discordant_groups": 1,
+   "composite_discordant_groups": 1,
+   "stored_sequences": 5
+  }
+ ],
+ "sha256_of_rows": "1cce1f60fe87590499401b075a3509bd6d664942105ed079a50f0af4b45b7d46"
+}

@@ -1,0 +1,2811 @@
+{
+ "manifest": "S1_PHYSICS_PILOT_V1",
+ "status": "PREDECLARED",
+ "host": "gvlab (authorized 3D physics host; v4 producer)",
+ "budget": {
+  "workers": 2,
+  "cpus": [
+   16,
+   17
+  ],
+  "nice": 19,
+  "per_item_timeout_s": 900,
+  "wall_cap_h": 3.0,
+  "cpu_cap_h": 6.0,
+  "guard": "stop if coretemp package >= 75 C, MemAvailable < 16 GB or swap grows > 256 MB; never on CPUs 0-13 (Q2 workers + reserved)"
+ },
+ "x_teacher": "BD3DS66_X_V1 = BD3DS66_TEACHER_V2 relocation witnesses replayed with the unchanged run_plan from settle(S0) (carried state, no reset) + CONNECTOR_TO_QREADY_V1 (plan_free_move(q_now, q_ready), env RRT-Connect 5000 iters seed 0, executed; then gripper opened to GRIPPER_OPEN; verified) + independent replay in a fresh process",
+ "y_teacher": "BD3DS66_Y_REPLAY_V1 = settle(endpoint) at q_ready, stored target witness replayed with run_plan, teacher checks; replayed twice in fresh processes",
+ "exclusions": [
+  "test-split X prefixes (held out)",
+  "BWL-3 fresh-execution queries (candidate-diverse stage comes after this protocol is validated)",
+  "non-cohort roots incl. the 75 DEPENDENT roots (challenge cohort, separate decision)"
+ ],
+ "counts": {
+  "Y": {
+   "SMOKE|REPLAY_STORED_TARGET_WITNESS": 6,
+   "PILOT|REPLAY_STORED_TARGET_WITNESS": 66,
+   "SMOKE|RESCREEN_CERTIFIED": 2,
+   "PILOT|RESCREEN_CERTIFIED": 22,
+   "SMOKE|REPLAN_BUDGET_NEGATIVE": 2,
+   "PILOT|REPLAN_BUDGET_NEGATIVE": 4
+  },
+  "X": {
+   "SMOKE|K1_COMPLETE_SINGLE_MOVE": 1,
+   "PILOT|K1_COMPLETE_SINGLE_MOVE": 5,
+   "SMOKE|K2_AB_BA_SAME_ENDPOINT_BOTH_EXECUTED": 2,
+   "PILOT|K2_AB_BA_SAME_ENDPOINT_BOTH_EXECUTED": 8,
+   "PILOT|AB_BA_ORDER_DISCORDANT_RELOCATION": 6,
+   "PILOT|K3_COMPLETE_THREE_MOVE": 5,
+   "PILOT|PROPER_PREFIX_INTERMEDIATE_STOP": 6,
+   "SMOKE|RELOCATION_FAILED_CERTIFIED": 1,
+   "PILOT|RELOCATION_FAILED_CERTIFIED": 2,
+   "PILOT|RELOCATION_FAILED_NO_PLAN_FOUND": 1,
+   "PILOT|RELOCATION_FAILED_OTHER_FAILURE": 1,
+   "PILOT|COMPLETE_TERMINAL_ARM_STATE_NOT_RECORDED": 5
+  }
+ },
+ "items": [
+  {
+   "item": "Y-BWL3Y-0000",
+   "kind": "Y",
+   "phase": "SMOKE",
+   "stratum": "original_pos_K0_executed_once",
+   "root_id": "3ds66-srv-w0029-s015",
+   "split": "val",
+   "family": "original",
+   "edit": {},
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "a246c90d568d4d958b59a98a",
+   "grasp_id": 20,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0001",
+   "kind": "Y",
+   "phase": "SMOKE",
+   "stratum": "original_pos_K0_executed_once",
+   "root_id": "3ds66-srv-w0041-s013",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "b11c48c78243d28fafae6c06",
+   "grasp_id": 0,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0002",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "original_pos_K0_executed_once",
+   "root_id": "3ds66-srv-w0001-s002",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "d608d121229e0e4b238bdd7c",
+   "grasp_id": 1,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0003",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "original_pos_K0_executed_once",
+   "root_id": "3ds66-srv-w0011-s001",
+   "split": "test",
+   "family": "original",
+   "edit": {},
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "a699da470347f7c9597d4c7b",
+   "grasp_id": 0,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0004",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "original_pos_K0_executed_once",
+   "root_id": "3ds66-srv-w0033-s012",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "d201f6d342c7c2f471bad0e5",
+   "grasp_id": 2,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0005",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "original_pos_K0_executed_once",
+   "root_id": "3ds66-srv-w0045-s015",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "49ee28df5411d10c5fa3089e",
+   "grasp_id": 3,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0006",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "original_pos_K0_executed_once",
+   "root_id": "3ds66-srv3-w0056-s010",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "19bc38490adfb53517a3183b",
+   "grasp_id": 0,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0007",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "original_pos_K0_executed_once",
+   "root_id": "3ds66-srv-w0033-s014",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "871d99459e8edb6a019d873c",
+   "grasp_id": 2,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0008",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "original_pos_K0_executed_once",
+   "root_id": "3ds66-srv-w0039-s003",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "42e7ca72bdfa79c2a81942c9",
+   "grasp_id": 22,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0009",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "original_pos_K0_executed_once",
+   "root_id": "3ds66-srv-w0019-s003",
+   "split": "val",
+   "family": "original",
+   "edit": {},
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "a9d6ddc500d5654a3b75449b",
+   "grasp_id": 0,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0010",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "original_pos_K0_executed_once",
+   "root_id": "3ds66-srv-w0019-s023",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "87a8a39ecccabe6640fdb817",
+   "grasp_id": 9,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0011",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "original_pos_K0_executed_once",
+   "root_id": "3ds66-lap-w0029-s006",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "709b85f1d04568b65291800d",
+   "grasp_id": 0,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0012",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "original_pos_K0_executed_once",
+   "root_id": "3ds66-srv-w0010-s014",
+   "split": "val",
+   "family": "original",
+   "edit": {},
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "d96507eddebc0ec67070428a",
+   "grasp_id": 0,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0013",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "original_pos_K0_executed_once",
+   "root_id": "3ds66-lap-w0016-s019",
+   "split": "val",
+   "family": "original",
+   "edit": {},
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "98959b69d571a45d7c088757",
+   "grasp_id": 0,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0014",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "original_pos_K0_executed_once",
+   "root_id": "3ds66-lap-w0013-s005",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "2e91e2977c3fd8cda197c5f9",
+   "grasp_id": 0,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0015",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "original_pos_K0_executed_once",
+   "root_id": "3ds66-lap-w0021-s003",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "ed6425c18ed7c43a4b76ef90",
+   "grasp_id": 0,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0016",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "original_pos_K0_executed_once",
+   "root_id": "3ds66-lap-w0032-s011",
+   "split": "val",
+   "family": "original",
+   "edit": {},
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "064b16ff4f898233d4720b2b",
+   "grasp_id": 1,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0017",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "original_pos_K0_executed_once",
+   "root_id": "3ds66-srv3-w0057-s014",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "64579d0815d9ceb2bd0738fe",
+   "grasp_id": 2,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0018",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "original_pos_K0_executed_once",
+   "root_id": "3ds66-srv3-w0053-s020",
+   "split": "val",
+   "family": "original",
+   "edit": {},
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "e1295f2dde16b1bec0e32c01",
+   "grasp_id": 0,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0019",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "original_pos_K0_executed_once",
+   "root_id": "3ds66-srv-w0026-s006",
+   "split": "val",
+   "family": "original",
+   "edit": {},
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "a01266fb970cf476c25b266d",
+   "grasp_id": 1,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0020",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "original_pos_K0_executed_once",
+   "root_id": "3ds66-srv-w0022-s003",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "ea13bf4c09c8920254950e93",
+   "grasp_id": 3,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0021",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "original_pos_K0_executed_once",
+   "root_id": "3ds66-srv-w0035-s011",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "6a19c29d91bb97e67a36e1d5",
+   "grasp_id": 0,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0022",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "original_pos_K0_executed_once",
+   "root_id": "3ds66-lap-w0017-s019",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "ded69f1e2016ad3b8b870b9e",
+   "grasp_id": 3,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0023",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "original_pos_K0_executed_once",
+   "root_id": "3ds66-srv-w0034-s006",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "df8e14fa51d4d38aa1034a5b",
+   "grasp_id": 0,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0024",
+   "kind": "Y",
+   "phase": "SMOKE",
+   "stratum": "D_pos_single_object_edit",
+   "root_id": "3ds66-lap-w0015-s004",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     1,
+     0
+    ]
+   },
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "7c215b7eb5ff64d7c0d4953e",
+   "grasp_id": 4,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0025",
+   "kind": "Y",
+   "phase": "SMOKE",
+   "stratum": "D_pos_single_object_edit",
+   "root_id": "3ds66-srv-w0027-s008",
+   "split": "val",
+   "family": "D",
+   "edit": {
+    "o02": [
+     1,
+     4
+    ]
+   },
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "a1541eb02dc516186db78ddc",
+   "grasp_id": 22,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0026",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_pos_single_object_edit",
+   "root_id": "3ds66-srv-w0006-s009",
+   "split": "val",
+   "family": "D",
+   "edit": {
+    "o01": [
+     5,
+     4
+    ]
+   },
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "ba38666e121db7050a8b6def",
+   "grasp_id": 0,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0027",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_pos_single_object_edit",
+   "root_id": "3ds66-srv-w0019-s003",
+   "split": "val",
+   "family": "D",
+   "edit": {
+    "o00": [
+     4,
+     4
+    ]
+   },
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "c599cdf372dda997265df747",
+   "grasp_id": 0,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0028",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_pos_single_object_edit",
+   "root_id": "3ds66-srv-w0010-s004",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o01": [
+     4,
+     4
+    ]
+   },
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "9b9f912a66b1fbb2ad8a210e",
+   "grasp_id": 2,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0029",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_pos_single_object_edit",
+   "root_id": "3ds66-srv-w0006-s015",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o02": [
+     3,
+     0
+    ]
+   },
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "894e679528da2d28e5520cba",
+   "grasp_id": 2,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0030",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_pos_single_object_edit",
+   "root_id": "3ds66-srv-w0041-s011",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     2,
+     5
+    ]
+   },
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "e2afaf3795b87af1525006ef",
+   "grasp_id": 21,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0031",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_pos_single_object_edit",
+   "root_id": "3ds66-srv-w0009-s015",
+   "split": "val",
+   "family": "D",
+   "edit": {
+    "o01": [
+     3,
+     0
+    ]
+   },
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "770fd84751aada7eced242e8",
+   "grasp_id": 8,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0032",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_pos_single_object_edit",
+   "root_id": "3ds66-srv-w0029-s017",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o02": [
+     5,
+     1
+    ]
+   },
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "3c4a1df0ba10a4eee354f86c",
+   "grasp_id": 0,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0033",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_pos_single_object_edit",
+   "root_id": "3ds66-srv-w0035-s004",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o01": [
+     3,
+     1
+    ]
+   },
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "05110e6fc7eee5ce317a1fd8",
+   "grasp_id": 0,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0034",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_pos_single_object_edit",
+   "root_id": "3ds66-srv-w0019-s021",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o02": [
+     5,
+     0
+    ]
+   },
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "40f78cf4ea23b1dc6aa4fce2",
+   "grasp_id": 2,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0035",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_pos_single_object_edit",
+   "root_id": "3ds66-srv3-w0057-s014",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     1,
+     4
+    ]
+   },
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "6396e1a2cd7f554b0ab5f4f0",
+   "grasp_id": 3,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0036",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_pos_single_object_edit",
+   "root_id": "3ds66-srv3-w0069-s003",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o03": [
+     2,
+     5
+    ]
+   },
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "d5ac84cefda5ee743bc0d005",
+   "grasp_id": 2,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0037",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_pos_single_object_edit",
+   "root_id": "3ds66-srv-w0032-s014",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     1,
+     1
+    ]
+   },
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "e9ea824421c98918445ce077",
+   "grasp_id": 0,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0038",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_pos_single_object_edit",
+   "root_id": "3ds66-srv-w0035-s008",
+   "split": "val",
+   "family": "D",
+   "edit": {
+    "o01": [
+     5,
+     0
+    ]
+   },
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "9848c1a6e06537aeebefa17c",
+   "grasp_id": 3,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0039",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_pos_single_object_edit",
+   "root_id": "3ds66-lap-w0011-s004",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     1,
+     3
+    ]
+   },
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "098e9a509562f5859ba02d60",
+   "grasp_id": 4,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0040",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_pos_single_object_edit",
+   "root_id": "3ds66-srv-w0031-s004",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o03": [
+     1,
+     2
+    ]
+   },
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "3346ff5c7101c5aab940a96b",
+   "grasp_id": 21,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0041",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_pos_single_object_edit",
+   "root_id": "3ds66-srv-w0018-s005",
+   "split": "test",
+   "family": "D",
+   "edit": {
+    "o00": [
+     1,
+     1
+    ]
+   },
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "aceeee674b41a972f9036307",
+   "grasp_id": 2,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0042",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_pos_single_object_edit",
+   "root_id": "3ds66-lap-w0034-s020",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     3,
+     5
+    ]
+   },
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "4bbd52d9b68dfdb91ead3c57",
+   "grasp_id": 22,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0043",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_pos_single_object_edit",
+   "root_id": "3ds66-srv-w0045-s001",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o01": [
+     3,
+     1
+    ]
+   },
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "198c565c280e94b873219477",
+   "grasp_id": 6,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0044",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_pos_single_object_edit",
+   "root_id": "3ds66-srv-w0008-s003",
+   "split": "val",
+   "family": "D",
+   "edit": {
+    "o00": [
+     5,
+     1
+    ]
+   },
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "72f99dc837864135ca56cbd3",
+   "grasp_id": 2,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0045",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_pos_single_object_edit",
+   "root_id": "3ds66-srv-w0002-s021",
+   "split": "val",
+   "family": "D",
+   "edit": {
+    "o00": [
+     1,
+     3
+    ]
+   },
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "c41541d2cfd5c25a8ce988ec",
+   "grasp_id": 5,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0046",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_pos_single_object_edit",
+   "root_id": "3ds66-srv-w0031-s017",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     5,
+     4
+    ]
+   },
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "0369ea09996e5e5bd3704389",
+   "grasp_id": 0,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0047",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_pos_single_object_edit",
+   "root_id": "3ds66-srv-w0009-s013",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     1,
+     1
+    ]
+   },
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "03d186d7f9f311a7b66c1d0e",
+   "grasp_id": 3,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0048",
+   "kind": "Y",
+   "phase": "SMOKE",
+   "stratum": "D_pos_multi_object_edit",
+   "root_id": "3ds66-lap-w0007-s015",
+   "split": "val",
+   "family": "D",
+   "edit": {
+    "o00": [
+     4,
+     5
+    ],
+    "o01": [
+     2,
+     3
+    ],
+    "o02": [
+     5,
+     0
+    ]
+   },
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "00e5b135daea80b50a8755b5",
+   "grasp_id": 3,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0049",
+   "kind": "Y",
+   "phase": "SMOKE",
+   "stratum": "D_pos_multi_object_edit",
+   "root_id": "3ds66-lap-w0007-s017",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     2,
+     1
+    ],
+    "o01": [
+     5,
+     5
+    ]
+   },
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "c24dfcda7f3146a11cd5236a",
+   "grasp_id": 5,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0050",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_pos_multi_object_edit",
+   "root_id": "3ds66-srv3-w0092-s013",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     1,
+     0
+    ],
+    "o01": [
+     2,
+     5
+    ],
+    "o02": [
+     4,
+     1
+    ],
+    "o03": [
+     2,
+     1
+    ]
+   },
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "a9bf3854447541e6129b459f",
+   "grasp_id": 16,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0051",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_pos_multi_object_edit",
+   "root_id": "3ds66-srv-w0031-s011",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     2,
+     1
+    ],
+    "o01": [
+     4,
+     1
+    ],
+    "o02": [
+     4,
+     5
+    ]
+   },
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "80e0ee3c88219b19382cee6a",
+   "grasp_id": 0,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0052",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_pos_multi_object_edit",
+   "root_id": "3ds66-srv3-w0075-s022",
+   "split": "val",
+   "family": "D",
+   "edit": {
+    "o00": [
+     5,
+     0
+    ],
+    "o01": [
+     3,
+     5
+    ],
+    "o02": [
+     5,
+     2
+    ]
+   },
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "57ece6a5e6b9dd801c6c65d5",
+   "grasp_id": 0,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0053",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_pos_multi_object_edit",
+   "root_id": "3ds66-lap3-w0059-s008",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     1,
+     4
+    ],
+    "o01": [
+     3,
+     4
+    ],
+    "o02": [
+     4,
+     3
+    ]
+   },
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "80a807a2048d6d490c30d23f",
+   "grasp_id": 0,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0054",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_pos_multi_object_edit",
+   "root_id": "3ds66-lap-w0042-s004",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     2,
+     3
+    ],
+    "o01": [
+     2,
+     5
+    ],
+    "o02": [
+     4,
+     4
+    ]
+   },
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "9f8e1943df8b3e459cb5e85b",
+   "grasp_id": 0,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0055",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_pos_multi_object_edit",
+   "root_id": "3ds66-srv3-w0070-s006",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     5,
+     0
+    ],
+    "o01": [
+     5,
+     2
+    ],
+    "o02": [
+     5,
+     5
+    ],
+    "o03": [
+     5,
+     4
+    ]
+   },
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "0360f682400a4f2bd391d3eb",
+   "grasp_id": 0,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0056",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_pos_multi_object_edit",
+   "root_id": "3ds66-srv3-w0069-s023",
+   "split": "val",
+   "family": "D",
+   "edit": {
+    "o00": [
+     2,
+     3
+    ],
+    "o01": [
+     4,
+     4
+    ]
+   },
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "066d59d2e78e873be709eeff",
+   "grasp_id": 3,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0057",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_pos_multi_object_edit",
+   "root_id": "3ds66-srv3-w0054-s005",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     1,
+     3
+    ],
+    "o01": [
+     4,
+     5
+    ]
+   },
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "8654bd73fbab3be0264f8997",
+   "grasp_id": 5,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0058",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_pos_multi_object_edit",
+   "root_id": "3ds66-srv-w0004-s016",
+   "split": "val",
+   "family": "D",
+   "edit": {
+    "o00": [
+     2,
+     0
+    ],
+    "o01": [
+     4,
+     5
+    ]
+   },
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "e46661fcf820c254e5a7ba8d",
+   "grasp_id": 0,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0059",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_pos_multi_object_edit",
+   "root_id": "3ds66-srv3-w0086-s004",
+   "split": "test",
+   "family": "D",
+   "edit": {
+    "o00": [
+     3,
+     5
+    ],
+    "o01": [
+     1,
+     5
+    ],
+    "o02": [
+     5,
+     0
+    ],
+    "o03": [
+     4,
+     5
+    ]
+   },
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "b09b4b3ce6693ce81ec26a6f",
+   "grasp_id": 0,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0060",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_pos_multi_object_edit",
+   "root_id": "3ds66-srv-w0023-s013",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     4,
+     1
+    ],
+    "o01": [
+     2,
+     2
+    ]
+   },
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "4f02fc9deff123ef6d6cc906",
+   "grasp_id": 0,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0061",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_pos_multi_object_edit",
+   "root_id": "3ds66-srv3-w0069-s001",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     1,
+     0
+    ],
+    "o01": [
+     3,
+     5
+    ]
+   },
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "5017fced0286e89261ca4884",
+   "grasp_id": 0,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0062",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_pos_multi_object_edit",
+   "root_id": "3ds66-srv3-w0098-s013",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     3,
+     5
+    ],
+    "o01": [
+     1,
+     4
+    ],
+    "o02": [
+     5,
+     0
+    ]
+   },
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "a371f392fb3058cbab2eca8b",
+   "grasp_id": 1,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0063",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_pos_multi_object_edit",
+   "root_id": "3ds66-srv3-w0061-s017",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     4,
+     1
+    ],
+    "o01": [
+     1,
+     2
+    ],
+    "o02": [
+     1,
+     0
+    ]
+   },
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "f082fc2cdb4e51f855451c56",
+   "grasp_id": 0,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0064",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_pos_multi_object_edit",
+   "root_id": "3ds66-srv3-w0057-s020",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     2,
+     4
+    ],
+    "o01": [
+     5,
+     0
+    ]
+   },
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "3ed396e6a6ecd9cf4c0cedec",
+   "grasp_id": 7,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0065",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_pos_multi_object_edit",
+   "root_id": "3ds66-lap3-w0055-s015",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     1,
+     5
+    ],
+    "o01": [
+     3,
+     5
+    ],
+    "o02": [
+     5,
+     4
+    ],
+    "o03": [
+     2,
+     5
+    ],
+    "o04": [
+     4,
+     5
+    ]
+   },
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "938ff0ebac121d658de4e493",
+   "grasp_id": 0,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0066",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_pos_multi_object_edit",
+   "root_id": "3ds66-srv3-w0052-s001",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     3,
+     5
+    ],
+    "o01": [
+     4,
+     0
+    ],
+    "o02": [
+     1,
+     4
+    ]
+   },
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "bd5dfbbfef9c933961dc966e",
+   "grasp_id": 1,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0067",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_pos_multi_object_edit",
+   "root_id": "3ds66-srv-w0036-s018",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     4,
+     4
+    ],
+    "o01": [
+     1,
+     2
+    ]
+   },
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "79daa93eabe243cb42a421ab",
+   "grasp_id": 4,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0068",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_pos_multi_object_edit",
+   "root_id": "3ds66-srv3-w0062-s022",
+   "split": "val",
+   "family": "D",
+   "edit": {
+    "o00": [
+     5,
+     3
+    ],
+    "o01": [
+     5,
+     0
+    ],
+    "o02": [
+     5,
+     1
+    ],
+    "o03": [
+     5,
+     5
+    ]
+   },
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "65ff24194ae10435def75065",
+   "grasp_id": 0,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0069",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_pos_multi_object_edit",
+   "root_id": "3ds66-srv3-w0102-s000",
+   "split": "val",
+   "family": "D",
+   "edit": {
+    "o00": [
+     3,
+     4
+    ],
+    "o01": [
+     1,
+     3
+    ],
+    "o02": [
+     5,
+     4
+    ],
+    "o03": [
+     4,
+     4
+    ]
+   },
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "5c8dcd77517021eb786e074b",
+   "grasp_id": 0,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0070",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_pos_multi_object_edit",
+   "root_id": "3ds66-srv-w0030-s013",
+   "split": "val",
+   "family": "D",
+   "edit": {
+    "o00": [
+     1,
+     0
+    ],
+    "o01": [
+     1,
+     5
+    ]
+   },
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "4bbfe3f14a62a26f5f6a3e9e",
+   "grasp_id": 1,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0071",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_pos_multi_object_edit",
+   "root_id": "3ds66-lap3-w0047-s015",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     4,
+     4
+    ],
+    "o01": [
+     1,
+     3
+    ],
+    "o02": [
+     1,
+     5
+    ]
+   },
+   "archived_y": 1,
+   "negative_kind": null,
+   "witness_id": "ff44df231328a809586e41f6",
+   "grasp_id": 2,
+   "action": "REPLAY_STORED_TARGET_WITNESS"
+  },
+  {
+   "item": "Y-BWL3Y-0072",
+   "kind": "Y",
+   "phase": "SMOKE",
+   "stratum": "original_neg_certified",
+   "root_id": "3ds66-srv3-w0096-s018",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "archived_y": 0,
+   "negative_kind": "CERTIFIED",
+   "witness_id": null,
+   "grasp_id": null,
+   "action": "RESCREEN_CERTIFIED"
+  },
+  {
+   "item": "Y-BWL3Y-0073",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "original_neg_certified",
+   "root_id": "3ds66-srv-w0023-s008",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "archived_y": 0,
+   "negative_kind": "CERTIFIED",
+   "witness_id": null,
+   "grasp_id": null,
+   "action": "RESCREEN_CERTIFIED"
+  },
+  {
+   "item": "Y-BWL3Y-0074",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "original_neg_certified",
+   "root_id": "3ds66-srv-w0008-s023",
+   "split": "val",
+   "family": "original",
+   "edit": {},
+   "archived_y": 0,
+   "negative_kind": "CERTIFIED",
+   "witness_id": null,
+   "grasp_id": null,
+   "action": "RESCREEN_CERTIFIED"
+  },
+  {
+   "item": "Y-BWL3Y-0075",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "original_neg_certified",
+   "root_id": "3ds66-srv3-w0079-s011",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "archived_y": 0,
+   "negative_kind": "CERTIFIED",
+   "witness_id": null,
+   "grasp_id": null,
+   "action": "RESCREEN_CERTIFIED"
+  },
+  {
+   "item": "Y-BWL3Y-0076",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "original_neg_certified",
+   "root_id": "3ds66-srv-w0024-s023",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "archived_y": 0,
+   "negative_kind": "CERTIFIED",
+   "witness_id": null,
+   "grasp_id": null,
+   "action": "RESCREEN_CERTIFIED"
+  },
+  {
+   "item": "Y-BWL3Y-0077",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "original_neg_certified",
+   "root_id": "3ds66-srv-w0033-s010",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "archived_y": 0,
+   "negative_kind": "CERTIFIED",
+   "witness_id": null,
+   "grasp_id": null,
+   "action": "RESCREEN_CERTIFIED"
+  },
+  {
+   "item": "Y-BWL3Y-0078",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "original_neg_certified",
+   "root_id": "3ds66-srv-w0023-s022",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "archived_y": 0,
+   "negative_kind": "CERTIFIED",
+   "witness_id": null,
+   "grasp_id": null,
+   "action": "RESCREEN_CERTIFIED"
+  },
+  {
+   "item": "Y-BWL3Y-0079",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "original_neg_certified",
+   "root_id": "3ds66-srv-w0021-s002",
+   "split": "val",
+   "family": "original",
+   "edit": {},
+   "archived_y": 0,
+   "negative_kind": "CERTIFIED",
+   "witness_id": null,
+   "grasp_id": null,
+   "action": "RESCREEN_CERTIFIED"
+  },
+  {
+   "item": "Y-BWL3Y-0080",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "original_neg_certified",
+   "root_id": "3ds66-srv3-w0091-s009",
+   "split": "test",
+   "family": "original",
+   "edit": {},
+   "archived_y": 0,
+   "negative_kind": "CERTIFIED",
+   "witness_id": null,
+   "grasp_id": null,
+   "action": "RESCREEN_CERTIFIED"
+  },
+  {
+   "item": "Y-BWL3Y-0081",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "original_neg_certified",
+   "root_id": "3ds66-srv-w0008-s005",
+   "split": "test",
+   "family": "original",
+   "edit": {},
+   "archived_y": 0,
+   "negative_kind": "CERTIFIED",
+   "witness_id": null,
+   "grasp_id": null,
+   "action": "RESCREEN_CERTIFIED"
+  },
+  {
+   "item": "Y-BWL3Y-0082",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "original_neg_certified",
+   "root_id": "3ds66-srv3-w0069-s001",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "archived_y": 0,
+   "negative_kind": "CERTIFIED",
+   "witness_id": null,
+   "grasp_id": null,
+   "action": "RESCREEN_CERTIFIED"
+  },
+  {
+   "item": "Y-BWL3Y-0083",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "original_neg_certified",
+   "root_id": "3ds66-srv-w0032-s003",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "archived_y": 0,
+   "negative_kind": "CERTIFIED",
+   "witness_id": null,
+   "grasp_id": null,
+   "action": "RESCREEN_CERTIFIED"
+  },
+  {
+   "item": "Y-BWL3Y-0084",
+   "kind": "Y",
+   "phase": "SMOKE",
+   "stratum": "D_neg_certified",
+   "root_id": "3ds66-srv3-w0102-s000",
+   "split": "val",
+   "family": "D",
+   "edit": {
+    "o01": [
+     1,
+     3
+    ]
+   },
+   "archived_y": 0,
+   "negative_kind": "CERTIFIED",
+   "witness_id": null,
+   "grasp_id": null,
+   "action": "RESCREEN_CERTIFIED"
+  },
+  {
+   "item": "Y-BWL3Y-0085",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_neg_certified",
+   "root_id": "3ds66-lap-w0011-s023",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o03": [
+     5,
+     4
+    ]
+   },
+   "archived_y": 0,
+   "negative_kind": "CERTIFIED",
+   "witness_id": null,
+   "grasp_id": null,
+   "action": "RESCREEN_CERTIFIED"
+  },
+  {
+   "item": "Y-BWL3Y-0086",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_neg_certified",
+   "root_id": "3ds66-lap3-w0059-s009",
+   "split": "test",
+   "family": "D",
+   "edit": {
+    "o02": [
+     5,
+     1
+    ]
+   },
+   "archived_y": 0,
+   "negative_kind": "CERTIFIED",
+   "witness_id": null,
+   "grasp_id": null,
+   "action": "RESCREEN_CERTIFIED"
+  },
+  {
+   "item": "Y-BWL3Y-0087",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_neg_certified",
+   "root_id": "3ds66-srv3-w0062-s016",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     5,
+     3
+    ]
+   },
+   "archived_y": 0,
+   "negative_kind": "CERTIFIED",
+   "witness_id": null,
+   "grasp_id": null,
+   "action": "RESCREEN_CERTIFIED"
+  },
+  {
+   "item": "Y-BWL3Y-0088",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_neg_certified",
+   "root_id": "3ds66-srv-w0003-s015",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     4,
+     0
+    ]
+   },
+   "archived_y": 0,
+   "negative_kind": "CERTIFIED",
+   "witness_id": null,
+   "grasp_id": null,
+   "action": "RESCREEN_CERTIFIED"
+  },
+  {
+   "item": "Y-BWL3Y-0089",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_neg_certified",
+   "root_id": "3ds66-srv3-w0068-s003",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     5,
+     1
+    ]
+   },
+   "archived_y": 0,
+   "negative_kind": "CERTIFIED",
+   "witness_id": null,
+   "grasp_id": null,
+   "action": "RESCREEN_CERTIFIED"
+  },
+  {
+   "item": "Y-BWL3Y-0090",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_neg_certified",
+   "root_id": "3ds66-srv3-w0062-s018",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     1,
+     4
+    ]
+   },
+   "archived_y": 0,
+   "negative_kind": "CERTIFIED",
+   "witness_id": null,
+   "grasp_id": null,
+   "action": "RESCREEN_CERTIFIED"
+  },
+  {
+   "item": "Y-BWL3Y-0091",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_neg_certified",
+   "root_id": "3ds66-srv3-w0057-s023",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o02": [
+     4,
+     0
+    ]
+   },
+   "archived_y": 0,
+   "negative_kind": "CERTIFIED",
+   "witness_id": null,
+   "grasp_id": null,
+   "action": "RESCREEN_CERTIFIED"
+  },
+  {
+   "item": "Y-BWL3Y-0092",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_neg_certified",
+   "root_id": "3ds66-lap-w0016-s017",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o03": [
+     2,
+     5
+    ]
+   },
+   "archived_y": 0,
+   "negative_kind": "CERTIFIED",
+   "witness_id": null,
+   "grasp_id": null,
+   "action": "RESCREEN_CERTIFIED"
+  },
+  {
+   "item": "Y-BWL3Y-0093",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_neg_certified",
+   "root_id": "3ds66-srv-w0010-s002",
+   "split": "val",
+   "family": "D",
+   "edit": {
+    "o02": [
+     1,
+     0
+    ]
+   },
+   "archived_y": 0,
+   "negative_kind": "CERTIFIED",
+   "witness_id": null,
+   "grasp_id": null,
+   "action": "RESCREEN_CERTIFIED"
+  },
+  {
+   "item": "Y-BWL3Y-0094",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_neg_certified",
+   "root_id": "3ds66-srv3-w0053-s023",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o01": [
+     3,
+     5
+    ]
+   },
+   "archived_y": 0,
+   "negative_kind": "CERTIFIED",
+   "witness_id": null,
+   "grasp_id": null,
+   "action": "RESCREEN_CERTIFIED"
+  },
+  {
+   "item": "Y-BWL3Y-0095",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_neg_certified",
+   "root_id": "3ds66-srv3-w0060-s021",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o02": [
+     1,
+     5
+    ]
+   },
+   "archived_y": 0,
+   "negative_kind": "CERTIFIED",
+   "witness_id": null,
+   "grasp_id": null,
+   "action": "RESCREEN_CERTIFIED"
+  },
+  {
+   "item": "Y-BWL3Y-0096",
+   "kind": "Y",
+   "phase": "SMOKE",
+   "stratum": "original_neg_planner_budget",
+   "root_id": "3ds66-lap-w0003-s020",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "archived_y": 0,
+   "negative_kind": "NO_PLAN_FOUND",
+   "witness_id": null,
+   "grasp_id": null,
+   "action": "REPLAN_BUDGET_NEGATIVE"
+  },
+  {
+   "item": "Y-BWL3Y-0097",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "original_neg_planner_budget",
+   "root_id": "3ds66-srv-w0027-s013",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "archived_y": 0,
+   "negative_kind": "NO_PLAN_FOUND",
+   "witness_id": null,
+   "grasp_id": null,
+   "action": "REPLAN_BUDGET_NEGATIVE"
+  },
+  {
+   "item": "Y-BWL3Y-0098",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "original_neg_planner_budget",
+   "root_id": "3ds66-lap-w0011-s007",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "archived_y": 0,
+   "negative_kind": "NO_PLAN_FOUND",
+   "witness_id": null,
+   "grasp_id": null,
+   "action": "REPLAN_BUDGET_NEGATIVE"
+  },
+  {
+   "item": "Y-BWL3Y-0108",
+   "kind": "Y",
+   "phase": "SMOKE",
+   "stratum": "D_neg_planner_budget",
+   "root_id": "3ds66-lap-w0042-s011",
+   "split": "val",
+   "family": "D",
+   "edit": {
+    "o01": [
+     5,
+     4
+    ]
+   },
+   "archived_y": 0,
+   "negative_kind": "NO_PLAN_FOUND",
+   "witness_id": null,
+   "grasp_id": null,
+   "action": "REPLAN_BUDGET_NEGATIVE"
+  },
+  {
+   "item": "Y-BWL3Y-0109",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_neg_planner_budget",
+   "root_id": "3ds66-lap-w0014-s011",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o01": [
+     3,
+     5
+    ]
+   },
+   "archived_y": 0,
+   "negative_kind": "NO_PLAN_FOUND",
+   "witness_id": null,
+   "grasp_id": null,
+   "action": "REPLAN_BUDGET_NEGATIVE"
+  },
+  {
+   "item": "Y-BWL3Y-0110",
+   "kind": "Y",
+   "phase": "PILOT",
+   "stratum": "D_neg_planner_budget",
+   "root_id": "3ds66-srv-w0032-s010",
+   "split": "test",
+   "family": "D",
+   "edit": {
+    "o00": [
+     1,
+     5
+    ]
+   },
+   "archived_y": 0,
+   "negative_kind": "NO_PLAN_FOUND",
+   "witness_id": null,
+   "grasp_id": null,
+   "action": "REPLAN_BUDGET_NEGATIVE"
+  },
+  {
+   "item": "X-000",
+   "kind": "X",
+   "phase": "SMOKE",
+   "stratum": "K1_COMPLETE_SINGLE_MOVE",
+   "root_id": "3ds66-srv-w0024-s012",
+   "split": "train",
+   "K": 1,
+   "x_key": "o00>4,0",
+   "m": 1,
+   "stored_role": "minimal",
+   "status_in_store": "RELOCATIONS_EXECUTED",
+   "negative_kind": null,
+   "full_sequence_length": 1,
+   "y_endpoint_key": "o00@4,0|o01@4,2|o02@4,3|t0@2,1",
+   "action": "REPLAY_RELOCATIONS+CONNECTOR+INDEPENDENT_REPLAY"
+  },
+  {
+   "item": "X-001",
+   "kind": "X",
+   "phase": "PILOT",
+   "stratum": "K1_COMPLETE_SINGLE_MOVE",
+   "root_id": "3ds66-srv-w0005-s001",
+   "split": "val",
+   "K": 1,
+   "x_key": "o00>1,4",
+   "m": 1,
+   "stored_role": "minimal",
+   "status_in_store": "RELOCATIONS_EXECUTED",
+   "negative_kind": null,
+   "full_sequence_length": 1,
+   "y_endpoint_key": "o00@1,4|t0@1,1",
+   "action": "REPLAY_RELOCATIONS+CONNECTOR+INDEPENDENT_REPLAY"
+  },
+  {
+   "item": "X-002",
+   "kind": "X",
+   "phase": "PILOT",
+   "stratum": "K1_COMPLETE_SINGLE_MOVE",
+   "root_id": "3ds66-lap-w0013-s007",
+   "split": "train",
+   "K": 1,
+   "x_key": "o00>1,0",
+   "m": 1,
+   "stored_role": "minimal",
+   "status_in_store": "RELOCATIONS_EXECUTED",
+   "negative_kind": null,
+   "full_sequence_length": 1,
+   "y_endpoint_key": "o00@1,0|t0@1,4",
+   "action": "REPLAY_RELOCATIONS+CONNECTOR+INDEPENDENT_REPLAY"
+  },
+  {
+   "item": "X-003",
+   "kind": "X",
+   "phase": "PILOT",
+   "stratum": "K1_COMPLETE_SINGLE_MOVE",
+   "root_id": "3ds66-srv-w0025-s016",
+   "split": "train",
+   "K": 1,
+   "x_key": "o01>4,2",
+   "m": 1,
+   "stored_role": "minimal",
+   "status_in_store": "RELOCATIONS_EXECUTED",
+   "negative_kind": null,
+   "full_sequence_length": 1,
+   "y_endpoint_key": "o00@1,2|o01@4,2|t0@2,1",
+   "action": "REPLAY_RELOCATIONS+CONNECTOR+INDEPENDENT_REPLAY"
+  },
+  {
+   "item": "X-004",
+   "kind": "X",
+   "phase": "PILOT",
+   "stratum": "K1_COMPLETE_SINGLE_MOVE",
+   "root_id": "3ds66-lap-w0017-s017",
+   "split": "train",
+   "K": 1,
+   "x_key": "o00>2,2",
+   "m": 1,
+   "stored_role": "minimal",
+   "status_in_store": "RELOCATIONS_EXECUTED",
+   "negative_kind": null,
+   "full_sequence_length": 1,
+   "y_endpoint_key": "o00@2,2|t0@3,4",
+   "action": "REPLAY_RELOCATIONS+CONNECTOR+INDEPENDENT_REPLAY"
+  },
+  {
+   "item": "X-005",
+   "kind": "X",
+   "phase": "PILOT",
+   "stratum": "K1_COMPLETE_SINGLE_MOVE",
+   "root_id": "3ds66-srv-w0021-s008",
+   "split": "train",
+   "K": 1,
+   "x_key": "o00>2,0",
+   "m": 1,
+   "stored_role": "minimal",
+   "status_in_store": "RELOCATIONS_EXECUTED",
+   "negative_kind": null,
+   "full_sequence_length": 1,
+   "y_endpoint_key": "o00@2,0|o01@4,4|o02@4,2|t0@3,2",
+   "action": "REPLAY_RELOCATIONS+CONNECTOR+INDEPENDENT_REPLAY"
+  },
+  {
+   "item": "X-006",
+   "kind": "X",
+   "phase": "SMOKE",
+   "stratum": "K2_AB_BA_SAME_ENDPOINT_BOTH_EXECUTED",
+   "root_id": "3ds66-srv3-w0050-s010",
+   "split": "train",
+   "K": 2,
+   "x_key": "o00>1,0.o01>2,5",
+   "m": 2,
+   "stored_role": "minimal",
+   "status_in_store": "RELOCATIONS_EXECUTED",
+   "negative_kind": null,
+   "full_sequence_length": 2,
+   "y_endpoint_key": "o00@1,0|o01@2,5|t0@1,3",
+   "action": "REPLAY_RELOCATIONS+CONNECTOR+INDEPENDENT_REPLAY"
+  },
+  {
+   "item": "X-007",
+   "kind": "X",
+   "phase": "SMOKE",
+   "stratum": "K2_AB_BA_SAME_ENDPOINT_BOTH_EXECUTED",
+   "root_id": "3ds66-srv3-w0050-s010",
+   "split": "train",
+   "K": 2,
+   "x_key": "o01>2,5.o00>1,0",
+   "m": 2,
+   "stored_role": "wrong_order",
+   "status_in_store": "RELOCATIONS_EXECUTED",
+   "negative_kind": null,
+   "full_sequence_length": 2,
+   "y_endpoint_key": "o00@1,0|o01@2,5|t0@1,3",
+   "action": "REPLAY_RELOCATIONS+CONNECTOR+INDEPENDENT_REPLAY"
+  },
+  {
+   "item": "X-008",
+   "kind": "X",
+   "phase": "PILOT",
+   "stratum": "K2_AB_BA_SAME_ENDPOINT_BOTH_EXECUTED",
+   "root_id": "3ds66-srv-w0023-s016",
+   "split": "train",
+   "K": 2,
+   "x_key": "o00>3,1.o01>4,5",
+   "m": 2,
+   "stored_role": "minimal",
+   "status_in_store": "RELOCATIONS_EXECUTED",
+   "negative_kind": null,
+   "full_sequence_length": 2,
+   "y_endpoint_key": "o00@3,1|o01@4,5|t0@2,4",
+   "action": "REPLAY_RELOCATIONS+CONNECTOR+INDEPENDENT_REPLAY"
+  },
+  {
+   "item": "X-009",
+   "kind": "X",
+   "phase": "PILOT",
+   "stratum": "K2_AB_BA_SAME_ENDPOINT_BOTH_EXECUTED",
+   "root_id": "3ds66-srv-w0023-s016",
+   "split": "train",
+   "K": 2,
+   "x_key": "o01>4,5.o00>3,1",
+   "m": 2,
+   "stored_role": "wrong_order",
+   "status_in_store": "RELOCATIONS_EXECUTED",
+   "negative_kind": null,
+   "full_sequence_length": 2,
+   "y_endpoint_key": "o00@3,1|o01@4,5|t0@2,4",
+   "action": "REPLAY_RELOCATIONS+CONNECTOR+INDEPENDENT_REPLAY"
+  },
+  {
+   "item": "X-010",
+   "kind": "X",
+   "phase": "PILOT",
+   "stratum": "K2_AB_BA_SAME_ENDPOINT_BOTH_EXECUTED",
+   "root_id": "3ds66-srv3-w0059-s013",
+   "split": "train",
+   "K": 2,
+   "x_key": "o00>5,0.o02>5,4",
+   "m": 2,
+   "stored_role": "minimal",
+   "status_in_store": "RELOCATIONS_EXECUTED",
+   "negative_kind": null,
+   "full_sequence_length": 2,
+   "y_endpoint_key": "o00@5,0|o01@1,1|o02@5,4|o03@3,2|t0@3,1",
+   "action": "REPLAY_RELOCATIONS+CONNECTOR+INDEPENDENT_REPLAY"
+  },
+  {
+   "item": "X-011",
+   "kind": "X",
+   "phase": "PILOT",
+   "stratum": "K2_AB_BA_SAME_ENDPOINT_BOTH_EXECUTED",
+   "root_id": "3ds66-srv3-w0059-s013",
+   "split": "train",
+   "K": 2,
+   "x_key": "o02>5,4.o00>5,0",
+   "m": 2,
+   "stored_role": "wrong_order",
+   "status_in_store": "RELOCATIONS_EXECUTED",
+   "negative_kind": null,
+   "full_sequence_length": 2,
+   "y_endpoint_key": "o00@5,0|o01@1,1|o02@5,4|o03@3,2|t0@3,1",
+   "action": "REPLAY_RELOCATIONS+CONNECTOR+INDEPENDENT_REPLAY"
+  },
+  {
+   "item": "X-012",
+   "kind": "X",
+   "phase": "PILOT",
+   "stratum": "K2_AB_BA_SAME_ENDPOINT_BOTH_EXECUTED",
+   "root_id": "3ds66-lap-w0017-s001",
+   "split": "train",
+   "K": 2,
+   "x_key": "o00>4,1.o01>1,2",
+   "m": 2,
+   "stored_role": "minimal",
+   "status_in_store": "RELOCATIONS_EXECUTED",
+   "negative_kind": null,
+   "full_sequence_length": 2,
+   "y_endpoint_key": "o00@4,1|o01@1,2|o02@4,5|t0@5,3",
+   "action": "REPLAY_RELOCATIONS+CONNECTOR+INDEPENDENT_REPLAY"
+  },
+  {
+   "item": "X-013",
+   "kind": "X",
+   "phase": "PILOT",
+   "stratum": "K2_AB_BA_SAME_ENDPOINT_BOTH_EXECUTED",
+   "root_id": "3ds66-lap-w0017-s001",
+   "split": "train",
+   "K": 2,
+   "x_key": "o01>1,2.o00>4,1",
+   "m": 2,
+   "stored_role": "wrong_order",
+   "status_in_store": "RELOCATIONS_EXECUTED",
+   "negative_kind": null,
+   "full_sequence_length": 2,
+   "y_endpoint_key": "o00@4,1|o01@1,2|o02@4,5|t0@5,3",
+   "action": "REPLAY_RELOCATIONS+CONNECTOR+INDEPENDENT_REPLAY"
+  },
+  {
+   "item": "X-014",
+   "kind": "X",
+   "phase": "PILOT",
+   "stratum": "K2_AB_BA_SAME_ENDPOINT_BOTH_EXECUTED",
+   "root_id": "3ds66-srv-w0046-s000",
+   "split": "train",
+   "K": 2,
+   "x_key": "o00>1,5.o01>4,0",
+   "m": 2,
+   "stored_role": "minimal",
+   "status_in_store": "RELOCATIONS_EXECUTED",
+   "negative_kind": null,
+   "full_sequence_length": 2,
+   "y_endpoint_key": "o00@1,5|o01@4,0|o02@4,5|o03@4,4|o04@4,3|t0@2,3",
+   "action": "REPLAY_RELOCATIONS+CONNECTOR+INDEPENDENT_REPLAY"
+  },
+  {
+   "item": "X-015",
+   "kind": "X",
+   "phase": "PILOT",
+   "stratum": "K2_AB_BA_SAME_ENDPOINT_BOTH_EXECUTED",
+   "root_id": "3ds66-srv-w0046-s000",
+   "split": "train",
+   "K": 2,
+   "x_key": "o01>4,0.o00>1,5",
+   "m": 2,
+   "stored_role": "wrong_order",
+   "status_in_store": "RELOCATIONS_EXECUTED",
+   "negative_kind": null,
+   "full_sequence_length": 2,
+   "y_endpoint_key": "o00@1,5|o01@4,0|o02@4,5|o03@4,4|o04@4,3|t0@2,3",
+   "action": "REPLAY_RELOCATIONS+CONNECTOR+INDEPENDENT_REPLAY"
+  },
+  {
+   "item": "X-016",
+   "kind": "X",
+   "phase": "PILOT",
+   "stratum": "AB_BA_ORDER_DISCORDANT_RELOCATION",
+   "root_id": "3ds66-srv-w0039-s020",
+   "split": "train",
+   "K": 2,
+   "x_key": "o00>2,0.o01>1,5",
+   "m": 2,
+   "stored_role": "minimal",
+   "status_in_store": "RELOCATIONS_EXECUTED",
+   "negative_kind": null,
+   "full_sequence_length": 2,
+   "y_endpoint_key": "o00@2,0|o01@1,5|o02@3,3|o03@4,2|o04@4,1|o05@4,5|t0@3,2",
+   "action": "REPLAY_RELOCATIONS+CONNECTOR+INDEPENDENT_REPLAY"
+  },
+  {
+   "item": "X-017",
+   "kind": "X",
+   "phase": "PILOT",
+   "stratum": "AB_BA_ORDER_DISCORDANT_RELOCATION",
+   "root_id": "3ds66-srv-w0039-s020",
+   "split": "train",
+   "K": 2,
+   "x_key": "o01>1,5.o00>2,0",
+   "m": 2,
+   "stored_role": "wrong_order",
+   "status_in_store": "RELOCATION_FAILED",
+   "negative_kind": "OTHER_FAILURE",
+   "full_sequence_length": 2,
+   "y_endpoint_key": "o00@2,0|o01@1,5|o02@3,3|o03@4,2|o04@4,1|o05@4,5|t0@3,2",
+   "action": "REPLAY_TO_FAILING_STEP+RECONFIRM"
+  },
+  {
+   "item": "X-018",
+   "kind": "X",
+   "phase": "PILOT",
+   "stratum": "AB_BA_ORDER_DISCORDANT_RELOCATION",
+   "root_id": "3ds66-srv3-w0066-s021",
+   "split": "train",
+   "K": 2,
+   "x_key": "o00>5,0.o01>5,5",
+   "m": 2,
+   "stored_role": "minimal",
+   "status_in_store": "RELOCATIONS_EXECUTED",
+   "negative_kind": null,
+   "full_sequence_length": 2,
+   "y_endpoint_key": "o00@5,0|o01@5,5|o02@2,3|o03@1,1|t0@3,1",
+   "action": "REPLAY_RELOCATIONS+CONNECTOR+INDEPENDENT_REPLAY"
+  },
+  {
+   "item": "X-019",
+   "kind": "X",
+   "phase": "PILOT",
+   "stratum": "AB_BA_ORDER_DISCORDANT_RELOCATION",
+   "root_id": "3ds66-srv3-w0066-s021",
+   "split": "train",
+   "K": 2,
+   "x_key": "o01>5,5.o00>5,0",
+   "m": 2,
+   "stored_role": "wrong_order",
+   "status_in_store": "RELOCATION_FAILED",
+   "negative_kind": "OTHER_FAILURE",
+   "full_sequence_length": 2,
+   "y_endpoint_key": "o00@5,0|o01@5,5|o02@2,3|o03@1,1|t0@3,1",
+   "action": "REPLAY_TO_FAILING_STEP+RECONFIRM"
+  },
+  {
+   "item": "X-020",
+   "kind": "X",
+   "phase": "PILOT",
+   "stratum": "AB_BA_ORDER_DISCORDANT_RELOCATION",
+   "root_id": "3ds66-srv-w0045-s010",
+   "split": "train",
+   "K": 2,
+   "x_key": "o00>4,0.o01>2,4",
+   "m": 2,
+   "stored_role": "minimal",
+   "status_in_store": "RELOCATIONS_EXECUTED",
+   "negative_kind": null,
+   "full_sequence_length": 2,
+   "y_endpoint_key": "o00@4,0|o01@2,4|o02@4,4|t0@3,2",
+   "action": "REPLAY_RELOCATIONS+CONNECTOR+INDEPENDENT_REPLAY"
+  },
+  {
+   "item": "X-021",
+   "kind": "X",
+   "phase": "PILOT",
+   "stratum": "AB_BA_ORDER_DISCORDANT_RELOCATION",
+   "root_id": "3ds66-srv-w0045-s010",
+   "split": "train",
+   "K": 2,
+   "x_key": "o01>2,4.o00>4,0",
+   "m": 2,
+   "stored_role": "wrong_order",
+   "status_in_store": "RELOCATION_FAILED",
+   "negative_kind": "OTHER_FAILURE",
+   "full_sequence_length": 2,
+   "y_endpoint_key": "o00@4,0|o01@2,4|o02@4,4|t0@3,2",
+   "action": "REPLAY_TO_FAILING_STEP+RECONFIRM"
+  },
+  {
+   "item": "X-022",
+   "kind": "X",
+   "phase": "PILOT",
+   "stratum": "K3_COMPLETE_THREE_MOVE",
+   "root_id": "3ds66-srv3-w0103-s008",
+   "split": "val",
+   "K": 3,
+   "x_key": "o00>4,2.o01>1,2.o02>1,0",
+   "m": 3,
+   "stored_role": "minimal",
+   "status_in_store": "RELOCATIONS_EXECUTED",
+   "negative_kind": null,
+   "full_sequence_length": 3,
+   "y_endpoint_key": "o00@4,2|o01@1,2|o02@1,0|o03@5,0|o04@3,0|t0@5,4",
+   "action": "REPLAY_RELOCATIONS+CONNECTOR+INDEPENDENT_REPLAY"
+  },
+  {
+   "item": "X-023",
+   "kind": "X",
+   "phase": "PILOT",
+   "stratum": "K3_COMPLETE_THREE_MOVE",
+   "root_id": "3ds66-srv3-w0101-s019",
+   "split": "train",
+   "K": 3,
+   "x_key": "o00>4,5.o01>1,4.o02>4,0",
+   "m": 3,
+   "stored_role": "minimal",
+   "status_in_store": "RELOCATIONS_EXECUTED",
+   "negative_kind": null,
+   "full_sequence_length": 3,
+   "y_endpoint_key": "o00@4,5|o01@1,4|o02@4,0|t0@5,3",
+   "action": "REPLAY_RELOCATIONS+CONNECTOR+INDEPENDENT_REPLAY"
+  },
+  {
+   "item": "X-024",
+   "kind": "X",
+   "phase": "PILOT",
+   "stratum": "K3_COMPLETE_THREE_MOVE",
+   "root_id": "3ds66-srv3-w0058-s006",
+   "split": "train",
+   "K": 3,
+   "x_key": "o02>1,0.o01>1,2.o00>4,1",
+   "m": 3,
+   "stored_role": "wrong_order",
+   "status_in_store": "RELOCATIONS_EXECUTED",
+   "negative_kind": null,
+   "full_sequence_length": 3,
+   "y_endpoint_key": "o00@4,1|o01@1,2|o02@1,0|t0@5,3",
+   "action": "REPLAY_RELOCATIONS+CONNECTOR+INDEPENDENT_REPLAY"
+  },
+  {
+   "item": "X-025",
+   "kind": "X",
+   "phase": "PILOT",
+   "stratum": "K3_COMPLETE_THREE_MOVE",
+   "root_id": "3ds66-srv3-w0088-s010",
+   "split": "train",
+   "K": 3,
+   "x_key": "o00>1,0.o02>5,5.o01>3,0",
+   "m": 3,
+   "stored_role": "minimal",
+   "status_in_store": "RELOCATIONS_EXECUTED",
+   "negative_kind": null,
+   "full_sequence_length": 3,
+   "y_endpoint_key": "o00@1,0|o01@3,0|o02@5,5|o03@1,2|o04@5,0|t0@5,1",
+   "action": "REPLAY_RELOCATIONS+CONNECTOR+INDEPENDENT_REPLAY"
+  },
+  {
+   "item": "X-026",
+   "kind": "X",
+   "phase": "PILOT",
+   "stratum": "K3_COMPLETE_THREE_MOVE",
+   "root_id": "3ds66-srv3-w0092-s013",
+   "split": "train",
+   "K": 3,
+   "x_key": "o00>4,3.o01>2,5.o02>4,1",
+   "m": 3,
+   "stored_role": "wrong_destination",
+   "status_in_store": "RELOCATIONS_EXECUTED",
+   "negative_kind": null,
+   "full_sequence_length": 3,
+   "y_endpoint_key": "o00@4,3|o01@2,5|o02@4,1|o03@5,4|o04@4,5|o05@5,5|t0@5,3",
+   "action": "REPLAY_RELOCATIONS+CONNECTOR+INDEPENDENT_REPLAY"
+  },
+  {
+   "item": "X-027",
+   "kind": "X",
+   "phase": "PILOT",
+   "stratum": "PROPER_PREFIX_INTERMEDIATE_STOP",
+   "root_id": "3ds66-srv3-w0049-s017",
+   "split": "train",
+   "K": 2,
+   "x_key": "o01>1,5",
+   "m": 1,
+   "stored_role": "wrong_order",
+   "status_in_store": "RELOCATIONS_EXECUTED",
+   "negative_kind": null,
+   "full_sequence_length": 2,
+   "y_endpoint_key": "o00@1,2|o01@1,5|t0@2,3",
+   "action": "REPLAY_RELOCATIONS+CONNECTOR+INDEPENDENT_REPLAY"
+  },
+  {
+   "item": "X-028",
+   "kind": "X",
+   "phase": "PILOT",
+   "stratum": "PROPER_PREFIX_INTERMEDIATE_STOP",
+   "root_id": "3ds66-srv3-w0098-s021",
+   "split": "train",
+   "K": 3,
+   "x_key": "o03>2,3.o00>4,4",
+   "m": 2,
+   "stored_role": "redundant+1",
+   "status_in_store": "RELOCATIONS_EXECUTED",
+   "negative_kind": null,
+   "full_sequence_length": 4,
+   "y_endpoint_key": "o00@4,4|o01@1,0|o02@1,1|o03@2,3|t0@5,2",
+   "action": "REPLAY_RELOCATIONS+CONNECTOR+INDEPENDENT_REPLAY"
+  },
+  {
+   "item": "X-029",
+   "kind": "X",
+   "phase": "PILOT",
+   "stratum": "PROPER_PREFIX_INTERMEDIATE_STOP",
+   "root_id": "3ds66-srv3-w0060-s002",
+   "split": "val",
+   "K": 3,
+   "x_key": "o00>4,1",
+   "m": 1,
+   "stored_role": "wrong_destination",
+   "status_in_store": "RELOCATIONS_EXECUTED",
+   "negative_kind": null,
+   "full_sequence_length": 3,
+   "y_endpoint_key": "o00@4,1|o01@1,1|o02@0,0|o03@4,0|t0@5,2",
+   "action": "REPLAY_RELOCATIONS+CONNECTOR+INDEPENDENT_REPLAY"
+  },
+  {
+   "item": "X-030",
+   "kind": "X",
+   "phase": "PILOT",
+   "stratum": "PROPER_PREFIX_INTERMEDIATE_STOP",
+   "root_id": "3ds66-srv3-w0094-s010",
+   "split": "val",
+   "K": 3,
+   "x_key": "o03>5,5",
+   "m": 1,
+   "stored_role": "redundant+1",
+   "status_in_store": "RELOCATIONS_EXECUTED",
+   "negative_kind": null,
+   "full_sequence_length": 4,
+   "y_endpoint_key": "o00@0,1|o01@0,0|o02@2,3|o03@5,5|t0@3,4",
+   "action": "REPLAY_RELOCATIONS+CONNECTOR+INDEPENDENT_REPLAY"
+  },
+  {
+   "item": "X-031",
+   "kind": "X",
+   "phase": "PILOT",
+   "stratum": "PROPER_PREFIX_INTERMEDIATE_STOP",
+   "root_id": "3ds66-srv3-w0071-s007",
+   "split": "train",
+   "K": 3,
+   "x_key": "o00>4,4",
+   "m": 1,
+   "stored_role": "minimal",
+   "status_in_store": "RELOCATIONS_EXECUTED",
+   "negative_kind": null,
+   "full_sequence_length": 3,
+   "y_endpoint_key": "o00@4,4|o01@1,1|o02@0,0|t0@5,2",
+   "action": "REPLAY_RELOCATIONS+CONNECTOR+INDEPENDENT_REPLAY"
+  },
+  {
+   "item": "X-032",
+   "kind": "X",
+   "phase": "PILOT",
+   "stratum": "PROPER_PREFIX_INTERMEDIATE_STOP",
+   "root_id": "3ds66-srv3-w0075-s007",
+   "split": "train",
+   "K": 2,
+   "x_key": "o02>4,1.o00>3,0",
+   "m": 2,
+   "stored_role": "redundant+1",
+   "status_in_store": "RELOCATIONS_EXECUTED",
+   "negative_kind": null,
+   "full_sequence_length": 3,
+   "y_endpoint_key": "o00@3,0|o01@1,4|o02@4,1|o03@4,5|o04@5,0|t0@2,2",
+   "action": "REPLAY_RELOCATIONS+CONNECTOR+INDEPENDENT_REPLAY"
+  },
+  {
+   "item": "X-033",
+   "kind": "X",
+   "phase": "SMOKE",
+   "stratum": "RELOCATION_FAILED_CERTIFIED",
+   "root_id": "3ds66-srv3-w0102-s000",
+   "split": "val",
+   "K": 3,
+   "x_key": "o03>4,4",
+   "m": 1,
+   "stored_role": "redundant+1",
+   "status_in_store": "RELOCATION_FAILED",
+   "negative_kind": "CERTIFIED",
+   "full_sequence_length": 4,
+   "y_endpoint_key": "o00@4,1|o01@1,1|o02@4,2|o03@4,4|t0@5,1",
+   "action": "REPLAY_TO_FAILING_STEP+RECONFIRM"
+  },
+  {
+   "item": "X-034",
+   "kind": "X",
+   "phase": "PILOT",
+   "stratum": "RELOCATION_FAILED_CERTIFIED",
+   "root_id": "3ds66-lap-w0014-s014",
+   "split": "train",
+   "K": 0,
+   "x_key": "o00>5,0",
+   "m": 1,
+   "stored_role": "noop_irrelevant",
+   "status_in_store": "RELOCATION_FAILED",
+   "negative_kind": "CERTIFIED",
+   "full_sequence_length": 1,
+   "y_endpoint_key": "o00@5,0|o01@5,4|o02@3,0|o03@4,4|t0@5,2",
+   "action": "REPLAY_TO_FAILING_STEP+RECONFIRM"
+  },
+  {
+   "item": "X-035",
+   "kind": "X",
+   "phase": "PILOT",
+   "stratum": "RELOCATION_FAILED_CERTIFIED",
+   "root_id": "3ds66-srv-w0009-s003",
+   "split": "train",
+   "K": 1,
+   "x_key": "o01>4,2",
+   "m": 1,
+   "stored_role": "wrong_destination",
+   "status_in_store": "RELOCATION_FAILED",
+   "negative_kind": "CERTIFIED",
+   "full_sequence_length": 1,
+   "y_endpoint_key": "o00@5,1|o01@4,2|o02@4,1|t0@5,3",
+   "action": "REPLAY_TO_FAILING_STEP+RECONFIRM"
+  },
+  {
+   "item": "X-036",
+   "kind": "X",
+   "phase": "PILOT",
+   "stratum": "RELOCATION_FAILED_NO_PLAN_FOUND",
+   "root_id": "3ds66-srv3-w0077-s010",
+   "split": "train",
+   "K": 3,
+   "x_key": "o00>3,3",
+   "m": 1,
+   "stored_role": "wrong_destination",
+   "status_in_store": "RELOCATION_FAILED",
+   "negative_kind": "NO_PLAN_FOUND",
+   "full_sequence_length": 3,
+   "y_endpoint_key": "o00@3,3|o01@0,0|o02@2,3|o03@3,5|o04@5,5|o05@4,5|t0@3,4",
+   "action": "REPLAY_TO_FAILING_STEP+RECONFIRM"
+  },
+  {
+   "item": "X-037",
+   "kind": "X",
+   "phase": "PILOT",
+   "stratum": "RELOCATION_FAILED_OTHER_FAILURE",
+   "root_id": "3ds66-srv-w0037-s001",
+   "split": "train",
+   "K": 2,
+   "x_key": "o01>2,5",
+   "m": 1,
+   "stored_role": "wrong_order",
+   "status_in_store": "RELOCATION_FAILED",
+   "negative_kind": "OTHER_FAILURE",
+   "full_sequence_length": 2,
+   "y_endpoint_key": "o00@4,3|o01@2,5|t0@5,4",
+   "action": "REPLAY_TO_FAILING_STEP+RECONFIRM"
+  },
+  {
+   "item": "X-038",
+   "kind": "X",
+   "phase": "PILOT",
+   "stratum": "COMPLETE_TERMINAL_ARM_STATE_NOT_RECORDED",
+   "root_id": "3ds66-srv-w0024-s006",
+   "split": "train",
+   "K": 1,
+   "x_key": "o00>3,3",
+   "m": 1,
+   "stored_role": "wrong_destination",
+   "status_in_store": "RELOCATIONS_EXECUTED",
+   "negative_kind": null,
+   "full_sequence_length": 1,
+   "y_endpoint_key": "o00@3,3|o01@1,4|t0@4,2",
+   "action": "REPLAY_RELOCATIONS+CONNECTOR+INDEPENDENT_REPLAY"
+  },
+  {
+   "item": "X-039",
+   "kind": "X",
+   "phase": "PILOT",
+   "stratum": "COMPLETE_TERMINAL_ARM_STATE_NOT_RECORDED",
+   "root_id": "3ds66-srv3-w0066-s022",
+   "split": "train",
+   "K": 3,
+   "x_key": "o00>4,1.o01>1,3.o02>1,5",
+   "m": 3,
+   "stored_role": "wrong_destination",
+   "status_in_store": "RELOCATIONS_EXECUTED",
+   "negative_kind": null,
+   "full_sequence_length": 3,
+   "y_endpoint_key": "o00@4,1|o01@1,3|o02@1,5|t0@5,2",
+   "action": "REPLAY_RELOCATIONS+CONNECTOR+INDEPENDENT_REPLAY"
+  },
+  {
+   "item": "X-040",
+   "kind": "X",
+   "phase": "PILOT",
+   "stratum": "COMPLETE_TERMINAL_ARM_STATE_NOT_RECORDED",
+   "root_id": "3ds66-srv-w0036-s005",
+   "split": "train",
+   "K": 2,
+   "x_key": "o00>5,2.o02>5,5",
+   "m": 2,
+   "stored_role": "wrong_destination",
+   "status_in_store": "RELOCATIONS_EXECUTED",
+   "negative_kind": null,
+   "full_sequence_length": 2,
+   "y_endpoint_key": "o00@5,2|o01@1,4|o02@5,5|t0@5,1",
+   "action": "REPLAY_RELOCATIONS+CONNECTOR+INDEPENDENT_REPLAY"
+  },
+  {
+   "item": "X-041",
+   "kind": "X",
+   "phase": "PILOT",
+   "stratum": "COMPLETE_TERMINAL_ARM_STATE_NOT_RECORDED",
+   "root_id": "3ds66-lap-w0032-s010",
+   "split": "train",
+   "K": 2,
+   "x_key": "o00>4,1.o02>1,1",
+   "m": 2,
+   "stored_role": "wrong_destination",
+   "status_in_store": "RELOCATIONS_EXECUTED",
+   "negative_kind": null,
+   "full_sequence_length": 2,
+   "y_endpoint_key": "o00@4,1|o01@3,0|o02@1,1|t0@5,1",
+   "action": "REPLAY_RELOCATIONS+CONNECTOR+INDEPENDENT_REPLAY"
+  },
+  {
+   "item": "X-042",
+   "kind": "X",
+   "phase": "PILOT",
+   "stratum": "COMPLETE_TERMINAL_ARM_STATE_NOT_RECORDED",
+   "root_id": "3ds66-srv3-w0048-s022",
+   "split": "train",
+   "K": 1,
+   "x_key": "o00>2,1",
+   "m": 1,
+   "stored_role": "wrong_destination",
+   "status_in_store": "RELOCATIONS_EXECUTED",
+   "negative_kind": null,
+   "full_sequence_length": 1,
+   "y_endpoint_key": "o00@2,1|o01@0,3|t0@3,2",
+   "action": "REPLAY_RELOCATIONS+CONNECTOR+INDEPENDENT_REPLAY"
+  }
+ ],
+ "sha256_of_items": "b3804090e7aca65f70a70e3bccc05e2439f2a9ef9d7d67a81f0db9d2faa1a772"
+}
