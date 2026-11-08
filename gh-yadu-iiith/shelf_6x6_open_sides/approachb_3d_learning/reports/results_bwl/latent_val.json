@@ -1,0 +1,88 @@
+{
+ "val_positive_rows": 6025,
+ "val_contexts": 1425,
+ "cvae": [
+  {
+   "member": "cvae_s0",
+   "kl_per_dim_nats": [
+    0.0002477243833709508,
+    0.00010861334158107638,
+    0.00023327561211772263,
+    0.0002068008470814675,
+    0.00032646366162225604,
+    0.098491370677948,
+    8.086349407676607e-05,
+    0.00019000777683686465
+   ],
+   "aggregate_kl_nats": 0.09988512098789215,
+   "active_units_kl_gt_0.01": 1,
+   "zdim": 8,
+   "mutual_information_z_d_given_S_nats": 0.09876329451799393,
+   "mi_p90": 0.18582896888256073,
+   "tv_p_z0_vs_marginal": 0.054616935551166534,
+   "fraction_contexts_argmax_changes_with_z": 0.9656140804290771,
+   "heldout_positive_nll_iwae64": 3.1804754734039307
+  },
+  {
+   "member": "cvae_s1",
+   "kl_per_dim_nats": [
+    0.007420974317938089,
+    0.0006166777457110584,
+    0.0027199459727853537,
+    0.00019340428116265684,
+    0.0008098480757325888,
+    0.0008037234656512737,
+    0.0003204575623385608,
+    0.003236120566725731
+   ],
+   "aggregate_kl_nats": 0.01612115278840065,
+   "active_units_kl_gt_0.01": 0,
+   "zdim": 8,
+   "mutual_information_z_d_given_S_nats": 0.017009712755680084,
+   "mi_p90": 0.030504675582051277,
+   "tv_p_z0_vs_marginal": 0.012113220989704132,
+   "fraction_contexts_argmax_changes_with_z": 0.8294737339019775,
+   "heldout_positive_nll_iwae64": 3.1845312118530273
+  },
+  {
+   "member": "cvae_s2",
+   "kl_per_dim_nats": [
+    0.0002201636234531179,
+    0.0016454699216410518,
+    0.00033457536483183503,
+    0.11724291741847992,
+    0.0011241494212299585,
+    0.029436085373163223,
+    0.0002181333111366257,
+    0.0005995780229568481
+   ],
+   "aggregate_kl_nats": 0.15082107484340668,
+   "active_units_kl_gt_0.01": 2,
+   "zdim": 8,
+   "mutual_information_z_d_given_S_nats": 0.15950354933738708,
+   "mi_p90": 0.30555617809295654,
+   "tv_p_z0_vs_marginal": 0.06254016607999802,
+   "fraction_contexts_argmax_changes_with_z": 0.9971930384635925,
+   "heldout_positive_nll_iwae64": 3.188593626022339
+  }
+ ],
+ "cat": [
+  {
+   "member": "cat_s0",
+   "heldout_positive_nll_exact": 3.182191848754883
+  },
+  {
+   "member": "cat_s1",
+   "heldout_positive_nll_exact": 3.1825320720672607
+  },
+  {
+   "member": "cat_s2",
+   "heldout_positive_nll_exact": 3.1830925941467285
+  }
+ ],
+ "uniform_heldout_positive_nll": 3.450448989868164,
+ "collapse_rule": "posterior collapse if active units == 0 and I(z;d|S) < 0.01 nats; partial if I < 0.05 nats",
+ "verdict": "LATENT_USED",
+ "device": "NVIDIA RTX PRO 5000 Blackwell",
+ "watchdog_stop": false
+}

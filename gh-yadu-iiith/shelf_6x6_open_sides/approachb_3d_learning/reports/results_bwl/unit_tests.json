@@ -1,0 +1,688 @@
+{
+ "t1_normalization_bruteforce_gradients": {
+  "pass": true,
+  "four_cell_sum_max_err": 4.440892098500626e-16,
+  "gradcheck_log_evidence": true,
+  "exact_math": {
+   "evidence_vs_bruteforce_max_abs_err": 1.7763568394002505e-15,
+   "joint_log_partition": 0.0,
+   "psucc_identity_err": 0.0,
+   "pass": true
+  },
+  "params_without_gradient": {
+   "D": [],
+   "E": [],
+   "DIRECT-GEO": [
+    "cost.0.bias",
+    "cost.0.weight",
+    "cost.2.bias",
+    "cost.2.weight",
+    "jt.0.bias",
+    "jt.0.weight",
+    "jt.2.bias",
+    "jt.2.weight"
+   ],
+   "G": []
+  },
+  "expected_without_gradient": {
+   "DIRECT-GEO": [
+    "cost.0.bias",
+    "cost.0.weight",
+    "cost.2.bias",
+    "cost.2.weight",
+    "jt.0.bias",
+    "jt.0.weight",
+    "jt.2.bias",
+    "jt.2.weight"
+   ]
+  }
+ },
+ "t2_shared_Y_AB_BA_duplicates": {
+  "pass": true,
+  "same_parent_AB_BA": true,
+  "dedup_nodes": true,
+  "dup_maps": true,
+  "a_AB_minus_BA": {
+   "D": 0.006677031439968423,
+   "E": 0.006677992118993753,
+   "DIRECT-GEO": 0.006677992118993753,
+   "G": 0.0
+  },
+  "dup_loss_equal": {
+   "D": 0.0,
+   "E": 0.0,
+   "DIRECT-GEO": 0.0,
+   "G": 0.0
+  },
+  "conflict_raises": true
+ },
+ "t3_batching_permutation_caching_Y_marginal": {
+  "pass": true,
+  "D": {
+   "batch_vs_single_max_err": 5.551115123125783e-17,
+   "query_permutation_err": 0.0,
+   "cache_err": 0.0,
+   "y_marginal_change_after_extra_X": 0.0
+  },
+  "E": {
+   "batch_vs_single_max_err": 5.551115123125783e-17,
+   "query_permutation_err": 0.0,
+   "cache_err": 0.0,
+   "y_marginal_change_after_extra_X": 0.0
+  },
+  "DIRECT-GEO": {
+   "batch_vs_single_max_err": 5.551115123125783e-17,
+   "query_permutation_err": 0.0,
+   "cache_err": 0.0,
+   "y_marginal_change_after_extra_X": 0.0
+  },
+  "G": {
+   "batch_vs_single_max_err": 2.220446049250313e-16,
+   "query_permutation_err": 0.0,
+   "cache_err": 0.0,
+   "y_marginal_change_after_extra_X": 0.0
+  }
+ },
+ "t4_w0_reduction_F5_gradients": {
+  "pass": true,
+  "w0_px_equals_sigmoid_a_err": 5.551115123125783e-17,
+  "w0_evidence_equals_uncoupled_err": 0.0,
+  "grad_abs_sum": {
+   "joint_decided": {
+    "xy": 46.677699873825574,
+    "order_s": 22.986995955621488,
+    "pairo": 0.0,
+    "mix": 3.672618613730833
+   },
+   "y_only": {
+    "xy": 0.0,
+    "order_s": 0.0,
+    "pairo": 0.0,
+    "mix": 0.0
+   }
+  }
+ },
+ "t5_observed_data_marginal_cases": {
+  "pass": true,
+  "neither": {
+   "batched": 0.0,
+   "brute_force": 0.0,
+   "err": 0.0,
+   "children_sharing_y": null
+  },
+  "y_only": {
+   "batched": -1.379725709282217,
+   "brute_force": -1.379725709282217,
+   "err": 0.0,
+   "children_sharing_y": null
+  },
+  "x_only": {
+   "batched": -1.4029031223616144,
+   "brute_force": -1.4029031223616144,
+   "err": 0.0,
+   "children_sharing_y": null
+  },
+  "both": {
+   "batched": -1.302303416689031,
+   "brute_force": -1.302303416689031,
+   "err": 0.0,
+   "children_sharing_y": null
+  },
+  "multi_x_children_share_y": {
+   "batched": -1.3976668046957035,
+   "brute_force": -1.3976668046957035,
+   "err": 0.0,
+   "children_sharing_y": 2
+  }
+ },
+ "t6_order_goal_object_permutation": {
+  "pass": true,
+  "D": {
+   "same_endpoint_order_pairs": 3,
+   "max_a_order_diff": 0.009308492703296367,
+   "b_shared_identical": true,
+   "goal_change_max_b_diff": 0.02687252604244182,
+   "object_permutation_err": 2.7755575615628914e-17
+  },
+  "E": {
+   "same_endpoint_order_pairs": 3,
+   "max_a_order_diff": 0.009305141850019627,
+   "b_shared_identical": true,
+   "goal_change_max_b_diff": 0.02687252604244182,
+   "object_permutation_err": 2.7755575615628914e-17
+  },
+  "DIRECT-GEO": {
+   "same_endpoint_order_pairs": 3,
+   "max_a_order_diff": 0.009305141850019627,
+   "b_shared_identical": true,
+   "goal_change_max_b_diff": 0.02687252604244182,
+   "object_permutation_err": 5.551115123125783e-17
+  },
+  "G": {
+   "same_endpoint_order_pairs": 3,
+   "max_a_order_diff": 0.0,
+   "b_shared_identical": true,
+   "goal_change_max_b_diff": 0.02687252604244182,
+   "object_permutation_err": 2.220446049250313e-16
+  }
+ },
+ "t7_real_format_roundtrip": {
+  "pass": true,
+  "roots": [
+   {
+    "root": "3ds66-lap-w0013-s016",
+    "K": 0,
+    "y_nodes": 5,
+    "x_nodes": 1,
+    "obs_y": 5,
+    "obs_x": 0,
+    "no_op_only": false,
+    "D_labels_on_their_endpoints": true,
+    "Y0_label": true,
+    "omission_endpoints_recomputed_from_S0": true,
+    "negatives": 0
+   },
+   {
+    "root": "3ds66-srv-w0023-s004",
+    "K": 0,
+    "y_nodes": 1,
+    "x_nodes": 0,
+    "obs_y": 1,
+    "obs_x": 0,
+    "no_op_only": true,
+    "D_labels_on_their_endpoints": true,
+    "Y0_label": true,
+    "omission_endpoints_recomputed_from_S0": true,
+    "negatives": 0
+   },
+   {
+    "root": "3ds66-srv-w0001-s010",
+    "K": 0,
+    "y_nodes": 5,
+    "x_nodes": 1,
+    "obs_y": 5,
+    "obs_x": 0,
+    "no_op_only": false,
+    "D_labels_on_their_endpoints": true,
+    "Y0_label": true,
+    "omission_endpoints_recomputed_from_S0": true,
+    "negatives": 0
+   },
+   {
+    "root": "3ds66-lap3-w0055-s022",
+    "K": 0,
+    "y_nodes": 3,
+    "x_nodes": 1,
+    "obs_y": 3,
+    "obs_x": 0,
+    "no_op_only": false,
+    "D_labels_on_their_endpoints": true,
+    "Y0_label": true,
+    "omission_endpoints_recomputed_from_S0": true,
+    "negatives": 0
+   },
+   {
+    "root": "3ds66-srv-w0025-s018",
+    "K": 0,
+    "y_nodes": 4,
+    "x_nodes": 1,
+    "obs_y": 4,
+    "obs_x": 0,
+    "no_op_only": false,
+    "D_labels_on_their_endpoints": true,
+    "Y0_label": true,
+    "omission_endpoints_recomputed_from_S0": true,
+    "negatives": 0
+   },
+   {
+    "root": "3ds66-srv3-w0064-s018",
+    "K": 0,
+    "y_nodes": 5,
+    "x_nodes": 1,
+    "obs_y": 5,
+    "obs_x": 0,
+    "no_op_only": false,
+    "D_labels_on_their_endpoints": true,
+    "Y0_label": true,
+    "omission_endpoints_recomputed_from_S0": true,
+    "negatives": 0
+   },
+   {
+    "root": "3ds66-srv-w0040-s002",
+    "K": 1,
+    "y_nodes": 5,
+    "x_nodes": 4,
+    "obs_y": 4,
+    "obs_x": 0,
+    "no_op_only": false,
+    "D_labels_on_their_endpoints": true,
+    "Y0_label": true,
+    "omission_endpoints_recomputed_from_S0": true,
+    "negatives": 2
+   },
+   {
+    "root": "3ds66-lap-w0017-s012",
+    "K": 1,
+    "y_nodes": 3,
+    "x_nodes": 2,
+    "obs_y": 2,
+    "obs_x": 0,
+    "no_op_only": false,
+    "D_labels_on_their_endpoints": true,
+    "Y0_label": true,
+    "omission_endpoints_recomputed_from_S0": true,
+    "negatives": 1
+   },
+   {
+    "root": "3ds66-srv-w0001-s021",
+    "K": 1,
+    "y_nodes": 5,
+    "x_nodes": 4,
+    "obs_y": 4,
+    "obs_x": 0,
+    "no_op_only": false,
+    "D_labels_on_their_endpoints": true,
+    "Y0_label": true,
+    "omission_endpoints_recomputed_from_S0": true,
+    "negatives": 2
+   },
+   {
+    "root": "3ds66-srv-w0045-s014",
+    "K": 1,
+    "y_nodes": 8,
+    "x_nodes": 4,
+    "obs_y": 7,
+    "obs_x": 0,
+    "no_op_only": false,
+    "D_labels_on_their_endpoints": true,
+    "Y0_label": true,
+    "omission_endpoints_recomputed_from_S0": true,
+    "negatives": 5
+   },
+   {
+    "root": "3ds66-lap-w0000-s023",
+    "K": 1,
+    "y_nodes": 6,
+    "x_nodes": 4,
+    "obs_y": 4,
+    "obs_x": 0,
+    "no_op_only": false,
+    "D_labels_on_their_endpoints": true,
+    "Y0_label": true,
+    "omission_endpoints_recomputed_from_S0": true,
+    "negatives": 3
+   },
+   {
+    "root": "3ds66-srv-w0018-s007",
+    "K": 1,
+    "y_nodes": 5,
+    "x_nodes": 4,
+    "obs_y": 3,
+    "obs_x": 0,
+    "no_op_only": false,
+    "D_labels_on_their_endpoints": true,
+    "Y0_label": true,
+    "omission_endpoints_recomputed_from_S0": true,
+    "negatives": 2
+   },
+   {
+    "root": "3ds66-lap3-w0047-s017",
+    "K": 2,
+    "y_nodes": 10,
+    "x_nodes": 10,
+    "obs_y": 5,
+    "obs_x": 0,
+    "no_op_only": false,
+    "D_labels_on_their_endpoints": true,
+    "Y0_label": true,
+    "omission_endpoints_recomputed_from_S0": true,
+    "negatives": 4
+   },
+   {
+    "root": "3ds66-srv-w0042-s014",
+    "K": 2,
+    "y_nodes": 10,
+    "x_nodes": 8,
+    "obs_y": 6,
+    "obs_x": 0,
+    "no_op_only": false,
+    "D_labels_on_their_endpoints": true,
+    "Y0_label": true,
+    "omission_endpoints_recomputed_from_S0": true,
+    "negatives": 5
+   },
+   {
+    "root": "3ds66-lap-w0011-s014",
+    "K": 2,
+    "y_nodes": 6,
+    "x_nodes": 6,
+    "obs_y": 4,
+    "obs_x": 0,
+    "no_op_only": false,
+    "D_labels_on_their_endpoints": true,
+    "Y0_label": true,
+    "omission_endpoints_recomputed_from_S0": true,
+    "negatives": 3
+   },
+   {
+    "root": "3ds66-lap3-w0047-s014",
+    "K": 2,
+    "y_nodes": 10,
+    "x_nodes": 10,
+    "obs_y": 5,
+    "obs_x": 0,
+    "no_op_only": false,
+    "D_labels_on_their_endpoints": true,
+    "Y0_label": true,
+    "omission_endpoints_recomputed_from_S0": true,
+    "negatives": 4
+   },
+   {
+    "root": "3ds66-lap-w0017-s022",
+    "K": 2,
+    "y_nodes": 11,
+    "x_nodes": 10,
+    "obs_y": 6,
+    "obs_x": 0,
+    "no_op_only": false,
+    "D_labels_on_their_endpoints": true,
+    "Y0_label": true,
+    "omission_endpoints_recomputed_from_S0": true,
+    "negatives": 5
+   },
+   {
+    "root": "3ds66-lap-w0011-s008",
+    "K": 2,
+    "y_nodes": 6,
+    "x_nodes": 6,
+    "obs_y": 4,
+    "obs_x": 0,
+    "no_op_only": false,
+    "D_labels_on_their_endpoints": true,
+    "Y0_label": true,
+    "omission_endpoints_recomputed_from_S0": true,
+    "negatives": 3
+   },
+   {
+    "root": "3ds66-srv3-w0099-s021",
+    "K": 3,
+    "y_nodes": 16,
+    "x_nodes": 16,
+    "obs_y": 6,
+    "obs_x": 0,
+    "no_op_only": false,
+    "D_labels_on_their_endpoints": true,
+    "Y0_label": true,
+    "omission_endpoints_recomputed_from_S0": true,
+    "negatives": 5
+   },
+   {
+    "root": "3ds66-lap3-w0105-s004",
+    "K": 3,
+    "y_nodes": 16,
+    "x_nodes": 16,
+    "obs_y": 6,
+    "obs_x": 0,
+    "no_op_only": false,
+    "D_labels_on_their_endpoints": true,
+    "Y0_label": true,
+    "omission_endpoints_recomputed_from_S0": true,
+    "negatives": 5
+   },
+   {
+    "root": "3ds66-srv3-w0061-s010",
+    "K": 3,
+    "y_nodes": 16,
+    "x_nodes": 16,
+    "obs_y": 6,
+    "obs_x": 0,
+    "no_op_only": false,
+    "D_labels_on_their_endpoints": true,
+    "Y0_label": true,
+    "omission_endpoints_recomputed_from_S0": true,
+    "negatives": 5
+   },
+   {
+    "root": "3ds66-lap-w0007-s002",
+    "K": 3,
+    "y_nodes": 11,
+    "x_nodes": 11,
+    "obs_y": 5,
+    "obs_x": 0,
+    "no_op_only": false,
+    "D_labels_on_their_endpoints": true,
+    "Y0_label": true,
+    "omission_endpoints_recomputed_from_S0": true,
+    "negatives": 4
+   },
+   {
+    "root": "3ds66-srv3-w0084-s021",
+    "K": 3,
+    "y_nodes": 18,
+    "x_nodes": 16,
+    "obs_y": 8,
+    "obs_x": 0,
+    "no_op_only": false,
+    "D_labels_on_their_endpoints": true,
+    "Y0_label": true,
+    "omission_endpoints_recomputed_from_S0": true,
+    "negatives": 7
+   },
+   {
+    "root": "3ds66-srv3-w0094-s012",
+    "K": 3,
+    "y_nodes": 16,
+    "x_nodes": 16,
+    "obs_y": 6,
+    "obs_x": 0,
+    "no_op_only": false,
+    "D_labels_on_their_endpoints": true,
+    "Y0_label": true,
+    "omission_endpoints_recomputed_from_S0": true,
+    "negatives": 5
+   }
+  ],
+  "real_X_labels_attached": 0,
+  "forward_backward_with_SYNTHETIC_X": {
+   "D": {
+    "loss": 9.141794810305365,
+    "finite": true,
+    "grad_finite": true,
+    "parts": {
+     "nll": 8.194965503859981,
+     "aux": 0.9468293064453842
+    }
+   },
+   "E": {
+    "loss": 9.14215053377782,
+    "finite": true,
+    "grad_finite": true,
+    "parts": {
+     "nll": 8.195321227332435,
+     "aux": 0.9468293064453842
+    }
+   },
+   "DIRECT-GEO": {
+    "loss": 3.656271751556113,
+    "finite": true,
+    "grad_finite": true,
+    "parts": {
+     "nll": 3.656271751556113
+    }
+   },
+   "G": {
+    "loss": 9.140928432612506,
+    "finite": true,
+    "grad_finite": true,
+    "parts": {
+     "nll": 8.194099126167123,
+     "aux": 0.9468293064453842
+    }
+   }
+  }
+ },
+ "t9_DIRECT_G_interfaces_and_leakage": {
+  "pass": true,
+  "forbidden_field_mutation_max_coeff_change": {
+   "D": 0.0,
+   "E": 0.0,
+   "DIRECT-GEO": 0.0,
+   "G": 0.0
+  },
+  "capacity": {
+   "D": {
+    "params": 469895,
+    "heads": [
+     "act",
+     "cost",
+     "ctxn",
+     "edit_head",
+     "edit_proj",
+     "enc",
+     "geoX",
+     "geoY",
+     "jt",
+     "mix",
+     "order_s",
+     "pairo",
+     "pooln",
+     "scene",
+     "xy"
+    ]
+   },
+   "E": {
+    "params": 469895,
+    "heads": [
+     "act",
+     "cost",
+     "ctxn",
+     "edit_head",
+     "edit_proj",
+     "enc",
+     "geoX",
+     "geoY",
+     "jt",
+     "mix",
+     "order_s",
+     "pairo",
+     "pooln",
+     "scene",
+     "xs"
+    ]
+   },
+   "DIRECT-GEO": {
+    "params": 469895,
+    "heads": [
+     "act",
+     "cost",
+     "ctxn",
+     "edit_head",
+     "edit_proj",
+     "enc",
+     "geoX",
+     "geoY",
+     "jt",
+     "mix",
+     "order_s",
+     "pairo",
+     "pooln",
+     "scene",
+     "xs"
+    ]
+   },
+   "G": {
+    "params": 469895,
+    "heads": [
+     "act",
+     "cost",
+     "ctxn",
+     "edit_head",
+     "edit_proj",
+     "enc",
+     "geoX",
+     "geoY",
+     "jt",
+     "mix",
+     "order_s",
+     "pairo",
+     "pooln",
+     "scene",
+     "xy"
+    ]
+   }
+  },
+  "direct_success_logit": "a_r = order_s + xs + geoX + geoY_parent, trained by success-event BCE (independent of any b + a sum)"
+ },
+ "t_noop_and_connector_trap": {
+  "pass": true,
+  "noop_only_root": {
+   "D": {
+    "x_queries": 0,
+    "p_noop_equals_sigmoid_b0": true
+   },
+   "E": {
+    "x_queries": 0,
+    "p_noop_equals_sigmoid_b0": true
+   },
+   "DIRECT-GEO": {
+    "x_queries": 0,
+    "p_noop_equals_sigmoid_b0": true
+   },
+   "G": {
+    "x_queries": 0,
+    "p_noop_equals_sigmoid_b0": true
+   }
+  },
+  "noop_gate": true,
+  "no_gate_prefers_better": true,
+  "noop_has_no_action_cost": true,
+  "connector_trap_distinct_X_nodes": true,
+  "connector_trap_loss": 1.389589471922318
+ },
+ "t10_source_parity": {
+  "pass": true,
+  "status": "SOURCE_PARITY_VERIFIED",
+  "hashes": {
+   "abc_models.py": "7d8ca5de954d8fce",
+   "abc7_models.py": "27b04b480610a7cb",
+   "bxy_core.py": "f575bc03ffdff7be"
+  },
+  "kernel_max_err": 0.0,
+  "arms": {
+   "D": {
+    "max_abs_err_vs_2D_source_composition": 5.551115123125783e-17,
+    "unmapped_params": []
+   },
+   "E": {
+    "max_abs_err_vs_2D_source_composition": 5.551115123125783e-17,
+    "unmapped_params": []
+   },
+   "DIRECT-GEO": {
+    "max_abs_err_vs_2D_source_composition": 5.551115123125783e-17,
+    "unmapped_params": []
+   },
+   "G": {
+    "max_abs_err_vs_2D_source_composition": 5.551115123125783e-17,
+    "unmapped_params": []
+   }
+  }
+ },
+ "summary": {
+  "t1_normalization_bruteforce_gradients": true,
+  "t2_shared_Y_AB_BA_duplicates": true,
+  "t3_batching_permutation_caching_Y_marginal": true,
+  "t4_w0_reduction_F5_gradients": true,
+  "t5_observed_data_marginal_cases": true,
+  "t6_order_goal_object_permutation": true,
+  "t7_real_format_roundtrip": true,
+  "t9_DIRECT_G_interfaces_and_leakage": true,
+  "t_noop_and_connector_trap": true,
+  "t10_source_parity": true
+ },
+ "all_pass": true,
+ "wall_s": 2.0,
+ "affinity": [
+  7
+ ],
+ "note": "forward / backward only (no optimizer step); SYNTHETIC X labels where real 3D X labels are absent"
+}

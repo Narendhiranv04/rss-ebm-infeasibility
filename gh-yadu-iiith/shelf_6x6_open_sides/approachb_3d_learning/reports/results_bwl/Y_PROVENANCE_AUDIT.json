@@ -1,0 +1,80 @@
+{
+ "records": 7012,
+ "roots": 1582,
+ "by_category": {
+  "Y_POLICY_FAILED:CERTIFIED_GRASP_SCREEN": {
+   "original": {
+    "train": 724,
+    "val": 147,
+    "test": 140
+   },
+   "D": {
+    "train": 2146,
+    "val": 424,
+    "test": 423
+   }
+  },
+  "Y_PLANNING_ONLY": {
+   "D": {
+    "train": 1493,
+    "val": 322,
+    "test": 319
+   },
+   "original": {
+    "val": 86,
+    "train": 358,
+    "test": 67
+   }
+  },
+  "Y_POLICY_FAILED:PLANNER_BUDGET": {
+   "D": {
+    "train": 210,
+    "test": 38,
+    "val": 55
+   },
+   "original": {
+    "test": 9,
+    "train": 38,
+    "val": 13
+   }
+  }
+ },
+ "category_totals": {
+  "Y_POLICY_FAILED:CERTIFIED_GRASP_SCREEN": 4004,
+  "Y_PLANNING_ONLY": 2645,
+  "Y_POLICY_FAILED:PLANNER_BUDGET": 363
+ },
+ "Y_REPLAY_VERIFIED": 0,
+ "semantic_check_failures": {
+  "teacher_version": 0,
+  "protocol": 0,
+  "edit_illegal": 0,
+  "witness_mismatch": 0,
+  "duplicate": 0
+ },
+ "original_positives_executed_once_in_teacher": 511,
+ "original_positives": 511,
+ "edit_size_of_positives": {
+  "2": 317,
+  "0": 511,
+  "1": 1328,
+  "3": 302,
+  "4": 130,
+  "6": 13,
+  "5": 44
+ },
+ "source": {
+  "file": "dataset_bd_classquota_without_home_position_no_overpass/code/shelf66_v3/bd_3dt.py",
+  "sha256": "62dc853ccb5055eaad738a9b2eb810c1de5cb12621c1039bbd68c20b54058815",
+  "repo_commit": "6f042be12de3384f884a6f831e1e8c76d8516c5a",
+  "facts": [
+   "q_t l.245-249: settle(cells) then query(e, 't0', goal); no run_plan -> target outcome is PLANNING ONLY",
+   "settle l.145-150: e.reset() = home cells + READY pose, then teleport -> fixed q_ref, ideal (teleported) endpoint",
+   "query l.96-108: plan_pick_place over the scene's grasp poses, first feasible wins, nothing moves",
+   "kind l.124-128: CERTIFIED iff every grasp fails a deterministic geometric check (finite grasp set of the protocol)",
+   "seq l.265-292: run_plan executes relocations from the achieved state and appends the target (B: composite, no q_ref connector)",
+   "K0 roots: seq([]) executes the target once from the ready pose (teacher run, not an independent replay)"
+  ]
+ },
+ "rows_file": "runs/XY3D_BWL/Y_PROVENANCE_ROWS.json"
+}

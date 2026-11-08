@@ -42,6 +42,8 @@ def preflight(cfg, gcfg, dry):
     problems = list(p["violations"])
     if aff != [gcfg["cpu"]]:
         problems.append(f"CPU affinity {aff} != [{gcfg['cpu']}] (launch with taskset -c {gcfg['cpu']})")
+    if sys.argv[0] not in guard.OUR_SCRIPTS:                                  # the watchdog may only stop scripts it can prove are ours
+        problems.append(f"entry point {sys.argv[0]} is not in guard.OUR_SCRIPTS (its watchdog could not stop it)")
     out = {"utc": utc(), "affinity": aff, "guard": p, "problems": problems}
     if problems:
         print(json.dumps(out, indent=1)); raise SystemExit("REFUSED: preflight failed (" + "; ".join(problems) + ")")
@@ -257,9 +259,13 @@ def cmd_evaluate(cfg, gcfg, a):
         bad = [p for p, h in frozen["checkpoints"].items() if sha(ROOT / p) != h] + ([] if frozen["config_sha256"] == sha(a.config) else ["config"])
         if bad:
             raise SystemExit(f"REFUSED: frozen selection changed: {bad}")
+    outp = Path(a.out).resolve() if a.out else exp / f"eval_{a.split}.json"
+    if outp.exists():
+        raise SystemExit(f"REFUSED: {outp} exists (archived evaluations are never overwritten)")
     if a.dry_run:
-        print(json.dumps({"dry_run": True, "split": a.split})); return
-    wd = start_watchdog(exp / f"eval_{a.split}", a.guard_config)
+        print(json.dumps({"dry_run": True, "split": a.split, "would_write": str(outp)})); return
+    outp.parent.mkdir(parents=True, exist_ok=True)
+    wd = start_watchdog(outp.parent / f"eval_{a.split}_watch", a.guard_config)
     try:
         Dfull, Dgeo = Data(ROOT / cfg["derived"], dev), None
         results, lat = {"split": a.split, "utc": utc(), "M": cfg["M"], "raw_cap_factor": cfg["raw_cap_factor"], "samplers": {}}, {}
@@ -349,8 +355,7 @@ def cmd_evaluate(cfg, gcfg, a):
             results["samplers"][fam] = {"members": [str(p.relative_to(ROOT)) for p, _, _ in families[fam]], "rows": rows}
         results["contexts_evaluated"] = int(len(r)); results["contexts_with_positive"] = int(pos.any(1).sum())
         results["device"] = torch.cuda.get_device_name(0); results["peak_vram_mb"] = round(torch.cuda.max_memory_allocated() / 2**20, 1)
-        out = exp / f"eval_{a.split}.json"
-        out.write_text(json.dumps(results, indent=1)); print(json.dumps({"wrote": str(out), "contexts": len(r)}))
+        outp.write_text(json.dumps(results, indent=1)); print(json.dumps({"wrote": str(outp), "contexts": len(r)}))
     finally:
         wd.terminate()
 
@@ -372,9 +377,9 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("cmd", choices=["smoke", "fit", "evaluate", "freeze"])
     ap.add_argument("--config", required=True); ap.add_argument("--guard-config")
-    ap.add_argument("--kind", choices=["cvae", "fm", "ranker"]); ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--kind", choices=["cvae", "fm", "ranker", "cat"]); ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--geometry-only", action="store_true"); ap.add_argument("--split", choices=["val", "test"], default="val")
-    ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--dry-run", action="store_true"); ap.add_argument("--out", help="evaluate: write here instead of the archived eval_<split>.json")
     a = ap.parse_args()
     cfg, gcfg = json.loads(Path(a.config).read_text()), guard.load_cfg(a.guard_config)
     {"smoke": cmd_smoke, "fit": cmd_fit, "evaluate": cmd_evaluate, "freeze": cmd_freeze}[a.cmd](cfg, gcfg, a)

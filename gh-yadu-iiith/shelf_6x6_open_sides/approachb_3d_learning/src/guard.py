@@ -176,8 +176,11 @@ def is_ours(pid):
     if argv and argv[0] == "approachb_3d_learning GUARD_SELFTEST_DUMMY":
         return True
     # argv[0] must be OUR venv interpreter and argv[1] OUR script (a shell whose command text merely mentions them never qualifies)
-    return len(argv) > 1 and argv[0] in (str(ROOT / "venv/bin/python"), "venv/bin/python") and argv[1] in (str(HERE / "train.py"), "src/train.py",
-                                                                                     str(HERE / "xy3d.py"), "src/xy3d.py")
+    return len(argv) > 1 and argv[0] in (str(ROOT / "venv/bin/python"), "venv/bin/python") and argv[1] in OUR_SCRIPTS
+
+
+# every project GPU entry point (BWL-0 finding: study.py was missing, so its watchdog could log but not stop it)
+OUR_SCRIPTS = tuple(p for s in ("train.py", "xy3d.py", "study.py", "xy3d_tests.py", "figs.py", "figs_bwl.py", "xy3d_data.py") for p in (str(HERE / s), f"src/{s}"))
 
 
 def watch(pid, run, cfg):
@@ -190,6 +193,8 @@ def watch(pid, run, cfg):
             fh.write(json.dumps({**p, "consecutive_bad": bad}) + "\n")
         if bad >= cfg["consecutive"]:
             (run / "STOP_RESOURCE").write_text(json.dumps({"utc": p["facts"]["utc"], "violations": p["violations"]}, indent=1))
+            if not is_ours(pid):
+                (run / "STOP_REFUSED_NOT_OURS").write_text(str(pid))         # never signal anything we cannot prove is ours; make it visible
             if is_ours(pid):
                 os.kill(pid, signal.SIGTERM)
                 t0 = time.time()

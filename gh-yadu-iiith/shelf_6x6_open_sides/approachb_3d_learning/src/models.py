@@ -97,6 +97,34 @@ class CVAE(nn.Module):
         return torch.logsumexp(lpd + lpz - lq, 1) - math.log(k)
 
 
+class Categorical(nn.Module):
+    """BWL-1 conditional categorical control: the cVAE's scene conditioning and decoder width with the latent removed; masked CE on VERIFIED
+    destinations only.  Tests whether the cVAE's latent adds anything over a direct conditional categorical.  Proposal density only."""
+    kind = "cat"
+
+    def __init__(self, h=128, nfeat=14):
+        super().__init__()
+        self.enc, self.dec = SceneEncoder(nfeat, h), mlp(h, h, NCELL)
+
+    def logits(self, obj, mask, occ, legal):
+        return masked_logits(self.dec(self.enc(obj, mask, occ)), legal)
+
+    def loss(self, obj, mask, occ, legal, dest, beta=None):
+        l = F.cross_entropy(self.logits(obj, mask, occ, legal), dest)
+        return l, {"ce": l.item()}
+
+    @torch.no_grad()
+    def sample(self, obj, mask, occ, legal, n, gen=None):
+        lg = self.logits(obj, mask, occ, legal)[:, None].expand(-1, n, -1)
+        u = torch.rand(lg.shape, device=lg.device, generator=gen).clamp(1e-9, 1 - 1e-9)
+        z = torch.zeros(lg.shape[:2], dtype=torch.bool, device=lg.device)
+        return (lg - (-u.log()).log()).argmax(-1), {"raw_illegal": z, "raw_out_of_domain": z}
+
+    @torch.no_grad()
+    def log_prob(self, obj, mask, occ, legal, dest, k=None):
+        return self.logits(obj, mask, occ, legal).log_softmax(-1).gather(1, dest[:, None]).squeeze(1)
+
+
 class TimeEmb(nn.Module):
     def __init__(self, d=32):
         super().__init__()
@@ -210,4 +238,4 @@ class Ranker(nn.Module):
 def build(kind, cfg):
     h, nf = cfg.get("hidden", 128), cfg.get("nfeat", 14)
     return {"cvae": lambda: CVAE(h, cfg.get("zdim", 8), nf), "fm": lambda: FlowMatch(h, nf, cfg.get("ode_steps", 32)),
-            "ranker": lambda: Ranker(h, nf), "uniform": Uniform, "stratified": BandStratified}[kind]()
+            "ranker": lambda: Ranker(h, nf), "uniform": Uniform, "stratified": BandStratified, "cat": lambda: Categorical(h, nf)}[kind]()

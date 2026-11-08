@@ -1,0 +1,32 @@
+{
+ "experiment": "SAMPLER_BWL1",
+ "derived": "snapshots/v4full_82926152fa9cc345_derived",
+ "hidden": 128, "zdim": 8, "ode_steps": 32, "nfeat": 14,
+ "batch": 512, "lr": 0.001, "wd": 0.0001,
+ "max_epochs": 60, "patience": 8, "walltime_min_per_run": 20,
+ "beta_kl_max": 1.0, "beta_warmup_epochs": 10,
+ "train_seeds": [0, 1, 2],
+ "M": [1, 2, 4, 8], "raw_cap_factor": 8, "eval_seeds": [0, 1, 2],
+ "archived_experiment": "SAMPLER_V1",
+ "archived_members": {"cvae": ["cvae_s0", "cvae_s1", "cvae_s2"], "fm": ["fm_s0", "fm_s1", "fm_s2"], "ranker": ["ranker_s0", "ranker_s1", "ranker_s2"]},
+ "new_members": {"cat": ["cat_s0", "cat_s1", "cat_s2"]},
+ "rerank_pool_factors": [2, 4],
+ "mixture_lambdas": [0.25, 0.5, 0.75],
+ "split": "val",
+ "bootstrap": {"unit": "root", "B": 2000, "seed": 0},
+ "predeclared_decision": {
+  "declared_utc": "2026-11-08T02:55Z (before any BWL-1 run)",
+  "primary_M": 4,
+  "learned_arm": "cvae+rank_P2",
+  "analytical_arm": "stratified+rank_P2",
+  "delta": "learned - analytical, paired root-cluster bootstrap 95% CI on VAL roots",
+  "PROMISING": "known-label precision delta CI lower > 0 AND hit@4 delta CI lower > -0.02",
+  "ANALYTICAL_AHEAD": "analytical significantly better on hit@4 or precision (delta CI upper < 0) AND learned not significantly better on the other",
+  "TIED": "both delta CIs contain 0 and both |point deltas| < 0.02",
+  "INCONCLUSIVE": "anything else (e.g. a significant trade-off: learned better precision, analytical better hit)",
+  "secondary_reported_not_decisive": ["cvae vs stratified (generators alone)", "cvae vs cat (latent value)", "best mixture lambda on VAL (exploratory)", "pool factor 4 sensitivity"]
+ },
+ "test_policy": "NO new arm, pool, lambda, budget or seed is evaluated on or chosen from the exposed TEST split; TEST is only re-run byte-for-byte as archived evidence with the archived SAMPLER_V1 configuration",
+ "swept_volume": "NOT_IMPLEMENTED / METHOD_UNSPECIFIED (final-fixed-methodology-1.pdf section 6.4)",
+ "fairness": "same snapshot, legality mask, raw cap 8 x (pool or M) draws with replacement, first unique kept; rerank arms share the pool size; ranker-only is a disclosed full-legal-catalogue scorer"
+}

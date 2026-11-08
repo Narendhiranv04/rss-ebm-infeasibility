@@ -1,0 +1,83 @@
+{
+ "rule": "archived SAMPLER_V1 eval_<split>.json vs train.py evaluate --out runs/SAMPLER_BWL1/repro/eval_<split>_repro.json (same frozen checkpoints and config); latency fields excluded (wall-clock)",
+ "val": {
+  "contexts": [
+   1425,
+   1425
+  ],
+  "differences": [
+   {
+    "path": "/cvae/rows[2]/heldout_positive_nll",
+    "archived": 3.180555820465088,
+    "reproduced": 3.1805899143218994
+   },
+   {
+    "path": "/cvae/rows[5]/heldout_positive_nll",
+    "archived": 3.184457540512085,
+    "reproduced": 3.1845195293426514
+   },
+   {
+    "path": "/cvae/rows[8]/heldout_positive_nll",
+    "archived": 3.1887402534484863,
+    "reproduced": 3.188246488571167
+   },
+   {
+    "path": "/cvae_geo/rows[2]/heldout_positive_nll",
+    "archived": 3.1797077655792236,
+    "reproduced": 3.1795966625213623
+   },
+   {
+    "path": "/cvae_geo/rows[5]/heldout_positive_nll",
+    "archived": 3.1789071559906006,
+    "reproduced": 3.178957462310791
+   },
+   {
+    "path": "/cvae_geo/rows[8]/heldout_positive_nll",
+    "archived": 3.1848559379577637,
+    "reproduced": 3.185070037841797
+   }
+  ],
+  "max_abs_difference": 0.0004937648773193359,
+  "all_differences_are_iwae_nll": true
+ },
+ "test": {
+  "contexts": [
+   1385,
+   1385
+  ],
+  "differences": [
+   {
+    "path": "/cvae/rows[2]/heldout_positive_nll",
+    "archived": 3.1751277446746826,
+    "reproduced": 3.175182580947876
+   },
+   {
+    "path": "/cvae/rows[5]/heldout_positive_nll",
+    "archived": 3.1771438121795654,
+    "reproduced": 3.1772897243499756
+   },
+   {
+    "path": "/cvae/rows[8]/heldout_positive_nll",
+    "archived": 3.180821418762207,
+    "reproduced": 3.1807124614715576
+   },
+   {
+    "path": "/cvae_geo/rows[2]/heldout_positive_nll",
+    "archived": 3.1748645305633545,
+    "reproduced": 3.174823522567749
+   },
+   {
+    "path": "/cvae_geo/rows[5]/heldout_positive_nll",
+    "archived": 3.175724983215332,
+    "reproduced": 3.1757023334503174
+   },
+   {
+    "path": "/cvae_geo/rows[8]/heldout_positive_nll",
+    "archived": 3.1790435314178467,
+    "reproduced": 3.1791653633117676
+   }
+  ],
+  "max_abs_difference": 0.00014591217041015625,
+  "all_differences_are_iwae_nll": true
+ }
+}

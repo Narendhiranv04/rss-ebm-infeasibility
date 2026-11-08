@@ -1,0 +1,1889 @@
+{
+ "manifest": "BWL3_Y_REPLAY_SAMPLE_V1",
+ "status": "PREDECLARED_NOT_EXECUTED",
+ "host": "authorized physics host only (MuJoCo + the SHELF66V3 scene)",
+ "selection": "per stratum, first n by sha256('BWL3_YREPLAY|'+root_id+'|'+edit) among semantically compatible records; fixed before any replay",
+ "protocol": [
+  "settle(cells0 + edit) exactly as bd_3dt.settle (reset to the READY pose = q_ref, teleport the edit), gripper free",
+  "POSITIVES: (1) independent replay of the stored target witness (witness_id) with MuJoCo run_plan from q_ref; pass iff T ends in the goal cell upright (|z_err| <= 0.01 m) and no other object changes cell; (2) fresh re-plan with seeds 0, 1, 2 at RRT max_iters 5000 and execute each; record plan success, execution success, end cell, z_err, displaced objects, joint travel of the executed target path",
+  "NEGATIVES: CERTIFIED -> re-run the deterministic grasp screen (expect every grasp blocked, same reasons); NO_PLAN_FOUND -> re-plan with seeds 0, 1, 2 at the same budget and once at 4x budget (budget sensitivity, never relabels the archived record)",
+  "statuses: REPLAY_PASS / REPLAY_FAIL / PLAN_IRREPRODUCIBLE / CENSORED (budget) / ENV_ERROR; never convert a censored run into 0"
+ ],
+ "decision_use": "Y_REPLAY_VERIFIED is granted only to records whose own witness passes (1); the sample estimates the planning-to-execution gap of the 2,645 planning positives; promotion of the full pool requires replaying ALL of them (recommended: 2,645 replays)",
+ "counts": {
+  "original_pos_K0_executed_once": 24,
+  "D_pos_single_object_edit": 24,
+  "D_pos_multi_object_edit": 24,
+  "original_neg_certified": 12,
+  "D_neg_certified": 12,
+  "original_neg_planner_budget": 12,
+  "D_neg_planner_budget": 12
+ },
+ "rows": [
+  {
+   "manifest_row": "BWL3Y-0000",
+   "stratum": "original_pos_K0_executed_once",
+   "root_id": "3ds66-srv-w0029-s015",
+   "split": "val",
+   "family": "original",
+   "edit": {},
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "a246c90d568d4d958b59a98a"
+  },
+  {
+   "manifest_row": "BWL3Y-0001",
+   "stratum": "original_pos_K0_executed_once",
+   "root_id": "3ds66-srv-w0041-s013",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "b11c48c78243d28fafae6c06"
+  },
+  {
+   "manifest_row": "BWL3Y-0002",
+   "stratum": "original_pos_K0_executed_once",
+   "root_id": "3ds66-srv-w0001-s002",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "d608d121229e0e4b238bdd7c"
+  },
+  {
+   "manifest_row": "BWL3Y-0003",
+   "stratum": "original_pos_K0_executed_once",
+   "root_id": "3ds66-srv-w0011-s001",
+   "split": "test",
+   "family": "original",
+   "edit": {},
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "a699da470347f7c9597d4c7b"
+  },
+  {
+   "manifest_row": "BWL3Y-0004",
+   "stratum": "original_pos_K0_executed_once",
+   "root_id": "3ds66-srv-w0033-s012",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "d201f6d342c7c2f471bad0e5"
+  },
+  {
+   "manifest_row": "BWL3Y-0005",
+   "stratum": "original_pos_K0_executed_once",
+   "root_id": "3ds66-srv-w0045-s015",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "49ee28df5411d10c5fa3089e"
+  },
+  {
+   "manifest_row": "BWL3Y-0006",
+   "stratum": "original_pos_K0_executed_once",
+   "root_id": "3ds66-srv3-w0056-s010",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "19bc38490adfb53517a3183b"
+  },
+  {
+   "manifest_row": "BWL3Y-0007",
+   "stratum": "original_pos_K0_executed_once",
+   "root_id": "3ds66-srv-w0033-s014",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "871d99459e8edb6a019d873c"
+  },
+  {
+   "manifest_row": "BWL3Y-0008",
+   "stratum": "original_pos_K0_executed_once",
+   "root_id": "3ds66-srv-w0039-s003",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "42e7ca72bdfa79c2a81942c9"
+  },
+  {
+   "manifest_row": "BWL3Y-0009",
+   "stratum": "original_pos_K0_executed_once",
+   "root_id": "3ds66-srv-w0019-s003",
+   "split": "val",
+   "family": "original",
+   "edit": {},
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "a9d6ddc500d5654a3b75449b"
+  },
+  {
+   "manifest_row": "BWL3Y-0010",
+   "stratum": "original_pos_K0_executed_once",
+   "root_id": "3ds66-srv-w0019-s023",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "87a8a39ecccabe6640fdb817"
+  },
+  {
+   "manifest_row": "BWL3Y-0011",
+   "stratum": "original_pos_K0_executed_once",
+   "root_id": "3ds66-lap-w0029-s006",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "709b85f1d04568b65291800d"
+  },
+  {
+   "manifest_row": "BWL3Y-0012",
+   "stratum": "original_pos_K0_executed_once",
+   "root_id": "3ds66-srv-w0010-s014",
+   "split": "val",
+   "family": "original",
+   "edit": {},
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "d96507eddebc0ec67070428a"
+  },
+  {
+   "manifest_row": "BWL3Y-0013",
+   "stratum": "original_pos_K0_executed_once",
+   "root_id": "3ds66-lap-w0016-s019",
+   "split": "val",
+   "family": "original",
+   "edit": {},
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "98959b69d571a45d7c088757"
+  },
+  {
+   "manifest_row": "BWL3Y-0014",
+   "stratum": "original_pos_K0_executed_once",
+   "root_id": "3ds66-lap-w0013-s005",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "2e91e2977c3fd8cda197c5f9"
+  },
+  {
+   "manifest_row": "BWL3Y-0015",
+   "stratum": "original_pos_K0_executed_once",
+   "root_id": "3ds66-lap-w0021-s003",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "ed6425c18ed7c43a4b76ef90"
+  },
+  {
+   "manifest_row": "BWL3Y-0016",
+   "stratum": "original_pos_K0_executed_once",
+   "root_id": "3ds66-lap-w0032-s011",
+   "split": "val",
+   "family": "original",
+   "edit": {},
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "064b16ff4f898233d4720b2b"
+  },
+  {
+   "manifest_row": "BWL3Y-0017",
+   "stratum": "original_pos_K0_executed_once",
+   "root_id": "3ds66-srv3-w0057-s014",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "64579d0815d9ceb2bd0738fe"
+  },
+  {
+   "manifest_row": "BWL3Y-0018",
+   "stratum": "original_pos_K0_executed_once",
+   "root_id": "3ds66-srv3-w0053-s020",
+   "split": "val",
+   "family": "original",
+   "edit": {},
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "e1295f2dde16b1bec0e32c01"
+  },
+  {
+   "manifest_row": "BWL3Y-0019",
+   "stratum": "original_pos_K0_executed_once",
+   "root_id": "3ds66-srv-w0026-s006",
+   "split": "val",
+   "family": "original",
+   "edit": {},
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "a01266fb970cf476c25b266d"
+  },
+  {
+   "manifest_row": "BWL3Y-0020",
+   "stratum": "original_pos_K0_executed_once",
+   "root_id": "3ds66-srv-w0022-s003",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "ea13bf4c09c8920254950e93"
+  },
+  {
+   "manifest_row": "BWL3Y-0021",
+   "stratum": "original_pos_K0_executed_once",
+   "root_id": "3ds66-srv-w0035-s011",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "6a19c29d91bb97e67a36e1d5"
+  },
+  {
+   "manifest_row": "BWL3Y-0022",
+   "stratum": "original_pos_K0_executed_once",
+   "root_id": "3ds66-lap-w0017-s019",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "ded69f1e2016ad3b8b870b9e"
+  },
+  {
+   "manifest_row": "BWL3Y-0023",
+   "stratum": "original_pos_K0_executed_once",
+   "root_id": "3ds66-srv-w0034-s006",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "df8e14fa51d4d38aa1034a5b"
+  },
+  {
+   "manifest_row": "BWL3Y-0024",
+   "stratum": "D_pos_single_object_edit",
+   "root_id": "3ds66-lap-w0015-s004",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     1,
+     0
+    ]
+   },
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "7c215b7eb5ff64d7c0d4953e"
+  },
+  {
+   "manifest_row": "BWL3Y-0025",
+   "stratum": "D_pos_single_object_edit",
+   "root_id": "3ds66-srv-w0027-s008",
+   "split": "val",
+   "family": "D",
+   "edit": {
+    "o02": [
+     1,
+     4
+    ]
+   },
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "a1541eb02dc516186db78ddc"
+  },
+  {
+   "manifest_row": "BWL3Y-0026",
+   "stratum": "D_pos_single_object_edit",
+   "root_id": "3ds66-srv-w0006-s009",
+   "split": "val",
+   "family": "D",
+   "edit": {
+    "o01": [
+     5,
+     4
+    ]
+   },
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "ba38666e121db7050a8b6def"
+  },
+  {
+   "manifest_row": "BWL3Y-0027",
+   "stratum": "D_pos_single_object_edit",
+   "root_id": "3ds66-srv-w0019-s003",
+   "split": "val",
+   "family": "D",
+   "edit": {
+    "o00": [
+     4,
+     4
+    ]
+   },
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "c599cdf372dda997265df747"
+  },
+  {
+   "manifest_row": "BWL3Y-0028",
+   "stratum": "D_pos_single_object_edit",
+   "root_id": "3ds66-srv-w0010-s004",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o01": [
+     4,
+     4
+    ]
+   },
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "9b9f912a66b1fbb2ad8a210e"
+  },
+  {
+   "manifest_row": "BWL3Y-0029",
+   "stratum": "D_pos_single_object_edit",
+   "root_id": "3ds66-srv-w0006-s015",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o02": [
+     3,
+     0
+    ]
+   },
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "894e679528da2d28e5520cba"
+  },
+  {
+   "manifest_row": "BWL3Y-0030",
+   "stratum": "D_pos_single_object_edit",
+   "root_id": "3ds66-srv-w0041-s011",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     2,
+     5
+    ]
+   },
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "e2afaf3795b87af1525006ef"
+  },
+  {
+   "manifest_row": "BWL3Y-0031",
+   "stratum": "D_pos_single_object_edit",
+   "root_id": "3ds66-srv-w0009-s015",
+   "split": "val",
+   "family": "D",
+   "edit": {
+    "o01": [
+     3,
+     0
+    ]
+   },
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "770fd84751aada7eced242e8"
+  },
+  {
+   "manifest_row": "BWL3Y-0032",
+   "stratum": "D_pos_single_object_edit",
+   "root_id": "3ds66-srv-w0029-s017",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o02": [
+     5,
+     1
+    ]
+   },
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "3c4a1df0ba10a4eee354f86c"
+  },
+  {
+   "manifest_row": "BWL3Y-0033",
+   "stratum": "D_pos_single_object_edit",
+   "root_id": "3ds66-srv-w0035-s004",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o01": [
+     3,
+     1
+    ]
+   },
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "05110e6fc7eee5ce317a1fd8"
+  },
+  {
+   "manifest_row": "BWL3Y-0034",
+   "stratum": "D_pos_single_object_edit",
+   "root_id": "3ds66-srv-w0019-s021",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o02": [
+     5,
+     0
+    ]
+   },
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "40f78cf4ea23b1dc6aa4fce2"
+  },
+  {
+   "manifest_row": "BWL3Y-0035",
+   "stratum": "D_pos_single_object_edit",
+   "root_id": "3ds66-srv3-w0057-s014",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     1,
+     4
+    ]
+   },
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "6396e1a2cd7f554b0ab5f4f0"
+  },
+  {
+   "manifest_row": "BWL3Y-0036",
+   "stratum": "D_pos_single_object_edit",
+   "root_id": "3ds66-srv3-w0069-s003",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o03": [
+     2,
+     5
+    ]
+   },
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "d5ac84cefda5ee743bc0d005"
+  },
+  {
+   "manifest_row": "BWL3Y-0037",
+   "stratum": "D_pos_single_object_edit",
+   "root_id": "3ds66-srv-w0032-s014",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     1,
+     1
+    ]
+   },
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "e9ea824421c98918445ce077"
+  },
+  {
+   "manifest_row": "BWL3Y-0038",
+   "stratum": "D_pos_single_object_edit",
+   "root_id": "3ds66-srv-w0035-s008",
+   "split": "val",
+   "family": "D",
+   "edit": {
+    "o01": [
+     5,
+     0
+    ]
+   },
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "9848c1a6e06537aeebefa17c"
+  },
+  {
+   "manifest_row": "BWL3Y-0039",
+   "stratum": "D_pos_single_object_edit",
+   "root_id": "3ds66-lap-w0011-s004",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     1,
+     3
+    ]
+   },
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "098e9a509562f5859ba02d60"
+  },
+  {
+   "manifest_row": "BWL3Y-0040",
+   "stratum": "D_pos_single_object_edit",
+   "root_id": "3ds66-srv-w0031-s004",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o03": [
+     1,
+     2
+    ]
+   },
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "3346ff5c7101c5aab940a96b"
+  },
+  {
+   "manifest_row": "BWL3Y-0041",
+   "stratum": "D_pos_single_object_edit",
+   "root_id": "3ds66-srv-w0018-s005",
+   "split": "test",
+   "family": "D",
+   "edit": {
+    "o00": [
+     1,
+     1
+    ]
+   },
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "aceeee674b41a972f9036307"
+  },
+  {
+   "manifest_row": "BWL3Y-0042",
+   "stratum": "D_pos_single_object_edit",
+   "root_id": "3ds66-lap-w0034-s020",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     3,
+     5
+    ]
+   },
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "4bbd52d9b68dfdb91ead3c57"
+  },
+  {
+   "manifest_row": "BWL3Y-0043",
+   "stratum": "D_pos_single_object_edit",
+   "root_id": "3ds66-srv-w0045-s001",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o01": [
+     3,
+     1
+    ]
+   },
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "198c565c280e94b873219477"
+  },
+  {
+   "manifest_row": "BWL3Y-0044",
+   "stratum": "D_pos_single_object_edit",
+   "root_id": "3ds66-srv-w0008-s003",
+   "split": "val",
+   "family": "D",
+   "edit": {
+    "o00": [
+     5,
+     1
+    ]
+   },
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "72f99dc837864135ca56cbd3"
+  },
+  {
+   "manifest_row": "BWL3Y-0045",
+   "stratum": "D_pos_single_object_edit",
+   "root_id": "3ds66-srv-w0002-s021",
+   "split": "val",
+   "family": "D",
+   "edit": {
+    "o00": [
+     1,
+     3
+    ]
+   },
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "c41541d2cfd5c25a8ce988ec"
+  },
+  {
+   "manifest_row": "BWL3Y-0046",
+   "stratum": "D_pos_single_object_edit",
+   "root_id": "3ds66-srv-w0031-s017",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     5,
+     4
+    ]
+   },
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "0369ea09996e5e5bd3704389"
+  },
+  {
+   "manifest_row": "BWL3Y-0047",
+   "stratum": "D_pos_single_object_edit",
+   "root_id": "3ds66-srv-w0009-s013",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     1,
+     1
+    ]
+   },
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "03d186d7f9f311a7b66c1d0e"
+  },
+  {
+   "manifest_row": "BWL3Y-0048",
+   "stratum": "D_pos_multi_object_edit",
+   "root_id": "3ds66-lap-w0007-s015",
+   "split": "val",
+   "family": "D",
+   "edit": {
+    "o00": [
+     4,
+     5
+    ],
+    "o01": [
+     2,
+     3
+    ],
+    "o02": [
+     5,
+     0
+    ]
+   },
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "00e5b135daea80b50a8755b5"
+  },
+  {
+   "manifest_row": "BWL3Y-0049",
+   "stratum": "D_pos_multi_object_edit",
+   "root_id": "3ds66-lap-w0007-s017",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     2,
+     1
+    ],
+    "o01": [
+     5,
+     5
+    ]
+   },
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "c24dfcda7f3146a11cd5236a"
+  },
+  {
+   "manifest_row": "BWL3Y-0050",
+   "stratum": "D_pos_multi_object_edit",
+   "root_id": "3ds66-srv3-w0092-s013",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     1,
+     0
+    ],
+    "o01": [
+     2,
+     5
+    ],
+    "o02": [
+     4,
+     1
+    ],
+    "o03": [
+     2,
+     1
+    ]
+   },
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "a9bf3854447541e6129b459f"
+  },
+  {
+   "manifest_row": "BWL3Y-0051",
+   "stratum": "D_pos_multi_object_edit",
+   "root_id": "3ds66-srv-w0031-s011",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     2,
+     1
+    ],
+    "o01": [
+     4,
+     1
+    ],
+    "o02": [
+     4,
+     5
+    ]
+   },
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "80e0ee3c88219b19382cee6a"
+  },
+  {
+   "manifest_row": "BWL3Y-0052",
+   "stratum": "D_pos_multi_object_edit",
+   "root_id": "3ds66-srv3-w0075-s022",
+   "split": "val",
+   "family": "D",
+   "edit": {
+    "o00": [
+     5,
+     0
+    ],
+    "o01": [
+     3,
+     5
+    ],
+    "o02": [
+     5,
+     2
+    ]
+   },
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "57ece6a5e6b9dd801c6c65d5"
+  },
+  {
+   "manifest_row": "BWL3Y-0053",
+   "stratum": "D_pos_multi_object_edit",
+   "root_id": "3ds66-lap3-w0059-s008",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     1,
+     4
+    ],
+    "o01": [
+     3,
+     4
+    ],
+    "o02": [
+     4,
+     3
+    ]
+   },
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "80a807a2048d6d490c30d23f"
+  },
+  {
+   "manifest_row": "BWL3Y-0054",
+   "stratum": "D_pos_multi_object_edit",
+   "root_id": "3ds66-lap-w0042-s004",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     2,
+     3
+    ],
+    "o01": [
+     2,
+     5
+    ],
+    "o02": [
+     4,
+     4
+    ]
+   },
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "9f8e1943df8b3e459cb5e85b"
+  },
+  {
+   "manifest_row": "BWL3Y-0055",
+   "stratum": "D_pos_multi_object_edit",
+   "root_id": "3ds66-srv3-w0070-s006",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     5,
+     0
+    ],
+    "o01": [
+     5,
+     2
+    ],
+    "o02": [
+     5,
+     5
+    ],
+    "o03": [
+     5,
+     4
+    ]
+   },
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "0360f682400a4f2bd391d3eb"
+  },
+  {
+   "manifest_row": "BWL3Y-0056",
+   "stratum": "D_pos_multi_object_edit",
+   "root_id": "3ds66-srv3-w0069-s023",
+   "split": "val",
+   "family": "D",
+   "edit": {
+    "o00": [
+     2,
+     3
+    ],
+    "o01": [
+     4,
+     4
+    ]
+   },
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "066d59d2e78e873be709eeff"
+  },
+  {
+   "manifest_row": "BWL3Y-0057",
+   "stratum": "D_pos_multi_object_edit",
+   "root_id": "3ds66-srv3-w0054-s005",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     1,
+     3
+    ],
+    "o01": [
+     4,
+     5
+    ]
+   },
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "8654bd73fbab3be0264f8997"
+  },
+  {
+   "manifest_row": "BWL3Y-0058",
+   "stratum": "D_pos_multi_object_edit",
+   "root_id": "3ds66-srv-w0004-s016",
+   "split": "val",
+   "family": "D",
+   "edit": {
+    "o00": [
+     2,
+     0
+    ],
+    "o01": [
+     4,
+     5
+    ]
+   },
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "e46661fcf820c254e5a7ba8d"
+  },
+  {
+   "manifest_row": "BWL3Y-0059",
+   "stratum": "D_pos_multi_object_edit",
+   "root_id": "3ds66-srv3-w0086-s004",
+   "split": "test",
+   "family": "D",
+   "edit": {
+    "o00": [
+     3,
+     5
+    ],
+    "o01": [
+     1,
+     5
+    ],
+    "o02": [
+     5,
+     0
+    ],
+    "o03": [
+     4,
+     5
+    ]
+   },
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "b09b4b3ce6693ce81ec26a6f"
+  },
+  {
+   "manifest_row": "BWL3Y-0060",
+   "stratum": "D_pos_multi_object_edit",
+   "root_id": "3ds66-srv-w0023-s013",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     4,
+     1
+    ],
+    "o01": [
+     2,
+     2
+    ]
+   },
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "4f02fc9deff123ef6d6cc906"
+  },
+  {
+   "manifest_row": "BWL3Y-0061",
+   "stratum": "D_pos_multi_object_edit",
+   "root_id": "3ds66-srv3-w0069-s001",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     1,
+     0
+    ],
+    "o01": [
+     3,
+     5
+    ]
+   },
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "5017fced0286e89261ca4884"
+  },
+  {
+   "manifest_row": "BWL3Y-0062",
+   "stratum": "D_pos_multi_object_edit",
+   "root_id": "3ds66-srv3-w0098-s013",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     3,
+     5
+    ],
+    "o01": [
+     1,
+     4
+    ],
+    "o02": [
+     5,
+     0
+    ]
+   },
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "a371f392fb3058cbab2eca8b"
+  },
+  {
+   "manifest_row": "BWL3Y-0063",
+   "stratum": "D_pos_multi_object_edit",
+   "root_id": "3ds66-srv3-w0061-s017",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     4,
+     1
+    ],
+    "o01": [
+     1,
+     2
+    ],
+    "o02": [
+     1,
+     0
+    ]
+   },
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "f082fc2cdb4e51f855451c56"
+  },
+  {
+   "manifest_row": "BWL3Y-0064",
+   "stratum": "D_pos_multi_object_edit",
+   "root_id": "3ds66-srv3-w0057-s020",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     2,
+     4
+    ],
+    "o01": [
+     5,
+     0
+    ]
+   },
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "3ed396e6a6ecd9cf4c0cedec"
+  },
+  {
+   "manifest_row": "BWL3Y-0065",
+   "stratum": "D_pos_multi_object_edit",
+   "root_id": "3ds66-lap3-w0055-s015",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     1,
+     5
+    ],
+    "o01": [
+     3,
+     5
+    ],
+    "o02": [
+     5,
+     4
+    ],
+    "o03": [
+     2,
+     5
+    ],
+    "o04": [
+     4,
+     5
+    ]
+   },
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "938ff0ebac121d658de4e493"
+  },
+  {
+   "manifest_row": "BWL3Y-0066",
+   "stratum": "D_pos_multi_object_edit",
+   "root_id": "3ds66-srv3-w0052-s001",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     3,
+     5
+    ],
+    "o01": [
+     4,
+     0
+    ],
+    "o02": [
+     1,
+     4
+    ]
+   },
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "bd5dfbbfef9c933961dc966e"
+  },
+  {
+   "manifest_row": "BWL3Y-0067",
+   "stratum": "D_pos_multi_object_edit",
+   "root_id": "3ds66-srv-w0036-s018",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     4,
+     4
+    ],
+    "o01": [
+     1,
+     2
+    ]
+   },
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "79daa93eabe243cb42a421ab"
+  },
+  {
+   "manifest_row": "BWL3Y-0068",
+   "stratum": "D_pos_multi_object_edit",
+   "root_id": "3ds66-srv3-w0062-s022",
+   "split": "val",
+   "family": "D",
+   "edit": {
+    "o00": [
+     5,
+     3
+    ],
+    "o01": [
+     5,
+     0
+    ],
+    "o02": [
+     5,
+     1
+    ],
+    "o03": [
+     5,
+     5
+    ]
+   },
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "65ff24194ae10435def75065"
+  },
+  {
+   "manifest_row": "BWL3Y-0069",
+   "stratum": "D_pos_multi_object_edit",
+   "root_id": "3ds66-srv3-w0102-s000",
+   "split": "val",
+   "family": "D",
+   "edit": {
+    "o00": [
+     3,
+     4
+    ],
+    "o01": [
+     1,
+     3
+    ],
+    "o02": [
+     5,
+     4
+    ],
+    "o03": [
+     4,
+     4
+    ]
+   },
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "5c8dcd77517021eb786e074b"
+  },
+  {
+   "manifest_row": "BWL3Y-0070",
+   "stratum": "D_pos_multi_object_edit",
+   "root_id": "3ds66-srv-w0030-s013",
+   "split": "val",
+   "family": "D",
+   "edit": {
+    "o00": [
+     1,
+     0
+    ],
+    "o01": [
+     1,
+     5
+    ]
+   },
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "4bbfe3f14a62a26f5f6a3e9e"
+  },
+  {
+   "manifest_row": "BWL3Y-0071",
+   "stratum": "D_pos_multi_object_edit",
+   "root_id": "3ds66-lap3-w0047-s015",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     4,
+     4
+    ],
+    "o01": [
+     1,
+     3
+    ],
+    "o02": [
+     1,
+     5
+    ]
+   },
+   "y": 1,
+   "negative_kind": null,
+   "witness_id": "ff44df231328a809586e41f6"
+  },
+  {
+   "manifest_row": "BWL3Y-0072",
+   "stratum": "original_neg_certified",
+   "root_id": "3ds66-srv3-w0096-s018",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "y": 0,
+   "negative_kind": "CERTIFIED",
+   "witness_id": null
+  },
+  {
+   "manifest_row": "BWL3Y-0073",
+   "stratum": "original_neg_certified",
+   "root_id": "3ds66-srv-w0023-s008",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "y": 0,
+   "negative_kind": "CERTIFIED",
+   "witness_id": null
+  },
+  {
+   "manifest_row": "BWL3Y-0074",
+   "stratum": "original_neg_certified",
+   "root_id": "3ds66-srv-w0008-s023",
+   "split": "val",
+   "family": "original",
+   "edit": {},
+   "y": 0,
+   "negative_kind": "CERTIFIED",
+   "witness_id": null
+  },
+  {
+   "manifest_row": "BWL3Y-0075",
+   "stratum": "original_neg_certified",
+   "root_id": "3ds66-srv3-w0079-s011",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "y": 0,
+   "negative_kind": "CERTIFIED",
+   "witness_id": null
+  },
+  {
+   "manifest_row": "BWL3Y-0076",
+   "stratum": "original_neg_certified",
+   "root_id": "3ds66-srv-w0024-s023",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "y": 0,
+   "negative_kind": "CERTIFIED",
+   "witness_id": null
+  },
+  {
+   "manifest_row": "BWL3Y-0077",
+   "stratum": "original_neg_certified",
+   "root_id": "3ds66-srv-w0033-s010",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "y": 0,
+   "negative_kind": "CERTIFIED",
+   "witness_id": null
+  },
+  {
+   "manifest_row": "BWL3Y-0078",
+   "stratum": "original_neg_certified",
+   "root_id": "3ds66-srv-w0023-s022",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "y": 0,
+   "negative_kind": "CERTIFIED",
+   "witness_id": null
+  },
+  {
+   "manifest_row": "BWL3Y-0079",
+   "stratum": "original_neg_certified",
+   "root_id": "3ds66-srv-w0021-s002",
+   "split": "val",
+   "family": "original",
+   "edit": {},
+   "y": 0,
+   "negative_kind": "CERTIFIED",
+   "witness_id": null
+  },
+  {
+   "manifest_row": "BWL3Y-0080",
+   "stratum": "original_neg_certified",
+   "root_id": "3ds66-srv3-w0091-s009",
+   "split": "test",
+   "family": "original",
+   "edit": {},
+   "y": 0,
+   "negative_kind": "CERTIFIED",
+   "witness_id": null
+  },
+  {
+   "manifest_row": "BWL3Y-0081",
+   "stratum": "original_neg_certified",
+   "root_id": "3ds66-srv-w0008-s005",
+   "split": "test",
+   "family": "original",
+   "edit": {},
+   "y": 0,
+   "negative_kind": "CERTIFIED",
+   "witness_id": null
+  },
+  {
+   "manifest_row": "BWL3Y-0082",
+   "stratum": "original_neg_certified",
+   "root_id": "3ds66-srv3-w0069-s001",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "y": 0,
+   "negative_kind": "CERTIFIED",
+   "witness_id": null
+  },
+  {
+   "manifest_row": "BWL3Y-0083",
+   "stratum": "original_neg_certified",
+   "root_id": "3ds66-srv-w0032-s003",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "y": 0,
+   "negative_kind": "CERTIFIED",
+   "witness_id": null
+  },
+  {
+   "manifest_row": "BWL3Y-0084",
+   "stratum": "D_neg_certified",
+   "root_id": "3ds66-srv3-w0102-s000",
+   "split": "val",
+   "family": "D",
+   "edit": {
+    "o01": [
+     1,
+     3
+    ]
+   },
+   "y": 0,
+   "negative_kind": "CERTIFIED",
+   "witness_id": null
+  },
+  {
+   "manifest_row": "BWL3Y-0085",
+   "stratum": "D_neg_certified",
+   "root_id": "3ds66-lap-w0011-s023",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o03": [
+     5,
+     4
+    ]
+   },
+   "y": 0,
+   "negative_kind": "CERTIFIED",
+   "witness_id": null
+  },
+  {
+   "manifest_row": "BWL3Y-0086",
+   "stratum": "D_neg_certified",
+   "root_id": "3ds66-lap3-w0059-s009",
+   "split": "test",
+   "family": "D",
+   "edit": {
+    "o02": [
+     5,
+     1
+    ]
+   },
+   "y": 0,
+   "negative_kind": "CERTIFIED",
+   "witness_id": null
+  },
+  {
+   "manifest_row": "BWL3Y-0087",
+   "stratum": "D_neg_certified",
+   "root_id": "3ds66-srv3-w0062-s016",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     5,
+     3
+    ]
+   },
+   "y": 0,
+   "negative_kind": "CERTIFIED",
+   "witness_id": null
+  },
+  {
+   "manifest_row": "BWL3Y-0088",
+   "stratum": "D_neg_certified",
+   "root_id": "3ds66-srv-w0003-s015",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     4,
+     0
+    ]
+   },
+   "y": 0,
+   "negative_kind": "CERTIFIED",
+   "witness_id": null
+  },
+  {
+   "manifest_row": "BWL3Y-0089",
+   "stratum": "D_neg_certified",
+   "root_id": "3ds66-srv3-w0068-s003",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     5,
+     1
+    ]
+   },
+   "y": 0,
+   "negative_kind": "CERTIFIED",
+   "witness_id": null
+  },
+  {
+   "manifest_row": "BWL3Y-0090",
+   "stratum": "D_neg_certified",
+   "root_id": "3ds66-srv3-w0062-s018",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     1,
+     4
+    ]
+   },
+   "y": 0,
+   "negative_kind": "CERTIFIED",
+   "witness_id": null
+  },
+  {
+   "manifest_row": "BWL3Y-0091",
+   "stratum": "D_neg_certified",
+   "root_id": "3ds66-srv3-w0057-s023",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o02": [
+     4,
+     0
+    ]
+   },
+   "y": 0,
+   "negative_kind": "CERTIFIED",
+   "witness_id": null
+  },
+  {
+   "manifest_row": "BWL3Y-0092",
+   "stratum": "D_neg_certified",
+   "root_id": "3ds66-lap-w0016-s017",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o03": [
+     2,
+     5
+    ]
+   },
+   "y": 0,
+   "negative_kind": "CERTIFIED",
+   "witness_id": null
+  },
+  {
+   "manifest_row": "BWL3Y-0093",
+   "stratum": "D_neg_certified",
+   "root_id": "3ds66-srv-w0010-s002",
+   "split": "val",
+   "family": "D",
+   "edit": {
+    "o02": [
+     1,
+     0
+    ]
+   },
+   "y": 0,
+   "negative_kind": "CERTIFIED",
+   "witness_id": null
+  },
+  {
+   "manifest_row": "BWL3Y-0094",
+   "stratum": "D_neg_certified",
+   "root_id": "3ds66-srv3-w0053-s023",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o01": [
+     3,
+     5
+    ]
+   },
+   "y": 0,
+   "negative_kind": "CERTIFIED",
+   "witness_id": null
+  },
+  {
+   "manifest_row": "BWL3Y-0095",
+   "stratum": "D_neg_certified",
+   "root_id": "3ds66-srv3-w0060-s021",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o02": [
+     1,
+     5
+    ]
+   },
+   "y": 0,
+   "negative_kind": "CERTIFIED",
+   "witness_id": null
+  },
+  {
+   "manifest_row": "BWL3Y-0096",
+   "stratum": "original_neg_planner_budget",
+   "root_id": "3ds66-lap-w0003-s020",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "y": 0,
+   "negative_kind": "NO_PLAN_FOUND",
+   "witness_id": null
+  },
+  {
+   "manifest_row": "BWL3Y-0097",
+   "stratum": "original_neg_planner_budget",
+   "root_id": "3ds66-srv-w0027-s013",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "y": 0,
+   "negative_kind": "NO_PLAN_FOUND",
+   "witness_id": null
+  },
+  {
+   "manifest_row": "BWL3Y-0098",
+   "stratum": "original_neg_planner_budget",
+   "root_id": "3ds66-lap-w0011-s007",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "y": 0,
+   "negative_kind": "NO_PLAN_FOUND",
+   "witness_id": null
+  },
+  {
+   "manifest_row": "BWL3Y-0099",
+   "stratum": "original_neg_planner_budget",
+   "root_id": "3ds66-lap-w0013-s013",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "y": 0,
+   "negative_kind": "NO_PLAN_FOUND",
+   "witness_id": null
+  },
+  {
+   "manifest_row": "BWL3Y-0100",
+   "stratum": "original_neg_planner_budget",
+   "root_id": "3ds66-lap-w0013-s007",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "y": 0,
+   "negative_kind": "NO_PLAN_FOUND",
+   "witness_id": null
+  },
+  {
+   "manifest_row": "BWL3Y-0101",
+   "stratum": "original_neg_planner_budget",
+   "root_id": "3ds66-srv-w0037-s003",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "y": 0,
+   "negative_kind": "NO_PLAN_FOUND",
+   "witness_id": null
+  },
+  {
+   "manifest_row": "BWL3Y-0102",
+   "stratum": "original_neg_planner_budget",
+   "root_id": "3ds66-srv-w0000-s010",
+   "split": "test",
+   "family": "original",
+   "edit": {},
+   "y": 0,
+   "negative_kind": "NO_PLAN_FOUND",
+   "witness_id": null
+  },
+  {
+   "manifest_row": "BWL3Y-0103",
+   "stratum": "original_neg_planner_budget",
+   "root_id": "3ds66-srv-w0025-s009",
+   "split": "val",
+   "family": "original",
+   "edit": {},
+   "y": 0,
+   "negative_kind": "NO_PLAN_FOUND",
+   "witness_id": null
+  },
+  {
+   "manifest_row": "BWL3Y-0104",
+   "stratum": "original_neg_planner_budget",
+   "root_id": "3ds66-srv-w0020-s002",
+   "split": "test",
+   "family": "original",
+   "edit": {},
+   "y": 0,
+   "negative_kind": "NO_PLAN_FOUND",
+   "witness_id": null
+  },
+  {
+   "manifest_row": "BWL3Y-0105",
+   "stratum": "original_neg_planner_budget",
+   "root_id": "3ds66-srv-w0000-s018",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "y": 0,
+   "negative_kind": "NO_PLAN_FOUND",
+   "witness_id": null
+  },
+  {
+   "manifest_row": "BWL3Y-0106",
+   "stratum": "original_neg_planner_budget",
+   "root_id": "3ds66-srv-w0030-s003",
+   "split": "val",
+   "family": "original",
+   "edit": {},
+   "y": 0,
+   "negative_kind": "NO_PLAN_FOUND",
+   "witness_id": null
+  },
+  {
+   "manifest_row": "BWL3Y-0107",
+   "stratum": "original_neg_planner_budget",
+   "root_id": "3ds66-srv-w0022-s016",
+   "split": "train",
+   "family": "original",
+   "edit": {},
+   "y": 0,
+   "negative_kind": "NO_PLAN_FOUND",
+   "witness_id": null
+  },
+  {
+   "manifest_row": "BWL3Y-0108",
+   "stratum": "D_neg_planner_budget",
+   "root_id": "3ds66-lap-w0042-s011",
+   "split": "val",
+   "family": "D",
+   "edit": {
+    "o01": [
+     5,
+     4
+    ]
+   },
+   "y": 0,
+   "negative_kind": "NO_PLAN_FOUND",
+   "witness_id": null
+  },
+  {
+   "manifest_row": "BWL3Y-0109",
+   "stratum": "D_neg_planner_budget",
+   "root_id": "3ds66-lap-w0014-s011",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o01": [
+     3,
+     5
+    ]
+   },
+   "y": 0,
+   "negative_kind": "NO_PLAN_FOUND",
+   "witness_id": null
+  },
+  {
+   "manifest_row": "BWL3Y-0110",
+   "stratum": "D_neg_planner_budget",
+   "root_id": "3ds66-srv-w0032-s010",
+   "split": "test",
+   "family": "D",
+   "edit": {
+    "o00": [
+     1,
+     5
+    ]
+   },
+   "y": 0,
+   "negative_kind": "NO_PLAN_FOUND",
+   "witness_id": null
+  },
+  {
+   "manifest_row": "BWL3Y-0111",
+   "stratum": "D_neg_planner_budget",
+   "root_id": "3ds66-srv3-w0068-s023",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     4,
+     4
+    ]
+   },
+   "y": 0,
+   "negative_kind": "NO_PLAN_FOUND",
+   "witness_id": null
+  },
+  {
+   "manifest_row": "BWL3Y-0112",
+   "stratum": "D_neg_planner_budget",
+   "root_id": "3ds66-srv-w0034-s023",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     2,
+     4
+    ]
+   },
+   "y": 0,
+   "negative_kind": "NO_PLAN_FOUND",
+   "witness_id": null
+  },
+  {
+   "manifest_row": "BWL3Y-0113",
+   "stratum": "D_neg_planner_budget",
+   "root_id": "3ds66-lap-w0014-s011",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o03": [
+     5,
+     3
+    ]
+   },
+   "y": 0,
+   "negative_kind": "NO_PLAN_FOUND",
+   "witness_id": null
+  },
+  {
+   "manifest_row": "BWL3Y-0114",
+   "stratum": "D_neg_planner_budget",
+   "root_id": "3ds66-lap-w0025-s004",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o00": [
+     1,
+     0
+    ]
+   },
+   "y": 0,
+   "negative_kind": "NO_PLAN_FOUND",
+   "witness_id": null
+  },
+  {
+   "manifest_row": "BWL3Y-0115",
+   "stratum": "D_neg_planner_budget",
+   "root_id": "3ds66-srv-w0023-s006",
+   "split": "val",
+   "family": "D",
+   "edit": {
+    "o01": [
+     1,
+     1
+    ]
+   },
+   "y": 0,
+   "negative_kind": "NO_PLAN_FOUND",
+   "witness_id": null
+  },
+  {
+   "manifest_row": "BWL3Y-0116",
+   "stratum": "D_neg_planner_budget",
+   "root_id": "3ds66-srv-w0024-s001",
+   "split": "val",
+   "family": "D",
+   "edit": {
+    "o02": [
+     4,
+     0
+    ]
+   },
+   "y": 0,
+   "negative_kind": "NO_PLAN_FOUND",
+   "witness_id": null
+  },
+  {
+   "manifest_row": "BWL3Y-0117",
+   "stratum": "D_neg_planner_budget",
+   "root_id": "3ds66-srv-w0034-s022",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o01": [
+     5,
+     1
+    ]
+   },
+   "y": 0,
+   "negative_kind": "NO_PLAN_FOUND",
+   "witness_id": null
+  },
+  {
+   "manifest_row": "BWL3Y-0118",
+   "stratum": "D_neg_planner_budget",
+   "root_id": "3ds66-srv3-w0056-s015",
+   "split": "val",
+   "family": "D",
+   "edit": {
+    "o01": [
+     4,
+     0
+    ]
+   },
+   "y": 0,
+   "negative_kind": "NO_PLAN_FOUND",
+   "witness_id": null
+  },
+  {
+   "manifest_row": "BWL3Y-0119",
+   "stratum": "D_neg_planner_budget",
+   "root_id": "3ds66-srv3-w0092-s005",
+   "split": "train",
+   "family": "D",
+   "edit": {
+    "o01": [
+     1,
+     4
+    ]
+   },
+   "y": 0,
+   "negative_kind": "NO_PLAN_FOUND",
+   "witness_id": null
+  }
+ ],
+ "sha256_of_rows": "791f5e95b61b0b28c057849da8709a4c1488cfb0bba6a1a3040068bc581fa3f3"
+}

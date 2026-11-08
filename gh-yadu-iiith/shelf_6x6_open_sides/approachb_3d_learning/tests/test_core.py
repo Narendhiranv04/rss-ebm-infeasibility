@@ -76,12 +76,26 @@ def test_guard_queue_pending_and_never_signals_foreign(tmp_path):
     assert not G.is_ours(1) and not G.is_ours(os.getppid())
 
 
+def test_every_gpu_entry_point_is_stoppable_by_its_watchdog():
+    """BWL-0 regression: a script that calls preflight must be in guard.OUR_SCRIPTS, or its watchdog could log but never stop it."""
+    users = sorted(p.name for p in SRC.glob("*.py") if p.name not in ("train.py", "guard.py") and "preflight(" in p.read_text())
+    assert users and all(f"src/{n}" in G.OUR_SCRIPTS and str(SRC / n) in G.OUR_SCRIPTS for n in users), users
+
+
+def test_categorical_control_is_legal_and_normalized():
+    f, m, occ, leg = enc_in(CELLS)
+    net = Mo.build("cat", {"hidden": 32})
+    d, _ = net.sample(f, m, occ, leg, 64)
+    lp = net.logits(f, m, occ, leg).log_softmax(-1)
+    assert bool(leg.gather(1, d).all()) and torch.allclose(lp.exp().sum(-1), torch.ones(1))
+
+
 def test_dry_run_hides_cuda_before_torch_import():
     code = "import sys; sys.argv=['train.py','--dry-run']; sys.path.insert(0, %r); import train, torch; print(torch.cuda.is_available())" % str(SRC)
     out = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, timeout=120)
     assert out.stdout.strip().splitlines()[-1] == "False", out.stderr
 
 
-def test_xy_exact_math_and_arms():
-    r = XY.selftest("cpu")
+def test_xy_exact_math():
+    r = XY.selftest()
     assert r["pass"], json.dumps(r)[:2000]
