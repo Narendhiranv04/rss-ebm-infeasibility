@@ -3,7 +3,8 @@
 **Basis.**
 - Scientific authority: `final-fixed-methodology-1.pdf` (5 Nov 2026, sha256 `b7a39e3c…`), read in full.
 - Engineering contract: `BLACKWELL_APPROACH_B_EXECUTION_CONTRACT_v1.md`.
-- Base commit: `3a820819` on `naren/approachb-3d-learning`. The BWL commit is its child; source hashes are in `08`, `10` and `12_BLACKWELL_READINESS_DECISION.json`.
+- Base commit: `3a820819` on `naren/approachb-3d-learning`.
+- **BWL commit: `69a6eeb8cc4b2b725ce23839dee8a44f1f3b2e38`**, pushed; `git ls-remote` confirmed the remote head equals it. Source hashes are in `08`, `10` and `12_BLACKWELL_READINESS_DECISION.json`.
 
 **Scope.** Only BWL-0 to BWL-4 were executed. **BWL-5 to BWL-8 were not started** and need your explicit authorization.
 
