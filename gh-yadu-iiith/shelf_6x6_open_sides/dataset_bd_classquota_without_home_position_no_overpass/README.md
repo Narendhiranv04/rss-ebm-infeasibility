@@ -6,7 +6,7 @@ This is a dataset of shelf rearrangement problems for an xArm7 in MuJoCo, built 
 - **Without home position:** the arm never returns to its ready pose between moves.
 - **No overpass:** the arm and hand never pass over an obstacle, and over the shelf they stay below the tallest object's top + 10 cm (arm ceiling).
 
-## Status: in progress (snapshot of 6 Nov 2026, 23:24 IST)
+## Status: in progress (K3 completed 8 Nov 2026; NONE and K4 still open)
 
 Generation is still running on the lab server. This commit holds everything generated so far. The data will be updated here when the class quotas are met.
 
@@ -16,9 +16,9 @@ Generation is still running on the lab server. This commit holds everything gene
 | K0 | T reaches its goal directly | 511 | 511 ✔ |
 | K1 | 1 object must be moved first | 357 | 357 ✔ |
 | K2 | 2 objects | 357 | 357 ✔ |
-| K3 | 3 objects | 264 | 357 |
+| K3 | 3 objects | 357 | 357 ✔ |
 | K4 | 4 objects | 0 | 510 |
-| **Total** | | **1,492** | **2,500** |
+| **Total** | | **1,585** | **2,500** |
 
 The quotas are the class shares of the 1,225-scene open-tabletop dataset (`../../open_tabletop/dataset_bd_classquota/`), scaled by 2500 / 1225 and rounded by largest remainder. `selected.json` lists the counted scene ids per class.
 
@@ -49,11 +49,11 @@ The code commit (9e64069) held the SHELF66V2 generator. That version had a plann
 
 ## The raw ledger so far
 
-`raw/ledger.jsonl` has one line per attempt: 2,125 lines, all labelled by generator `BD_GEN_V1+ROUTE_V15+SHELF66V3`. Of these, 1,088 are re-taught V2 scenes and 1,037 are new.
+`raw/ledger.jsonl` has one line per attempt: 2,218 lines, all labelled by generator `BD_GEN_V1+ROUTE_V15+SHELF66V3`. Of these, 1,088 are re-taught V2 scenes and 1,130 are new. It holds the lines of the roots in the selection; the run's full ledger has more.
 
 | Outcome | Lines |
 |---|---|
-| K0 / K1 / K2 / K3 | 540 / 405 / 396 / 264 |
+| K0 / K1 / K2 / K3 | 540 / 405 / 396 / 357 |
 | NONE (audit-confirmed) | 4 |
 | NONE_SOLVABLE / NONE_UNAUDITED | 28 / 1 |
 | DEPENDENT | 50 |
@@ -133,5 +133,6 @@ Live controls in the run folder, with no restart needed:
 
 ## Open points
 
-- **NONE (3 of 408):** with the fixed planner, random cluttered K0-type scenes almost never give a confirmed NONE (about 1 %), and the few that do are fragile: in three of the four, removing one single object frees T, and they only count because that object cannot be relocated. A new construction is being built: every grasp direction of T is blocked by at least 5 objects that each block it on their own, so that no 4 moves (not even removing 4 objects outright) can free T. It will be added with its own version string.
+- **NONE (3 of 408, to be replaced):** the 3 NONE scenes counted here were later found to be K1 (the V3 audit tried too few parking cells), so none of them will stay. A new certified NONE set is being built and will replace them.
+- **NONE, earlier notes:** with the fixed planner, random cluttered K0-type scenes almost never give a confirmed NONE (about 1 %), and the few that do are fragile: in three of the four, removing one single object frees T, and they only count because that object cannot be relocated. A new construction is being built: every grasp direction of T is blocked by at least 5 objects that each block it on their own, so that no 4 moves (not even removing 4 objects outright) can free T. It will be added with its own version string.
 - **K4 (0 of 510):** no K4 construction has succeeded on this shelf (V2 + V3: 0 of 36, all at the construction time cap). A 2-hour test that allowed ordered moves (front blocker first) found 0 as well: of 113 layouts checked, none could be cleared even front to back. Every feasible grasp direction has to be blocked 4 times, which needs 8–15 objects packed around the start and goal. With the arm reaching in only from the front, the inner blockers can then not be reached or parked. Whether K4 stays in the quota is still to be decided.
