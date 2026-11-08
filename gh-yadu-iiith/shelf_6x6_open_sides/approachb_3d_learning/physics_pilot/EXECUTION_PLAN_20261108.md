@@ -44,3 +44,8 @@
   - Reproduced identically on gvlab and on Blackwell P- and E-cores (`results_r1_diag/`).
   - **User approved ~18:35 IST:** such subtype-only mismatches are non-blocking (`bwlsuper.subtype_only`). The item stays MISSING and is listed under `nonblocking_negative_subtype_mismatch`. Every other discrepancy still stops the run.
   - Resumed at 13:05Z with `13-36,46-52` on E-cores 8–19.
+- **13:27Z, yield stop.**
+  - The guard yielded to sajid's `bigbox_cpu.q` (6 pending `a7_sgt` jobs) at CHUNK015, 203/205 items, 23/52 chunks done. The stop was clean.
+  - `guard_events/yield_1_sajid_queue/` archived; the partial record was moved.
+  - The queue was clear by ~14:00Z. Resumed at 14:03Z with `15-36,46-52`.
+  - The local wait-probe self-matched the yadu pattern, so it was replaced by `yield_probe.py`, which applies the same rule as the guard.
