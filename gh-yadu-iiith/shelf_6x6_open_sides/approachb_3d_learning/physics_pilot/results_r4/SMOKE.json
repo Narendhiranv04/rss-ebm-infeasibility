@@ -1,0 +1,107 @@
+{
+ "label": "DEVELOPMENT-ONLY ONE-SEED SMOKE on authentic BD3DS66 labels; not a D/E/DIRECT/G result",
+ "train": {
+  "lr": 0.001,
+  "wd": 0.0001,
+  "clip": 10.0,
+  "batch_roots": 12,
+  "max_updates": 3000,
+  "eval_every": 20,
+  "patience": 15,
+  "seed": 0
+ },
+ "counts": {
+  "roots": {
+   "train": 1035,
+   "val": 225
+  },
+  "x": {
+   "train": 5471,
+   "val": 1115
+  },
+  "x0": {
+   "train": 683,
+   "val": 134
+  },
+  "x1": {
+   "train": 4788,
+   "val": 981
+  },
+  "y0": {
+   "train": 3139,
+   "val": 643
+  },
+  "y1": {
+   "train": 1791,
+   "val": 392
+  },
+  "cells": {
+   "train|X1Y0": 1402,
+   "train|X1Y1": 1119,
+   "train|X0Y0": 203,
+   "val|X1Y0": 295,
+   "val|X1Y1": 253,
+   "train|X0Y1": 120,
+   "val|X0Y0": 43,
+   "val|X0Y1": 25
+  }
+ },
+ "arms": {
+  "D": {
+   "val": {
+    "nll_objective": 2.183547258377075,
+    "success_logloss": 0.20373056828975677,
+    "success_events": 682,
+    "x_marginal_logloss": 0.23098674416542053,
+    "y_logloss": 0.22198396921157837
+   },
+   "best_update": 1460,
+   "updates": 1760,
+   "wall_s": 16.0,
+   "params": 469895
+  },
+  "E": {
+   "val": {
+    "nll_objective": 2.154175281524658,
+    "success_logloss": 0.20743630826473236,
+    "success_events": 682,
+    "x_marginal_logloss": 0.22082313895225525,
+    "y_logloss": 0.2304074764251709
+   },
+   "best_update": 1700,
+   "updates": 2000,
+   "wall_s": 17.7,
+   "params": 469895
+  },
+  "DIRECT-GEO": {
+   "val": {
+    "nll_objective": 0.9318138957023621,
+    "success_logloss": 0.2088157683610916,
+    "success_events": 682
+   },
+   "best_update": 620,
+   "updates": 920,
+   "wall_s": 6.9,
+   "params": 469895
+  },
+  "G": {
+   "val": {
+    "nll_objective": 2.1706011295318604,
+    "success_logloss": 0.19666197896003723,
+    "success_events": 682,
+    "x_marginal_logloss": 0.23426291346549988,
+    "y_logloss": 0.21758230030536652
+   },
+   "best_update": 1840,
+   "updates": 2140,
+   "wall_s": 19.2,
+   "params": 469895
+  }
+ },
+ "device": "NVIDIA RTX PRO 5000 Blackwell",
+ "peak_vram_mb": 64.1,
+ "affinity": [
+  7
+ ],
+ "watchdog_stop": false
+}

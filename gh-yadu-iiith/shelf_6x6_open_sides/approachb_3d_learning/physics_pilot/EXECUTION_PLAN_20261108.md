@@ -53,3 +53,14 @@
   - Item `05116`: the archived CERTIFIED negative can now be planned by the pinned teacher. gvlab and Blackwell agree.
   - **User approved ~20:05 IST:** the non-blocking category `nonblocking_negative_not_reconfirmed` (`bwlsuper.negative_not_reconfirmed`). The item stays MISSING.
   - Resumed at 14:53:40Z with `27-36,46-52`.
+- **15:36Z, R1 DONE.**
+  - 52/52 chunks; 0 blocking discrepancies; **19.56 / 60 CPU-h**.
+  - Finals across the 9,988 items: 6,528 X1_VERIFIED, 862 X0 relocation reconfirmed, 67 X0 stop-connector, 2,527 Y1 replay-verified, 4 MISSING. Of the MISSING: 3 subtype-only and 1 not reconfirmed, both kinds user-approved non-blocking.
+- **15:37Z, step 4 DONE.**
+  - Sidecar V1 (`results_r4/BD3DS66_XY_SIDECAR_V1.json.gz`, built from S1 + S2C000 + R1 + R2): 7,656 X / 7,072 Y, 0 conflicts.
+  - The intake gate PASSES on every check. Train: 1,035 roots, 5,471 X, 683 X0, min cell 120. Val: 225 roots, 1,115 X. Test roots used: 0.
+  - Dev-only one-seed smoke of D/E/DIRECT-GEO/G on GPU 0 + CPU 7: about 1 GPU-min, 64 MB VRAM, no watchdog stop (`results_r4/SMOKE.json`). It is not a result and makes no superiority claim.
+- **Next:**
+  - Step 5 at Nov 9 ~14:00 IST: drain the laptop Q2 to gvlab.
+  - Step 6: R5 reports.
+  - Blackwell: nothing of mine running.
