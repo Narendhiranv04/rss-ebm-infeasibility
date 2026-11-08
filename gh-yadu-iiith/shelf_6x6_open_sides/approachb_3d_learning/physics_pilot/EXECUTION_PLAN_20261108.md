@@ -26,3 +26,16 @@
 - Q2: CPUs 0–11 workers + 12–13 reserved.
 - Mine: CPUs 16–17.
 - **8 free**, which satisfies the rule.
+
+## Progress log
+
+- **12:22Z, step 2 DONE.** Blackwell free (yadu 0 procs, 27 °C). The parity sample (18 items, 34 teacher/replay records) gave **PASS**: 34/34 labels and 34/34 per-move steps agree with gvlab. Max z_err diff 7.4e-7 m; max final-state diff 2.7e-5, which is cross-CPU floating point. Result: `results_parity/PARITY_BLACKWELL_VS_GVLAB.json` (`compare_parity.py`).
+- **12:26Z, step 3 DONE.**
+  - gvlab `STOP_REQUESTED`. Workers finished their items; CHUNK009 stopped at 178/191 on gvlab, the expected handover INCOMPLETE.
+  - `out_r1` copied to Blackwell (4,589 files, sha256 verified). The partial record moved to `handover_partial_records` so finals are not double-counted.
+  - Blackwell resumed with order `9-12,37-45,13-36,46-52`. CHUNK009 and CHUNK010 finished with 0 discrepancies, at about 2 min/chunk.
+- **12:30Z, thermal finding.**
+  - The Core Ultra 9 285K P-cores (CPUs 0–7) push the package to 85–87 °C within seconds. The TEMP guard stopped CHUNK011 cleanly at 157/222 (no item lost). The partial record was archived, along with `guard_events/thermal_1_pcores/`.
+  - **Restarted at 12:33Z on E-cores 8–19 (12 workers):** package 59–63 °C. P-cores 0–6 idle, CPU 7 kept for the GPU job, CPUs 20–23 free. ≥ 12 cores are idle, so the core rule holds.
+  - **12 E-core workers is the ceiling.** Adding P-cores trips the guard.
+- gvlab now runs only Q2 (my CPUs 16–17 released), so it has 10 free cores.

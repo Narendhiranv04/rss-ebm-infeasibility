@@ -54,13 +54,15 @@ def main():
             state("STOPPED_WALLCAP", next=phase); return
         if any(out.glob("STOP_*")):
             state("STOPPED_EXISTING_STOP_FILE", files=[p.name for p in out.glob("STOP_*")]); return
-        state("RUNNING", chunk=phase, cpu_h=used)
+        if (out / "CPUS").exists():                                           # owner may rescale between chunks (thermal / idle-core rule)
+            cpus = (out / "CPUS").read_text().split()[0].split(",")
+        state("RUNNING", chunk=phase, cpu_h=used, cpus=cpus)
         t0, wall_left = time.time(), int(a.wall_cap_h * 3600 - (time.time() - ledger["t0"]))
         procs = [subprocess.Popen(["taskset", "-c", cpus[i], "nice", "-n", "19", "ionice", "-c3", py, str(HERE / "bwlphys.py"), "work", "--manifest", a.manifest,
                                    "--phase", phase, "--shard", f"{i}/{len(cpus)}", "--out", str(out), "--wall-cap-s", str(max(60, wall_left)),
                                    "--host-guard", a.host_guard],
                                   stdout=open(out / f"worker_{phase}_{i}.log", "a"), stderr=subprocess.STDOUT) for i in range(len(cpus))]
-        state("RUNNING", chunk=phase, workers=[p.pid for p in procs], cpu_h=used)
+        state("RUNNING", chunk=phase, workers=[p.pid for p in procs], cpu_h=used, cpus=cpus)
         for p in procs:
             p.wait()
         summ = out / f"SUMMARY_{phase}.json"
