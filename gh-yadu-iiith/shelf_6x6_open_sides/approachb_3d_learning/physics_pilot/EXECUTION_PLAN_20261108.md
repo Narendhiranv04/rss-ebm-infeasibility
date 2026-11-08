@@ -49,3 +49,7 @@
   - `guard_events/yield_1_sajid_queue/` archived; the partial record was moved.
   - The queue was clear by ~14:00Z. Resumed at 14:03Z with `15-36,46-52`.
   - The local wait-probe self-matched the yadu pattern, so it was replaced by `yield_probe.py`, which applies the same rule as the guard.
+- **14:29Z, discrepancy stop at CHUNK026 (35/52 done).**
+  - Item `05116`: the archived CERTIFIED negative can now be planned by the pinned teacher. gvlab and Blackwell agree.
+  - **User approved ~20:05 IST:** the non-blocking category `nonblocking_negative_not_reconfirmed` (`bwlsuper.negative_not_reconfirmed`). The item stays MISSING.
+  - Resumed at 14:36Z with `27-36,46-52`.

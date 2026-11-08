@@ -15,6 +15,21 @@ HERE = Path(__file__).resolve().parent
 OK = ("X1_VERIFIED", "X0_RELOCATION_FAILED_RECONFIRMED", "Y1_REPLAY_VERIFIED", "X0_STOP_CONNECTOR_NO_PLAN", "X0_STOP_CONNECTOR_FAILED")
 
 
+def negative_not_reconfirmed(out, r):
+    """User-approved 2026-11-08 ~20:05 IST: an X item whose stored attempt failed at PLANNING (CERTIFIED / NO_PLAN_FOUND) but where the pinned
+    teacher's re-query now FINDS a plan, with every earlier step agreeing with the record.  The archived negative is not re-confirmed: the item
+    stays MISSING (no X0, no X1), is listed separately in the ledger, and does not stop the run."""
+    if r["final"] != "MISSING_RELOCATION_MISMATCH_WITH_RECORD":
+        return False
+    try:
+        steps = json.loads((out / "items" / f"{r['item']}.teacher.json").read_text())["steps"]
+    except (OSError, ValueError, KeyError):
+        return False
+    st = steps[-1] if steps else {}
+    return (st.get("failure") == "PLANNING" and st.get("replan_found") is True and st.get("recorded_kind") in ("CERTIFIED", "NO_PLAN_FOUND")
+            and all(x.get("agrees_with_record") for x in steps[:-1]))
+
+
 def subtype_only(out, r):
     """User-approved 2026-11-08 ~18:35 IST: an X item whose stored attempt failed at PLANNING, whose re-query STILL finds no plan, and whose only
     difference from the record is the negative subtype (NO_PLAN_FOUND vs CERTIFIED) is non-blocking.  It stays MISSING (no label) and is listed
@@ -83,16 +98,16 @@ def main():
         subprocess.run([py, "-I", str(HERE / "summarize_s1.py"), a.manifest, str(out), str(summ)], stdout=subprocess.DEVNULL, check=False)
         s = json.loads(summ.read_text())
         rows = [r for r in s["rows"] if r["phase"] == phase]
-        bad, nonblock = [], []
+        bad, nonblock, notreconf = [], [], []
         for r in rows:
             if r["final"] in OK or r["final"].startswith("Y0_RECONFIRMED"):
                 continue
-            (nonblock if subtype_only(out, r) else bad).append(r["item"] + ":" + r["final"])
+            (nonblock if subtype_only(out, r) else notreconf if negative_not_reconfirmed(out, r) else bad).append(r["item"] + ":" + r["final"])
         n_expect = sum(1 for x in json.loads(Path(a.manifest).read_text())["items"] if x["phase"] == phase)
         if len(rows) < n_expect:
             bad.append(f"INCOMPLETE_CHUNK:{len(rows)}/{n_expect}")
         rec = {"chunk": phase, "items": len(rows), "finals": {}, "wall_s": round(time.time() - t0, 1), "cpu_h_cumulative": round(cpu_used(out), 4),
-               "discrepancies": bad, "nonblocking_negative_subtype_mismatch": nonblock, "utc_end": time.strftime("%FT%TZ", time.gmtime())}
+               "discrepancies": bad, "nonblocking_negative_subtype_mismatch": nonblock, "nonblocking_negative_not_reconfirmed": notreconf, "utc_end": time.strftime("%FT%TZ", time.gmtime())}
         for r in rows:
             rec["finals"][r["final"]] = rec["finals"].get(r["final"], 0) + 1
         ledger["chunks"].append(rec); ledger_f.write_text(json.dumps(ledger, indent=1))
