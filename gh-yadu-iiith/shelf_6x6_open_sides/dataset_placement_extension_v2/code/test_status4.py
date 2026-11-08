@@ -119,6 +119,20 @@ def test_2d_states_drained_for_handoff_and_local_spillover_backup(monkeypatch, t
     assert s["state"] == "DRAINED_FOR_HANDOFF" and s["job"] == "J" and s["teacher_queries_packed"] == 1
     (run / "status.json").write_text(json.dumps({"final": True, "stop": "SWAP"}))
     assert S.state_2d(run, "x", "J")["state"] == "STOPPED_INCOMPLETE"             # a safety stop stays a stop even with DRAIN present
+    monkeypatch.setattr(S, "HANDOFF2D", tmp_path / "owner_map.json")
+    assert S.state_2d(run, "full_2d_v2", "J")["state"] == "STOPPED_INCOMPLETE"    # ... until the owner map is frozen (the stop was ACKed)
+    S.HANDOFF2D.write_text("{}")
+    assert S.state_2d(run, "full_2d_v2", "J")["state"] == "HANDED_OFF"
+    assert not any(f.startswith("STOPPED_2D") for f in S.health(None, S.state_2d(run, "full_2d_v2", "J"), {}, {}, {})["flags"])
+    # a scoped coordinator whose long path pushes "laptop-run" past the 160-char display cut is still RUNNING (2026-11-08 false STOPPED flags)
+    long = "/x" * 90 + "/venv/bin/python /very/long/q2_spillover/spill2d.py laptop-run"
+    p = subprocess.Popen(["bash", "-c", f"exec -a '{long}' sleep 30"])
+    try:
+        time.sleep(0.4)
+        s = S.state_2d(run, "remainder_laptop", "J")
+        assert s["state"] == "RUNNING" and [c["pid"] for c in s["coordinator_processes"]] == [p.pid], s["coordinator_processes"]
+    finally:
+        p.kill(); p.wait()
     dst = tmp_path / "dst"
     b = S.backup_packed_local(run, dst)
     assert b["state"] == "VERIFIED" and b["roots_verified"] == 1 and S.sha(dst / "records/r1.json") == S.sha(run / "records/r1.json")

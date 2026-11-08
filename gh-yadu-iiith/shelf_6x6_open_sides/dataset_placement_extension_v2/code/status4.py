@@ -38,6 +38,7 @@ BACKUP2D = os.environ.get("PLACEMENT2D_BACKUP", "/ssd_scratch/nav_placement2d_ba
 REMOTE = os.environ.get("STATUS4_REMOTE", "gvlab")
 REM2D = RUN2D.parent / "q2_spillover/runs/remainder_laptop"                       # laptop 2D remainder (after a verified handoff only)
 SPILL_STATE = RUN2D.parent / "q2_spillover/state/QUEUE_TRIGGER_STATUS.json"
+HANDOFF2D = RUN2D.parent / "q2_spillover/handoff/HANDOFF_ROOT_OWNER_MANIFEST.json"  # frozen owner map: after it the original run is immutable
 G_SPILL_RUN = HOME / "approachb3d_v3/2d_q2_spillover/src/gh-yadu-iiith/planar_2d/dataset_relocations_v1/launch_ready_2d_v2_gvlab/runs/spillover_gvlab"
 BACKUP2D_BASE = "/ssd_scratch/nav_placement2d_backup"
 MIRROR2D_SPILL = HOME / "Desktop/placement2d_spillover_mirror/spillover_gvlab"
@@ -286,7 +287,8 @@ def state_2d(run=None, tag="full_2d_v2", job="2D_Q2_LAPTOP_ORIGINAL"):
             c = cmdline(d.name)
             if ("launch_runner.py" in c and (" full " in c or " guard " in c) and tag == "full_2d_v2") or \
                     ("spill2d.py laptop-run" in c and tag == "remainder_laptop") or ("spill2d.py server-run --scope SPILLOVER" in c and tag == "spillover_gvlab"):
-                procs.append({"pid": int(d.name), "cmd": c[:160]})
+                # decide "coordinator" on the FULL command line: the scoped runs' long paths push "laptop-run" / "server-run" past any display cut
+                procs.append({"pid": int(d.name), "cmd": c[:160], "coordinator": " full " in c or "spill2d.py laptop-run" in c or "spill2d.py server-run" in c})
     s = {"utc": utc(), "t": time.time(), "host": os.uname().nodename, "job": job, "run_dir": str(run), "run_dir_exists": run.exists(),
          "coordinator_processes": procs, "cpu_boost": (Path("/sys/devices/system/cpu/cpufreq/boost").read_text().strip()
                                                       if Path("/sys/devices/system/cpu/cpufreq/boost").exists() else None)}
@@ -313,9 +315,11 @@ def state_2d(run=None, tag="full_2d_v2", job="2D_Q2_LAPTOP_ORIGINAL"):
     atomic(cache_p, json.dumps(cache))
     agg = {k: sum(cache[r][k] for r in roots) for k in ("q", "teacher", "1", "0", "null", "w")}
     stopped = st.get("final") and st.get("stop")
-    coord = [p for p in procs if " full " in p["cmd"] or "laptop-run" in p["cmd"] or "server-run" in p["cmd"]]
+    coord = [p for p in procs if p["coordinator"]]
     st_age = time.time() - Path(run / "status.json").stat().st_mtime if (run / "status.json").exists() else None
+    handed = tag == "full_2d_v2" and st.get("final") and (run / "DRAIN").exists() and HANDOFF2D.exists()   # owner map frozen (any stop was ACKed)
     s.update(state="RUNNING" if coord else ("COMPLETED" if st.get("final") and not st.get("stop") and len(roots) >= man["roots"] else
+                                              "HANDED_OFF" if handed else
                                               "DRAINED_FOR_HANDOFF" if st.get("final") and not st.get("stop") and (run / "DRAIN").exists() else
                                               "STOPPED_INCOMPLETE"),
              manifest={k: man.get(k) for k in ("scope", "budget_hash", "pair_protocol_id", "config_sha256", "tasks_sha256", "roots", "queries")},
@@ -412,7 +416,7 @@ def health(s3, s2, b2, m3, relay_state):
         flags.append(f"STOPPED_2D: {s2.get('stop_reason')}")
     if s2.get("state") == "RUNNING" and (s2.get("status_age_s") or 0) > STALE_S:
         flags.append("STALE_2D: runner status.json not updated for > 20 min")
-    if s2.get("state") in ("RUNNING", "COMPLETED", "STOPPED_INCOMPLETE", "DRAINED_FOR_HANDOFF") and (
+    if s2.get("state") in ("RUNNING", "COMPLETED", "STOPPED_INCOMPLETE", "DRAINED_FOR_HANDOFF", "HANDED_OFF") and (
             b2.get("state") != "VERIFIED" or s2.get("roots_packed", 0) - b2.get("roots_verified_on_destination", 0) > LAG_UNITS
             or now - b2.get("t", 0) > LAG_S):
         flags.append(f"BACKUP_LAGGING_2D: {b2.get('state')}, {round((now - b2.get('t', 0)) / 60)} min since the last 2D backup run")
