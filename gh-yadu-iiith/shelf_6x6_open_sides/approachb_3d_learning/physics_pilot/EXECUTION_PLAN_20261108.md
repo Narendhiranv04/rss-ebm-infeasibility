@@ -39,3 +39,8 @@
   - **Restarted at 12:33Z on E-cores 8–19 (12 workers):** package 59–63 °C. P-cores 0–6 idle, CPU 7 kept for the GPU job, CPUs 20–23 free. ≥ 12 cores are idle, so the core rule holds.
   - **12 E-core workers is the ceiling.** Adding P-cores trips the guard.
 - gvlab now runs only Q2 (my CPUs 16–17 released), so it has 10 free cores.
+- **12:57Z, discrepancy stop at CHUNK045 (21/52 done).**
+  - Item `S2X-…-08710`: the X0 label agrees, but the negative subtype does not. The record says NO_PLAN_FOUND; the pinned teacher's re-query says CERTIFIED (all 32 grasps fail geometric checks).
+  - Reproduced identically on gvlab and on Blackwell P- and E-cores (`results_r1_diag/`).
+  - **User approved ~18:35 IST:** such subtype-only mismatches are non-blocking (`bwlsuper.subtype_only`). The item stays MISSING and is listed under `nonblocking_negative_subtype_mismatch`. Every other discrepancy still stops the run.
+  - Resumed at 13:05Z with `13-36,46-52` on E-cores 8–19.

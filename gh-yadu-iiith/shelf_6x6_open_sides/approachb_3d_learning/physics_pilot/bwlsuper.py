@@ -15,6 +15,20 @@ HERE = Path(__file__).resolve().parent
 OK = ("X1_VERIFIED", "X0_RELOCATION_FAILED_RECONFIRMED", "Y1_REPLAY_VERIFIED", "X0_STOP_CONNECTOR_NO_PLAN", "X0_STOP_CONNECTOR_FAILED")
 
 
+def subtype_only(out, r):
+    """User-approved 2026-11-08 ~18:35 IST: an X item whose stored attempt failed at PLANNING, whose re-query STILL finds no plan, and whose only
+    difference from the record is the negative subtype (NO_PLAN_FOUND vs CERTIFIED) is non-blocking.  It stays MISSING (no label) and is listed
+    in the ledger; every other discrepancy still stops the run."""
+    if r["final"] != "MISSING_RELOCATION_MISMATCH_WITH_RECORD":
+        return False
+    try:
+        st = json.loads((out / "items" / f"{r['item']}.teacher.json").read_text())["steps"][-1]
+    except (OSError, ValueError, KeyError, IndexError):
+        return False
+    return (st.get("failure") == "PLANNING" and st.get("replan_found") is False and st.get("kind") != st.get("recorded_kind")
+            and {st.get("kind"), st.get("recorded_kind")} == {"CERTIFIED", "NO_PLAN_FOUND"})
+
+
 def cpu_used(out):
     t = 0.0
     for f in glob.glob(str(out / "items" / "*.json")):
@@ -69,12 +83,16 @@ def main():
         subprocess.run([py, "-I", str(HERE / "summarize_s1.py"), a.manifest, str(out), str(summ)], stdout=subprocess.DEVNULL, check=False)
         s = json.loads(summ.read_text())
         rows = [r for r in s["rows"] if r["phase"] == phase]
-        bad = [r["item"] + ":" + r["final"] for r in rows if r["final"] not in OK and not r["final"].startswith("Y0_RECONFIRMED")]
+        bad, nonblock = [], []
+        for r in rows:
+            if r["final"] in OK or r["final"].startswith("Y0_RECONFIRMED"):
+                continue
+            (nonblock if subtype_only(out, r) else bad).append(r["item"] + ":" + r["final"])
         n_expect = sum(1 for x in json.loads(Path(a.manifest).read_text())["items"] if x["phase"] == phase)
         if len(rows) < n_expect:
             bad.append(f"INCOMPLETE_CHUNK:{len(rows)}/{n_expect}")
         rec = {"chunk": phase, "items": len(rows), "finals": {}, "wall_s": round(time.time() - t0, 1), "cpu_h_cumulative": round(cpu_used(out), 4),
-               "discrepancies": bad, "utc_end": time.strftime("%FT%TZ", time.gmtime())}
+               "discrepancies": bad, "nonblocking_negative_subtype_mismatch": nonblock, "utc_end": time.strftime("%FT%TZ", time.gmtime())}
         for r in rows:
             rec["finals"][r["final"]] = rec["finals"].get(r["final"], 0) + 1
         ledger["chunks"].append(rec); ledger_f.write_text(json.dumps(ledger, indent=1))
