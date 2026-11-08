@@ -4,14 +4,23 @@
   "utc": "2026-11-07T19:33:06Z",
   "reason": "SWAP (swap_growth_mb 568 > max_swap_growth_mb 512); mem_available_mb 12,077; temp 69 C; no other guard near its limit",
   "run_record": "full_2d_v2/run_1794070906.json: stop SWAP, finished_now 8,430, interrupted 25 (completed=false, re-run on resume), roots_packed 200, leftover_descendants 0",
-  "swap_growth_trajectory_mb": {"17:02:02Z (25 workers starting)": 269, "19:08:34-36Z": "363 -> 439", "19:11:07Z": 480, "19:33:06Z": 568},
+  "swap_growth_trajectory_mb": {
+   "17:02:02Z (25 workers starting)": 269,
+   "19:08:34-36Z": "363 -> 439",
+   "19:11:07Z": 480,
+   "19:33:06Z": 568
+  },
   "context": "the 19:08Z step came just after the 3D v4 collection finished (19:02Z) and the 19:06Z status4 transfer of its final units; available memory stayed ~12 GB throughout (zram + vm.swappiness=180, as in the first stop). Not a runner, teacher or data fault.",
   "detected": "telemetry raised ATTENTION ('STOPPED_2D: SWAP') every 10 min from the stop on; nothing was watching it until the user asked for a progress update",
   "downtime_h": 3.53,
-  "resume": {"utc": "2026-11-07T23:04:52Z", "command": "setsid bash launch_ready_2d_v2/launch_full_2d.sh --execute-full --confirm <the same Q2 token> (host): the documented resume path; no threshold, task, seed or policy edited",
-             "pre_checks": "no coordinator; no DRAIN/PAUSE; boost 0; AC 1; Tctl 59 C; mem available 13.6 GB; cache_hygiene() on the project's own files",
-             "coordinator_pid": 577576, "sleep_inhibitor": "placement2d-q2 re-armed on pid 577576; queue holder placement2d-q2-queue re-armed (it had ended itself: queue BLOCKED + no coordinator)",
-             "evidence": "status 23:06:27Z: pid 577576, 25 in flight, swap_growth -1 MB, roots_packed 200 kept"}
+  "resume": {
+   "utc": "2026-11-07T23:04:52Z",
+   "command": "setsid bash launch_ready_2d_v2/launch_full_2d.sh --execute-full --confirm <the same Q2 token> (host): the documented resume path; no threshold, task, seed or policy edited",
+   "pre_checks": "no coordinator; no DRAIN/PAUSE; boost 0; AC 1; Tctl 59 C; mem available 13.6 GB; cache_hygiene() on the project's own files",
+   "coordinator_pid": 577576,
+   "sleep_inhibitor": "placement2d-q2 re-armed on pid 577576; queue holder placement2d-q2-queue re-armed (it had ended itself: queue BLOCKED + no coordinator)",
+   "evidence": "status 23:06:27Z: pid 577576, 25 in flight, swap_growth -1 MB, roots_packed 200 kept"
+  }
  },
  "canary_refused_by_its_own_launch_shell": {
   "utc": "2026-11-07T20:20:01Z (chain start) -> 20:22:01Z (queue BLOCKED_CANARY)",
@@ -19,11 +28,22 @@
   "cause": "project_processes() excluded only its own pid and its parent. The canary's tmux shell (tmux -> bash -c 'cd ... && (chain) > canary.log' -> subshell -> python server-run) is the grandparent, and its command line contains 'spill2d.py server-run', so the queue's own launcher matched the 3D-activity check.",
   "effect": "no 2D query was planned on gvlab in that attempt; the queue blocked as designed and the laptop original was not touched by it",
   "fix": "spill2d.ancestors(): the whole launch chain up to init is excluded (an ancestor of server-run can never be a 3D job); a sibling process with the same name is still detected",
-  "verification": ["new assertions in test_gate_refuses_active_3d_processes_and_held_lock reproduce the exact refusal on the old code (grandparent 'bash -c ... # spill2d.py server-run' matched) and pass with the fix",
-                   "laptop light set 14/14; gvlab full suite 17/17 (3D finished, so the gate tests now run there too)",
-                   "real gvlab gate3d: pass, project_processes []",
-                   "gvlab probe inside the same tmux structure: the chain shell is not listed"],
+  "verification": [
+   "new assertions in test_gate_refuses_active_3d_processes_and_held_lock reproduce the exact refusal on the old code (grandparent 'bash -c ... # spill2d.py server-run' matched) and pass with the fix",
+   "laptop light set 14/14; gvlab full suite 17/17 (3D finished, so the gate tests now run there too)",
+   "real gvlab gate3d: pass, project_processes []",
+   "gvlab probe inside the same tmux structure: the chain shell is not listed"
+  ],
   "retry": "spill2d.py retry at 2026-11-07T23:05:29Z (gvlab canary_laptop_ref archived as .attempt_2026-11-07T230529Z, canary.log kept as canary.log.attempt_20261107T202001Z); the cron tick relaunched the canary at 23:06:02Z; server-run passed its gate and runs 12 workers on CPUs 0-11"
  },
- "recorded_by": "Claude Opus 5.5, session 2b63770c"
+ "recorded_by": "Claude Opus 5.5, session 2b63770c",
+ "laptop_original_swap_stop_3_and_acknowledged_handoff": {
+  "stop": "2026-11-07T23:09:37Z, SWAP (565 MB) 225 s after the 23:05 resume; run_1794092755.json: finished_now 134, interrupted 25, roots_packed 201; mem_available 11.7 GB",
+  "user_action": "the user set vm.swappiness=10 on the laptop host (was 180 from Pop's zram setup; reverts on reboot); guard and threshold unchanged",
+  "canary": "PASS_EXACT at 23:23:02Z: 848/848 per-trial fingerprints identical, 0 label differences, server audit passed; server 12.25 vs laptop 22.92 CPU-s/query",
+  "acknowledgment": "the user chose 'ACK, hand off now' at 23:52Z; state/ACK_ORIGINAL_STOP written; the original was never relaunched by the queue",
+  "handoff": "owner map frozen 23:56:05Z (server share 0.473): ORIGINAL 201 roots / 10,348 teacher queries, LAPTOP 2,231 roots (5 PARTIAL + untouched) / 120,544, GVLAB 2,188 untouched roots / 107,268; union 4,620 roots / 249,965 tasks / 238,160 teacher queries, 0 duplicates",
+  "launch": "both scoped runs launched 23:58:01Z; real rows completed on both by 23:58:35Z; gvlab 12 workers on CPUs 0-11 (nice 10), coordinator on 13",
+  "telemetry_fix": "the first relay after the launch (00:02Z) falsely flagged both runs STOPPED (coordinator test on a 160-char cut of long command lines) and kept the ACKed original as STOPPED; fixed in status4 (3D branch 6c72eb4b); 00:12Z relay HEALTHY, no flags"
+ }
 }
