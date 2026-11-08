@@ -180,7 +180,7 @@ def is_ours(pid):
 
 
 # every project GPU entry point (BWL-0 finding: study.py was missing, so its watchdog could log but not stop it)
-OUR_SCRIPTS = tuple(p for s in ("train.py", "xy3d.py", "study.py", "xy3d_tests.py", "figs.py", "figs_bwl.py", "xy3d_data.py") for p in (str(HERE / s), f"src/{s}"))
+OUR_SCRIPTS = tuple(p for s in ("train.py", "xy3d.py", "study.py", "xy3d_tests.py", "figs.py", "figs_bwl.py", "xy3d_data.py", "xy3d_train.py", "r3_manifest3d.py") for p in (str(HERE / s), f"src/{s}"))
 
 
 def watch(pid, run, cfg):

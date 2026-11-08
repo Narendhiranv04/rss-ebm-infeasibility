@@ -41,9 +41,9 @@ def root(rid):
     return json.loads((SRC / f"raw/roots/{rid}.json").read_text())
 
 
-def witness(wid):
+def witness(wid, base=None):
     """Load a stored witness and re-derive its content id (bd_core.Store.witness rule); a mismatch is fatal."""
-    z = np.load(SRC / "raw/witnesses" / wid[:2] / f"{wid}.npz")
+    z = np.load((base or SRC / "raw") / "witnesses" / wid[:2] / f"{wid}.npz")
     w = {k: z[k] for k in z.files}
     h = hashlib.sha256()
     for k in sorted(w):
@@ -137,6 +137,30 @@ def run_y(it, mode, out):
         res["witness_first_q_vs_qready"] = float(np.max(np.abs(w["q"][0] - e.q_ready)))
         r = move(e, S, rec, "t0", tuple(rec["goal"]), w, it["grasp_id"])
         res.update(step=r, verdict="REPLAY_PASS" if r["ok"] else "REPLAY_FAIL", final=state(e))
+    elif it["action"] == "PLAN_TARGET":                                      # R2 BD3DS66_Y_PLAN_V1 (endpoints without any Y record)
+        store = out / "ystore"
+        if mode == "teacher":
+            p, info = A.query(e, "t0", tuple(rec["goal"]))                    # the historical target query: q_ready, 32 grasps, RRT 5000, seed 0
+            if p is None:
+                kind = A.kind(info["grasp_reasons"])
+                res.update(plan={"found": False, "kind": kind, "tried": info.get("tried")}, verdict=f"Y0_ATTEMPTED_{kind}")
+            else:
+                import bd_core as bc
+                wid = A.witness(bc.Store(store), p)                           # bd_3dt.witness: same arrays + content-id rule as history
+                r = move(e, S, rec, "t0", tuple(rec["goal"]), witness(wid, store), info["grasp_id"])
+                res.update(plan={"found": True, "grasp_id": info["grasp_id"], "witness_id": wid}, step=r, final=state(e),
+                           verdict="PLAN_EXEC_PASS" if r["ok"] else "PLAN_EXEC_FAIL")
+            if it.get("witness_id") is not None or it.get("archived_y") is not None:     # equivalence control on an existing record
+                res["control"] = {"archived_y": it.get("archived_y"), "archived_witness": it.get("witness_id"),
+                                  "witness_identical": res.get("plan", {}).get("witness_id") == it.get("witness_id") if it.get("witness_id") else None,
+                                  "label_agrees": (res["verdict"] == "PLAN_EXEC_PASS") == (it.get("archived_y") == 1)}
+        else:
+            t = json.loads((out / "items" / f"{it['item']}.teacher.json").read_text())
+            if not t.get("plan", {}).get("found"):
+                res["verdict"] = "NO_POSITIVE_TO_REPLAY"
+            else:
+                r = move(e, S, rec, "t0", tuple(rec["goal"]), witness(t["plan"]["witness_id"], store), t["plan"]["grasp_id"])
+                res.update(step=r, final=state(e), verdict="REPLAY_PASS" if r["ok"] else "REPLAY_FAIL")
     else:
         p, info = A.query(e, "t0", tuple(rec["goal"]))
         kind = None if p is not None else A.kind(info["grasp_reasons"])
@@ -269,6 +293,8 @@ def cmd_work(a):
         log.write(json.dumps({"utc": time.strftime("%FT%TZ", time.gmtime()), "item": it["item"], "guard": f, "violations": bad}) + "\n"); log.flush()
         if bad:
             (out / f"STOP_GUARD_{i}").write_text(json.dumps({"item": it["item"], "violations": bad, "facts": f}))
+            return
+        if any((out / f).exists() for f in ("STOP_BUDGET", "STOP_REQUESTED")):   # supervisor / owner stop: finish nothing new
             return
         if time.time() - t_start > a.wall_cap_s:
             (out / f"STOP_WALLCAP_{i}").write_text(it["item"]); return

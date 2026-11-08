@@ -1,0 +1,69 @@
+{
+ "x_relocation_negatives": {
+  "raw_relocation_failed_sequences_stored": 1141,
+  "unique_failing_prefix_keys": 887,
+  "collapsed_duplicates": 254,
+  "collapse_explanation": "several stored sequences of one root share the SAME failing prefix (identical first move(s) from the identical S0 / q_ready: deterministic, so one physical query); dominant case: noop_irrelevant [d] and redundant+1 [d, ...] both fail at [d]",
+  "collapsed_keys_by_role_set": {
+   "noop_irrelevant+redundant+1": 254
+  },
+  "collapsed_sequences_by_role_set": {
+   "noop_irrelevant+redundant+1": 254
+  },
+  "keys_with_multiple_sequences": 254,
+  "already_reconfirmed": 21,
+  "remaining_eligible": 866,
+  "ineligible_or_out_of_scope": 0,
+  "unstored_attempted_tries_missing": "9 (audit: sequence_tries - stored minimal; no record, no key; MISSING)",
+  "status_contradictions_same_key": [],
+  "by_split": {
+   "train": 635,
+   "test": 128,
+   "val": 124
+  },
+  "by_kind": {
+   "CERTIFIED": 562,
+   "NO_PLAN_FOUND": 285,
+   "OTHER_FAILURE": 40
+  }
+ },
+ "x_executed": {
+  "unique_keys": 6773,
+  "verified": {
+   "X1_VERIFIED": 178
+  },
+  "remaining": 6595,
+  "by_split_remaining": {
+   "train": 4665,
+   "val": 988,
+   "test": 942
+  }
+ },
+ "y": {
+  "records": 7012,
+  "record_positives": 2645,
+  "record_positives_replay_verified": 118,
+  "record_positives_remaining": 2527,
+  "record_negatives": 4367,
+  "record_negatives_reconfirmed": 30,
+  "x_endpoints_without_record": 3407,
+  "x_endpoints_without_record_from_executed_prefixes": 2929,
+  "x_endpoints_without_record_by_split": {
+   "train": 2460,
+   "val": 463,
+   "test": 484
+  }
+ },
+ "raw": {
+  "sequence_tries_total": 1080,
+  "stored_sequences": 4806,
+  "complete_sequences": 3665,
+  "relocation_failed_sequences": 1141,
+  "empty_sequence_target_runs_K0": 511
+ },
+ "ledger_sha256_uncompressed": "c6cef78db4dae412718e0dbc59ff8a9c80e2686d9ca0db22289f22932695dab5",
+ "ledger_counts": {
+  "X_keys": 7660,
+  "Y_keys": 10419
+ }
+}
