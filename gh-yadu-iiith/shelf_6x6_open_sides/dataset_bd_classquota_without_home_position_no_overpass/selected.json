@@ -1,5 +1,5 @@
 {
- "rule": "K0-K3: accepted roots of raw/ledger.jsonl in ledger order, per verified class, up to the class quota (DEPENDENT, INCONSISTENT, NONE_SOLVABLE and NONE_UNAUDITED roots are not counted; the NONE lines of that ledger are not used). NONE: the 408 scenes of raw_none/ (certified, trimmed), in the order of the dense run they were trimmed from. Roots with an object that can never be picked are skipped and the next root of that class takes the place.",
+ "rule": "K0-K3: accepted roots of raw/ledger.jsonl in ledger order, per verified class, up to the class quota (DEPENDENT, INCONSISTENT, NONE_SOLVABLE and NONE_UNAUDITED roots are not counted; the NONE lines of that ledger are not used). NONE: the 408 scenes of raw_none/ (certified, trimmed), in the order of the dense run they were trimmed from. Roots with an object that can never be picked are skipped and the next root of that class takes the place. K4: ordered 4-move scenes of raw_k4_ordered/ (see k4_ordered_note).",
  "status": "IN PROGRESS (2026-11-09): NONE complete (408), K0 and K1 complete, K2 and K3 hold 357 each of 612 (K4 quota moved to them) and are being generated",
  "quota": {
   "NONE": 408,
@@ -15,7 +15,7 @@
   "1": 357,
   "2": 357,
   "3": 357,
-  "4": 0
+  "4": 2
  },
  "excluded_fixed_object": {
   "3ds66-srv-w0044-s020": "NONE",
@@ -2023,7 +2023,10 @@
    "3ds66-srv3-w0107-s000",
    "3ds66-srv3-w0106-s019"
   ],
-  "4": []
+  "4": [
+   "3ds66-srvNt-w0009-s012",
+   "3ds66-srvNt-w0013-s010"
+  ]
  },
  "quota_note": "Original quotas: NONE 408 / K0 511 / K1 357 / K2 357 / K3 357 / K4 510. K4 was not reached on this shelf; on 2026-11-09 its 510 slots were moved to K2 and K3 (255 each): K2 612, K3 612. K2 and K3 are being generated up to that.",
  "sources": {
@@ -2032,6 +2035,8 @@
   "1": "raw",
   "2": "raw",
   "3": "raw",
-  "4": null
- }
+  "4": "raw_k4_ordered"
+ },
+ "total": 1992,
+ "k4_ordered_note": "K4 scenes here are ORDERED (label DEPENDENT / ordered): the teacher's 4-move repair works only in the stored order, so they do not meet the independence rule of K0-K3. They are counted as K4 by the user's decision of 2026-11-10 and kept in raw_k4_ordered/ with class K4_ORDERED."
 }

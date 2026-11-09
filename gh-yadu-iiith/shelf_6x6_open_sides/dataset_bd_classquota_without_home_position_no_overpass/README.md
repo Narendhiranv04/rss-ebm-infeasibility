@@ -15,12 +15,12 @@ This is a dataset of shelf rearrangement problems for an xArm7 in MuJoCo, built 
 | K1 | 1 object must be moved first | 357 | 357 ✔ |
 | K2 | 2 objects | 357 | 612 |
 | K3 | 3 objects | 357 | 612 |
-| K4 | 4 objects | 0 | 0 (was 510) |
-| **Total** | | **1,990** | **2,500** |
+| K4 (ordered) | 4 objects, moves need an order | 2 | none (was 510; see [K4 ordered](#k4-ordered)) |
+| **Total** | | **1,992** | **2,500** |
 
 The original quotas were the class shares of the 1,225-scene open-tabletop dataset (`../../open_tabletop/dataset_bd_classquota/`), scaled by 2500 / 1225: NONE 408, K0 511, K1 357, K2 357, K3 357, K4 510. **K4 was not reached on this shelf** (see [Open points](#open-points)), so its 510 slots were moved to K2 and K3 (255 each, 9 Nov 2026), which keeps the total at 2,500. K2 and K3 are being generated up to 612 each; this folder will be updated when they are done.
 
-`selected.json` lists the counted scene ids per class and the file each class comes from (`raw/` for K0–K3, `raw_none/` for NONE).
+`selected.json` lists the counted scene ids per class and the file each class comes from (`raw/` for K0–K3, `raw_none/` for NONE, `raw_k4_ordered/` for K4).
 
 ## What changed since the code commit (V2 → V3)
 
@@ -47,7 +47,7 @@ The first NONE scenes of this dataset (the 3 in the earlier commit, found by ran
 
 The 408 scenes have 5 to 12 obstacles (median 7): 5: 4, 6: 112, 7: 96, 8: 103, 9: 60, 10: 26, 11: 5, 12: 2. Root ids are `3ds66-lapNt-…` / `3ds66-srvNt-…`.
 
-**A limit of the proof.** The blocker tests use a randomised planner, so a direction that looks blocked could in rare cases be open. The trim found two such scenes: the teacher found a 4-move repair (K4, with moves that need an order). They were left out. The other scenes passed the teacher's repair search and both audit checks, but the proof is not airtight.
+**A limit of the proof.** The blocker tests use a randomised planner, so a direction that looks blocked could in rare cases be open. The trim found two such scenes: the teacher found a 4-move repair (K4, with moves that need an order). They are kept as ordered K4 instead of NONE. The other scenes passed the teacher's repair search and both audit checks, but the proof is not airtight.
 
 ## Rules every counted scene satisfies
 
@@ -91,6 +91,15 @@ Versions stored in every scene file:
 - label protocol `BD_BINARY_BUDGET_V1`;
 - config hash `8d521b1f6d23db23`.
 
+## K4 ordered
+
+No K4 scene with independent moves could be built (see [Open points](#open-points)). The NONE trim did find two small scenes (6 and 7 obstacles) whose 4-move repair the teacher executed in the simulator, but the moves only work in the stored order. By the user's decision (10 Nov 2026) such scenes are counted as **K4, labelled ordered (DEPENDENT)**. They live in `raw_k4_ordered/` (same layout as `raw/`; ledger lines carry `"class": "K4_ORDERED"`). The independence rule of K0–K3 does not apply to them: do not use them where independent moves are required.
+
+| Scene | Obstacles | T → goal | Repair (in this order) |
+|---|---|---|---|
+| `3ds66-srvNt-w0009-s012` | 7 | (1,1) → (2,5) | o01 → (3,3), o02 → (3,1), o00 → (3,0), o04 → (3,5) |
+| `3ds66-srvNt-w0013-s010` | 6 | (3,1) → (5,5) | o01 → (1,4), o03 → (5,1), o00 → (4,0), o04 → (3,3) |
+
 ## Folder layout
 
 ```
@@ -103,6 +112,7 @@ dataset_bd_classquota_without_home_position_no_overpass/
     EXCLUDED_FIXED_OBJECT.json   scenes with an object that can never be picked (not counted)
     roots/<root_id>.json   one file per accepted scene: layout, labels, construction metadata, NONE audit
     witnesses/<ab>/<id>.npz   verified robot trajectories referenced by the labels
+  raw_k4_ordered/          ordered K4 scenes (roots, witnesses, ledger)
   raw_none/                the NONE scenes (408): ledger.jsonl (their lines), roots/, witnesses/
   code/
     shelf66_v3/            bd_shelf.py (shelf domain), bd_3dt.py (teacher), bd_3dt_plus.py (construction),
@@ -148,5 +158,5 @@ Live controls in the run folder, with no restart needed:
 
 ## Open points
 
-- **K4 (0 of the original 510, quota moved to K2 and K3):** no K4 construction succeeded on this shelf (V2 + V3: 0 of 36, all at the construction time cap). Tests that also allowed ordered moves, splitting the blockers, and building K4 from a K3 scene (0 of 18) found none either. Every feasible grasp direction has to be blocked 4 times, which needs 8–15 objects packed around the start and goal; with the arm reaching in only from the front, the inner blockers cannot then be reached or parked without hitting their neighbours. The trim step did turn up two small scenes (6–7 obstacles) with a 4-move repair, but their moves need an order, so they are not K4 under the independence rule.
+- **K4 (0 of the original 510, quota moved to K2 and K3):** no K4 construction succeeded on this shelf (V2 + V3: 0 of 36, all at the construction time cap). Tests that also allowed ordered moves, splitting the blockers, and building K4 from a K3 scene (0 of 18) found none either. Every feasible grasp direction has to be blocked 4 times, which needs 8–15 objects packed around the start and goal; with the arm reaching in only from the front, the inner blockers cannot then be reached or parked without hitting their neighbours. The trim step did turn up two small scenes (6–7 obstacles) with a 4-move repair, but their moves need an order, so they are not K4 under the independence rule. They are now counted as ordered K4 (see [K4 ordered](#k4-ordered)).
 - **K2 and K3 (357 of 612 each):** being generated with the same runner and rules; this folder is updated when they are done.
