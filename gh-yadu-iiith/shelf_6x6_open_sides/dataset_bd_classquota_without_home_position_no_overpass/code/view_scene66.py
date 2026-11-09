@@ -12,7 +12,7 @@ import time
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(HERE / "shelf66_full"))
+sys.path.insert(0, str(HERE / "shelf66_v3"))
 import bd_shelf  # noqa: E402,F401  (paths + the 6 x 6 shelf environment)
 import bd_3dt as A  # noqa: E402
 

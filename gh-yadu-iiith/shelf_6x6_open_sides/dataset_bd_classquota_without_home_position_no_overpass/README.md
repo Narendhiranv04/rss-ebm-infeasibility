@@ -6,23 +6,21 @@ This is a dataset of shelf rearrangement problems for an xArm7 in MuJoCo, built 
 - **Without home position:** the arm never returns to its ready pose between moves.
 - **No overpass:** the arm and hand never pass over an obstacle, and over the shelf they stay below the tallest object's top + 10 cm (arm ceiling).
 
-## Status: in progress (K3 completed 8 Nov 2026; NONE and K4 still open)
-
-Generation is still running on the lab server. This commit holds everything generated so far. The data will be updated here when the class quotas are met.
+## Status: in progress (9 Nov 2026): NONE complete, K2 and K3 still being generated
 
 | Class | Meaning | Counted now | Quota |
 |---|---|---|---|
-| NONE | no repair of ≤ 4 moves exists (audit-confirmed) | 3 | 408 |
+| NONE | no repair of ≤ 4 moves exists (certified, see [NONE](#none-certified-and-trimmed)) | 408 | 408 ✔ |
 | K0 | T reaches its goal directly | 511 | 511 ✔ |
 | K1 | 1 object must be moved first | 357 | 357 ✔ |
-| K2 | 2 objects | 357 | 357 ✔ |
-| K3 | 3 objects | 357 | 357 ✔ |
-| K4 | 4 objects | 0 | 510 |
-| **Total** | | **1,585** | **2,500** |
+| K2 | 2 objects | 357 | 612 |
+| K3 | 3 objects | 357 | 612 |
+| K4 | 4 objects | 0 | 0 (was 510) |
+| **Total** | | **1,990** | **2,500** |
 
-The quotas are the class shares of the 1,225-scene open-tabletop dataset (`../../open_tabletop/dataset_bd_classquota/`), scaled by 2500 / 1225 and rounded by largest remainder. `selected.json` lists the counted scene ids per class.
+The original quotas were the class shares of the 1,225-scene open-tabletop dataset (`../../open_tabletop/dataset_bd_classquota/`), scaled by 2500 / 1225: NONE 408, K0 511, K1 357, K2 357, K3 357, K4 510. **K4 was not reached on this shelf** (see [Open points](#open-points)), so its 510 slots were moved to K2 and K3 (255 each, 9 Nov 2026), which keeps the total at 2,500. K2 and K3 are being generated up to 612 each; this folder will be updated when they are done.
 
-Still open (see [Open points](#open-points)): NONE needs a new construction, and K4 has not been reached on this shelf.
+`selected.json` lists the counted scene ids per class and the file each class comes from (`raw/` for K0–K3, `raw_none/` for NONE).
 
 ## What changed since the code commit (V2 → V3)
 
@@ -39,23 +37,36 @@ The code commit (9e64069) held the SHELF66V2 generator. That version had a plann
   Otherwise the scene is `NONE_SOLVABLE` (the audit found a solution) or `NONE_UNAUDITED` (out of time), and neither is counted.
 - **Fixed objects (new rule):** a scene is not counted when one of its objects can never be picked, even alone on the empty shelf under the scene's own arm ceiling. 3 scenes have one (a short object in the back-right cell): `3ds66-srv-w0044-s020` (NONE), `3ds66-srv-w0004-s021` (K1) and `3ds66-srv-w0030-s007` (K0). They are listed in `raw/EXCLUDED_FIXED_OBJECT.json` and skipped in `selected.json`; the next scene of the same class takes each place. Scenes accepted after 5 Nov 09:20 have not been through this check yet; that is done before the final selection.
 
+## NONE: certified and trimmed
+
+The first NONE scenes of this dataset (the 3 in the earlier commit, found by random clutter and a first audit) turned out to be K1: the audit tried only 6 parking cells per object, and one relocation to a cell it never tried freed T. They were dropped. The NONE class (`raw_none/`, 408 scenes) is built differently:
+
+1. **Dense construction** (`code/shelf66_v3/none_dense.py`). For a start/goal pair, F0 = the grasp directions in which T alone (on the empty shelf, under the scene's arm ceiling) can be moved to its goal. Candidate cells around the start, the goal and the path are probed with one standard obstacle each, and cells are chosen until every direction of F0 is blocked by at least 5 chosen cells, each of which blocks it on its own. Every obstacle must be pickable alone on the empty shelf.
+2. **Certificate** (`code/shelf66_v3/none_cert66_v4.py`, `NONE_CERT66_V4`). With the real obstacles: `blockers[a]` = the obstacles that, with only T and that obstacle on the shelf, make direction `a` fail. The scene is proven NONE when every direction of F0 has at least 5 blockers. An obstacle only adds collisions, so after any ≤ 4 moves (each object moved at most once) every direction still has one of its blockers in place. On top of that the audit tries T directly with a stronger planner (20,000 RRT iterations, 3 seeds) and every single obstacle moved first to its nearest 6 free cells, then T; both must fail. Status `CONFIRMED` is stored in each scene's `none_audit`.
+3. **Trim** (`code/shelf66_v3/trim_none66_v3.py`, `NONE_TRIM66_V3`). The dense scenes held 13–14 obstacles, while K0–K3 scenes hold 0–7, which would give the class away by counting objects. So each scene keeps only the smallest set of obstacles that still meets the certificate (the tallest obstacle is always kept, so the arm ceiling stays the same), the obstacles are renumbered, and the scene is labelled again from scratch: V3 teacher, the consistency checks, and the certificate and audit of step 2 on the trimmed scene. At most 5 obstacles are marked `intended_blocker` (the teacher's checks need ≤ 7 actions). The record's `trim` field keeps the source scene (`from_root`), the id map and the removed obstacles.
+
+The 408 scenes have 5 to 12 obstacles (median 7): 5: 4, 6: 112, 7: 96, 8: 103, 9: 60, 10: 26, 11: 5, 12: 2. Root ids are `3ds66-lapNt-…` / `3ds66-srvNt-…`.
+
+**A limit of the proof.** The blocker tests use a randomised planner, so a direction that looks blocked could in rare cases be open. The trim found two such scenes: the teacher found a 4-move repair (K4, with moves that need an order). They were left out. The other scenes passed the teacher's repair search and both audit checks, but the proof is not airtight.
+
 ## Rules every counted scene satisfies
 
 - Every object is movable, and each object is moved at most once.
 - **Independent moves:** every object of the minimal repair can be picked and parked both from the original scene and with the other objects of the repair already parked, so the moves work in any order. Scenes where a move needs another one first are `DEPENDENT` and are not counted.
 - **Executed labels:** labels come from moves executed in MuJoCo, under the scene's rules: no overpass, arm ceiling, no return to the ready pose.
 - **Consistent labels:** a scene is not counted when an executed sequence that is not the minimal repair succeeds with fewer moves than its K, or with any number of moves for NONE (`INCONSISTENT`).
-- **NONE is audit-confirmed** and **no object is fixed** (both above).
+- **NONE is certified** (above) and **no object is fixed**: every object of every counted scene can be picked alone on the empty shelf under the scene's own arm ceiling (all 10,761 objects of the K0–K3 scenes accepted after 5 Nov and of the dense NONE scenes were checked, 0 fixed).
 
 ## The raw ledger so far
+
+`raw/ledger.jsonl` (K0–K3 run; `raw_none/ledger.jsonl` holds the 408 NONE scenes' lines)
 
 `raw/ledger.jsonl` has one line per attempt: 2,218 lines, all labelled by generator `BD_GEN_V1+ROUTE_V15+SHELF66V3`. Of these, 1,088 are re-taught V2 scenes and 1,130 are new. It holds the lines of the roots in the selection; the run's full ledger has more.
 
 | Outcome | Lines |
 |---|---|
 | K0 / K1 / K2 / K3 | 540 / 405 / 396 / 357 |
-| NONE (audit-confirmed) | 4 |
-| NONE_SOLVABLE / NONE_UNAUDITED | 28 / 1 |
+| NONE lines of this run (not used, see NONE above) | 4 audit-confirmed, 28 NONE_SOLVABLE, 1 NONE_UNAUDITED |
 | DEPENDENT | 50 |
 | INCONSISTENT | 22 |
 | rejected during construction | 415 (374 hit the construction time cap, 35 found no blocking layout) |
@@ -68,7 +79,7 @@ Root ids: `3ds66-lap-…` / `3ds66-srv-…` (V2 runs, re-taught) and `3ds66-lap3
 
 1. **Request.** The runner (`code/run_3dt_plus.py`, wrapped by `code/shelf66_v3/run_shelf66_full.py`) plans each request from the shared ledger: the class whose remaining quota and observed yield call for it. The other factors (start area, move length, distractors, mechanism, parking) are balanced by `bd_core.plan_wave`.
 2. **Construction.**
-   - K0 requests use `bd_3dt.construct`. NONE is requested as a K0-type construction with 3–4 distractors.
+   - K0 requests use `bd_3dt.construct`. (The NONE class is built separately, see [NONE](#none-certified-and-trimmed).)
    - K ≥ 1 requests use the route construction of `bd_3dt_plus.py`. It first probes which cells block which of T's feasible grasps. Then it builds layouts in which every feasible grasp is blocked by at least K objects, and the K objects of the cheapest repair can each be picked and parked on their own.
 3. **Teacher.** `bd_3dt.teach` labels the scene by planning and executing in MuJoCo. It searches repairs of up to 4 moves over a pool of at most 6 objects (8 for K4 requests). Each planner query uses RRT-Connect with 5,000 iterations and no wall-clock limit.
 4. **Checks.** `DEPENDENT`, `INCONSISTENT`, then the NONE audit for a NONE label. A scene counts only when its verified class still has room in its quota.
@@ -86,19 +97,23 @@ Versions stored in every scene file:
 dataset_bd_classquota_without_home_position_no_overpass/
   README.md
   selected.json            counted scene ids per class, quotas, counts, skipped fixed-object scenes
-  raw/                     the run's dataset-bd store
+  raw/                     the K0-K3 run's dataset-bd store
     ledger.jsonl           one line per attempt: spec, accepted, verified class, reason, wall time, distractors placed
     PROGRESS.json          the runner's counts and quotas at the snapshot
     EXCLUDED_FIXED_OBJECT.json   scenes with an object that can never be picked (not counted)
     roots/<root_id>.json   one file per accepted scene: layout, labels, construction metadata, NONE audit
     witnesses/<ab>/<id>.npz   verified robot trajectories referenced by the labels
+  raw_none/                the NONE scenes (408): ledger.jsonl (their lines), roots/, witnesses/
   code/
     shelf66_v3/            bd_shelf.py (shelf domain), bd_3dt.py (teacher), bd_3dt_plus.py (construction),
                            run_shelf66_full.py (runner), none_audit66_v3.py (NONE audit),
-                           reteach_shelf66_v3.py (re-teach of the V2 scenes); shelf_scene_6x6 -> ../../../scene
+                           reteach_shelf66_v3.py (re-teach of the V2 scenes),
+                           none_dense.py, none_cert66_v4.py, run_shelf66_none.py, trim_none66_v3.py (NONE: construction, certificate, runner, trim);
+                           shelf_scene_6x6 -> ../../../scene
     dataset-bd/bd_core.py  B/D dataset core (ids, store, spec factors, plan_wave)
     run_3dt_plus.py        the class-quota runner the wrapper builds on
     view_scene66.py        replays a scene in the MuJoCo viewer (or headless)
+    run_3ds66_none*.sh, run_trim66_none*_v3.sh, run_3ds66_v3_k23.sh (the NONE runs, the trim, the K2/K3 run with the moved K4 quota),
     run_3ds66_v3.sh, run_3ds66_v3_server.sh, run_reteach66_v3.sh, run_reteach66_v3_server.sh,
     merge_with_server_3ds66_v3.sh, merge_ledgers.py, append_lines.py
                            how it was run: laptop + lab server, one ledger merged every 5 min
@@ -133,6 +148,5 @@ Live controls in the run folder, with no restart needed:
 
 ## Open points
 
-- **NONE (3 of 408, to be replaced):** the 3 NONE scenes counted here were later found to be K1 (the V3 audit tried too few parking cells), so none of them will stay. A new certified NONE set is being built and will replace them.
-- **NONE, earlier notes:** with the fixed planner, random cluttered K0-type scenes almost never give a confirmed NONE (about 1 %), and the few that do are fragile: in three of the four, removing one single object frees T, and they only count because that object cannot be relocated. A new construction is being built: every grasp direction of T is blocked by at least 5 objects that each block it on their own, so that no 4 moves (not even removing 4 objects outright) can free T. It will be added with its own version string.
-- **K4 (0 of 510):** no K4 construction has succeeded on this shelf (V2 + V3: 0 of 36, all at the construction time cap). A 2-hour test that allowed ordered moves (front blocker first) found 0 as well: of 113 layouts checked, none could be cleared even front to back. Every feasible grasp direction has to be blocked 4 times, which needs 8–15 objects packed around the start and goal. With the arm reaching in only from the front, the inner blockers can then not be reached or parked. Whether K4 stays in the quota is still to be decided.
+- **K4 (0 of the original 510, quota moved to K2 and K3):** no K4 construction succeeded on this shelf (V2 + V3: 0 of 36, all at the construction time cap). Tests that also allowed ordered moves, splitting the blockers, and building K4 from a K3 scene (0 of 18) found none either. Every feasible grasp direction has to be blocked 4 times, which needs 8–15 objects packed around the start and goal; with the arm reaching in only from the front, the inner blockers cannot then be reached or parked without hitting their neighbours. The trim step did turn up two small scenes (6–7 obstacles) with a 4-move repair, but their moves need an order, so they are not K4 under the independence rule.
+- **K2 and K3 (357 of 612 each):** being generated with the same runner and rules; this folder is updated when they are done.
