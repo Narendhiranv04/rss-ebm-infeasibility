@@ -15,8 +15,8 @@ This is a dataset of shelf rearrangement problems for an xArm7 in MuJoCo, built 
 | K1 | 1 object must be moved first | 357 | 357 ✔ |
 | K2 | 2 objects | 357 | 612 |
 | K3 | 3 objects | 357 | 612 |
-| K4 (ordered) | 4 objects, moves need an order | 2 | none (was 510; see [K4 ordered](#k4-ordered)) |
-| **Total** | | **1,992** | **2,500** |
+| K4 (ordered) | 4 objects, moves need an order | 9 | none (was 510; see [K4 ordered](#k4-ordered)) |
+| **Total** | | **1,999** | **2,500** |
 
 The original quotas were the class shares of the 1,225-scene open-tabletop dataset (`../../open_tabletop/dataset_bd_classquota/`), scaled by 2500 / 1225: NONE 408, K0 511, K1 357, K2 357, K3 357, K4 510. **K4 was not reached on this shelf** (see [Open points](#open-points)), so its 510 slots were moved to K2 and K3 (255 each, 9 Nov 2026), which keeps the total at 2,500. K2 and K3 are being generated up to 612 each; this folder will be updated when they are done.
 
@@ -93,12 +93,19 @@ Versions stored in every scene file:
 
 ## K4 ordered
 
-No K4 scene with independent moves could be built (see [Open points](#open-points)). The NONE trim did find two small scenes (6 and 7 obstacles) whose 4-move repair the teacher executed in the simulator, but the moves only work in the stored order. By the user's decision (10 Nov 2026) such scenes are counted as **K4, labelled ordered (DEPENDENT)**. They live in `raw_k4_ordered/` (same layout as `raw/`; ledger lines carry `"class": "K4_ORDERED"`). The independence rule of K0–K3 does not apply to them: do not use them where independent moves are required.
+No K4 scene with independent moves could be built (see [Open points](#open-points)). Nine scenes have a 4-move repair (2 from the NONE trim, 7 by-products of the main run) that the teacher executed in the simulator, but whose moves only work in the stored order. By the user's decision (10 Nov 2026) such scenes are counted as **K4, labelled ordered (DEPENDENT)**. They live in `raw_k4_ordered/` (same layout as `raw/`; ledger lines carry `"class": "K4_ORDERED"`). The independence rule of K0–K3 does not apply to them: do not use them where independent moves are required.
 
 | Scene | Obstacles | T → goal | Repair (in this order) |
 |---|---|---|---|
 | `3ds66-srvNt-w0009-s012` | 7 | (1,1) → (2,5) | o01 → (3,3), o02 → (3,1), o00 → (3,0), o04 → (3,5) |
 | `3ds66-srvNt-w0013-s010` | 6 | (3,1) → (5,5) | o01 → (1,4), o03 → (5,1), o00 → (4,0), o04 → (3,3) |
+| `3ds66-srv-w0003-s004` | 4 | (5,1) → (3,5) | o00 → (2,0), o03 → (1,3), o01 → (2,2), o02 → (1,2) |
+| `3ds66-srv-w0044-s014` | | | o02 → (3,4), o03 → (5,0), o01 → (3,0), o00 → (2,0) |
+| `3ds66-lap3-w0051-s013` | | | o01 → (5,4), o02 → (3,5), o03 → (2,5), o00 → (1,3) |
+| `3ds66-srv3-w0078-s012` | | | o01 → (4,0), o03 → (2,4), o04 → (5,1), o00 → (1,3) |
+| `3ds66-srv3-w0082-s016` | | | o02 → (5,4), o04 → (5,5), o00 → (1,3), o01 → (3,4) |
+| `3ds66-srv3-w0089-s022` | | | o01 → (1,2), o02 → (5,5), o04 → (1,1), o00 → (3,0) |
+| `3ds66-srv3-w0101-s007` | 7 | (5,4) → (1,3) | o01 → (3,0), o05 → (2,0), o00 → (1,0), o02 → (5,1) |
 
 ## Folder layout
 
