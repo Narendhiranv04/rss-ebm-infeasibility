@@ -1,0 +1,45 @@
+# 14: post-pilot recovery and training decision (contract v2, R0–R5)
+
+Branch `naren/approachb-3d-learning`; no other branch was created or merged. Status JSON: `reports/14_STATUS.json`.
+
+## Decision summary
+
+| Stage | Outcome |
+|---|---|
+| **R0** reconcile + preserve | **DONE.** Canonical X/Y ledger (`physics_pilot/r0/`, 7,660 X / 10,419 Y keys). The 1,141 vs 866 negatives, 6,773 → 6,595 X and 2,645 → 2,527 Y are fully reconciled (`physics_pilot/R0_INTAKE_AND_BUDGET_LEDGER.md`). |
+| **R1** historical 3D recovery | **DONE.** 52/52 chunks; **0 blocking discrepancies**; **19.56 / 60 CPU-h**. The work started on gvlab CPUs 16–17 and moved to Blackwell after a 34/34 parity PASS. 6,528 X1 verified · 862 X0 relocation re-confirmed · 67 X0 connector · 2,527 Y1 replay-verified · 4 MISSING (archived-record mismatches; two user-approved non-blocking categories). See `physics_pilot/R1_RECOVERY_REPORT.md`. |
+| **R2** missing-Y pilot | **DONE** (≤ 6 CPU-h; 72 preregistered items). The strict bitwise witness-identity check failed 0/6 (same grasp and waypoints; drift ≤ 5.3e-5 rad); this is reported, not relaxed. See `physics_pilot/R2_MISSING_Y_PILOT_REPORT.md`. **The bulk missing-Y job (~2,929 queries) was NOT run:** no "c". |
+| **R3** preparation | **DONE (preparation only).** Frozen 75-root challenge split; candidate-diverse 2D / 3D manifests (stratified+ranker, cVAE+ranker, categorical control). **The sampler verdict stays INCONCLUSIVE.** See `physics_pilot/R3_FUTURE_PILOT_PLAN.md`. |
+| **R4** Blackwell intake + smoke | **DONE.** Sidecar V1: 7,656 X / 7,072 Y, 0 conflicts. The gate declared before any fit **PASSES** (train 1,035 roots / 5,471 X / 683 X0 / min cell 120; val 225 roots / 1,115 X; test roots used 0). One-seed **development-only** smoke of D / E / DIRECT-GEO / G: about 1 GPU-min, no watchdog stop; **no arm is ranked**. 2D: the 60 frozen models were reused and reproduce exactly. No P24 or test tuning. See `physics_pilot/R4_BLACKWELL_INTAKE_AND_SMOKE.md`. |
+| **R5** | This report + status JSON. |
+
+## Training decision
+
+1. **3D: READY FOR THE MATCHED STUDY, NOT YET RUN.** Authentic labels clear the declared gate with large margins (5–27× each minimum). The next step needs explicit approval:
+   - D / E / DIRECT-GEO / G × ≥ 5 seeds on sidecar V1;
+   - validation-only selection;
+   - **one** preregistered test evaluation;
+   - on Blackwell GPU 0 + CPU 7, which is well under 1 GPU-h.
+
+   No superiority claim is made from the smoke.
+2. **2D Q2: intake only after the merge** (contract). The Q2 dataset status is in the next section.
+3. **Sampler:** INCONCLUSIVE. Run the candidate-diverse pilot on the frozen challenge split when approved.
+4. **Open data issues to carry forward:**
+   - 4 archived 3D negatives disagree with the pinned teacher. One archived CERTIFIED negative is now plannable (`results_r1_diag/`).
+   - R2 witness bitwise drift.
+   - The bulk missing-Y job (needs "c").
+
+## 2D Q2 dataset: status at hand-off (filled at the final push)
+
+_See the final section `Q2 status at 17:00`._
+
+## Resource and safety record
+
+- **Caps:** CPU-h, GPU-h and wall-clock caps were respected (R1 19.56 / 60 CPU-h; R2 ≤ 6 CPU-h; R4 about 1 GPU-min of 6).
+- **≥ 4 free cores:** kept on every server at all times. Blackwell used E-cores only after the P-core thermal finding.
+- **Collaborators:**
+  - The Blackwell guard yielded to sajid's queue once (R1).
+  - The 2D Q2 Blackwell share runs alongside his jobs only on E-cores, with a pause watchdog (user-approved).
+  - No collaborator process was ever touched.
+- **Clean stops:** every stop (handover, thermal, yield, discrepancy) was clean and idempotent. Partial ledger records are kept under `handover_partial_records`; guard events are archived.
+- **Never committed:** credentials, checkpoints or large NPZ files.
