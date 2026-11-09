@@ -19,6 +19,7 @@ Union = exactly 4,620 roots / 249,965 tasks / 238,160 teacher queries, zero over
   Blackwell: spill2d_v2.py canary                    (16 laptop TRAIN roots re-run; PASS_EXACT required before any BLACKWELL bulk run)
   any host : spill2d_v2.py merge FINAL_OWNER_MAP OWNER=DIR ...     (every owner of the final map; V2 or V3)
   laptop   : spill2d_v2.py partition-v3 CLS_BLACKWELL LAPTOP3_CAP_QUERIES GVLAB3_FRACTION   (re-cut the V2 BLACKWELL share)
+  laptop   : spill2d_v2.py partition-v4 BW3_ATTESTATION.json      (every BLACKWELL3 root -> GVLAB4 on gvlab; Blackwell no longer used)
 """
 import json, os, shutil, sys
 from collections import Counter, defaultdict
@@ -46,6 +47,14 @@ NEW3 = ("GVLAB3", "BLACKWELL3", "LAPTOP3")
 H3, MF3 = SPILL / "handoff_v3", "HANDOFF_ROOT_OWNER_MANIFEST_V3.json"
 if os.environ.get("SPILL2D_V3_TEST"):                                     # TEST ONLY: rehearse partition-v3 into a scratch dir
     H3 = Path(os.environ["SPILL2D_V3_TEST"])
+# V4 (user 2026-11-09 ~15:50 IST: "queue everything to gvlab then and not depend on blackwell at all"): every BLACKWELL3 root -> GVLAB4, chained
+# after GVLAB3 on the same gvlab CPUs.  BLACKWELL3 never ran (0 records); its 2 partial roots are recomputed FROM SCRATCH on gvlab (the Blackwell parts
+# are not used), so the final dataset is entirely BITWISE_PORTABLE and the merge needs nothing from Blackwell.
+SHARES["GVLAB4"] = {"host": "gvlab", "run": "runs/spillover4_gvlab", "cpus": list(range(12)) + [14, 15, 16, 17], "reserved": [12, 13]}
+NEW4 = ("GVLAB4",)
+H4, MF4 = SPILL / "handoff_v4", "HANDOFF_ROOT_OWNER_MANIFEST_V4.json"
+if os.environ.get("SPILL2D_V4_TEST"):                                     # TEST ONLY: rehearse partition-v4 into a scratch dir
+    H4 = Path(os.environ["SPILL2D_V4_TEST"])
 ACK_STOP = "--ack-stop" in sys.argv     # classify a run that ended on a runner safety stop (interrupted queries are recorded non-final)
 COEXIST = "--coexist" in sys.argv        # Blackwell only: E-cores 10-23, start despite a pending collaborator queue; q2bw_coexist.py guards
 
@@ -57,7 +66,7 @@ def run_dir(share):
 
 
 def hdir(share):
-    return (H3, MF3) if share.endswith("3") else (H2, MF2)
+    return (H4, MF4) if share.endswith("4") else (H3, MF3) if share.endswith("3") else (H2, MF2)
 
 
 def lock_free(run):
@@ -228,6 +237,48 @@ def partition_v3(cls_bw_f, laptop_cap_queries, gv_frac):
                                                                 "partial": sorted(r for r in rs if cls3.get(r) == "PARTIAL"), "trial_ids": {r: ids[r] for r in rs}}, sort_keys=True))
     S.atomic(H3 / "handoff_sha256sums", "".join(f"{S.sha(H3 / f)}  {f}\n" for f in sorted(os.listdir(H3)) if f != "handoff_sha256sums"))
     print(json.dumps({k: man[k] for k in ("counts", "teacher_queries_by_owner", "invariants")}))
+
+
+def partition_v4(bw_status_f):
+    """Laptop: owner map V4 = V3 with every BLACKWELL3 root -> GVLAB4 (class FRESH_RECOMPUTE: Blackwell parts unused).  Refuses unless the Blackwell
+    attestation (taken on Blackwell after the autolauncher stopped) shows BLACKWELL3 never ran: 0 records, no run manifest, no status, no Q2 process."""
+    own3 = json.loads((H3 / MF3).read_text())
+    v3sha = S.sha(H3 / MF3)
+    bw_status_f = Path(bw_status_f).resolve()
+    b = json.loads(bw_status_f.read_text())
+    if b["host"] != "blackwell" or b["autolauncher_alive"] or b["q2_processes"] or b["bw3_records"] != 0 or b["bw3_run_manifest"] or b["bw3_status"] is not None:
+        raise SystemExit(f"REFUSED partition-v4: BLACKWELL3 is not provably unstarted: {b}")
+    own = dict(own3["owner"])
+    moved = sorted(r for r, o in own.items() if o == "BLACKWELL3")
+    for r in moved:
+        own[r] = "GVLAB4"
+    ids = own3["trial_ids"]
+    allids = [i for r in sorted(ids) for i in ids[r]]
+    LP, R, K, T = S.code2d(LDIR.parent / "code_v2")
+    tasks = S.q2_tasks(LDIR, LP, R)
+    nq = {r: sum(1 for t in tasks[r][1] if not t["static_ineligible"]) for r in tasks}
+    if set(own) != set(tasks) or len(own) != S.EXPECT["roots"] or len(allids) != len(set(allids)) or len(allids) != S.EXPECT["tasks"] or \
+            sum(nq.values()) != S.EXPECT["teacher_queries"] or any([t["trial_id"] for t in tasks[r][1]] != ids[r] for r in tasks):
+        raise SystemExit("REFUSED partition-v4: owner union is not the exact Q2 set")
+    snap3 = {r: v for r, v in own3.get("snapshot_sha256_v3", {}).items() if r not in moved}     # moved partials are recomputed: no snapshot carried
+    names = sorted(set(own.values()))
+    man = {"version": VERSION2 + "_V4_GVLAB_ONLY", "utc": S.utc(), "v3_owner_manifest_sha256": v3sha, "owner": dict(sorted(own.items())),
+           "class_v4": {r: "FRESH_RECOMPUTE" for r in moved}, "v3_partial_discarded": sorted(r for r in moved if own3["class_v3"].get(r) == "PARTIAL"),
+           "snapshot_sha256_v2": own3["snapshot_sha256_v2"], "snapshot_sha256_v3": snap3, "trial_ids": ids, "blackwell_attestation": b,
+           "classification_sha256": {**own3.get("classification_sha256", {}), "BLACKWELL3_ATTESTATION": S.sha(bw_status_f)},
+           "counts": {o: sum(v == o for v in own.values()) for o in names}, "teacher_queries_by_owner": {o: sum(nq[r] for r, v in own.items() if v == o) for o in names},
+           "execution": {k: SHARES[k] for k in NEW4}, "blackwell_standard": "NOT_USED (no root owned by Blackwell in V4)",
+           "invariants": {"roots": len(own), "tasks": len(allids), "duplicates": 0, "blackwell_owned_roots": sum(v.startswith("BLACKWELL") for v in own.values()),
+                          "non_blackwell3_v3_owners_unchanged": all(own[r] == o for r, o in own3["owner"].items() if o != "BLACKWELL3")}}
+    H4.mkdir(parents=True, exist_ok=True)
+    if (H4 / MF4).exists():
+        raise SystemExit("REFUSED partition-v4: an owner map V4 already exists (never overwrite)")
+    S.atomic(H4 / MF4, json.dumps(man, sort_keys=True))
+    msha = S.sha(H4 / MF4)
+    S.atomic(H4 / "allowlist_gvlab4.json", json.dumps({"share": "GVLAB4", "owner_manifest_v2_sha256": msha, "roots": moved, "partial": [],
+                                                       "trial_ids": {r: ids[r] for r in moved}}, sort_keys=True))
+    S.atomic(H4 / "handoff_sha256sums", "".join(f"{S.sha(H4 / f)}  {f}\n" for f in sorted(os.listdir(H4)) if f != "handoff_sha256sums"))
+    print(json.dumps({k: man[k] for k in ("counts", "teacher_queries_by_owner", "invariants", "v3_partial_discarded")}))
 
 
 def load_v2(share):
@@ -455,6 +506,8 @@ if __name__ == "__main__":
         partition_v2(a[1], a[2], float(a[3]), float(a[4]), float(a[5]))
     elif c == "partition-v3":
         partition_v3(a[1], int(a[2]), float(a[3]))
+    elif c == "partition-v4":
+        partition_v4(a[1])
     elif c == "copy-partials":
         copy_partials(a[1])
     elif c == "run":
