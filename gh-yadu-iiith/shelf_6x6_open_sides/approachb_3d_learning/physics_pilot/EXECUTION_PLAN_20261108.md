@@ -64,3 +64,30 @@
   - Step 5 at Nov 9 ~14:00 IST: drain the laptop Q2 to gvlab.
   - Step 6: R5 reports.
   - Blackwell: nothing of mine running.
+
+## Nov 9: the user asked for "everything by 5 pm", using the servers
+
+- **10:00–10:30, Blackwell 2D staging.**
+  - uv Python 3.13.11 venv built (packages identical to gvlab); 2D source relayed; staged source byte-identical to the laptop manifest.
+  - **Canary: labels and negative kinds 848/848 identical, fingerprints 206/848** (Core Ultra 9 285K has no AVX-512). The Blackwell audit passes 21,547/21,547.
+  - **User approved:** Blackwell may be used as LABEL-EQUIVALENT (not bitwise); provenance tagged per root.
+- **10:35, cut.** Laptop remainder and gvlab V1 drained cleanly. Owner map V2 frozen:
+
+  | Share | Roots | Queries |
+  |---|---|---|
+  | BLACKWELL | 778 | 42,060 |
+  | GVLAB2 | 281 | 13,724 |
+  | LAPTOP2 | 255 | 11,944 |
+
+  GVLAB2 and LAPTOP2 launched.
+- **10:42–10:48, Blackwell blocked.**
+  - sajid's jobs were running with 9 queued. The user approved running alongside on E-cores, with a coexistence watchdog.
+  - The package hit the runner's 95 °C cancel limit twice (14, then 8 workers) while sajid's jobs held 79–90 °C. Both stops were clean safety stops; nothing was lost.
+  - A server-side auto-launcher now waits for his queue to clear and the package to fall below 65 °C.
+- **13:39, V3 re-cut of Blackwell's unstarted share.**
+  - LAPTOP3: 85 roots / 4,500 queries. GVLAB3: 520 / 28,076. BLACKWELL3: 173 / 9,484.
+  - Chained starts: LAPTOP3 after LAPTOP2 (about 14:40), GVLAB3 after GVLAB2 (about 15:55), BLACKWELL3 by the auto-launcher.
+- **Expected outcome:**
+  - By 17:00: about 85% of Q2 roots packed; the laptop is free.
+  - GVLAB3 (and BLACKWELL3) finish overnight.
+  - The final merge (`spill2d_v2.py merge V3_MAP OWNER=DIR ...`) runs when the user is back, because the servers have no direct route to each other.
