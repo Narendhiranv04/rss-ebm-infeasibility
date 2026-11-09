@@ -3,7 +3,7 @@
 # share on E-cores 8-23 with the coexistence watchdog ONLY when sajid's CPU queue has nothing pending, his jobs use < 1.5 cores, yadu's generator is
 # absent and the package is < 65 C.  A runner safety stop (e.g. TEMPERATURE) is resumed the same way after cooling, at most MAX_STARTS times;
 # finished roots are always kept (idempotent resume).  Stops when the run's status is final with stop=null and every root packed, or on STOP_AUTOLAUNCH.
-SHARE=${1:-BLACKWELL}; MAX_STARTS=${2:-6}; Q=$HOME/approachb_3d_learning/q2bw; R=$Q/src/gh-yadu-iiith/planar_2d/dataset_relocations_v1/launch_ready_2d_v2_gvlab/runs/spillover_blackwell
+SHARE=${1:-BLACKWELL}; MAX_STARTS=${2:-6}; Q=$HOME/approachb_3d_learning/q2bw; R=$Q/src/gh-yadu-iiith/planar_2d/dataset_relocations_v1/launch_ready_2d_v2_gvlab/runs/$([ "$SHARE" = BLACKWELL3 ] && echo spillover3_blackwell || echo spillover_blackwell)
 LOG=$Q/autolaunch.log; n=0; echo "$(date -u +%FT%TZ) start share=$SHARE max_starts=$MAX_STARTS" >> $LOG
 while true; do
   [ -f $Q/STOP_AUTOLAUNCH ] && { echo "$(date -u +%FT%TZ) STOP_AUTOLAUNCH" >> $LOG; exit 0; }

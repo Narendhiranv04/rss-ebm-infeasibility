@@ -17,7 +17,8 @@ Union = exactly 4,620 roots / 249,965 tasks / 238,160 teacher queries, zero over
   per host : spill2d_v2.py copy-partials SHARE      (LAPTOP2 on the laptop, GVLAB2 on gvlab; hash-verified, never writes the drained runs)
   per host : spill2d_v2.py run SHARE [--dry-run]    (GVLAB2 | BLACKWELL | LAPTOP2)
   Blackwell: spill2d_v2.py canary                    (16 laptop TRAIN roots re-run; PASS_EXACT required before any BLACKWELL bulk run)
-  Blackwell: spill2d_v2.py merge-v2 DIR_ORIGINAL DIR_LAPTOP DIR_GVLAB DIR_GVLAB2 DIR_BLACKWELL DIR_LAPTOP2
+  any host : spill2d_v2.py merge FINAL_OWNER_MAP OWNER=DIR ...     (every owner of the final map; V2 or V3)
+  laptop   : spill2d_v2.py partition-v3 CLS_BLACKWELL LAPTOP3_CAP_QUERIES GVLAB3_FRACTION   (re-cut the V2 BLACKWELL share)
 """
 import json, os, shutil, sys
 from collections import Counter, defaultdict
@@ -37,12 +38,26 @@ LDIR = {"gvlab": Path.home() / S.GLAUNCH, "blackwell": Q2S.parent / "launch_read
 SHARES = {"GVLAB2": {"host": "gvlab", "run": "runs/spillover2_gvlab", "cpus": list(range(12)) + [14, 15, 16, 17], "reserved": [12, 13]},
           "BLACKWELL": {"host": "blackwell", "run": "runs/spillover_blackwell", "cpus": [0, 1, 2] + list(range(8, 24)), "reserved": [7]},
           "LAPTOP2": {"host": "laptop", "run": None, "cpus": None, "reserved": None}}       # laptop: its own frozen launch config
+SHARES.update({"GVLAB3": {"host": "gvlab", "run": "runs/spillover3_gvlab", "cpus": list(range(12)) + [14, 15, 16, 17], "reserved": [12, 13]},
+               "BLACKWELL3": {"host": "blackwell", "run": "runs/spillover3_blackwell", "cpus": list(range(8, 24)), "reserved": [7]},
+               "LAPTOP3": {"host": "laptop", "run": None, "cpus": None, "reserved": None}})
 NEW = ("GVLAB2", "BLACKWELL", "LAPTOP2")
+NEW3 = ("GVLAB3", "BLACKWELL3", "LAPTOP3")
+H3, MF3 = SPILL / "handoff_v3", "HANDOFF_ROOT_OWNER_MANIFEST_V3.json"
+if os.environ.get("SPILL2D_V3_TEST"):                                     # TEST ONLY: rehearse partition-v3 into a scratch dir
+    H3 = Path(os.environ["SPILL2D_V3_TEST"])
+ACK_STOP = "--ack-stop" in sys.argv     # classify a run that ended on a runner safety stop (interrupted queries are recorded non-final)
 COEXIST = "--coexist" in sys.argv        # Blackwell only: E-cores 10-23, start despite a pending collaborator queue; q2bw_coexist.py guards
 
 
 def run_dir(share):
-    return S.SPILL / "runs" / "remainder2_laptop" if share == "LAPTOP2" else LDIR / SHARES[share]["run"]
+    if share in ("LAPTOP2", "LAPTOP3"):
+        return S.SPILL / "runs" / ("remainder2_laptop" if share == "LAPTOP2" else "remainder3_laptop")
+    return LDIR / SHARES[share]["run"]
+
+
+def hdir(share):
+    return (H3, MF3) if share.endswith("3") else (H2, MF2)
 
 
 def lock_free(run):
@@ -65,9 +80,10 @@ def classify_export(run, owner, out):
     if not lock_free(run):
         raise SystemExit(f"REFUSED classify-export: {run} coordinator still holds its lock (DRAIN not finished)")
     st = S.jload(run / "status.json", {})
-    if not (st.get("final") and st.get("stop") is None):
-        raise SystemExit(f"REFUSED classify-export: {run} did not end by a clean DRAIN (stop={st.get('stop')})")
-    own1 = json.loads((H1 / "HANDOFF_ROOT_OWNER_MANIFEST.json").read_text())
+    if not (st.get("final") and (st.get("stop") is None or (ACK_STOP and st.get("stop") in ("TEMPERATURE", "USER_CANCEL")))):
+        raise SystemExit(f"REFUSED classify-export: {run} did not end by a clean DRAIN (stop={st.get('stop')}); --ack-stop accepts a runner safety stop")
+    base = (H2 / MF2) if owner in NEW else (H1 / "HANDOFF_ROOT_OWNER_MANIFEST.json")
+    own1 = json.loads(base.read_text())
     tasks, cls, snap, bad = S.classify(run=run, L=LDIR)
     if bad:
         raise SystemExit(f"REFUSED classify-export: classification failures {bad[:3]}")
@@ -75,7 +91,8 @@ def classify_export(run, owner, out):
     if stray:
         raise SystemExit(f"REFUSED classify-export: the run touched roots it does not own: {stray[:3]}")
     mine = [r for r, o in own1["owner"].items() if o == owner]
-    doc = {"version": VERSION2, "utc": S.utc(), "host": HOST, "run": str(run), "owner_v1": owner, "v1_owner_manifest_sha256": S.sha(H1 / "HANDOFF_ROOT_OWNER_MANIFEST.json"),
+    doc = {"version": VERSION2, "utc": S.utc(), "host": HOST, "run": str(run), "owner_v1": owner, "base_map": base.name, "base_map_sha256": S.sha(base),
+           "v1_owner_manifest_sha256": S.sha(H1 / "HANDOFF_ROOT_OWNER_MANIFEST.json"),
            "final_status": {k: st.get(k) for k in ("updated", "final", "stop", "roots_packed")}, "class": {r: cls[r] for r in mine},
            "snapshot_sha256": {r: snap[r] for r in mine if r in snap}, "class_counts": dict(Counter(cls[r] for r in mine))}
     S.atomic(Path(out), json.dumps(doc, sort_keys=True))
@@ -153,12 +170,75 @@ def partition_v2(cls_lap_f, cls_gv_f, sg, sb, sl):
     print(json.dumps({k: man[k] for k in ("counts", "teacher_queries_by_owner", "invariants")}))
 
 
+def partition_v3(cls_bw_f, laptop_cap_queries, gv_frac):
+    """Laptop: re-cut the V2 BLACKWELL share (drained / never started) -> owner map V3.  Every V2 owner is kept except BLACKWELL roots that are
+    not packed: PARTIAL -> BLACKWELL3 (parts stay on Blackwell); UNTOUCHED -> LAPTOP3 first (up to laptop_cap_queries teacher queries, so the laptop
+    finishes before it must shut down), then GVLAB3 / BLACKWELL3 by teacher-query fraction gv_frac (deterministic hash order)."""
+    own2 = json.loads((H2 / MF2).read_text())
+    v2sha = S.sha(H2 / MF2)
+    cls_bw_f = Path(cls_bw_f).resolve()
+    cb = json.loads(cls_bw_f.read_text())
+    if cb["owner_v1"] != "BLACKWELL" or cb.get("base_map_sha256") != v2sha:
+        raise SystemExit("REFUSED partition-v3: the Blackwell classification does not match owner map V2")
+    LP, R, K, T = S.code2d(LDIR.parent / "code_v2")
+    tasks = S.q2_tasks(LDIR, LP, R)
+    nq = {r: sum(1 for t in tasks[r][1] if not t["static_ineligible"]) for r in tasks}
+    own, cls3, snap3, pool = dict(own2["owner"]), {}, {}, []
+    for r, o in own2["owner"].items():
+        if o != "BLACKWELL":
+            continue
+        c = cb["class"][r]; cls3[r] = c
+        if c == "PACKED":
+            snap3[r] = cb["snapshot_sha256"][r]
+        elif c == "PARTIAL":
+            own[r], snap3[r] = "BLACKWELL3", cb["snapshot_sha256"][r]
+        else:
+            pool.append(r)
+    pool.sort(key=lambda r: S.H("assign_v3", r))
+    lap = 0
+    acc = {"GVLAB3": 0, "BLACKWELL3": 0}
+    for r in pool:
+        if lap + nq[r] <= laptop_cap_queries:
+            own[r] = "LAPTOP3"; lap += nq[r]; continue
+        tot = acc["GVLAB3"] + acc["BLACKWELL3"] + nq[r]
+        h = "GVLAB3" if acc["GVLAB3"] + nq[r] <= gv_frac * tot + 1e-9 else "BLACKWELL3"
+        own[r] = h; acc[h] += nq[r]
+    ids = own2["trial_ids"]
+    allids = [i for r in sorted(ids) for i in ids[r]]
+    if set(own) != set(tasks) or len(own) != S.EXPECT["roots"] or len(allids) != len(set(allids)) or len(allids) != S.EXPECT["tasks"] or \
+            sum(nq.values()) != S.EXPECT["teacher_queries"] or any([t["trial_id"] for t in tasks[r][1]] != ids[r] for r in tasks):
+        raise SystemExit("REFUSED partition-v3: owner union is not the exact Q2 set")
+    names = ("ORIGINAL", "LAPTOP", "GVLAB", *NEW, *NEW3)
+    man = {"version": VERSION2 + "_V3_RECUT", "utc": S.utc(), "v2_owner_manifest_sha256": v2sha, "owner": dict(sorted(own.items())), "class_v3": cls3,
+           "snapshot_sha256_v2": own2["snapshot_sha256_v2"], "snapshot_sha256_v3": snap3, "trial_ids": ids, "laptop3_cap_teacher_queries": laptop_cap_queries,
+           "gvlab3_fraction": gv_frac, "blackwell_drain_status": cb["final_status"], "classification_sha256": {"BLACKWELL": S.sha(cls_bw_f)},
+           "counts": {o: sum(v == o for v in own.values()) for o in names}, "teacher_queries_by_owner": {o: sum(nq[r] for r, v in own.items() if v == o) for o in names},
+           "execution": {k: SHARES[k] for k in NEW3}, "blackwell_standard": own2.get("blackwell_standard"),
+           "invariants": {"roots": len(own), "tasks": len(allids), "duplicates": 0, "non_blackwell_v2_owners_unchanged":
+                          all(own[r] == o for r, o in own2["owner"].items() if o != "BLACKWELL"),
+                          "laptop3_gvlab3_only_untouched": all(cls3.get(r) == "UNTOUCHED" for r, v in own.items() if v in ("LAPTOP3", "GVLAB3"))}}
+    H3.mkdir(parents=True, exist_ok=True)
+    if (H3 / MF3).exists():
+        raise SystemExit("REFUSED partition-v3: an owner map V3 already exists (never overwrite)")
+    S.atomic(H3 / MF3, json.dumps(man, sort_keys=True))
+    msha = S.sha(H3 / MF3)
+    for h in NEW3:
+        rs = sorted(r for r, v in own.items() if v == h)
+        S.atomic(H3 / f"allowlist_{h.lower()}.json", json.dumps({"share": h, "owner_manifest_v2_sha256": msha, "roots": rs,
+                                                                "partial": sorted(r for r in rs if cls3.get(r) == "PARTIAL"), "trial_ids": {r: ids[r] for r in rs}}, sort_keys=True))
+    S.atomic(H3 / "handoff_sha256sums", "".join(f"{S.sha(H3 / f)}  {f}\n" for f in sorted(os.listdir(H3)) if f != "handoff_sha256sums"))
+    print(json.dumps({k: man[k] for k in ("counts", "teacher_queries_by_owner", "invariants")}))
+
+
 def load_v2(share):
-    sums = {l.split()[1]: l.split()[0] for l in (H2 / "handoff_sha256sums").read_text().splitlines() if l.strip()}
-    bad = [f for f, h in sums.items() if S.sha(H2 / f) != h]
-    man = json.loads((H2 / MF2).read_text())
-    allow = json.loads((H2 / f"allowlist_{share.lower()}.json").read_text())
-    if bad or allow["owner_manifest_v2_sha256"] != S.sha(H2 / MF2) or sorted(allow["roots"]) != sorted(r for r, v in man["owner"].items() if v == share):
+    hd, mf = hdir(share)
+    sums = {l.split()[1]: l.split()[0] for l in (hd / "handoff_sha256sums").read_text().splitlines() if l.strip()}
+    bad = [f for f, h in sums.items() if S.sha(hd / f) != h]
+    man = json.loads((hd / mf).read_text())
+    allow = json.loads((hd / f"allowlist_{share.lower()}.json").read_text())
+    if man.get("snapshot_sha256_v3"):
+        man["snapshot_sha256_v2"] = {**man.get("snapshot_sha256_v2", {}), **man["snapshot_sha256_v3"]}
+    if bad or allow["owner_manifest_v2_sha256"] != S.sha(hd / mf) or sorted(allow["roots"]) != sorted(r for r, v in man["owner"].items() if v == share):
         raise SystemExit(f"REFUSED: handoff_v2 checksums / {share} allowlist do not match the frozen owner map V2 {bad[:2]}")
     return man, allow
 
@@ -166,7 +246,7 @@ def load_v2(share):
 def copy_partials(share):
     """Copy the share's PARTIAL roots' parts from the drained V1 run on THIS host into the share's run dir, hash-verified against the V2 snapshot."""
     man, allow = load_v2(share)
-    src = {"LAPTOP2": S.REM, "GVLAB2": LDIR / "runs" / "spillover_gvlab"}[share]
+    src = {"LAPTOP2": S.REM, "GVLAB2": LDIR / "runs" / "spillover_gvlab", "BLACKWELL3": LDIR / "runs" / "spillover_blackwell"}[share]
     dst = run_dir(share)
     n = 0
     for r in allow["partial"]:
@@ -225,7 +305,7 @@ def run_share(share, dry):
     pol, why = identity(R, T)
     C = R.cfg_of(LDIR)
     cpus, res = (SHARES[share]["cpus"], SHARES[share]["reserved"]) if HOST != "laptop" else (C["execution"]["worker_cpus"], C["execution"]["reserved_cpus"])
-    if share == "BLACKWELL" and COEXIST:                     # user-approved 2026-11-09 ~10:42 IST: run alongside sajid's jobs on E-cores only
+    if share in ("BLACKWELL", "BLACKWELL3") and COEXIST:                     # user-approved 2026-11-09 ~10:42 IST: run alongside sajid's jobs on E-cores only
         cpus = list(range(10, 24))
     if "--cpus" in sys.argv:                                  # execution-only override (thermal scaling); labels cannot depend on it
         a, b = sys.argv[sys.argv.index("--cpus") + 1].split("-")
@@ -304,57 +384,63 @@ def canary_check():
                      code=LDIR.parent / "code_v2")
 
 
-def merge_v2(*dirs):
-    """NEW canonical Q2 directory from the 6 disjoint sources of owner map V2, then launch_check.audit (re-certifies every witness)."""
+def merge_final(map_file, *pairs):
+    """NEW canonical Q2 directory from the disjoint sources of the FINAL owner map (V2 or V3), then launch_check.audit (re-certifies every
+    witness).  pairs: OWNER=DIR for every owner in the map.  Frozen snapshots: ORIGINAL (V1), LAPTOP / GVLAB (V2), BLACKWELL packed (V3)."""
     LP, R, K, T = S.code2d(LDIR.parent / "code_v2")
-    own = json.loads((H2 / MF2).read_text())
-    snap1 = json.loads((H1 / "HANDOFF_ROOT_OWNER_MANIFEST.json").read_text())["snapshot_sha256"]
-    names = ("ORIGINAL", "LAPTOP", "GVLAB", *NEW)
-    src = {o: Path(d) for o, d in zip(names, dirs)}
-    merged = SPILL / "merged" / "q2_canonical_v2"
+    map_file = Path(map_file).resolve()
+    own = json.loads(map_file.read_text())
+    snap = {**json.loads((H1 / "HANDOFF_ROOT_OWNER_MANIFEST.json").read_text())["snapshot_sha256"], **own.get("snapshot_sha256_v2", {}),
+            **own.get("snapshot_sha256_v3", {})}
+    frozen_owners = {"ORIGINAL", "LAPTOP", "GVLAB"} | ({"BLACKWELL"} if own.get("snapshot_sha256_v3") is not None else set())
+    src = {p.split("=", 1)[0]: Path(p.split("=", 1)[1]).resolve() for p in pairs}
+    missing = sorted(set(own["owner"].values()) - set(src))
+    if missing:
+        raise SystemExit(f"REFUSED merge: no source dir for owners {missing}")
+    merged = SPILL / "merged" / f"q2_canonical_{map_file.stem.split('_')[-1].lower()}"
     if merged.exists():
-        raise SystemExit("REFUSED merge-v2: the canonical merged directory exists (never overwrite)")
-    stray = {o: sorted(f.stem for f in (src[o] / "records").glob("*.json") if own["owner"].get(f.stem) != o) for o in names if o != "ORIGINAL"}
+        raise SystemExit("REFUSED merge: the canonical merged directory exists (never overwrite)")
+    stray = {o: sorted(f.stem for f in (d / "records").glob("*.json") if own["owner"].get(f.stem) != o) for o, d in src.items() if o != "ORIGINAL"}
     if any(stray.values()):
-        raise SystemExit(f"REFUSED merge-v2: a run packed roots it does not own: { {k: v[:3] for k, v in stray.items()} }")
-    tmp = merged.with_name(".q2_canonical_v2.tmp")
+        raise SystemExit(f"REFUSED merge: a run packed roots it does not own: { {k: v[:3] for k, v in stray.items() if v} }")
+    tmp = merged.with_name(f".{merged.name}.tmp")
     shutil.rmtree(tmp, ignore_errors=True)
     for d in ("records", "modes", "witnesses"):
         (tmp / d).mkdir(parents=True)
     shutil.copyfile(LDIR / "split_manifest.json", SPILL / "split_manifest.json")
     prov, seen = {}, set()
     for rid, o in sorted(own["owner"].items()):
-        frozen = snap1.get(rid) if o == "ORIGINAL" else own["snapshot_sha256_v2"].get(rid) if o in ("LAPTOP", "GVLAB") else None
-        if frozen and any(S.sha(src[o] / rel) != h for rel, h in frozen.items()):
-            raise SystemExit(f"REFUSED merge-v2: {o} root {rid} changed since its frozen snapshot")
+        fz = snap.get(rid) if o in frozen_owners else None
+        if fz and any(S.sha(src[o] / rel) != h for rel, h in fz.items()):
+            raise SystemExit(f"REFUSED merge: {o} root {rid} changed since its frozen snapshot")
         rec = src[o] / "records" / f"{rid}.json"
         if not rec.exists():
-            raise SystemExit(f"REFUSED merge-v2: {rid} owned by {o} is not packed in its run dir")
+            raise SystemExit(f"REFUSED merge: {rid} owned by {o} is not packed in its run dir")
         ids = [q["trial_id"] for q in json.loads(rec.read_text())["queries"]]
         if ids != own["trial_ids"][rid] or seen & set(ids):
-            raise SystemExit(f"REFUSED merge-v2: trial ids of {rid} differ from the owner map or collide")
+            raise SystemExit(f"REFUSED merge: trial ids of {rid} differ from the owner map or collide")
         seen |= set(ids)
         for d, ext in (("records", "json"), ("modes", "npz"), ("witnesses", "npz")):
             f = src[o] / d / f"{rid}.{ext}"
             if f.exists():
                 shutil.copy2(f, tmp / d / f.name)
                 assert S.sha(f) == S.sha(tmp / d / f.name)
-        prov[rid] = {"owner": o, "source_dir": str(src[o])}
+        prov[rid] = {"owner": o, "source_dir": str(src[o]), "standard": "LABEL_EQUIVALENT_BLACKWELL" if o.startswith("BLACKWELL") else "BITWISE_PORTABLE"}
     if len(seen) != S.EXPECT["tasks"]:
-        raise SystemExit(f"REFUSED merge-v2: {len(seen)} trial ids != {S.EXPECT['tasks']}")
+        raise SystemExit(f"REFUSED merge: {len(seen)} trial ids != {S.EXPECT['tasks']}")
     pol = json.loads((LDIR / "configs/production_policy.json").read_text())
-    S.atomic(tmp / "run_manifest.json", json.dumps({"scope": "Q2_MERGED_CANONICAL_V2", "policy": pol["policy"], "budget_hash": T.budget_hash(pol["policy"]),
-                                                    "pair_protocol_id": T.pair_protocol()[0], "queries": len(seen), "roots": len(prov),
-                                                    "owner_manifest_v2_sha256": S.sha(H2 / MF2)}, sort_keys=True))
+    S.atomic(tmp / "run_manifest.json", json.dumps({"scope": "Q2_MERGED_CANONICAL_" + merged.name.split("_")[-1].upper(), "policy": pol["policy"],
+                                                    "budget_hash": T.budget_hash(pol["policy"]), "pair_protocol_id": T.pair_protocol()[0], "queries": len(seen),
+                                                    "roots": len(prov), "owner_manifest_sha256": S.sha(map_file)}, sort_keys=True))
     S.atomic(tmp / "provenance.json", json.dumps(prov, sort_keys=True))
     os.replace(tmp, merged)
     a = K.audit(merged, procs=16)
     teach = sum(1 for _, q, _, _ in K.load(merged) if q["eligible"])
-    rep = {"version": VERSION2, "utc": S.utc(), "merged_dir": str(merged), "roots": len(prov), "tasks": len(seen), "teacher_queries": teach,
-           "by_owner": dict(Counter(v["owner"] for v in prov.values())), "audit": a["verification"], "summary": a["summary"],
+    rep = {"version": VERSION2, "utc": S.utc(), "owner_map": map_file.name, "merged_dir": str(merged), "roots": len(prov), "tasks": len(seen),
+           "teacher_queries": teach, "by_owner": dict(Counter(v["owner"] for v in prov.values())), "audit": a["verification"], "summary": a["summary"],
            "run_fingerprint": a["fingerprint"]["run_fingerprint"],
            "pass": a["verification"]["failed"] == 0 and teach == S.EXPECT["teacher_queries"] and len(seen) == S.EXPECT["tasks"]}
-    S.atomic(SPILL / "MERGED_Q2_V2_AUDIT.json", json.dumps(rep, indent=1, sort_keys=True))
+    S.atomic(SPILL / f"MERGED_Q2_{merged.name.split('_')[-1].upper()}_AUDIT.json", json.dumps(rep, indent=1, sort_keys=True))
     print(json.dumps({k: rep[k] for k in ("pass", "roots", "tasks", "teacher_queries", "by_owner")}))
 
 
@@ -367,6 +453,8 @@ if __name__ == "__main__":
         classify_export(a[1], a[2], a[3])
     elif c == "partition-v2":
         partition_v2(a[1], a[2], float(a[3]), float(a[4]), float(a[5]))
+    elif c == "partition-v3":
+        partition_v3(a[1], int(a[2]), float(a[3]))
     elif c == "copy-partials":
         copy_partials(a[1])
     elif c == "run":
@@ -375,7 +463,7 @@ if __name__ == "__main__":
         canary()
     elif c == "canary-check":
         canary_check()
-    elif c == "merge-v2":
-        merge_v2(*a[1:7])
+    elif c == "merge":
+        merge_final(a[1], *[x for x in a[2:] if "=" in x])
     else:
         raise SystemExit(__doc__)
