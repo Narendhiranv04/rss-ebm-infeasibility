@@ -321,7 +321,11 @@ def host_gate(R, cpus):
     f = {"cpus_busy_pct_max": max(busy[c] for c in cpus), "idle_cpus": sum(1 for b in busy if b < 25),
          "mem_avail_gb": round(psutil.virtual_memory().available / 2 ** 30, 1), "disk_free_gb": round(psutil.disk_usage(str(Path.home())).free / 2 ** 30, 1),
          "temp_c": R.read_temp(R.sensors()) if R.sensors() else None}
-    why = [k for k, ok in (("worker CPUs busy with other work (> 25%)", f["cpus_busy_pct_max"] <= 25), ("temperature sensor unreadable", f["temp_c"] is not None),
+    # MIGRATE_OK flag file (2026-11-09 16:25 IST): collaborator jobs on gvlab are UNPINNED (affinity 0-23) and migrate off our pinned workers, so a
+    # momentarily busy worker CPU is accepted iff >= 4 CPUs stay idle after our workers + 2 coordinator CPUs start (the user's >= 4 free-cores rule).
+    f["migrate_ok"] = (Path(__file__).resolve().parent / "MIGRATE_OK").exists()
+    busy_ok = f["cpus_busy_pct_max"] <= 25 or (f["migrate_ok"] and f["idle_cpus"] + 1 >= len(cpus) + 2 + 4)   # +1: this gate process IS the coordinator
+    why = [k for k, ok in (("worker CPUs busy with other work (> 25%)", busy_ok), ("temperature sensor unreadable", f["temp_c"] is not None),
                            ("temperature >= 80 C at start", (f["temp_c"] or 99) < 80), ("available memory < 8 GB", f["mem_avail_gb"] >= 8),
                            ("free disk < 20 GB", f["disk_free_gb"] >= 20)) if not ok]
     return f, why

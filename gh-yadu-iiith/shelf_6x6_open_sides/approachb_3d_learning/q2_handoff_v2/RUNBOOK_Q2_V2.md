@@ -25,8 +25,8 @@ Frozen copies (gzipped, with sha sums and classification files) are in `handoff_
 | LAPTOP2 | 255 | laptop | `q2_spillover/runs/remainder2_laptop` | run to completion |
 | GVLAB2 | 281 | gvlab | `launch_ready_2d_v2_gvlab/runs/spillover2_gvlab` | run to completion |
 | LAPTOP3 | 85 | laptop | `q2_spillover/runs/remainder3_laptop` | run to completion |
-| GVLAB3 | 520 | gvlab | `launch_ready_2d_v2_gvlab/runs/spillover3_gvlab` | chained after GVLAB2 (tmux `q2_spillover3`) |
-| GVLAB4 | 173 | gvlab | `launch_ready_2d_v2_gvlab/runs/spillover4_gvlab` | chained after GVLAB3 (tmux `q2_spillover4`, `chain_gvlab4.sh`) |
+| GVLAB3 | 520 | gvlab | `launch_ready_2d_v2_gvlab/runs/spillover3_gvlab` | tmux `q2_chain34` (`chain_gvlab34.sh`), after GVLAB2 |
+| GVLAB4 | 173 | gvlab | `launch_ready_2d_v2_gvlab/runs/spillover4_gvlab` | same chain, after GVLAB3 |
 
 **No root is owned by Blackwell in V4**, so every merged root is `BITWISE_PORTABLE`. The Blackwell canary (labels 848/848 identical, fingerprints 206/848) is kept for the record only.
 
@@ -78,3 +78,14 @@ merge FINAL_OWNER_MAP OWNER=DIR ...             # NEW merged/q2_canonical_v3 + f
    The audit uses 16 processes, so run it after GVLAB4 has finished (gvlab ceiling: 18 logical CPUs).
 
 **2D Q2 intake into training happens only after `MERGED_Q2_V4_AUDIT.json` reports `pass: true`.**
+
+## gvlab chain (`chain_gvlab34.sh`, tmux `q2_chain34`)
+
+At 16:17 IST the original one-shot GVLAB3 chain was refused: sajid's 2 unpinned jobs had just started on gvlab, and one was momentarily on a worker CPU. `chain_gvlab34.sh` replaces both one-shot chains. It runs GVLAB3 and then GVLAB4 to clean completion (`final`, `stop: null`):
+- **CPUs momentarily busy:** a refusal for this reason only is retried every 60 s. Once our workers are pinned, the kernel moves unpinned collaborator jobs onto CPUs 18–23. Our 18 CPUs plus his 2 still leave ≥ 4 free.
+- **Runner safety stop:** resumed at most 3 times per share; packed roots are kept.
+- **Any other refusal:** the chain stops for a human.
+- **Manual stop:** `touch ~/approachb3d_v3/2d_q2_handoff_v2/STOP_CHAIN34`.
+- **Log:** `~/approachb3d_v3/2d_q2_spillover/chain34.log`.
+
+**Laptop at hand-off:** the old V1 queue is frozen with `q2_spillover/state/PAUSE_QUEUE`, and its `spill2d.py hold` sleep inhibitor was stopped, so the laptop can sleep and close its lid again. No 2D compute runs on the laptop.

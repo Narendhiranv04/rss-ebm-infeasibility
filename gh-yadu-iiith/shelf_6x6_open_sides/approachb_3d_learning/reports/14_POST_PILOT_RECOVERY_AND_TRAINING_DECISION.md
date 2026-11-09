@@ -29,9 +29,30 @@ Branch `naren/approachb-3d-learning`; no other branch was created or merged. Sta
    - R2 witness bitwise drift.
    - The bulk missing-Y job (needs "c").
 
-## 2D Q2 dataset: status at hand-off (filled at the final push)
+## 2D Q2 dataset: status at hand-off (2026-11-09, 16:35 IST)
 
-_See the final section `Q2 status at 17:00`._
+**Owner map V4 (final, frozen):** 4,620 roots / 249,965 tasks / 238,160 teacher queries, 0 duplicates. **No root is owned by Blackwell**, so the whole dataset will be `BITWISE_PORTABLE`. Map V4 replaced Blackwell at the user's request (15:50 IST). The Blackwell share never ran (attested), and its 2 partial roots are recomputed from scratch on gvlab.
+
+| Owner | Roots | Teacher queries | Host | State at hand-off |
+|---|---:|---:|---|---|
+| ORIGINAL | 201 | 10,348 | laptop → gvlab copy | complete, sha-verified on gvlab |
+| LAPTOP | 1,585 | 85,924 | laptop → gvlab copy | complete, sha-verified on gvlab |
+| LAPTOP2 | 255 | 11,944 | laptop → gvlab copy | complete, sha-verified on gvlab |
+| LAPTOP3 | 85 | 4,500 | laptop → gvlab copy | complete, sha-verified on gvlab |
+| GVLAB | 1,520 | 74,160 | gvlab | complete |
+| GVLAB2 | 281 | 13,724 | gvlab | complete (16:15 IST) |
+| GVLAB3 | 520 | 28,076 | gvlab | **running** since 16:31 IST, 16 workers; ETA about 02:30 IST Nov 10 |
+| GVLAB4 | 173 | 9,484 | gvlab | queued after GVLAB3 in the same chain; ETA about 06:00 IST Nov 10 |
+
+**Done:** 3,927 / 4,620 roots (85 %).
+
+**Remaining:** gvlab only. The chain is `chain_gvlab34.sh` in tmux `q2_chain34`. It retries starts refused only for busy CPUs, resumes after a safety stop at most 3 times, and stops on any other refusal.
+
+**Merge:** after GVLAB4, one gvlab-only command (`q2_handoff_v2/RUNBOOK_Q2_V2.md`) writes `merged/q2_canonical_v4` plus `MERGED_Q2_V4_AUDIT.json`. 2D Q2 intake waits for `pass: true`.
+
+**Laptop:** no 2D compute. The old V1 queue is frozen (`PAUSE_QUEUE`) and its sleep inhibitor has been stopped.
+
+**gvlab ≥ 4 free cores:** sajid's 2 unpinned jobs started at 16:15. The start gate now accepts a momentarily busy worker CPU only when ≥ 4 CPUs stay idle after our 18 CPUs start (`MIGRATE_OK`). Observed: his jobs migrated to CPUs 21–22, and 6 CPUs are idle.
 
 ## Resource and safety record
 
