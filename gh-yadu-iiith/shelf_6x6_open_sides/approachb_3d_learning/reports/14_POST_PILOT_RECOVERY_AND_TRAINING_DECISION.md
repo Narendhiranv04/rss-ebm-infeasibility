@@ -71,7 +71,7 @@ Branch `naren/approachb-3d-learning`; no other branch was created or merged. Sta
   | Roots, train / val / test | 3,120 / 751 / 749 |
 
 - **Certification pending.** The full `launch_check` audit re-certifies every stored witness at about 80 s per root on 16 processes. It started at 10:12 IST; the ETA is about 17:00–18:30 IST. Its output is `MERGED_Q2_V4_AUDIT.json`. 2D Q2 intake waits for `pass: true`.
-- **Scope note:** Q2 scenes have no designated target, so Q2 gives single-relocation feasibility labels only, with no Y and no per-scene k\*. 2D X/Y lives in the BXY sidecars. A corrected per-scene k\* table (k\* = 0 means directly feasible; NONE means no plan found, treated as infeasible) for both 3D (recovering k = 0 from the raw roots) and 2D-BXY was proposed and not yet run.
+- **Scope note (corrected):** Q2 scenes are the class-quota 2D scenes. Each one has a target disc T and a verified per-scene class: NONE 1,000 · K0 870 · K1 800 · K2 800 · K3 1,150. 380 of the 5,000 K0 scenes are not in Q2. Q2 queries are single-relocation feasibility queries inside those scenes. **Order:** every Q2 scene is order-independent by construction, because each blocker move is certified from the original scene. The 131 order-DEPENDENT scenes the generator found (verified K2 107, K3 23, K4 1) were excluded and are kept in `raw/` only. A per-scene k* table (k* = 0 means directly feasible; NONE means no plan found, treated as infeasible) for 3D, recovering k = 0 from the raw roots, was proposed and not yet run.
 
 ## Resource and safety record
 
