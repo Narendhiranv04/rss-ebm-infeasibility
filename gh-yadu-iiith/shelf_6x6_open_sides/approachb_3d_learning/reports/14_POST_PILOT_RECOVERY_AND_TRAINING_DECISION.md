@@ -54,6 +54,25 @@ Branch `naren/approachb-3d-learning`; no other branch was created or merged. Sta
 
 **gvlab ≥ 4 free cores:** sajid's 2 unpinned jobs started at 16:15. The start gate now accepts a momentarily busy worker CPU only when ≥ 4 CPUs stay idle after our 18 CPUs start (`MIGRATE_OK`). Observed: his jobs migrated to CPUs 21–22, and 6 CPUs are idle.
 
+### Update 2026-11-10, 10:45 IST
+
+- **Generation finished.** GVLAB3 finished at 03:23 IST (520/520 roots) and GVLAB4 at 07:07 IST (173/173 roots), with 0 pauses and 0 safety stops. **All 4,620 roots are generated.**
+- **Merge finished** (10:12 IST, gvlab): `merged/q2_canonical_v4`, with every identity and snapshot-hash check passing. Every root is `BITWISE_PORTABLE`.
+- **Counts** (from the merged records; full detail in `q2_handoff_v2/MERGED_Q2_V4_COUNTS.json`):
+
+  | | Count |
+  |---|---:|
+  | Tasks | 249,965 |
+  | Teacher queries | 238,160 |
+  | Feasible | 176,038 (73.9 %) |
+  | Infeasible | 62,122 |
+  | Interrupted | 0 |
+  | Verified grasp/place pairs | 1,272,077 |
+  | Roots, train / val / test | 3,120 / 751 / 749 |
+
+- **Certification pending.** The full `launch_check` audit re-certifies every stored witness at about 80 s per root on 16 processes. It started at 10:12 IST; the ETA is about 17:00–18:30 IST. Its output is `MERGED_Q2_V4_AUDIT.json`. 2D Q2 intake waits for `pass: true`.
+- **Scope note:** Q2 scenes have no designated target, so Q2 gives single-relocation feasibility labels only, with no Y and no per-scene k\*. 2D X/Y lives in the BXY sidecars. A corrected per-scene k\* table (k\* = 0 means directly feasible; NONE means no plan found, treated as infeasible) for both 3D (recovering k = 0 from the raw roots) and 2D-BXY was proposed and not yet run.
+
 ## Resource and safety record
 
 - **Caps:** CPU-h, GPU-h and wall-clock caps were respected (R1 19.56 / 60 CPU-h; R2 ≤ 6 CPU-h; R4 about 1 GPU-min of 6).
