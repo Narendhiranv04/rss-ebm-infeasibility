@@ -6,19 +6,19 @@ This is a dataset of shelf rearrangement problems for an xArm7 in MuJoCo, built 
 - **Without home position:** the arm never returns to its ready pose between moves.
 - **No overpass:** the arm and hand never pass over an obstacle, and over the shelf they stay below the tallest object's top + 10 cm (arm ceiling).
 
-## Status: in progress (9 Nov 2026): NONE complete, K2 and K3 still being generated
+## Status: final (11 Nov 2026): 2,414 counted scenes; K3 stopped at 517 of 612
 
-| Class | Meaning | Counted now | Quota |
+| Class | Meaning | Counted | Quota |
 |---|---|---|---|
 | NONE | no repair of ≤ 4 moves exists (certified, see [NONE](#none-certified-and-trimmed)) | 408 | 408 ✔ |
 | K0 | T reaches its goal directly | 511 | 511 ✔ |
 | K1 | 1 object must be moved first | 357 | 357 ✔ |
-| K2 | 2 objects | 357 | 612 |
-| K3 | 3 objects | 357 | 612 |
+| K2 | 2 objects | 612 | 612 ✔ |
+| K3 | 3 objects | 517 | 612 (stopped, 95 short) |
 | K4 (ordered) | 4 objects, moves need an order | 9 | none (was 510; see [K4 ordered](#k4-ordered)) |
-| **Total** | | **1,999** | **2,500** |
+| **Total** | | **2,414** | **2,500** |
 
-The original quotas were the class shares of the 1,225-scene open-tabletop dataset (`../../open_tabletop/dataset_bd_classquota/`), scaled by 2500 / 1225: NONE 408, K0 511, K1 357, K2 357, K3 357, K4 510. **K4 was not reached on this shelf** (see [Open points](#open-points)), so its 510 slots were moved to K2 and K3 (255 each, 9 Nov 2026), which keeps the total at 2,500. K2 and K3 are being generated up to 612 each; this folder will be updated when they are done.
+The original quotas were the class shares of the 1,225-scene open-tabletop dataset (`../../open_tabletop/dataset_bd_classquota/`), scaled by 2500 / 1225: NONE 408, K0 511, K1 357, K2 357, K3 357, K4 510. **K4 was not reached on this shelf** (see [Open points](#open-points)), so its 510 slots were moved to K2 and K3 (255 each, 9 Nov 2026), which keeps the total at 2,500. K2 reached 612. **K3 was stopped at 517 of 612** on 11 Nov 2026 by the user's decision (no more scenes were needed), so the total is 2,414 instead of 2,500. Both machines were stopped, and scenes that were still being constructed were discarded. The 539 new K2 and K3 scenes (1,902 objects) passed the fixed-object check on 11 Nov (every object can be picked alone). `raw/` also holds every other accepted scene of the run, beyond the counted ones: 566 more K0, 212 more K1 and 27 more K2 scenes, besides the DEPENDENT, NONE_SOLVABLE and INCONSISTENT ones listed below.
 
 `selected.json` lists the counted scene ids per class and the file each class comes from (`raw/` for K0–K3, `raw_none/` for NONE, `raw_k4_ordered/` for K4).
 
@@ -61,17 +61,17 @@ The 408 scenes have 5 to 12 obstacles (median 7): 5: 4, 6: 112, 7: 96, 8: 103, 9
 
 `raw/ledger.jsonl` (K0–K3 run; `raw_none/ledger.jsonl` holds the 408 NONE scenes' lines)
 
-`raw/ledger.jsonl` has one line per attempt: 2,218 lines, all labelled by generator `BD_GEN_V1+ROUTE_V15+SHELF66V3`. Of these, 1,088 are re-taught V2 scenes and 1,130 are new. It holds the lines of the roots in the selection; the run's full ledger has more.
+`raw/ledger.jsonl` has one line per attempt: 4,071 lines (laptop and server runs merged), all labelled by generator `BD_GEN_V1+ROUTE_V15+SHELF66V3`. Of these, 1,088 are re-taught V2 scenes and 2,983 are new. It holds every line of the main run, so it also covers scenes that are not in the selection.
 
 | Outcome | Lines |
 |---|---|
-| K0 / K1 / K2 / K3 | 540 / 405 / 396 / 357 |
-| NONE lines of this run (not used, see NONE above) | 4 audit-confirmed, 28 NONE_SOLVABLE, 1 NONE_UNAUDITED |
-| DEPENDENT | 50 |
-| INCONSISTENT | 22 |
-| rejected during construction | 415 (374 hit the construction time cap, 35 found no blocking layout) |
+| K0 / K1 / K2 / K3 | 1,077 / 569 / 639 / 517 |
+| NONE lines of this run (not used, see NONE above) | 9 audit-confirmed, 73 NONE_SOLVABLE, 3 NONE_UNAUDITED |
+| DEPENDENT | 108 |
+| INCONSISTENT | 36 |
+| rejected during construction | 1,040 (891 hit the construction time cap, 91 had too small a distractor role pool, 40 found no blocking layout, 18 had T infeasible on the empty table) |
 
-The selection takes accepted scenes in ledger order up to each quota, so K0, K1 and K2 have more accepted scenes than are counted.
+The selection takes accepted scenes in ledger order up to each quota, so K0, K1 and K2 have more accepted scenes than are counted. K3 counts all 517 of its accepted scenes.
 
 Root ids: `3ds66-lap-…` / `3ds66-srv-…` (V2 runs, re-taught) and `3ds66-lap3-…` / `3ds66-srv3-…` (V3 runs).
 
@@ -166,4 +166,4 @@ Live controls in the run folder, with no restart needed:
 ## Open points
 
 - **K4 (0 of the original 510, quota moved to K2 and K3):** no K4 construction succeeded on this shelf (V2 + V3: 0 of 36, all at the construction time cap). Tests that also allowed ordered moves, splitting the blockers, and building K4 from a K3 scene (0 of 18) found none either. Every feasible grasp direction has to be blocked 4 times, which needs 8–15 objects packed around the start and goal; with the arm reaching in only from the front, the inner blockers cannot then be reached or parked without hitting their neighbours. The trim step did turn up two small scenes (6–7 obstacles) with a 4-move repair, but their moves need an order, so they are not K4 under the independence rule. They are now counted as ordered K4 (see [K4 ordered](#k4-ordered)).
-- **K2 and K3 (357 of 612 each):** being generated with the same runner and rules; this folder is updated when they are done.
+- **K3 (517 of 612):** generation was stopped on 11 Nov 2026 with 95 scenes of the quota still missing. K3 is the slow class (up to 5 hours per scene at the construction time cap), and the lab server could not be used for it: its watchdog stops our runs above 100 °C, and starting even 4–8 workers pushed it over that limit. K2 is complete (612).

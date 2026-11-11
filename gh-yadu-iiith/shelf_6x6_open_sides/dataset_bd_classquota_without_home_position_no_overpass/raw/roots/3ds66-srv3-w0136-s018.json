@@ -1,0 +1,580 @@
+{
+ "alt_parking": {
+  "o00": [
+   [
+    1,
+    4
+   ],
+   [
+    3,
+    4
+   ],
+   [
+    3,
+    0
+   ],
+   [
+    2,
+    3
+   ],
+   [
+    4,
+    5
+   ]
+  ],
+  "o01": [
+   [
+    3,
+    4
+   ],
+   [
+    3,
+    0
+   ],
+   [
+    5,
+    0
+   ],
+   [
+    2,
+    3
+   ]
+  ],
+  "o02": [
+   [
+    1,
+    4
+   ],
+   [
+    4,
+    5
+   ],
+   [
+    3,
+    0
+   ],
+   [
+    2,
+    3
+   ],
+   [
+    5,
+    4
+   ]
+  ]
+ },
+ "budget": {
+  "pool_cap": 6,
+  "rrt_max_iters": 5000,
+  "seq_tries": 8
+ },
+ "cell_convention": "shelf_scene confined shelf (row, col), 0-based, row 0 nearest the robot; centre = (x0 + (r-2.5)*pitch, (c-2.5)*pitch) on the 6 x 6 grid, on the shelf floor (table_z)",
+ "construction": {
+  "method": "bd_3dt"
+ },
+ "domain": "3ds66",
+ "empty_table_T_solve": {
+  "feasible_azimuths": [
+   112.5,
+   135.0,
+   157.5,
+   180.0,
+   202.5,
+   225.0,
+   247.5
+  ]
+ },
+ "generator_version_plus": "BD_GEN_V1+ROUTE_V15+SHELF66V3",
+ "geometry": {
+  "arm_ceiling": true,
+  "azimuths": [
+   0.0,
+   22.5,
+   45.0,
+   67.5,
+   90.0,
+   112.5,
+   135.0,
+   157.5,
+   180.0,
+   202.5,
+   225.0,
+   247.5,
+   270.0,
+   292.5,
+   315.0,
+   337.5
+  ],
+  "ceiling_margin": 0.1,
+  "clear_height": 0.6,
+  "cols": 6,
+  "grasp_at": "middle,top",
+  "lift": 0.025,
+  "no_overpass": true,
+  "pitch": 0.075,
+  "return_to_ready": false,
+  "rows": 6,
+  "scene": "confined",
+  "side_walls": false,
+  "table_z": 0.55,
+  "tilts": [
+   90.0
+  ],
+  "x0": 0.42
+ },
+ "goal": [
+  1,
+  1
+ ],
+ "grasp_azimuths": 16,
+ "greedy_blockers": [],
+ "ids": {
+  "config_hash": "8d521b1f6d23db23",
+  "construction_seed": 1485603891,
+  "generator_version": "BD_GEN_V1",
+  "label_protocol": "BD_BINARY_BUDGET_V1",
+  "parent_family_id": "fam-eb1f6a6d4c",
+  "robot_protocol": "XARM7_SHELF66_LEVELGRASP_V1:cd7f78f44022",
+  "root_id": "3ds66-srv3-w0136-s018",
+  "teacher_version": "BD3DS66_TEACHER_V2:shelf_scene[confined].plan_pick_place(first feasible level grasp, fingers pre-shaped in every check, RRT max_iters=5000, no wall-clock)+MuJoCo run_plan, moves chained (no return to the ready pose between them)",
+  "variant_id": "orig"
+ },
+ "independent_moves": true,
+ "initial_cells": {
+  "o00": [
+   0,
+   5
+  ],
+  "o01": [
+   3,
+   5
+  ],
+  "o02": [
+   1,
+   5
+  ],
+  "t0": [
+   4,
+   2
+  ]
+ },
+ "intended_blockers": [],
+ "label_consistency": {
+  "consistent": true,
+  "shorter_sequences_that_succeeded": []
+ },
+ "labels": {
+  "B": [
+   {
+    "failed_step": null,
+    "final_cells": {
+     "o00": [
+      0,
+      5
+     ],
+     "o01": [
+      3,
+      5
+     ],
+     "o02": [
+      1,
+      5
+     ],
+     "t0": [
+      1,
+      1
+     ]
+    },
+    "n_actions": 1,
+    "negative_kind": null,
+    "reason": "executed",
+    "role": "minimal",
+    "sequence": [],
+    "steps": [
+     {
+      "azimuth": 180.0,
+      "dest": [
+       1,
+       1
+      ],
+      "end_cell": [
+       1,
+       1
+      ],
+      "grasp_id": 0,
+      "object": "t0",
+      "ok": true,
+      "pushed": [],
+      "tried": 1,
+      "z_err": -0.00010893993716787342
+     }
+    ],
+    "witnesses": [
+     "4a4a272aafdfedb7527b8b94"
+    ],
+    "y": 1
+   },
+   {
+    "excess_actions": 1,
+    "failed_step": null,
+    "final_cells": {
+     "o00": [
+      1,
+      4
+     ],
+     "o01": [
+      3,
+      5
+     ],
+     "o02": [
+      1,
+      5
+     ],
+     "t0": [
+      1,
+      1
+     ]
+    },
+    "n_actions": 2,
+    "negative_kind": null,
+    "reason": "executed",
+    "role": "noop_irrelevant",
+    "sequence": [
+     [
+      "o00",
+      [
+       1,
+       4
+      ]
+     ]
+    ],
+    "steps": [
+     {
+      "azimuth": 225.0,
+      "dest": [
+       1,
+       4
+      ],
+      "end_cell": [
+       1,
+       4
+      ],
+      "grasp_id": 0,
+      "object": "o00",
+      "ok": true,
+      "pushed": [],
+      "tried": 1,
+      "z_err": -0.00010871020865399483
+     },
+     {
+      "azimuth": 180.0,
+      "dest": [
+       1,
+       1
+      ],
+      "end_cell": [
+       1,
+       1
+      ],
+      "grasp_id": 0,
+      "object": "t0",
+      "ok": true,
+      "pushed": [],
+      "tried": 1,
+      "z_err": -0.00010834814959670425
+     }
+    ],
+    "witnesses": [
+     "fe8b455459f7d8b61485b7bc",
+     "59d2d5687a3589902f3c30ce"
+    ],
+    "y": 1
+   }
+  ],
+  "D": [
+   {
+    "azimuth": 180.0,
+    "edit": {
+     "o00": [
+      1,
+      4
+     ]
+    },
+    "grasp_id": 0,
+    "negative_kind": null,
+    "query_kind": "SCENE_TARGET_ONLY",
+    "reason": "grasp 0",
+    "tried": 1,
+    "witness": "f37b4529baf9a656a825eb71",
+    "y": 1
+   },
+   {
+    "azimuth": 180.0,
+    "edit": {
+     "o01": [
+      2,
+      4
+     ]
+    },
+    "grasp_id": 0,
+    "negative_kind": null,
+    "query_kind": "SCENE_TARGET_ONLY",
+    "reason": "grasp 0",
+    "tried": 1,
+    "witness": "6b419c224bab494e2cc2c15a",
+    "y": 1
+   },
+   {
+    "azimuth": 180.0,
+    "edit": {
+     "o02": [
+      2,
+      5
+     ]
+    },
+    "grasp_id": 0,
+    "negative_kind": null,
+    "query_kind": "SCENE_TARGET_ONLY",
+    "reason": "grasp 0",
+    "tried": 1,
+    "witness": "9198d85b8b46c3a8446a7d07",
+    "y": 1
+   }
+  ],
+  "blocker": {
+   "blocker_supervision_valid": false,
+   "clearing_sets_reachable": {},
+   "full_lattice": true,
+   "mask": null,
+   "minimal_sets": [],
+   "relocation_queries": {
+    "feasible": 0,
+    "queries": 0
+   },
+   "scope": [],
+   "sequence_tries": 0,
+   "why_invalid": "FEASIBLE_ORIGINAL"
+  },
+  "edits_evaluated": 3,
+  "original": {
+   "azimuth": 180.0,
+   "grasp_id": 0,
+   "negative_kind": null,
+   "reason": "grasp 0",
+   "tried": 1,
+   "witness": "4a4a272aafdfedb7527b8b94",
+   "y": 1
+  }
+ },
+ "ledger_observed": "0",
+ "mechanism_pools": {
+  "grasp": [
+   [
+    4,
+    3
+   ],
+   [
+    3,
+    3
+   ],
+   [
+    3,
+    2
+   ],
+   [
+    3,
+    1
+   ],
+   [
+    4,
+    1
+   ],
+   [
+    3,
+    4
+   ],
+   [
+    2,
+    3
+   ],
+   [
+    2,
+    2
+   ],
+   [
+    2,
+    1
+   ],
+   [
+    3,
+    0
+   ],
+   [
+    5,
+    1
+   ],
+   [
+    5,
+    2
+   ],
+   [
+    5,
+    3
+   ]
+  ],
+  "place": [
+   [
+    1,
+    2
+   ],
+   [
+    0,
+    2
+   ],
+   [
+    0,
+    1
+   ],
+   [
+    0,
+    0
+   ],
+   [
+    1,
+    0
+   ],
+   [
+    0,
+    3
+   ],
+   [
+    2,
+    0
+   ],
+   [
+    2,
+    1
+   ],
+   [
+    2,
+    2
+   ]
+  ],
+  "transfer": [
+   [
+    3,
+    2
+   ],
+   [
+    2,
+    2
+   ],
+   [
+    2,
+    1
+   ],
+   [
+    3,
+    3
+   ],
+   [
+    3,
+    1
+   ],
+   [
+    2,
+    3
+   ],
+   [
+    1,
+    2
+   ],
+   [
+    2,
+    0
+   ]
+  ]
+ },
+ "n_movable": 3,
+ "objects": [
+  {
+   "color": "green",
+   "height": 0.1552158803540895,
+   "id": "t0",
+   "shape": "cylinder",
+   "size": 0.018074592226106037
+  },
+  {
+   "color": "red",
+   "height": 0.13160896217944185,
+   "id": "o00",
+   "shape": "cylinder",
+   "size": 0.015913857903542
+  },
+  {
+   "color": "blue",
+   "height": 0.13274803156779763,
+   "id": "o01",
+   "shape": "box",
+   "size": 0.01455930453961883
+  },
+  {
+   "color": "orange",
+   "height": 0.15385985336697308,
+   "id": "o02",
+   "shape": "cylinder",
+   "size": 0.014463532544930609
+  }
+ ],
+ "observed": 0,
+ "parking": {
+  "o00": [
+   [
+    1,
+    4
+   ]
+  ],
+  "o01": [
+   [
+    2,
+    4
+   ]
+  ],
+  "o02": [
+   [
+    2,
+    5
+   ]
+  ]
+ },
+ "roles": {
+  "o00": "distractor:far",
+  "o01": "distractor:far",
+  "o02": "distractor:far"
+ },
+ "source_files": {
+  "rrt_connect.py": "01972f63842d",
+  "rrt_star.py": "bc46b48d5e68",
+  "shelf_scene.py": "440ac53766f8"
+ },
+ "spec": {
+  "K": 0,
+  "displacement": "medium",
+  "distractor_role": "far",
+  "distractors": "3-4",
+  "mechanism": "mixed",
+  "parking": "one",
+  "source": "far",
+  "start_pose": "home"
+ },
+ "target_src": [
+  4,
+  2
+ ],
+ "teacher_calls": {
+  "execute": 3,
+  "plan": 4
+ },
+ "teacher_wall_s": 8.200933694839478,
+ "verified_K": 0
+}

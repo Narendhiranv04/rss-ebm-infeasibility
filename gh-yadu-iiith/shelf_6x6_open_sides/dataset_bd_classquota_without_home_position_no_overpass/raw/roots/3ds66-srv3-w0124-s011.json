@@ -1,0 +1,2237 @@
+{
+ "alt_parking": {
+  "o00": [
+   [
+    3,
+    2
+   ],
+   [
+    4,
+    2
+   ],
+   [
+    2,
+    0
+   ],
+   [
+    5,
+    2
+   ],
+   [
+    2,
+    1
+   ]
+  ],
+  "o01": [
+   [
+    3,
+    2
+   ],
+   [
+    3,
+    0
+   ],
+   [
+    2,
+    1
+   ]
+  ],
+  "o02": [
+   [
+    3,
+    2
+   ],
+   [
+    2,
+    0
+   ],
+   [
+    2,
+    1
+   ]
+  ],
+  "o03": [
+   [
+    4,
+    2
+   ],
+   [
+    4,
+    0
+   ],
+   [
+    4,
+    1
+   ]
+  ]
+ },
+ "budget": {
+  "pool_cap": 6,
+  "rrt_max_iters": 5000,
+  "seq_tries": 8
+ },
+ "cell_convention": "shelf_scene confined shelf (row, col), 0-based, row 0 nearest the robot; centre = (x0 + (r-2.5)*pitch, (c-2.5)*pitch) on the 6 x 6 grid, on the shelf floor (table_z)",
+ "construction": {
+  "method": "bd_3dt"
+ },
+ "domain": "3ds66",
+ "empty_table_T_solve": {
+  "feasible_azimuths": [
+   135.0,
+   180.0,
+   225.0
+  ]
+ },
+ "generator_version_plus": "BD_GEN_V1+ROUTE_V15+SHELF66V3",
+ "geometry": {
+  "arm_ceiling": true,
+  "azimuths": [
+   0.0,
+   22.5,
+   45.0,
+   67.5,
+   90.0,
+   112.5,
+   135.0,
+   157.5,
+   180.0,
+   202.5,
+   225.0,
+   247.5,
+   270.0,
+   292.5,
+   315.0,
+   337.5
+  ],
+  "ceiling_margin": 0.1,
+  "clear_height": 0.6,
+  "cols": 6,
+  "grasp_at": "middle,top",
+  "lift": 0.025,
+  "no_overpass": true,
+  "pitch": 0.075,
+  "return_to_ready": false,
+  "rows": 6,
+  "scene": "confined",
+  "side_walls": false,
+  "table_z": 0.55,
+  "tilts": [
+   90.0
+  ],
+  "x0": 0.42
+ },
+ "goal": [
+  5,
+  5
+ ],
+ "grasp_azimuths": 16,
+ "greedy_blockers": [],
+ "ids": {
+  "config_hash": "8d521b1f6d23db23",
+  "construction_seed": 3538207466,
+  "generator_version": "BD_GEN_V1",
+  "label_protocol": "BD_BINARY_BUDGET_V1",
+  "parent_family_id": "fam-1fa88b6589",
+  "robot_protocol": "XARM7_SHELF66_LEVELGRASP_V1:cd7f78f44022",
+  "root_id": "3ds66-srv3-w0124-s011",
+  "teacher_version": "BD3DS66_TEACHER_V2:shelf_scene[confined].plan_pick_place(first feasible level grasp, fingers pre-shaped in every check, RRT max_iters=5000, no wall-clock)+MuJoCo run_plan, moves chained (no return to the ready pose between them)",
+  "variant_id": "orig"
+ },
+ "independent_moves": true,
+ "initial_cells": {
+  "o00": [
+   2,
+   5
+  ],
+  "o01": [
+   3,
+   3
+  ],
+  "o02": [
+   2,
+   3
+  ],
+  "o03": [
+   4,
+   3
+  ],
+  "t0": [
+   1,
+   3
+  ]
+ },
+ "intended_blockers": [],
+ "label_consistency": {
+  "consistent": true,
+  "shorter_sequences_that_succeeded": []
+ },
+ "labels": {
+  "B": [
+   {
+    "excess_actions": null,
+    "failed_step": 0,
+    "grasp_reasons": {
+     "0": "IK jumps branch near [ 0.528 -0.038  0.658]",
+     "1": "the arm / hand would hit t0, t0 near [0.378 0.183 0.633]",
+     "2": "the hand (closing axis -90 deg) would overlap a neighbour at the goal",
+     "3": "the arm / hand would hit t0, o02, t0, o02 near [0.38  0.183 0.633]",
+     "4": "the hand (closing axis -113 deg) would overlap a neighbour at the goal",
+     "5": "the arm / hand would hit o02, o02 near [0.382 0.182 0.633]",
+     "6": "the hand (closing axis -135 deg) would overlap a neighbour at the goal",
+     "7": "the arm / hand would hit o01, o02, o01, o02 near [0.384 0.183 0.633]",
+     "8": "the hand (closing axis -158 deg) would overlap a neighbour at the goal",
+     "9": "the arm / hand would hit t0, o01, o03, t0, o01, o03 near [0.387 0.183 0.633]",
+     "10": "the arm / hand would hit the floor_board near [0.382 0.25  0.633]",
+     "11": "grasp pose [0.382 0.187 0.633] is out of reach (or the arm would hit the structure there)",
+     "12": "grasp pose [0.382 0.187 0.633] is out of reach (or the arm would hit the structure there)",
+     "13": "grasp pose [0.382 0.187 0.633] is out of reach (or the arm would hit the structure there)",
+     "14": "grasp pose [0.382 0.187 0.633] is out of reach (or the arm would hit the structure there)",
+     "15": "grasp pose [0.382 0.187 0.633] is out of reach (or the arm would hit the structure there)",
+     "16": "the arm / hand would hit the arm_ceiling near [ 0.338 -0.043  0.729]",
+     "17": "the arm / hand would hit t0, t0 near [0.378 0.183 0.704]",
+     "18": "the hand (closing axis -90 deg) would overlap a neighbour at the goal",
+     "19": "the arm / hand would hit t0, o02, t0 near [0.38  0.183 0.704]",
+     "20": "the hand (closing axis -113 deg) would overlap a neighbour at the goal",
+     "21": "the arm / hand would hit o02 near [0.382 0.182 0.704]",
+     "22": "the arm / hand would hit the arm_ceiling near [0.382 0.187 0.72 ]",
+     "23": "the arm / hand would hit o01, o02, o01 near [0.384 0.183 0.704]",
+     "24": "the arm / hand would hit the arm_ceiling near [0.382 0.187 0.716]",
+     "25": "the arm / hand would hit o01, o03, o03 near [0.387 0.183 0.704]",
+     "26": "the arm / hand would hit the floor_board near [0.382 0.207 0.704]",
+     "27": "grasp pose [0.382 0.187 0.704] is out of reach (or the arm would hit the structure there)",
+     "28": "grasp pose [0.382 0.187 0.704] is out of reach (or the arm would hit the structure there)",
+     "29": "grasp pose [0.382 0.187 0.704] is out of reach (or the arm would hit the structure there)",
+     "30": "grasp pose [0.382 0.187 0.704] is out of reach (or the arm would hit the structure there)",
+     "31": "grasp pose [0.382 0.187 0.704] is out of reach (or the arm would hit the structure there)"
+    },
+    "hit_objects": [
+     "o01, o02, o01",
+     "o01, o02, o01, o02",
+     "o01, o03, o03",
+     "o02",
+     "o02, o02",
+     "t0, o01, o03, t0, o01, o03",
+     "t0, o02, t0",
+     "t0, o02, t0, o02",
+     "t0, t0",
+     "the arm_ceiling",
+     "the floor_board",
+     "the structure there)"
+    ],
+    "n_actions": 2,
+    "negative_kind": "NO_PLAN_FOUND",
+    "reason": "no feasible side grasp",
+    "role": "noop_irrelevant",
+    "sequence": [
+     [
+      "o00",
+      [
+       4,
+       2
+      ]
+     ]
+    ],
+    "steps": [
+     {
+      "dest": [
+       4,
+       2
+      ],
+      "grasp_reasons": {
+       "0": "IK jumps branch near [ 0.528 -0.038  0.658]",
+       "1": "the arm / hand would hit t0, t0 near [0.378 0.183 0.633]",
+       "2": "the hand (closing axis -90 deg) would overlap a neighbour at the goal",
+       "3": "the arm / hand would hit t0, o02, t0, o02 near [0.38  0.183 0.633]",
+       "4": "the hand (closing axis -113 deg) would overlap a neighbour at the goal",
+       "5": "the arm / hand would hit o02, o02 near [0.382 0.182 0.633]",
+       "6": "the hand (closing axis -135 deg) would overlap a neighbour at the goal",
+       "7": "the arm / hand would hit o01, o02, o01, o02 near [0.384 0.183 0.633]",
+       "8": "the hand (closing axis -158 deg) would overlap a neighbour at the goal",
+       "9": "the arm / hand would hit t0, o01, o03, t0, o01, o03 near [0.387 0.183 0.633]",
+       "10": "the arm / hand would hit the floor_board near [0.382 0.25  0.633]",
+       "11": "grasp pose [0.382 0.187 0.633] is out of reach (or the arm would hit the structure there)",
+       "12": "grasp pose [0.382 0.187 0.633] is out of reach (or the arm would hit the structure there)",
+       "13": "grasp pose [0.382 0.187 0.633] is out of reach (or the arm would hit the structure there)",
+       "14": "grasp pose [0.382 0.187 0.633] is out of reach (or the arm would hit the structure there)",
+       "15": "grasp pose [0.382 0.187 0.633] is out of reach (or the arm would hit the structure there)",
+       "16": "the arm / hand would hit the arm_ceiling near [ 0.338 -0.043  0.729]",
+       "17": "the arm / hand would hit t0, t0 near [0.378 0.183 0.704]",
+       "18": "the hand (closing axis -90 deg) would overlap a neighbour at the goal",
+       "19": "the arm / hand would hit t0, o02, t0 near [0.38  0.183 0.704]",
+       "20": "the hand (closing axis -113 deg) would overlap a neighbour at the goal",
+       "21": "the arm / hand would hit o02 near [0.382 0.182 0.704]",
+       "22": "the arm / hand would hit the arm_ceiling near [0.382 0.187 0.72 ]",
+       "23": "the arm / hand would hit o01, o02, o01 near [0.384 0.183 0.704]",
+       "24": "the arm / hand would hit the arm_ceiling near [0.382 0.187 0.716]",
+       "25": "the arm / hand would hit o01, o03, o03 near [0.387 0.183 0.704]",
+       "26": "the arm / hand would hit the floor_board near [0.382 0.207 0.704]",
+       "27": "grasp pose [0.382 0.187 0.704] is out of reach (or the arm would hit the structure there)",
+       "28": "grasp pose [0.382 0.187 0.704] is out of reach (or the arm would hit the structure there)",
+       "29": "grasp pose [0.382 0.187 0.704] is out of reach (or the arm would hit the structure there)",
+       "30": "grasp pose [0.382 0.187 0.704] is out of reach (or the arm would hit the structure there)",
+       "31": "grasp pose [0.382 0.187 0.704] is out of reach (or the arm would hit the structure there)"
+      },
+      "object": "o00",
+      "ok": false,
+      "tried": 32
+     }
+    ],
+    "tried": 32,
+    "witnesses": [],
+    "y": 0
+   }
+  ],
+  "D": [
+   {
+    "azimuth": 135.0,
+    "edit": {
+     "o00": [
+      4,
+      2
+     ]
+    },
+    "grasp_id": 4,
+    "negative_kind": null,
+    "query_kind": "SCENE_TARGET_ONLY",
+    "reason": "grasp 4",
+    "tried": 5,
+    "witness": "d34c496e8106f955b9ad6a0d",
+    "y": 1
+   },
+   {
+    "edit": {
+     "o01": [
+      3,
+      1
+     ]
+    },
+    "grasp_reasons": {
+     "0": "out of reach at [0.217 0.037 0.619]",
+     "1": "the hand (closing axis -68 deg) would overlap a neighbour at the goal",
+     "2": "out of reach at [0.25  0.061 0.619]",
+     "3": "the hand (closing axis -45 deg) would overlap a neighbour at the goal",
+     "4": "no sideways route for t0 to cell (5, 5, 0): other objects block it",
+     "5": "grasp pose [0.307 0.037 0.619] is out of reach (or the arm would hit the structure there)",
+     "6": "no sideways route for t0 to cell (5, 5, 0): other objects block it",
+     "7": "the hand (closing axis -0 deg) would overlap a neighbour at the start",
+     "8": "the arm / hand would hit o00, o00 near [0.307 0.112 0.619]",
+     "9": "the arm / hand would hit o02, o02 near [0.309 0.033 0.619]",
+     "10": "the arm / hand would hit o00, o02, o00, o02 near [0.309 0.042 0.619]",
+     "11": "the arm / hand would hit o01, o02, o01, o02 near [0.312 0.033 0.619]",
+     "12": "the arm / hand would hit o00, o02, o00, o02 near [0.312 0.042 0.619]",
+     "13": "the arm / hand would hit o01, o02, o01, o02 near [0.312 0.035 0.619]",
+     "14": "grasp pose [0.307 0.037 0.619] is out of reach (or the arm would hit the structure there)",
+     "15": "grasp pose [0.307 0.037 0.619] is out of reach (or the arm would hit the structure there)",
+     "16": "the hand (closing axis -90 deg) would overlap a neighbour at the goal",
+     "17": "the hand (closing axis -68 deg) would overlap a neighbour at the goal",
+     "18": "out of reach at [0.192 0.085 0.676]",
+     "19": "the hand (closing axis -45 deg) would overlap a neighbour at the goal",
+     "20": "no sideways route for t0 to cell (5, 5, 0): other objects block it",
+     "21": "the hand (closing axis -22 deg) would overlap a neighbour at the goal",
+     "22": "no sideways route for t0 to cell (5, 5, 0): other objects block it",
+     "23": "the hand (closing axis -0 deg) would overlap a neighbour at the start",
+     "24": "the arm / hand would hit o00, o00 near [0.307 0.112 0.676]",
+     "25": "the arm / hand would hit o02 near [0.309 0.033 0.676]",
+     "26": "the arm / hand would hit o00, o02, o00 near [0.309 0.042 0.676]",
+     "27": "the arm / hand would hit o01, o02, o01 near [0.312 0.033 0.676]",
+     "28": "the arm / hand would hit the floor_board near [0.312 0.042 0.676]",
+     "29": "grasp pose [0.307 0.037 0.676] is out of reach (or the arm would hit the structure there)",
+     "30": "grasp pose [0.307 0.037 0.676] is out of reach (or the arm would hit the structure there)",
+     "31": "grasp pose [0.307 0.037 0.676] is out of reach (or the arm would hit the structure there)"
+    },
+    "hit_objects": [
+     "o00, o00",
+     "o00, o02, o00",
+     "o00, o02, o00, o02",
+     "o01, o02, o01",
+     "o01, o02, o01, o02",
+     "o02",
+     "o02, o02",
+     "the floor_board",
+     "the structure there)"
+    ],
+    "negative_kind": "NO_PLAN_FOUND",
+    "query_kind": "SCENE_TARGET_ONLY",
+    "reason": "no feasible side grasp",
+    "tried": 32,
+    "witness": null,
+    "y": 0
+   },
+   {
+    "edit": {
+     "o02": [
+      2,
+      1
+     ]
+    },
+    "grasp_reasons": {
+     "0": "out of reach at [0.217 0.037 0.619]",
+     "1": "no sideways route for t0 to cell (5, 5, 0): other objects block it",
+     "2": "out of reach at [0.25  0.061 0.619]",
+     "3": "the hand (closing axis -45 deg) would overlap a neighbour at the goal",
+     "4": "no sideways route for t0 to cell (5, 5, 0): other objects block it",
+     "5": "grasp pose [0.307 0.037 0.619] is out of reach (or the arm would hit the structure there)",
+     "6": "no sideways route for t0 to cell (5, 5, 0): other objects block it",
+     "7": "the arm / hand would hit o02, o02 near [ 0.307 -0.038  0.619]",
+     "8": "the arm / hand would hit o00, o00 near [0.307 0.112 0.619]",
+     "9": "the arm / hand would hit o02, o02 near [0.309 0.033 0.619]",
+     "10": "the arm / hand would hit o00, o00 near [0.309 0.042 0.619]",
+     "11": "the arm / hand would hit o02, o02 near [0.312 0.033 0.619]",
+     "12": "the arm / hand would hit o00, o00 near [0.312 0.042 0.619]",
+     "13": "the arm / hand would hit o01, o02, o01, o02 near [0.312 0.035 0.619]",
+     "14": "grasp pose [0.307 0.037 0.619] is out of reach (or the arm would hit the structure there)",
+     "15": "grasp pose [0.307 0.037 0.619] is out of reach (or the arm would hit the structure there)",
+     "16": "the hand (closing axis -90 deg) would overlap a neighbour at the goal",
+     "17": "no sideways route for t0 to cell (5, 5, 0): other objects block it",
+     "18": "out of reach at [0.192 0.085 0.676]",
+     "19": "the hand (closing axis -45 deg) would overlap a neighbour at the goal",
+     "20": "no sideways route for t0 to cell (5, 5, 0): other objects block it",
+     "21": "the hand (closing axis -22 deg) would overlap a neighbour at the goal",
+     "22": "no sideways route for t0 to cell (5, 5, 0): other objects block it",
+     "23": "the arm / hand would hit o02 near [ 0.307 -0.038  0.676]",
+     "24": "the arm / hand would hit o00, o00 near [0.307 0.112 0.676]",
+     "25": "the arm / hand would hit o02 near [0.309 0.033 0.676]",
+     "26": "the arm / hand would hit o00, o00 near [0.309 0.042 0.676]",
+     "27": "the arm / hand would hit o02 near [0.312 0.033 0.676]",
+     "28": "the arm / hand would hit the floor_board near [0.312 0.042 0.676]",
+     "29": "grasp pose [0.307 0.037 0.676] is out of reach (or the arm would hit the structure there)",
+     "30": "grasp pose [0.307 0.037 0.676] is out of reach (or the arm would hit the structure there)",
+     "31": "grasp pose [0.307 0.037 0.676] is out of reach (or the arm would hit the structure there)"
+    },
+    "hit_objects": [
+     "o00, o00",
+     "o01, o02, o01, o02",
+     "o02",
+     "o02, o02",
+     "the floor_board",
+     "the structure there)"
+    ],
+    "negative_kind": "NO_PLAN_FOUND",
+    "query_kind": "SCENE_TARGET_ONLY",
+    "reason": "no feasible side grasp",
+    "tried": 32,
+    "witness": null,
+    "y": 0
+   },
+   {
+    "edit": {
+     "o03": [
+      5,
+      2
+     ]
+    },
+    "grasp_reasons": {
+     "0": "out of reach at [0.217 0.037 0.619]",
+     "1": "the hand (closing axis -68 deg) would overlap a neighbour at the goal",
+     "2": "out of reach at [0.25  0.061 0.619]",
+     "3": "the hand (closing axis -45 deg) would overlap a neighbour at the goal",
+     "4": "no sideways route for t0 to cell (5, 5, 0): other objects block it",
+     "5": "grasp pose [0.307 0.037 0.619] is out of reach (or the arm would hit the structure there)",
+     "6": "no sideways route for t0 to cell (5, 5, 0): other objects block it",
+     "7": "the hand (closing axis -0 deg) would overlap a neighbour at the start",
+     "8": "the arm / hand would hit o00, o00 near [0.307 0.112 0.619]",
+     "9": "the arm / hand would hit o02, o02 near [0.309 0.033 0.619]",
+     "10": "the arm / hand would hit o00, o02, o00, o02 near [0.309 0.042 0.619]",
+     "11": "the arm / hand would hit o02, o02 near [0.312 0.033 0.619]",
+     "12": "the arm / hand would hit o00, o02, o00, o02 near [0.312 0.042 0.619]",
+     "13": "the arm / hand would hit o01, o02, o01, o02 near [0.312 0.035 0.619]",
+     "14": "grasp pose [0.307 0.037 0.619] is out of reach (or the arm would hit the structure there)",
+     "15": "grasp pose [0.307 0.037 0.619] is out of reach (or the arm would hit the structure there)",
+     "16": "the hand (closing axis -90 deg) would overlap a neighbour at the goal",
+     "17": "the hand (closing axis -68 deg) would overlap a neighbour at the goal",
+     "18": "out of reach at [0.192 0.085 0.676]",
+     "19": "the hand (closing axis -45 deg) would overlap a neighbour at the goal",
+     "20": "no sideways route for t0 to cell (5, 5, 0): other objects block it",
+     "21": "no sideways route for t0 to cell (5, 5, 0): other objects block it",
+     "22": "no sideways route for t0 to cell (5, 5, 0): other objects block it",
+     "23": "the hand (closing axis -0 deg) would overlap a neighbour at the start",
+     "24": "the arm / hand would hit o00, o00 near [0.307 0.112 0.676]",
+     "25": "the arm / hand would hit o02 near [0.309 0.033 0.676]",
+     "26": "the arm / hand would hit o00, o02, o00 near [0.309 0.042 0.676]",
+     "27": "the arm / hand would hit o02 near [0.312 0.033 0.676]",
+     "28": "the arm / hand would hit the floor_board near [0.312 0.042 0.676]",
+     "29": "grasp pose [0.307 0.037 0.676] is out of reach (or the arm would hit the structure there)",
+     "30": "grasp pose [0.307 0.037 0.676] is out of reach (or the arm would hit the structure there)",
+     "31": "grasp pose [0.307 0.037 0.676] is out of reach (or the arm would hit the structure there)"
+    },
+    "hit_objects": [
+     "o00, o00",
+     "o00, o02, o00",
+     "o00, o02, o00, o02",
+     "o01, o02, o01, o02",
+     "o02",
+     "o02, o02",
+     "the floor_board",
+     "the structure there)"
+    ],
+    "negative_kind": "NO_PLAN_FOUND",
+    "query_kind": "SCENE_TARGET_ONLY",
+    "reason": "no feasible side grasp",
+    "tried": 32,
+    "witness": null,
+    "y": 0
+   }
+  ],
+  "blocker": {
+   "blocker_supervision_valid": true,
+   "clearing_sets_reachable": {
+    "1": [],
+    "2": []
+   },
+   "full_lattice": true,
+   "mask": {
+    "o00": 1,
+    "o01": 1,
+    "o02": 1,
+    "o03": 1
+   },
+   "minimal_sets": [
+    [
+     "o00"
+    ],
+    [
+     "o01",
+     "o02",
+     "o03"
+    ]
+   ],
+   "relocation_queries": {
+    "feasible": 2,
+    "queries": 10
+   },
+   "scope": [
+    "o00",
+    "o01",
+    "o02",
+    "o03"
+   ],
+   "sequence_tries": 0,
+   "why_invalid": null
+  },
+  "edits_evaluated": 15,
+  "original": {
+   "grasp_reasons": {
+    "0": "out of reach at [0.217 0.037 0.619]",
+    "1": "the hand (closing axis -68 deg) would overlap a neighbour at the goal",
+    "2": "out of reach at [0.25  0.061 0.619]",
+    "3": "the hand (closing axis -45 deg) would overlap a neighbour at the goal",
+    "4": "no sideways route for t0 to cell (5, 5, 0): other objects block it",
+    "5": "grasp pose [0.307 0.037 0.619] is out of reach (or the arm would hit the structure there)",
+    "6": "no sideways route for t0 to cell (5, 5, 0): other objects block it",
+    "7": "the hand (closing axis -0 deg) would overlap a neighbour at the start",
+    "8": "the arm / hand would hit o00, o00 near [0.307 0.112 0.619]",
+    "9": "the arm / hand would hit o02, o02 near [0.309 0.033 0.619]",
+    "10": "the arm / hand would hit o00, o02, o00, o02 near [0.309 0.042 0.619]",
+    "11": "the arm / hand would hit o02, o02 near [0.312 0.033 0.619]",
+    "12": "the arm / hand would hit o00, o02, o00, o02 near [0.312 0.042 0.619]",
+    "13": "the arm / hand would hit o01, o02, o01, o02 near [0.312 0.035 0.619]",
+    "14": "grasp pose [0.307 0.037 0.619] is out of reach (or the arm would hit the structure there)",
+    "15": "grasp pose [0.307 0.037 0.619] is out of reach (or the arm would hit the structure there)",
+    "16": "the hand (closing axis -90 deg) would overlap a neighbour at the goal",
+    "17": "the hand (closing axis -68 deg) would overlap a neighbour at the goal",
+    "18": "out of reach at [0.192 0.085 0.676]",
+    "19": "the hand (closing axis -45 deg) would overlap a neighbour at the goal",
+    "20": "no sideways route for t0 to cell (5, 5, 0): other objects block it",
+    "21": "the hand (closing axis -22 deg) would overlap a neighbour at the goal",
+    "22": "no sideways route for t0 to cell (5, 5, 0): other objects block it",
+    "23": "the hand (closing axis -0 deg) would overlap a neighbour at the start",
+    "24": "the arm / hand would hit o00, o00 near [0.307 0.112 0.676]",
+    "25": "the arm / hand would hit o02 near [0.309 0.033 0.676]",
+    "26": "the arm / hand would hit o00, o02, o00 near [0.309 0.042 0.676]",
+    "27": "the arm / hand would hit o02 near [0.312 0.033 0.676]",
+    "28": "the arm / hand would hit the floor_board near [0.312 0.042 0.676]",
+    "29": "grasp pose [0.307 0.037 0.676] is out of reach (or the arm would hit the structure there)",
+    "30": "grasp pose [0.307 0.037 0.676] is out of reach (or the arm would hit the structure there)",
+    "31": "grasp pose [0.307 0.037 0.676] is out of reach (or the arm would hit the structure there)"
+   },
+   "hit_objects": [
+    "o00, o00",
+    "o00, o02, o00",
+    "o00, o02, o00, o02",
+    "o01, o02, o01, o02",
+    "o02",
+    "o02, o02",
+    "the floor_board",
+    "the structure there)"
+   ],
+   "negative_kind": "NO_PLAN_FOUND",
+   "reason": "no feasible side grasp",
+   "tried": 32,
+   "witness": null,
+   "y": 0
+  }
+ },
+ "ledger_observed": "NONE",
+ "mechanism_pools": {
+  "grasp": [
+   [
+    0,
+    4
+   ],
+   [
+    0,
+    3
+   ],
+   [
+    0,
+    2
+   ],
+   [
+    1,
+    2
+   ],
+   [
+    1,
+    4
+   ],
+   [
+    2,
+    2
+   ],
+   [
+    2,
+    3
+   ],
+   [
+    2,
+    4
+   ]
+  ],
+  "place": [
+   [
+    4,
+    5
+   ],
+   [
+    4,
+    4
+   ],
+   [
+    3,
+    5
+   ],
+   [
+    5,
+    4
+   ]
+  ],
+  "transfer": [
+   [
+    2,
+    3
+   ],
+   [
+    2,
+    4
+   ],
+   [
+    3,
+    4
+   ],
+   [
+    4,
+    4
+   ],
+   [
+    4,
+    5
+   ],
+   [
+    2,
+    2
+   ],
+   [
+    3,
+    3
+   ],
+   [
+    2,
+    5
+   ],
+   [
+    1,
+    4
+   ],
+   [
+    3,
+    5
+   ],
+   [
+    4,
+    3
+   ],
+   [
+    5,
+    4
+   ]
+  ]
+ },
+ "n_movable": 4,
+ "none_audit": {
+  "A_direct": {
+   "plan_found": false
+  },
+  "B_one_move": [
+   [
+    "o00",
+    [
+     4,
+     2
+    ],
+    "relocation fails"
+   ],
+   [
+    "o00",
+    [
+     5,
+     2
+    ],
+    "relocation fails"
+   ],
+   [
+    "o01",
+    [
+     3,
+     1
+    ],
+    "T: no plan"
+   ],
+   [
+    "o01",
+    [
+     2,
+     1
+    ],
+    "T: no plan"
+   ],
+   [
+    "o02",
+    [
+     2,
+     1
+    ],
+    "T: no plan"
+   ],
+   [
+    "o02",
+    [
+     1,
+     1
+    ],
+    "T: no plan"
+   ],
+   [
+    "o03",
+    [
+     5,
+     2
+    ],
+    "relocation fails"
+   ],
+   [
+    "o03",
+    [
+     4,
+     1
+    ],
+    "relocation fails"
+   ]
+  ],
+  "C_clearing_sets_by_removal": [
+   [
+    "o00"
+   ],
+   [
+    "o00",
+    "o01"
+   ],
+   [
+    "o00",
+    "o02"
+   ],
+   [
+    "o00",
+    "o03"
+   ],
+   [
+    "o00",
+    "o01",
+    "o02"
+   ],
+   [
+    "o00",
+    "o01",
+    "o03"
+   ],
+   [
+    "o00",
+    "o02",
+    "o03"
+   ],
+   [
+    "o01",
+    "o02",
+    "o03"
+   ],
+   [
+    "o00",
+    "o01",
+    "o02",
+    "o03"
+   ]
+  ],
+  "C_distinct_final_states_T_checked": 21,
+  "C_tried": [
+   [
+    [
+     "o00",
+     [
+      1,
+      5
+     ]
+    ],
+    "T: no plan after the moves"
+   ],
+   [
+    [
+     "o00",
+     [
+      3,
+      5
+     ]
+    ],
+    "T: no plan after the moves"
+   ],
+   [
+    [
+     "o00",
+     [
+      0,
+      5
+     ]
+    ],
+    "T: no plan after the moves"
+   ],
+   [
+    [
+     "o00",
+     [
+      1,
+      5
+     ]
+    ],
+    [
+     "o01",
+     [
+      3,
+      1
+     ]
+    ],
+    "T: no plan after the moves"
+   ],
+   [
+    [
+     "o00",
+     [
+      1,
+      5
+     ]
+    ],
+    [
+     "o01",
+     [
+      2,
+      1
+     ]
+    ],
+    "T: no plan after the moves"
+   ],
+   [
+    [
+     "o00",
+     [
+      1,
+      5
+     ]
+    ],
+    [
+     "o01",
+     [
+      3,
+      2
+     ]
+    ],
+    "T: no plan after the moves"
+   ],
+   [
+    [
+     "o00",
+     [
+      3,
+      5
+     ]
+    ],
+    [
+     "o01",
+     [
+      3,
+      1
+     ]
+    ],
+    "T: no plan after the moves"
+   ],
+   [
+    [
+     "o00",
+     [
+      3,
+      5
+     ]
+    ],
+    [
+     "o01",
+     [
+      2,
+      1
+     ]
+    ],
+    "T: no plan after the moves"
+   ],
+   [
+    [
+     "o00",
+     [
+      3,
+      5
+     ]
+    ],
+    [
+     "o01",
+     [
+      3,
+      2
+     ]
+    ],
+    "T: no plan after the moves"
+   ],
+   [
+    [
+     "o00",
+     [
+      0,
+      5
+     ]
+    ],
+    [
+     "o01",
+     [
+      3,
+      1
+     ]
+    ],
+    "T: no plan after the moves"
+   ],
+   [
+    [
+     "o00",
+     [
+      0,
+      5
+     ]
+    ],
+    [
+     "o01",
+     [
+      2,
+      1
+     ]
+    ],
+    "T: no plan after the moves"
+   ],
+   [
+    [
+     "o00",
+     [
+      0,
+      5
+     ]
+    ],
+    [
+     "o01",
+     [
+      3,
+      2
+     ]
+    ],
+    "T: no plan after the moves"
+   ],
+   [
+    [
+     "o01",
+     [
+      3,
+      1
+     ]
+    ],
+    [
+     "o00",
+     [
+      1,
+      5
+     ]
+    ],
+    "T: no plan after the moves"
+   ],
+   [
+    [
+     "o01",
+     [
+      3,
+      1
+     ]
+    ],
+    [
+     "o00",
+     [
+      3,
+      5
+     ]
+    ],
+    "T: no plan after the moves"
+   ],
+   [
+    [
+     "o01",
+     [
+      3,
+      1
+     ]
+    ],
+    [
+     "o00",
+     [
+      0,
+      5
+     ]
+    ],
+    "T: no plan after the moves"
+   ],
+   [
+    [
+     "o01",
+     [
+      2,
+      1
+     ]
+    ],
+    [
+     "o00",
+     [
+      1,
+      5
+     ]
+    ],
+    "T: no plan after the moves"
+   ],
+   [
+    [
+     "o01",
+     [
+      2,
+      1
+     ]
+    ],
+    [
+     "o00",
+     [
+      3,
+      5
+     ]
+    ],
+    "T: no plan after the moves"
+   ],
+   [
+    [
+     "o01",
+     [
+      2,
+      1
+     ]
+    ],
+    [
+     "o00",
+     [
+      0,
+      5
+     ]
+    ],
+    "T: no plan after the moves"
+   ],
+   [
+    [
+     "o01",
+     [
+      3,
+      2
+     ]
+    ],
+    [
+     "o00",
+     [
+      1,
+      5
+     ]
+    ],
+    "T: no plan after the moves"
+   ],
+   [
+    [
+     "o01",
+     [
+      3,
+      2
+     ]
+    ],
+    [
+     "o00",
+     [
+      3,
+      5
+     ]
+    ],
+    "T: no plan after the moves"
+   ],
+   [
+    [
+     "o01",
+     [
+      3,
+      2
+     ]
+    ],
+    [
+     "o00",
+     [
+      0,
+      5
+     ]
+    ],
+    "T: no plan after the moves"
+   ],
+   [
+    [
+     "o00",
+     [
+      1,
+      5
+     ]
+    ],
+    [
+     "o02",
+     [
+      2,
+      1
+     ]
+    ],
+    "T: no plan after the moves"
+   ],
+   [
+    [
+     "o00",
+     [
+      1,
+      5
+     ]
+    ],
+    [
+     "o02",
+     [
+      1,
+      1
+     ]
+    ],
+    "T: no plan after the moves"
+   ],
+   [
+    [
+     "o00",
+     [
+      3,
+      5
+     ]
+    ],
+    [
+     "o02",
+     [
+      2,
+      1
+     ]
+    ],
+    "T: no plan after the moves"
+   ],
+   [
+    [
+     "o00",
+     [
+      3,
+      5
+     ]
+    ],
+    [
+     "o02",
+     [
+      1,
+      1
+     ]
+    ],
+    "T: no plan after the moves"
+   ],
+   [
+    [
+     "o00",
+     [
+      0,
+      5
+     ]
+    ],
+    [
+     "o02",
+     [
+      2,
+      1
+     ]
+    ],
+    "T: no plan after the moves"
+   ],
+   [
+    [
+     "o00",
+     [
+      0,
+      5
+     ]
+    ],
+    [
+     "o02",
+     [
+      1,
+      1
+     ]
+    ],
+    "T: no plan after the moves"
+   ],
+   [
+    [
+     "o02",
+     [
+      2,
+      1
+     ]
+    ],
+    [
+     "o00",
+     [
+      1,
+      5
+     ]
+    ],
+    "T: no plan after the moves"
+   ],
+   [
+    [
+     "o02",
+     [
+      2,
+      1
+     ]
+    ],
+    [
+     "o00",
+     [
+      3,
+      5
+     ]
+    ],
+    "T: no plan after the moves"
+   ],
+   [
+    [
+     "o02",
+     [
+      2,
+      1
+     ]
+    ],
+    [
+     "o00",
+     [
+      0,
+      5
+     ]
+    ],
+    "T: no plan after the moves"
+   ],
+   [
+    [
+     "o02",
+     [
+      1,
+      1
+     ]
+    ],
+    [
+     "o00",
+     [
+      1,
+      5
+     ]
+    ],
+    "T: no plan after the moves"
+   ],
+   [
+    [
+     "o02",
+     [
+      1,
+      1
+     ]
+    ],
+    [
+     "o00",
+     [
+      3,
+      5
+     ]
+    ],
+    "T: no plan after the moves"
+   ],
+   [
+    [
+     "o02",
+     [
+      1,
+      1
+     ]
+    ],
+    [
+     "o00",
+     [
+      0,
+      5
+     ]
+    ],
+    "T: no plan after the moves"
+   ],
+   [
+    [
+     "o00",
+     [
+      1,
+      5
+     ]
+    ],
+    "o03: no relocation plans"
+   ],
+   [
+    [
+     "o00",
+     [
+      3,
+      5
+     ]
+    ],
+    "o03: no relocation plans"
+   ],
+   [
+    [
+     "o00",
+     [
+      0,
+      5
+     ]
+    ],
+    "o03: no relocation plans"
+   ],
+   [
+    "o03: no relocation plans"
+   ],
+   [
+    [
+     "o00",
+     [
+      1,
+      5
+     ]
+    ],
+    [
+     "o01",
+     [
+      3,
+      1
+     ]
+    ],
+    "o02: no relocation plans"
+   ],
+   [
+    [
+     "o00",
+     [
+      1,
+      5
+     ]
+    ],
+    [
+     "o01",
+     [
+      2,
+      1
+     ]
+    ],
+    "o02: no relocation plans"
+   ],
+   [
+    [
+     "o00",
+     [
+      1,
+      5
+     ]
+    ],
+    [
+     "o01",
+     [
+      3,
+      2
+     ]
+    ],
+    "o02: no relocation plans"
+   ],
+   [
+    [
+     "o00",
+     [
+      3,
+      5
+     ]
+    ],
+    [
+     "o01",
+     [
+      3,
+      1
+     ]
+    ],
+    "o02: no relocation plans"
+   ],
+   [
+    [
+     "o00",
+     [
+      3,
+      5
+     ]
+    ],
+    [
+     "o01",
+     [
+      2,
+      1
+     ]
+    ],
+    "o02: no relocation plans"
+   ],
+   [
+    [
+     "o00",
+     [
+      3,
+      5
+     ]
+    ],
+    [
+     "o01",
+     [
+      3,
+      2
+     ]
+    ],
+    "o02: no relocation plans"
+   ],
+   [
+    [
+     "o00",
+     [
+      0,
+      5
+     ]
+    ],
+    [
+     "o01",
+     [
+      3,
+      1
+     ]
+    ],
+    "o02: no relocation plans"
+   ],
+   [
+    [
+     "o00",
+     [
+      0,
+      5
+     ]
+    ],
+    [
+     "o01",
+     [
+      2,
+      1
+     ]
+    ],
+    "o02: no relocation plans"
+   ],
+   [
+    [
+     "o00",
+     [
+      0,
+      5
+     ]
+    ],
+    [
+     "o01",
+     [
+      3,
+      2
+     ]
+    ],
+    "o02: no relocation plans"
+   ],
+   [
+    [
+     "o00",
+     [
+      1,
+      5
+     ]
+    ],
+    [
+     "o02",
+     [
+      2,
+      1
+     ]
+    ],
+    "o01: no relocation plans"
+   ],
+   [
+    [
+     "o00",
+     [
+      1,
+      5
+     ]
+    ],
+    [
+     "o02",
+     [
+      1,
+      1
+     ]
+    ],
+    "o01: no relocation plans"
+   ],
+   [
+    [
+     "o00",
+     [
+      3,
+      5
+     ]
+    ],
+    [
+     "o02",
+     [
+      2,
+      1
+     ]
+    ],
+    [
+     "o01",
+     [
+      2,
+      5
+     ]
+    ],
+    "T: no plan after the moves"
+   ],
+   [
+    [
+     "o00",
+     [
+      3,
+      5
+     ]
+    ],
+    [
+     "o02",
+     [
+      2,
+      1
+     ]
+    ],
+    [
+     "o01",
+     [
+      1,
+      1
+     ]
+    ],
+    "T: no plan after the moves"
+   ],
+   [
+    [
+     "o00",
+     [
+      3,
+      5
+     ]
+    ],
+    [
+     "o02",
+     [
+      1,
+      1
+     ]
+    ],
+    [
+     "o01",
+     [
+      2,
+      5
+     ]
+    ],
+    "T: no plan after the moves"
+   ],
+   [
+    [
+     "o00",
+     [
+      0,
+      5
+     ]
+    ],
+    [
+     "o02",
+     [
+      2,
+      1
+     ]
+    ],
+    "o01: no relocation plans"
+   ],
+   [
+    [
+     "o00",
+     [
+      0,
+      5
+     ]
+    ],
+    [
+     "o02",
+     [
+      1,
+      1
+     ]
+    ],
+    "o01: no relocation plans"
+   ],
+   [
+    [
+     "o01",
+     [
+      3,
+      1
+     ]
+    ],
+    [
+     "o00",
+     [
+      1,
+      5
+     ]
+    ],
+    "o02: no relocation plans"
+   ],
+   [
+    [
+     "o01",
+     [
+      3,
+      1
+     ]
+    ],
+    [
+     "o00",
+     [
+      3,
+      5
+     ]
+    ],
+    "o02: no relocation plans"
+   ],
+   [
+    [
+     "o01",
+     [
+      3,
+      1
+     ]
+    ],
+    [
+     "o00",
+     [
+      0,
+      5
+     ]
+    ],
+    "o02: no relocation plans"
+   ],
+   [
+    [
+     "o01",
+     [
+      2,
+      1
+     ]
+    ],
+    [
+     "o00",
+     [
+      1,
+      5
+     ]
+    ],
+    "o02: no relocation plans"
+   ],
+   [
+    [
+     "o01",
+     [
+      2,
+      1
+     ]
+    ],
+    [
+     "o00",
+     [
+      3,
+      5
+     ]
+    ],
+    "o02: no relocation plans"
+   ],
+   [
+    [
+     "o01",
+     [
+      2,
+      1
+     ]
+    ],
+    [
+     "o00",
+     [
+      0,
+      5
+     ]
+    ],
+    "o02: no relocation plans"
+   ],
+   [
+    [
+     "o01",
+     [
+      3,
+      2
+     ]
+    ],
+    [
+     "o00",
+     [
+      1,
+      5
+     ]
+    ],
+    "o02: no relocation plans"
+   ],
+   [
+    [
+     "o01",
+     [
+      3,
+      2
+     ]
+    ],
+    [
+     "o00",
+     [
+      3,
+      5
+     ]
+    ],
+    "o02: no relocation plans"
+   ],
+   [
+    [
+     "o01",
+     [
+      3,
+      2
+     ]
+    ],
+    [
+     "o00",
+     [
+      0,
+      5
+     ]
+    ],
+    "o02: no relocation plans"
+   ],
+   [
+    [
+     "o01",
+     [
+      3,
+      1
+     ]
+    ],
+    "o02: no relocation plans"
+   ],
+   [
+    [
+     "o01",
+     [
+      2,
+      1
+     ]
+    ],
+    "o02: no relocation plans"
+   ],
+   [
+    [
+     "o01",
+     [
+      3,
+      2
+     ]
+    ],
+    "o02: no relocation plans"
+   ],
+   [
+    [
+     "o02",
+     [
+      2,
+      1
+     ]
+    ],
+    [
+     "o00",
+     [
+      1,
+      5
+     ]
+    ],
+    "o01: no relocation plans"
+   ],
+   [
+    [
+     "o02",
+     [
+      2,
+      1
+     ]
+    ],
+    [
+     "o00",
+     [
+      3,
+      5
+     ]
+    ],
+    [
+     "o01",
+     [
+      2,
+      5
+     ]
+    ],
+    "T: no plan after the moves"
+   ],
+   [
+    [
+     "o02",
+     [
+      2,
+      1
+     ]
+    ],
+    [
+     "o00",
+     [
+      3,
+      5
+     ]
+    ],
+    [
+     "o01",
+     [
+      1,
+      1
+     ]
+    ],
+    "T: no plan after the moves"
+   ],
+   [
+    [
+     "o02",
+     [
+      2,
+      1
+     ]
+    ],
+    [
+     "o00",
+     [
+      0,
+      5
+     ]
+    ],
+    "o01: no relocation plans"
+   ],
+   [
+    [
+     "o02",
+     [
+      1,
+      1
+     ]
+    ],
+    [
+     "o00",
+     [
+      1,
+      5
+     ]
+    ],
+    "o01: no relocation plans"
+   ],
+   [
+    [
+     "o02",
+     [
+      1,
+      1
+     ]
+    ],
+    [
+     "o00",
+     [
+      3,
+      5
+     ]
+    ],
+    [
+     "o01",
+     [
+      2,
+      5
+     ]
+    ],
+    "T: no plan after the moves"
+   ],
+   [
+    [
+     "o02",
+     [
+      1,
+      1
+     ]
+    ],
+    [
+     "o00",
+     [
+      0,
+      5
+     ]
+    ],
+    "o01: no relocation plans"
+   ],
+   [
+    [
+     "o02",
+     [
+      2,
+      1
+     ]
+    ],
+    "o01: no relocation plans"
+   ],
+   [
+    [
+     "o02",
+     [
+      1,
+      1
+     ]
+    ],
+    "o01: no relocation plans"
+   ],
+   [
+    [
+     "o00",
+     [
+      1,
+      5
+     ]
+    ],
+    [
+     "o01",
+     [
+      3,
+      1
+     ]
+    ],
+    "o03: no relocation plans"
+   ],
+   [
+    [
+     "o00",
+     [
+      1,
+      5
+     ]
+    ],
+    [
+     "o01",
+     [
+      2,
+      1
+     ]
+    ],
+    "o03: no relocation plans"
+   ],
+   [
+    [
+     "o00",
+     [
+      1,
+      5
+     ]
+    ],
+    [
+     "o01",
+     [
+      3,
+      2
+     ]
+    ],
+    "o03: no relocation plans"
+   ],
+   [
+    [
+     "o00",
+     [
+      3,
+      5
+     ]
+    ],
+    [
+     "o01",
+     [
+      3,
+      1
+     ]
+    ],
+    "o03: no relocation plans"
+   ],
+   [
+    [
+     "o00",
+     [
+      3,
+      5
+     ]
+    ],
+    [
+     "o01",
+     [
+      2,
+      1
+     ]
+    ],
+    "o03: no relocation plans"
+   ],
+   [
+    [
+     "o00",
+     [
+      3,
+      5
+     ]
+    ],
+    [
+     "o01",
+     [
+      3,
+      2
+     ]
+    ],
+    "o03: no relocation plans"
+   ]
+  ],
+  "audit_version": "NONE_AUDIT66_V3",
+  "execution_log": null,
+  "n_obstacles": 4,
+  "phase": null,
+  "root_id": "3ds66-srv3-w0124-s011",
+  "search": {
+   "budget_s": 3600,
+   "iters": 20000,
+   "keep": 3,
+   "park": 6,
+   "seeds": 3
+  },
+  "solution": null,
+  "stats": {
+   "executions": 4,
+   "orders_tried": 55,
+   "reloc_queries": 359,
+   "removal_sets_checked": 8,
+   "t_queries": 98
+  },
+  "status": "CONFIRMED",
+  "teacher_scope": [
+   "o00",
+   "o01",
+   "o02",
+   "o03"
+  ],
+  "wall_s": 1862.4
+ },
+ "objects": [
+  {
+   "color": "green",
+   "height": 0.13846198082410371,
+   "id": "t0",
+   "shape": "cylinder",
+   "size": 0.019808364793483652
+  },
+  {
+   "color": "red",
+   "height": 0.1655932118996576,
+   "id": "o00",
+   "shape": "cylinder",
+   "size": 0.015646256468953918
+  },
+  {
+   "color": "blue",
+   "height": 0.130004740137727,
+   "id": "o01",
+   "shape": "cylinder",
+   "size": 0.01386295770270498
+  },
+  {
+   "color": "orange",
+   "height": 0.0715390201123188,
+   "id": "o02",
+   "shape": "box",
+   "size": 0.012205835025700605
+  },
+  {
+   "color": "purple",
+   "height": 0.11722484591780363,
+   "id": "o03",
+   "shape": "box",
+   "size": 0.012463530007175235
+  }
+ ],
+ "observed": "NONE",
+ "parking": {
+  "o00": [
+   [
+    4,
+    2
+   ],
+   [
+    5,
+    2
+   ]
+  ],
+  "o01": [
+   [
+    3,
+    1
+   ],
+   [
+    2,
+    1
+   ]
+  ],
+  "o02": [
+   [
+    2,
+    1
+   ],
+   [
+    1,
+    1
+   ]
+  ],
+  "o03": [
+   [
+    5,
+    2
+   ],
+   [
+    4,
+    1
+   ]
+  ]
+ },
+ "roles": {
+  "o00": "distractor:near_path",
+  "o01": "distractor:near_path",
+  "o02": "distractor:near_path",
+  "o03": "distractor:near_path"
+ },
+ "source_files": {
+  "rrt_connect.py": "01972f63842d",
+  "rrt_star.py": "bc46b48d5e68",
+  "shelf_scene.py": "440ac53766f8"
+ },
+ "spec": {
+  "K": 0,
+  "displacement": "long",
+  "distractor_role": "near_path",
+  "distractors": "3-4",
+  "mechanism": "place",
+  "parking": "limited",
+  "source": "near",
+  "start_pose": "home"
+ },
+ "target_src": [
+  1,
+  3
+ ],
+ "teacher_calls": {
+  "execute": 1,
+  "plan": 26
+ },
+ "teacher_wall_s": 202.16465592384338,
+ "verified_K": null
+}
