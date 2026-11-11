@@ -45,7 +45,7 @@ The first NONE scenes of this dataset (the 3 in the earlier commit, found by ran
 2. **Certificate** (`code/shelf66_v3/none_cert66_v4.py`, `NONE_CERT66_V4`). With the real obstacles: `blockers[a]` = the obstacles that, with only T and that obstacle on the shelf, make direction `a` fail. The scene is proven NONE when every direction of F0 has at least 5 blockers. An obstacle only adds collisions, so after any ≤ 4 moves (each object moved at most once) every direction still has one of its blockers in place. On top of that the audit tries T directly with a stronger planner (20,000 RRT iterations, 3 seeds) and every single obstacle moved first to its nearest 6 free cells, then T; both must fail. Status `CONFIRMED` is stored in each scene's `none_audit`.
 3. **Trim** (`code/shelf66_v3/trim_none66_v3.py`, `NONE_TRIM66_V3`). The dense scenes held 13–14 obstacles, while K0–K3 scenes hold 0–7, which would give the class away by counting objects. So each scene keeps only the smallest set of obstacles that still meets the certificate (the tallest obstacle is always kept, so the arm ceiling stays the same), the obstacles are renumbered, and the scene is labelled again from scratch: V3 teacher, the consistency checks, and the certificate and audit of step 2 on the trimmed scene. At most 5 obstacles are marked `intended_blocker` (the teacher's checks need ≤ 7 actions). The record's `trim` field keeps the source scene (`from_root`), the id map and the removed obstacles.
 
-The 408 scenes have 5 to 12 obstacles (median 7): 5: 4, 6: 112, 7: 96, 8: 103, 9: 60, 10: 26, 11: 5, 12: 2. Root ids are `3ds66-lapNt-…` / `3ds66-srvNt-…`.
+`raw_none/` also holds 18 further certified NONE scenes that are not counted (the trim produced 426 in all; listed in `selected.json` under `none_extra`). The 408 counted scenes have 5 to 12 obstacles (median 7): 5: 4, 6: 112, 7: 96, 8: 103, 9: 60, 10: 26, 11: 5, 12: 2. Root ids are `3ds66-lapNt-…` / `3ds66-srvNt-…`.
 
 **A limit of the proof.** The blocker tests use a randomised planner, so a direction that looks blocked could in rare cases be open. The trim found two such scenes: the teacher found a 4-move repair (K4, with moves that need an order). They are kept as ordered K4 instead of NONE. The other scenes passed the teacher's repair search and both audit checks, but the proof is not airtight.
 
@@ -120,7 +120,7 @@ dataset_bd_classquota_without_home_position_no_overpass/
     roots/<root_id>.json   one file per accepted scene: layout, labels, construction metadata, NONE audit
     witnesses/<ab>/<id>.npz   verified robot trajectories referenced by the labels
   raw_k4_ordered/          ordered K4 scenes (roots, witnesses, ledger)
-  raw_none/                the NONE scenes (408): ledger.jsonl (their lines), roots/, witnesses/
+  raw_none/                the NONE scenes: ledger.jsonl (their lines), roots/, witnesses/ (408 counted + 18 further certified NONE scenes, see selected.json `none_extra`)
   code/
     shelf66_v3/            bd_shelf.py (shelf domain), bd_3dt.py (teacher), bd_3dt_plus.py (construction),
                            run_shelf66_full.py (runner), none_audit66_v3.py (NONE audit),
