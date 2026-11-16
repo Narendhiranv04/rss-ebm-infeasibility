@@ -1,0 +1,201 @@
+{
+ "alt": [
+  {
+   "failed_step": null,
+   "final_cells": {
+    "o00": [
+     0,
+     3
+    ],
+    "o01": [
+     4,
+     4
+    ],
+    "o02": [
+     1,
+     1
+    ],
+    "o03": [
+     4,
+     5
+    ],
+    "t0": [
+     1,
+     5
+    ]
+   },
+   "independent": false,
+   "n_actions": 3,
+   "negative_kind": null,
+   "orders_tried": 1,
+   "reason": "executed",
+   "role": "minimal_alt",
+   "sequence": [
+    [
+     "o01",
+     [
+      4,
+      4
+     ]
+    ],
+    [
+     "o03",
+     [
+      4,
+      5
+     ]
+    ]
+   ],
+   "set": [
+    "o01",
+    "o03"
+   ],
+   "size": 2,
+   "steps": [
+    {
+     "azimuth": 135.0,
+     "dest": [
+      4,
+      4
+     ],
+     "end_cell": [
+      4,
+      4
+     ],
+     "grasp_id": 7,
+     "object": "o01",
+     "ok": true,
+     "pushed": [],
+     "tried": 8,
+     "z_err": -0.00010775542021561335
+    },
+    {
+     "azimuth": 157.5,
+     "dest": [
+      4,
+      5
+     ],
+     "end_cell": [
+      4,
+      5
+     ],
+     "grasp_id": 3,
+     "object": "o03",
+     "ok": true,
+     "pushed": [],
+     "tried": 4,
+     "z_err": -0.00010846324984908895
+    },
+    {
+     "azimuth": 90.0,
+     "dest": [
+      1,
+      5
+     ],
+     "end_cell": [
+      1,
+      5
+     ],
+     "grasp_id": 6,
+     "object": "t0",
+     "ok": true,
+     "pushed": [],
+     "tried": 7,
+     "z_err": -0.00010881504577148204
+    }
+   ],
+   "wall_s": 58.7,
+   "witnesses": [
+    "ea22becc97420538f28a035d",
+    "ec96fcc20fae46af8c0a21e0",
+    "60c8d7abb5fc1e179ce287fb"
+   ],
+   "y": 1
+  },
+  {
+   "failures": [
+    {
+     "failed_step": 1,
+     "order": [
+      "o02",
+      "o03"
+     ],
+     "reason": "no feasible side grasp"
+    },
+    {
+     "failed_step": 0,
+     "order": [
+      "o03",
+      "o02"
+     ],
+     "reason": "no feasible side grasp"
+    }
+   ],
+   "independent": false,
+   "orders_tried": 2,
+   "role": "minimal_alt",
+   "set": [
+    "o02",
+    "o03"
+   ],
+   "size": 2,
+   "wall_s": 91.3,
+   "y": 0
+  }
+ ],
+ "budget": {
+  "max_orders": 6,
+  "rrt_max_iters": 5000
+ },
+ "executed_minimal_set": [
+  "o01",
+  "o02"
+ ],
+ "ids": {
+  "config_hash": "8d521b1f6d23db23",
+  "construction_seed": 2779982822,
+  "generator_version": "BD_GEN_V1",
+  "label_protocol": "BD_BINARY_BUDGET_V1",
+  "parent_family_id": "fam-f59e5e85d3",
+  "robot_protocol": "XARM7_SHELF66_LEVELGRASP_V1:cd7f78f44022",
+  "root_id": "3ds66-srv3-w0078-s023",
+  "teacher_version": "BD3DS66_TEACHER_V2:shelf_scene[confined].plan_pick_place(first feasible level grasp, fingers pre-shaped in every check, RRT max_iters=5000, no wall-clock)+MuJoCo run_plan, moves chained (no return to the ready pose between them)",
+  "variant_id": "orig"
+ },
+ "minimal_sets": [
+  [
+   "o01",
+   "o02"
+  ],
+  [
+   "o01",
+   "o03"
+  ],
+  [
+   "o02",
+   "o03"
+  ]
+ ],
+ "observed": 2,
+ "parking_used": {
+  "o00": [
+   4,
+   0
+  ],
+  "o01": [
+   4,
+   4
+  ],
+  "o02": [
+   4,
+   2
+  ],
+  "o03": [
+   4,
+   5
+  ]
+ },
+ "verified_K": 2,
+ "version": "ALT_SETS66_V1",
+ "wall_s": 150.6
+}
