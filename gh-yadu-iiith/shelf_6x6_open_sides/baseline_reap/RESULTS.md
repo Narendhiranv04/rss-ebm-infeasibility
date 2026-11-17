@@ -18,3 +18,19 @@ Solved by class (zero-shot -> scratch): K0 97.0 -> 100, K1 92.5 -> 88.7, K2 81.4
   with fresh optimizer/buffers (the first killed by the memory guard, the second stalled when its workers vanished).
 * Fine-tuning from the released weights was not run (on hold).
 * AUC: the object-count-only baseline reaches 0.976 on this split, so AUC does not separate methods well.
+
+## Why scratch is worse than zero-shot (from the test CSVs; causes not isolated)
+Both models mostly end by the 300 s limit (timeouts: zero-shot 142/370, scratch 190/370). On the scenes each did not solve:
+
+| | zero-shot | scratch |
+|---|---|---|
+| teacher-rejected moves proposed (infeasible steps) | 12.6 | 23.4 |
+| nodes expanded before the time limit | 52 | 29 |
+| filter calls | 79 | 59 |
+
+Scratch proposes ~2x more infeasible moves, and each rejected check is slow, so it spends the time budget on dead ends:
+its Q-function has not learned the preconditions. On solved scenes it needs fewer steps (4.5 vs 6.4), which explains the
+higher "Repair (minimal)" (it only solves the easy scenes).
+Likely reasons (not separated): ~3,600 updates only (REAP's own runs have microsecond checks and many more updates; the
+validation score was still moving: 3 -> 19 -> 13 of 50), the ~77%-agreement library, three restarts with fresh
+optimizer/buffers, search_batching 8 (paper: 64), 600 training scenes.
