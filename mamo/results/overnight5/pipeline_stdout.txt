@@ -1,0 +1,1413 @@
+2026-10-28 23:06:21 main experiment D:\RRC\New folder\m4m_em4m_project\mamo\workspace\experiments\20261028-230621_overnight5
+2026-10-29 12:06:50 main experiment done
+2026-10-29 12:06:50 scripts/overnight2.py organize 20261028-230621_overnight5 --out overnight5-grid --dataset overnight5-grid
+organized 900 runs
+2026-10-29 12:06:58 scripts/overnight2.py report 20261028-230621_overnight5 --out overnight5-grid --dataset overnight5-grid
+# Overnight run 5: every baseline as in its paper, easier dataset, grid states
+
+Experiment `D:/RRC/New folder/m4m_em4m_project/mamo/workspace/experiments/20261028-230621_overnight5`; dataset `overnight5-grid` (100 problems); 9 methods, one seed, at most 300 s of planning per run, 900 runs. A run counts as solved only if its plan, replayed from the initial scene in MuJoCo, succeeds (the OoI is out of its shelf / every target is at its goal).
+
+**Most problems solved: DOGAR, 32 of 100.**
+
+![solved](solved_by_method.png)
+
+## Solved per method and task
+
+| Method | OoI retrieval | Pick-and-place | Total |
+|---|---|---|---|
+| DOGAR | 10/50 | 22/50 | **32/100** |
+| I-M4M-PnP | 8/50 | 13/50 | **21/100** |
+| E-M4M | 8/50 | 12/50 | **20/100** |
+| Lazy I-M4M-PnP | 5/50 | 15/50 | **20/100** |
+| I-M4M | 8/50 | 11/50 | **19/100** |
+| M4M | 5/50 | 4/50 | **9/100** |
+| RRT | 4/50 | 3/50 | **7/100** |
+| KPIECE | 3/50 | 3/50 | **6/100** |
+| SELSIM | 1/50 | 1/50 | **2/100** |
+
+
+## Solved per method and difficulty (both tasks)
+
+| Method | easy | medium | hard | Total |
+|---|---|---|---|---|
+| DOGAR | 28/50 | 2/30 | 2/20 | **32/100** |
+| I-M4M-PnP | 20/50 | 1/30 | 0/20 | **21/100** |
+| E-M4M | 18/50 | 2/30 | 0/20 | **20/100** |
+| Lazy I-M4M-PnP | 16/50 | 4/30 | 0/20 | **20/100** |
+| I-M4M | 18/50 | 1/30 | 0/20 | **19/100** |
+| M4M | 8/50 | 1/30 | 0/20 | **9/100** |
+| RRT | 7/50 | 0/30 | 0/20 | **7/100** |
+| KPIECE | 6/50 | 0/30 | 0/20 | **6/100** |
+| SELSIM | 2/50 | 0/30 | 0/20 | **2/100** |
+
+
+## OoI retrieval: per difficulty
+
+| Method | easy | medium | hard | Total |
+|---|---|---|---|---|
+| DOGAR | 9/25 | 0/15 | 1/10 | **10/50** |
+| I-M4M-PnP | 8/25 | 0/15 | 0/10 | **8/50** |
+| E-M4M | 8/25 | 0/15 | 0/10 | **8/50** |
+| Lazy I-M4M-PnP | 5/25 | 0/15 | 0/10 | **5/50** |
+| I-M4M | 8/25 | 0/15 | 0/10 | **8/50** |
+| M4M | 5/25 | 0/15 | 0/10 | **5/50** |
+| RRT | 4/25 | 0/15 | 0/10 | **4/50** |
+| KPIECE | 3/25 | 0/15 | 0/10 | **3/50** |
+| SELSIM | 1/25 | 0/15 | 0/10 | **1/50** |
+
+
+## Pick-and-place: per difficulty
+
+| Method | easy | medium | hard | Total |
+|---|---|---|---|---|
+| DOGAR | 19/25 | 2/15 | 1/10 | **22/50** |
+| I-M4M-PnP | 12/25 | 1/15 | 0/10 | **13/50** |
+| E-M4M | 10/25 | 2/15 | 0/10 | **12/50** |
+| Lazy I-M4M-PnP | 11/25 | 4/15 | 0/10 | **15/50** |
+| I-M4M | 10/25 | 1/15 | 0/10 | **11/50** |
+| M4M | 3/25 | 1/15 | 0/10 | **4/50** |
+| RRT | 3/25 | 0/15 | 0/10 | **3/50** |
+| KPIECE | 3/25 | 0/15 | 0/10 | **3/50** |
+| SELSIM | 1/25 | 0/15 | 0/10 | **1/50** |
+
+
+## Solved per environment (both tasks)
+
+| Method | confined_shelf | multi_level_shelf | open_tabletop | stacking | Total |
+|---|---|---|---|---|---|
+| DOGAR | 7/28 | 8/24 | 9/26 | 8/22 | **32/100** |
+| I-M4M-PnP | 6/28 | 4/24 | 7/26 | 4/22 | **21/100** |
+| E-M4M | 5/28 | 5/24 | 1/26 | 9/22 | **20/100** |
+| Lazy I-M4M-PnP | 6/28 | 4/24 | 6/26 | 4/22 | **20/100** |
+| I-M4M | 5/28 | 5/24 | 1/26 | 8/22 | **19/100** |
+| M4M | 6/28 | 2/24 | 1/26 | 0/22 | **9/100** |
+| RRT | 0/28 | 1/24 | 1/26 | 5/22 | **7/100** |
+| KPIECE | 0/28 | 0/24 | 1/26 | 5/22 | **6/100** |
+| SELSIM | 0/28 | 0/24 | 0/26 | 2/22 | **2/100** |
+
+
+## Planning time of the solved runs
+
+| Method | median (s) | mean (s) | solved within 60 s | within 120 s | within 300 s |
+|---|---|---|---|---|---|
+| DOGAR | 26.6 | 52.4 | 23 | 28 | 32 |
+| I-M4M-PnP | 20.4 | 65.8 | 13 | 16 | 21 |
+| E-M4M | 23.7 | 68.0 | 14 | 14 | 20 |
+| Lazy I-M4M-PnP | 46.2 | 59.2 | 11 | 17 | 20 |
+| I-M4M | 26.2 | 60.2 | 13 | 14 | 19 |
+| M4M | 9.2 | 35.9 | 7 | 8 | 9 |
+| RRT | 8.4 | 7.9 | 7 | 7 | 7 |
+| KPIECE | 7.5 | 11.9 | 6 | 6 | 6 |
+| SELSIM | 22.8 | 22.8 | 2 | 2 | 2 |
+
+![anytime](anytime.png)
+
+
+## Why runs failed
+
+| Method | reason | runs |
+|---|---|---|
+| DOGAR | budget exhausted | 42 |
+| DOGAR | budget exhausted  | 4 |
+| DOGAR | replay failed: push 1/1 invalid on replay: off the grid: object 10 turned 38 deg off  | 2 |
+| DOGAR | replay failed: push 1/2 invalid on replay: off the grid: object 11 turned 39 deg off  | 2 |
+| DOGAR | replay failed: push 1/1 invalid on replay: off the grid: object 6 turned 38 deg off t | 1 |
+| DOGAR | replay failed: push 1/1 invalid on replay: off the grid: object 10 turned 39 deg off  | 1 |
+| I-M4M-PnP | budget exhausted | 54 |
+| I-M4M-PnP | OPEN exhausted | 8 |
+| I-M4M-PnP | no retrieval trajectory without movables | 2 |
+| I-M4M-PnP | replay failed: push 1/5 invalid on replay: off the grid: object 11 turned 44 deg off  | 1 |
+| I-M4M-PnP | replay failed: push 1/1 invalid on replay: bodies forced into each other (x cm): sh | 1 |
+| I-M4M-PnP | replay failed: push 1/2 invalid on replay: off the grid: object 10 turned 44 deg off  | 1 |
+| E-M4M | OPEN exhausted | 36 |
+| E-M4M | budget exhausted | 30 |
+| E-M4M | no retrieval trajectory without movables | 2 |
+| E-M4M | replay failed: push 7/8 invalid on replay: off the grid: object 8 outside the grid's  | 1 |
+| E-M4M | replay failed: push 1/3 invalid on replay: off the grid: object 10 outside the grid's | 1 |
+| E-M4M | replay failed: push 1/2 invalid on replay: off the grid: object 10 turned 44 deg off  | 1 |
+| Lazy I-M4M-PnP | budget exhausted | 52 |
+| Lazy I-M4M-PnP | OPEN exhausted | 8 |
+| Lazy I-M4M-PnP | replay failed: push 1/1 invalid on replay: off the grid: object 6 outside the grid's  | 2 |
+| Lazy I-M4M-PnP | no retrieval trajectory without movables | 2 |
+| Lazy I-M4M-PnP | replay failed: push 1/1 invalid on replay: off the grid: object 6 turned 28 deg off t | 1 |
+| Lazy I-M4M-PnP | replay failed: push 1/1 invalid on replay: bodies forced into each other (x cm): sh | 1 |
+| I-M4M | OPEN exhausted | 37 |
+| I-M4M | budget exhausted | 27 |
+| I-M4M | no retrieval trajectory without movables | 2 |
+| I-M4M | replay failed: push 1/2 invalid on replay: off the grid: object 10 turned 35 deg off  | 1 |
+| I-M4M | replay failed: push 1/2 invalid on replay: off the grid: object 10 turned 34 deg off  | 1 |
+| I-M4M | replay failed: push 1/1 invalid on replay: off the grid: object 6 turned 34 deg off t | 1 |
+| M4M | budget exhausted | 53 |
+| M4M | no MAPF-suggested push left | 25 |
+| M4M | no retrieval trajectory without movables | 2 |
+| M4M | replay failed: push 2/2 invalid on replay: off the grid: object 7 outside the grid's  | 1 |
+| M4M | replay failed: push 1/2 invalid on replay: off the grid: object 10 turned 27 deg off  | 1 |
+| M4M | replay failed: push 1/2 invalid on replay: off the grid: object 10 outside the grid's | 1 |
+| RRT | budget exhausted | 91 |
+| RRT | no grasp for the OoI | 2 |
+| KPIECE | budget exhausted | 91 |
+| KPIECE | no grasp for the OoI | 2 |
+| KPIECE | replay failed: off the grid: object 10 turned 21 deg off the grid | 1 |
+| SELSIM | budget exhausted | 82 |
+| SELSIM | tracking failed, no irrelevant object to blame: robot hit shelf: sh | 6 |
+| SELSIM | tracking failed, no irrelevant object to blame: pick-and-place: gra | 3 |
+| SELSIM | tracking failed, no irrelevant object to blame: retrieval segment 'lift': object 6 tilted  | 2 |
+| SELSIM | no grasp for the OoI | 2 |
+| SELSIM | replay failed: retrieval segment 'reach': object 10 tilted 25 deg | 1 |
+
+## Files
+
+* `results.csv`: one row per run
+* `<baseline>/results.csv`, `<baseline>/solutions/<task>/*.pkl` (plans, `mamo.solution.Solution`), `<baseline>/gifs/<task>/*.gif` (every solved run replayed, iso and top view)
+* `dataset/`: the problems (scene files), `dataset/labels.csv` their labels, `dataset/index.html` a gallery of every problem (`dataset/gifs/<task>/<env>/<scene>.gif` and top views)
+
+2026-10-29 12:07:03 scripts/overnight2.py organize 20261028-230621_overnight5 --out overnight5-nogrid --dataset overnight5-nogrid
+organized 900 runs
+2026-10-29 12:07:08 scripts/overnight2.py report 20261028-230621_overnight5 --out overnight5-nogrid --dataset overnight5-nogrid
+# Overnight run 5: every baseline as in its paper, easier dataset, continuous states
+
+Experiment `D:/RRC/New folder/m4m_em4m_project/mamo/workspace/experiments/20261028-230621_overnight5`; dataset `overnight5-nogrid` (100 problems); 9 methods, one seed, at most 300 s of planning per run, 900 runs. A run counts as solved only if its plan, replayed from the initial scene in MuJoCo, succeeds (the OoI is out of its shelf / every target is at its goal).
+
+**Most problems solved: DOGAR, 55 of 100.**
+
+![solved](solved_by_method.png)
+
+## Solved per method and task
+
+| Method | OoI retrieval | Pick-and-place | Total |
+|---|---|---|---|
+| DOGAR | 29/50 | 26/50 | **55/100** |
+| I-M4M-PnP | 21/50 | 25/50 | **46/100** |
+| Lazy I-M4M-PnP | 19/50 | 23/50 | **42/100** |
+| I-M4M | 19/50 | 20/50 | **39/100** |
+| E-M4M | 17/50 | 17/50 | **34/100** |
+| M4M | 14/50 | 14/50 | **28/100** |
+| KPIECE | 4/50 | 5/50 | **9/100** |
+| RRT | 4/50 | 4/50 | **8/100** |
+| SELSIM | 1/50 | 1/50 | **2/100** |
+
+
+## Solved per method and difficulty (both tasks)
+
+| Method | easy | medium | hard | Total |
+|---|---|---|---|---|
+| DOGAR | 44/50 | 7/30 | 4/20 | **55/100** |
+| I-M4M-PnP | 35/50 | 10/30 | 1/20 | **46/100** |
+| Lazy I-M4M-PnP | 34/50 | 8/30 | 0/20 | **42/100** |
+| I-M4M | 28/50 | 11/30 | 0/20 | **39/100** |
+| E-M4M | 27/50 | 7/30 | 0/20 | **34/100** |
+| M4M | 20/50 | 7/30 | 1/20 | **28/100** |
+| KPIECE | 8/50 | 0/30 | 1/20 | **9/100** |
+| RRT | 7/50 | 0/30 | 1/20 | **8/100** |
+| SELSIM | 2/50 | 0/30 | 0/20 | **2/100** |
+
+
+## OoI retrieval: per difficulty
+
+| Method | easy | medium | hard | Total |
+|---|---|---|---|---|
+| DOGAR | 22/25 | 4/15 | 3/10 | **29/50** |
+| I-M4M-PnP | 18/25 | 3/15 | 0/10 | **21/50** |
+| Lazy I-M4M-PnP | 16/25 | 3/15 | 0/10 | **19/50** |
+| I-M4M | 13/25 | 6/15 | 0/10 | **19/50** |
+| E-M4M | 13/25 | 4/15 | 0/10 | **17/50** |
+| M4M | 11/25 | 3/15 | 0/10 | **14/50** |
+| KPIECE | 4/25 | 0/15 | 0/10 | **4/50** |
+| RRT | 4/25 | 0/15 | 0/10 | **4/50** |
+| SELSIM | 1/25 | 0/15 | 0/10 | **1/50** |
+
+
+## Pick-and-place: per difficulty
+
+| Method | easy | medium | hard | Total |
+|---|---|---|---|---|
+| DOGAR | 22/25 | 3/15 | 1/10 | **26/50** |
+| I-M4M-PnP | 17/25 | 7/15 | 1/10 | **25/50** |
+| Lazy I-M4M-PnP | 18/25 | 5/15 | 0/10 | **23/50** |
+| I-M4M | 15/25 | 5/15 | 0/10 | **20/50** |
+| E-M4M | 14/25 | 3/15 | 0/10 | **17/50** |
+| M4M | 9/25 | 4/15 | 1/10 | **14/50** |
+| KPIECE | 4/25 | 0/15 | 1/10 | **5/50** |
+| RRT | 3/25 | 0/15 | 1/10 | **4/50** |
+| SELSIM | 1/25 | 0/15 | 0/10 | **1/50** |
+
+
+## Solved per environment (both tasks)
+
+| Method | confined_shelf | multi_level_shelf | open_tabletop | stacking | Total |
+|---|---|---|---|---|---|
+| DOGAR | 15/28 | 15/24 | 9/26 | 16/22 | **55/100** |
+| I-M4M-PnP | 12/28 | 17/24 | 8/26 | 9/22 | **46/100** |
+| Lazy I-M4M-PnP | 10/28 | 14/24 | 7/26 | 11/22 | **42/100** |
+| I-M4M | 6/28 | 15/24 | 1/26 | 17/22 | **39/100** |
+| E-M4M | 6/28 | 14/24 | 1/26 | 13/22 | **34/100** |
+| M4M | 8/28 | 12/24 | 1/26 | 7/22 | **28/100** |
+| KPIECE | 0/28 | 2/24 | 2/26 | 5/22 | **9/100** |
+| RRT | 0/28 | 1/24 | 2/26 | 5/22 | **8/100** |
+| SELSIM | 0/28 | 0/24 | 0/26 | 2/22 | **2/100** |
+
+
+## Planning time of the solved runs
+
+| Method | median (s) | mean (s) | solved within 60 s | within 120 s | within 300 s |
+|---|---|---|---|---|---|
+| DOGAR | 17.5 | 24.9 | 50 | 54 | 55 |
+| I-M4M-PnP | 23.0 | 48.1 | 33 | 39 | 46 |
+| Lazy I-M4M-PnP | 25.7 | 48.4 | 32 | 38 | 42 |
+| I-M4M | 27.4 | 64.2 | 26 | 31 | 39 |
+| E-M4M | 25.4 | 59.4 | 24 | 29 | 34 |
+| M4M | 48.1 | 74.2 | 15 | 21 | 28 |
+| KPIECE | 18.6 | 45.0 | 7 | 8 | 9 |
+| RRT | 8.2 | 10.1 | 8 | 8 | 8 |
+| SELSIM | 22.5 | 22.5 | 2 | 2 | 2 |
+
+![anytime](anytime.png)
+
+
+## Why runs failed
+
+| Method | reason | runs |
+|---|---|---|
+| DOGAR | budget exhausted | 42 |
+| DOGAR | replay failed: push 1/2 invalid on replay: object 7 tilted 25 deg | 1 |
+| DOGAR | replay failed: push 2/2 invalid on replay: immovable contact: obj / robot/right_fin | 1 |
+| DOGAR | replay failed: push 1/1 invalid on replay: immovable contact: obj / obj | 1 |
+| I-M4M-PnP | budget exhausted | 42 |
+| I-M4M-PnP | OPEN exhausted | 8 |
+| I-M4M-PnP | no retrieval trajectory without movables | 2 |
+| I-M4M-PnP | replay failed: grasp failed: the fingers do not both touch the OoI | 1 |
+| I-M4M-PnP | replay failed: push 1/1 invalid on replay: bodies forced into each other (x cm): sh | 1 |
+| Lazy I-M4M-PnP | budget exhausted | 45 |
+| Lazy I-M4M-PnP | OPEN exhausted | 8 |
+| Lazy I-M4M-PnP | no retrieval trajectory without movables | 2 |
+| Lazy I-M4M-PnP | replay failed: grasp failed: the fingers do not both touch the OoI | 1 |
+| Lazy I-M4M-PnP | replay failed: push 3/3 invalid on replay: simulation unstable (MuJoCo reset the stat | 1 |
+| Lazy I-M4M-PnP | replay failed: push 1/1 invalid on replay: bodies forced into each other (x cm): sh | 1 |
+| I-M4M | OPEN exhausted | 36 |
+| I-M4M | budget exhausted | 19 |
+| I-M4M | replay failed: grasp failed: the fingers do not both touch the OoI | 2 |
+| I-M4M | no retrieval trajectory without movables | 2 |
+| I-M4M | replay failed: push 1/1 invalid on replay: object 7 tilted 25 deg | 1 |
+| I-M4M | replay failed: push 2/2 invalid on replay: object 7 tilted 25 deg | 1 |
+| E-M4M | OPEN exhausted | 35 |
+| E-M4M | budget exhausted | 26 |
+| E-M4M | no retrieval trajectory without movables | 2 |
+| E-M4M | replay failed: grasp failed: the fingers do not both touch the OoI | 1 |
+| E-M4M | replay failed: push 1/2 invalid on replay: object 7 tilted 25 deg | 1 |
+| E-M4M | replay failed: push 2/2 invalid on replay: object 7 tilted 25 deg | 1 |
+| M4M | budget exhausted | 50 |
+| M4M | no MAPF-suggested push left | 18 |
+| M4M | no retrieval trajectory without movables | 2 |
+| M4M | replay failed: grasp failed: the fingers do not both touch the OoI | 2 |
+| KPIECE | budget exhausted | 89 |
+| KPIECE | no grasp for the OoI | 2 |
+| RRT | budget exhausted | 90 |
+| RRT | no grasp for the OoI | 2 |
+| SELSIM | budget exhausted | 82 |
+| SELSIM | tracking failed, no irrelevant object to blame: robot hit shelf: sh | 6 |
+| SELSIM | tracking failed, no irrelevant object to blame: pick-and-place: gra | 3 |
+| SELSIM | tracking failed, no irrelevant object to blame: retrieval segment 'lift': object 6 tilted  | 2 |
+| SELSIM | no grasp for the OoI | 2 |
+| SELSIM | replay failed: retrieval segment 'reach': object 10 tilted 25 deg | 1 |
+
+## Files
+
+* `results.csv`: one row per run
+* `<baseline>/results.csv`, `<baseline>/solutions/<task>/*.pkl` (plans, `mamo.solution.Solution`), `<baseline>/gifs/<task>/*.gif` (every solved run replayed, iso and top view)
+* `dataset/`: the problems (scene files), `dataset/labels.csv` their labels, `dataset/index.html` a gallery of every problem (`dataset/gifs/<task>/<env>/<scene>.gif` and top views)
+
+2026-10-29 12:07:13 scripts/feasibility.py checks dataset --workers 8
+{'scene': 'open_tabletop_relocate_easy_0000', 'reach': 'fail', 'space': 'ok', 'cells': 'ok', 'detail': 'pick-and-place of target 3 never planned and simulated successfully with every movable removed (20 seeds)', 'cells_detail': ''}
+{'scene': 'open_tabletop_relocate_hard_0000', 'reach': 'fail', 'space': 'ok', 'cells': 'ok', 'detail': 'pick-and-place of target 3 never planned and simulated successfully with every movable removed (20 seeds)', 'cells_detail': ''}
+100 checked; 2 fail a necessary condition
+2026-10-29 12:08:47 scripts/feasibility.py label dataset --experiments 20261028-230621_overnight5 --out feasibility.csv --dataset overnight5-grid
+Counter({('relocate', 'easy', 'feasible'): 22, ('retrieve', 'easy', 'feasible'): 20, ('retrieve', 'medium', 'unknown'): 15, ('relocate', 'medium', 'unknown'): 10, ('retrieve', 'hard', 'unknown'): 9, ('relocate', 'hard', 'unknown'): 8, ('relocate', 'medium', 'feasible'): 5, ('retrieve', 'easy', 'unknown'): 5, ('relocate', 'easy', 'unknown'): 2, ('relocate', 'easy', 'infeasible'): 1, ('relocate', 'hard', 'infeasible'): 1, ('relocate', 'hard', 'feasible'): 1, ('retrieve', 'hard', 'feasible'): 1})
+2026-10-29 12:08:47 scripts/feasibility.py label dataset --experiments 20261028-230621_overnight5 --out feasibility.csv --dataset overnight5-nogrid
+Counter({('relocate', 'easy', 'feasible'): 24, ('retrieve', 'easy', 'feasible'): 24, ('relocate', 'medium', 'feasible'): 11, ('retrieve', 'medium', 'feasible'): 8, ('retrieve', 'hard', 'unknown'): 7, ('retrieve', 'medium', 'unknown'): 7, ('relocate', 'hard', 'unknown'): 6, ('relocate', 'medium', 'unknown'): 4, ('relocate', 'hard', 'feasible'): 3, ('retrieve', 'hard', 'feasible'): 3, ('relocate', 'easy', 'infeasible'): 1, ('relocate', 'hard', 'infeasible'): 1, ('retrieve', 'easy', 'unknown'): 1})
+2026-10-29 12:08:47 scripts/overnight2.py gifs 20261028-230621_overnight5 --out overnight5-grid --workers 10 --dataset overnight5-grid
+229 GIFs to render
+[1/229] confined_shelf_retrieve_easy_0001__m4m.gif ok
+[2/229] confined_shelf_retrieve_easy_0001__em4m.gif ok
+[3/229] confined_shelf_retrieve_easy_0001__im4m.gif ok
+[4/229] confined_shelf_relocate_easy_0001__dogar.gif ok
+[5/229] confined_shelf_relocate_easy_0001__im4m.gif ok
+[6/229] confined_shelf_relocate_easy_0001__em4m.gif ok
+[7/229] confined_shelf_retrieve_easy_0001__im4m_pnp.gif ok
+[8/229] confined_shelf_retrieve_easy_0001__dogar.gif ok
+[9/229] confined_shelf_retrieve_easy_0001__lazy_im4m_pnp.gif ok
+[10/229] confined_shelf_retrieve_medium_0000__m4m.gif ok
+[11/229] confined_shelf_relocate_medium_0000__m4m.gif ok
+[12/229] multi_level_shelf_relocate_easy_0004__im4m_pnp.gif ok
+[13/229] multi_level_shelf_relocate_easy_0004__em4m.gif ok
+[14/229] multi_level_shelf_relocate_easy_0004__im4m.gif ok
+[15/229] confined_shelf_retrieve_medium_0000__im4m_pnp.gif ok
+[16/229] confined_shelf_retrieve_medium_0000__lazy_im4m_pnp.gif ok
+[17/229] multi_level_shelf_relocate_easy_0004__dogar.gif ok
+[18/229] multi_level_shelf_retrieve_easy_0004__m4m.gif ok
+[19/229] multi_level_shelf_retrieve_easy_0004__lazy_im4m_pnp.gif ok
+[20/229] multi_level_shelf_retrieve_easy_0004__im4m_pnp.gif ok
+[21/229] multi_level_shelf_retrieve_easy_0004__dogar.gif ok
+[22/229] confined_shelf_retrieve_medium_0000__em4m.gif ok
+[23/229] multi_level_shelf_retrieve_medium_0002__m4m.gif ok
+[24/229] multi_level_shelf_retrieve_medium_0002__im4m_pnp.gif ok
+[25/229] confined_shelf_retrieve_medium_0000__im4m.gif ok
+[26/229] multi_level_shelf_relocate_easy_0004__lazy_im4m_pnp.gif ok
+[27/229] multi_level_shelf_retrieve_easy_0004__em4m.gif ok
+[28/229] multi_level_shelf_retrieve_medium_0002__em4m.gif ok
+[29/229] multi_level_shelf_retrieve_easy_0004__im4m.gif ok
+[30/229] confined_shelf_relocate_medium_0000__lazy_im4m_pnp.gif ok
+[31/229] multi_level_shelf_retrieve_medium_0002__lazy_im4m_pnp.gif ok
+[32/229] multi_level_shelf_retrieve_hard_0000__dogar.gif ok
+[33/229] multi_level_shelf_retrieve_medium_0002__im4m.gif ok
+[34/229] open_tabletop_relocate_easy_0004__im4m_pnp.gif ok
+[35/229] open_tabletop_relocate_easy_0004__lazy_im4m_pnp.gif ok
+[36/229] stacking_retrieve_easy_0004__lazy_im4m_pnp.gif ok
+[37/229] open_tabletop_relocate_easy_0004__dogar.gif ok
+[38/229] stacking_retrieve_easy_0004__im4m_pnp.gif ok
+[39/229] stacking_relocate_medium_0000__em4m.gif ok
+[40/229] stacking_relocate_medium_0000__lazy_im4m_pnp.gif ok
+[41/229] stacking_retrieve_medium_0000__dogar.gif ok
+[42/229] open_tabletop_retrieve_easy_0004__im4m_pnp.gif ok
+[43/229] stacking_relocate_easy_0004__im4m.gif ok
+[44/229] open_tabletop_relocate_medium_0002__dogar.gif ok
+[45/229] stacking_retrieve_easy_0004__dogar.gif ok
+[46/229] access19_retrieve_easy_0002__dogar.gif ok
+[47/229] stacking_retrieve_easy_0004__em4m.gif ok
+[48/229] stacking_retrieve_medium_0000__im4m.gif ok
+[49/229] stacking_retrieve_easy_0004__im4m.gif ok
+[50/229] stacking_retrieve_hard_0000__dogar.gif ok
+[51/229] multi_level_shelf_retrieve_easy_0002__m4m.gif ok
+[52/229] multi_level_shelf_retrieve_easy_0002__em4m.gif ok
+[53/229] multi_level_shelf_retrieve_easy_0002__im4m.gif ok
+[54/229] multi_level_shelf_retrieve_easy_0002__im4m_pnp.gif ok
+[55/229] multi_level_shelf_retrieve_easy_0002__lazy_im4m_pnp.gif ok
+[56/229] multi_level_shelf_retrieve_easy_0002__dogar.gif ok
+[57/229] multi_level_shelf_retrieve_medium_0000__em4m.gif ok
+[58/229] multi_level_shelf_relocate_easy_0002__im4m_pnp.gif ok
+[59/229] multi_level_shelf_retrieve_medium_0000__im4m.gif ok
+[60/229] multi_level_shelf_relocate_easy_0002__im4m.gif ok
+[61/229] multi_level_shelf_relocate_easy_0002__em4m.gif ok
+[62/229] multi_level_shelf_retrieve_medium_0000__dogar.gif ok
+[63/229] multi_level_shelf_relocate_easy_0002__lazy_im4m_pnp.gif ok
+[64/229] multi_level_shelf_relocate_easy_0002__dogar.gif ok
+[65/229] multi_level_shelf_retrieve_easy_0002__selsim.gif ok
+[66/229] stacking_relocate_easy_0002__rrt.gif ok
+[67/229] open_tabletop_retrieve_medium_0000__lazy_im4m_pnp.gif ok
+[68/229] open_tabletop_retrieve_easy_0002__lazy_im4m_pnp.gif ok
+[69/229] open_tabletop_retrieve_easy_0002__dogar.gif ok
+[70/229] open_tabletop_relocate_easy_0002__im4m_pnp.gif ok
+[71/229] stacking_relocate_easy_0002__em4m.gif ok
+[72/229] stacking_relocate_easy_0002__kpiece.gif ok
+[73/229] open_tabletop_relocate_easy_0002__lazy_im4m_pnp.gif ok
+[74/229] open_tabletop_relocate_easy_0002__dogar.gif ok
+[75/229] stacking_relocate_easy_0002__selsim.gif ok
+[76/229] stacking_relocate_medium_0002__em4m.gif ok
+[77/229] stacking_relocate_medium_0002__im4m_pnp.gif ok
+[78/229] open_tabletop_retrieve_medium_0000__im4m_pnp.gif ok
+[79/229] stacking_retrieve_easy_0002__im4m_pnp.gif ok
+[80/229] stacking_retrieve_easy_0002__lazy_im4m_pnp.gif ok
+[81/229] stacking_relocate_medium_0002__lazy_im4m_pnp.gif ok
+[82/229] stacking_relocate_medium_0002__im4m.gif ok
+[83/229] stacking_relocate_medium_0002__dogar.gif ok
+[84/229] stacking_retrieve_easy_0002__em4m.gif ok
+[85/229] stacking_relocate_hard_0001__dogar.gif ok
+[86/229] stacking_retrieve_medium_0002__im4m.gif ok
+[87/229] access19_retrieve_easy_0001__dogar.gif ok
+[88/229] stacking_retrieve_easy_0002__dogar.gif ok
+[89/229] stacking_retrieve_medium_0002__dogar.gif ok
+[90/229] multi_level_shelf_retrieve_easy_0001__em4m.gif ok
+[91/229] multi_level_shelf_retrieve_easy_0001__m4m.gif ok
+[92/229] multi_level_shelf_relocate_easy_0001__em4m.gif ok
+[93/229] multi_level_shelf_retrieve_easy_0001__im4m.gif ok
+[94/229] stacking_retrieve_easy_0002__im4m.gif ok
+[95/229] multi_level_shelf_relocate_easy_0001__im4m.gif ok
+[96/229] multi_level_shelf_relocate_easy_0001__lazy_im4m_pnp.gif ok
+[97/229] stacking_retrieve_easy_0002__rrt.gif ok
+[98/229] multi_level_shelf_retrieve_easy_0001__im4m_pnp.gif ok
+[99/229] multi_level_shelf_relocate_easy_0001__dogar.gif ok
+[100/229] stacking_retrieve_hard_0001__dogar.gif ok
+[101/229] multi_level_shelf_retrieve_easy_0001__lazy_im4m_pnp.gif ok
+[102/229] multi_level_shelf_retrieve_medium_0001__m4m.gif ok
+[103/229] multi_level_shelf_retrieve_medium_0001__dogar.gif ok
+[104/229] multi_level_shelf_retrieve_medium_0001__im4m_pnp.gif ok
+[105/229] multi_level_shelf_retrieve_easy_0001__dogar.gif ok
+[106/229] multi_level_shelf_retrieve_medium_0001__em4m.gif ok
+[107/229] multi_level_shelf_retrieve_medium_0001__im4m.gif ok
+[108/229] open_tabletop_relocate_easy_0001__rrt.gif ok
+[109/229] open_tabletop_relocate_easy_0001__im4m_pnp.gif ok
+[110/229] open_tabletop_retrieve_easy_0001__lazy_im4m_pnp.gif ok
+[111/229] open_tabletop_relocate_easy_0001__lazy_im4m_pnp.gif ok
+[112/229] stacking_retrieve_easy_0002__kpiece.gif ok
+[113/229] open_tabletop_retrieve_easy_0001__dogar.gif ok
+[114/229] stacking_relocate_easy_0001__im4m_pnp.gif ok
+[115/229] open_tabletop_relocate_easy_0001__dogar.gif ok
+[116/229] stacking_relocate_easy_0001__lazy_im4m_pnp.gif ok
+[117/229] stacking_relocate_easy_0001__dogar.gif ok
+[118/229] stacking_retrieve_easy_0001__dogar.gif ok
+[119/229] stacking_relocate_easy_0001__em4m.gif ok
+[120/229] stacking_retrieve_easy_0001__im4m_pnp.gif ok
+[121/229] open_tabletop_relocate_medium_0001__lazy_im4m_pnp.gif ok
+[122/229] stacking_relocate_easy_0001__im4m.gif ok
+[123/229] stacking_retrieve_easy_0001__lazy_im4m_pnp.gif ok
+[124/229] stacking_retrieve_easy_0001__em4m.gif ok
+[125/229] stacking_retrieve_easy_0001__im4m.gif ok
+[126/229] stacking_retrieve_easy_0001__m4m.gif ok
+[127/229] stacking_retrieve_medium_0001__lazy_im4m_pnp.gif ok
+[128/229] access19_retrieve_easy_0000__dogar.gif ok
+[129/229] open_tabletop_relocate_easy_0001__kpiece.gif ok
+[130/229] access19_relocate_easy_0000__dogar.gif ok
+[131/229] multi_level_shelf_retrieve_easy_0000__m4m.gif ok
+[132/229] multi_level_shelf_relocate_easy_0000__dogar.gif ok
+[133/229] stacking_retrieve_medium_0001__dogar.gif ok
+[134/229] multi_level_shelf_retrieve_easy_0000__em4m.gif ok
+[135/229] access19_relocate_easy_0000__im4m_pnp.gif ok
+[136/229] multi_level_shelf_retrieve_easy_0000__im4m_pnp.gif ok
+[137/229] multi_level_shelf_retrieve_easy_0000__im4m.gif ok
+[138/229] multi_level_shelf_retrieve_easy_0000__lazy_im4m_pnp.gif ok
+[139/229] confined_shelf_retrieve_medium_0001__dogar.gif ok
+[140/229] multi_level_shelf_relocate_easy_0000__em4m.gif ok
+[141/229] stacking_retrieve_easy_0000__em4m.gif ok
+[142/229] multi_level_shelf_relocate_easy_0000__im4m.gif ok
+[143/229] multi_level_shelf_retrieve_easy_0000__dogar.gif ok
+[144/229] stacking_retrieve_easy_0000__im4m.gif ok
+[145/229] stacking_retrieve_easy_0000__im4m_pnp.gif ok
+[146/229] stacking_retrieve_easy_0000__dogar.gif ok
+[147/229] stacking_retrieve_easy_0000__lazy_im4m_pnp.gif ok
+[148/229] stacking_retrieve_easy_0000__m4m.gif ok
+[149/229] open_tabletop_retrieve_easy_0000__im4m_pnp.gif ok
+[150/229] stacking_retrieve_easy_0000__selsim.gif ok
+[151/229] confined_shelf_retrieve_easy_0002__m4m.gif ok
+[152/229] stacking_relocate_easy_0000__em4m.gif ok
+[153/229] stacking_relocate_easy_0000__im4m.gif ok
+[154/229] stacking_relocate_easy_0000__dogar.gif ok
+[155/229] stacking_relocate_easy_0000__im4m_pnp.gif ok
+[156/229] confined_shelf_retrieve_easy_0002__em4m.gif ok
+[157/229] confined_shelf_retrieve_easy_0002__im4m.gif ok
+[158/229] stacking_retrieve_easy_0000__rrt.gif ok
+[159/229] confined_shelf_retrieve_easy_0002__dogar.gif ok
+[160/229] stacking_retrieve_easy_0000__kpiece.gif ok
+[161/229] multi_level_shelf_retrieve_easy_0005__im4m_pnp.gif ok
+[162/229] confined_shelf_relocate_easy_0002__dogar.gif ok
+[163/229] confined_shelf_retrieve_easy_0002__im4m_pnp.gif ok
+[164/229] multi_level_shelf_retrieve_easy_0005__em4m.gif ok
+[165/229] confined_shelf_retrieve_easy_0002__lazy_im4m_pnp.gif ok
+[166/229] multi_level_shelf_retrieve_easy_0005__lazy_im4m_pnp.gif ok
+[167/229] multi_level_shelf_retrieve_easy_0005__dogar.gif ok
+[168/229] open_tabletop_retrieve_easy_0005__dogar.gif ok
+[169/229] open_tabletop_retrieve_easy_0005__lazy_im4m_pnp.gif ok
+[170/229] open_tabletop_retrieve_easy_0005__im4m_pnp.gif ok
+[171/229] multi_level_shelf_retrieve_easy_0005__im4m.gif ok
+[172/229] multi_level_shelf_relocate_easy_0005__dogar.gif ok
+[173/229] multi_level_shelf_relocate_easy_0005__im4m_pnp.gif ok
+[174/229] stacking_retrieve_easy_0005__em4m.gif ok
+[175/229] stacking_retrieve_easy_0005__im4m.gif ok
+[176/229] stacking_retrieve_easy_0005__m4m.gif ok
+[177/229] open_tabletop_relocate_easy_0005__dogar.gif ok
+[178/229] stacking_retrieve_easy_0005__im4m_pnp.gif ok
+[179/229] multi_level_shelf_retrieve_easy_0005__rrt.gif ok
+[180/229] stacking_relocate_easy_0005__rrt.gif ok
+[181/229] stacking_retrieve_easy_0005__dogar.gif ok
+[182/229] stacking_retrieve_easy_0005__rrt.gif ok
+[183/229] confined_shelf_relocate_easy_0000__dogar.gif ok
+[184/229] stacking_relocate_easy_0005__dogar.gif ok
+[185/229] confined_shelf_retrieve_easy_0000__m4m.gif ok
+[186/229] confined_shelf_retrieve_easy_0000__em4m.gif ok
+[187/229] stacking_retrieve_easy_0005__kpiece.gif ok
+[188/229] confined_shelf_retrieve_easy_0000__im4m_pnp.gif ok
+[189/229] multi_level_shelf_retrieve_easy_0005__kpiece.gif ok
+[190/229] confined_shelf_retrieve_easy_0000__im4m.gif ok
+[191/229] confined_shelf_retrieve_easy_0000__lazy_im4m_pnp.gif ok
+[192/229] multi_level_shelf_retrieve_easy_0003__em4m.gif ok
+[193/229] confined_shelf_relocate_easy_0000__lazy_im4m_pnp.gif ok
+[194/229] multi_level_shelf_retrieve_easy_0003__im4m.gif ok
+[195/229] multi_level_shelf_retrieve_easy_0003__m4m.gif ok
+[196/229] multi_level_shelf_retrieve_easy_0003__lazy_im4m_pnp.gif ok
+[197/229] stacking_relocate_easy_0005__kpiece.gif ok
+[198/229] multi_level_shelf_relocate_easy_0003__m4m.gif ok
+[199/229] multi_level_shelf_relocate_easy_0003__dogar.gif ok
+[200/229] confined_shelf_retrieve_easy_0000__dogar.gif ok
+[201/229] multi_level_shelf_retrieve_easy_0003__dogar.gif ok
+[202/229] multi_level_shelf_relocate_easy_0003__lazy_im4m_pnp.gif ok
+[203/229] confined_shelf_relocate_easy_0000__im4m_pnp.gif ok
+[204/229] open_tabletop_relocate_easy_0003__em4m.gif ok
+[205/229] open_tabletop_relocate_easy_0003__m4m.gif ok
+[206/229] open_tabletop_relocate_easy_0003__im4m.gif ok
+[207/229] open_tabletop_relocate_easy_0003__im4m_pnp.gif ok
+[208/229] open_tabletop_relocate_easy_0003__lazy_im4m_pnp.gif ok
+[209/229] open_tabletop_relocate_easy_0003__dogar.gif ok
+[210/229] multi_level_shelf_retrieve_easy_0003__im4m_pnp.gif ok
+[211/229] stacking_retrieve_easy_0003__dogar.gif ok
+[212/229] stacking_retrieve_easy_0003__lazy_im4m_pnp.gif ok
+[213/229] confined_shelf_relocate_easy_0003__m4m.gif ok
+[214/229] stacking_retrieve_easy_0003__m4m.gif ok
+[215/229] confined_shelf_relocate_easy_0003__em4m.gif ok
+[216/229] confined_shelf_relocate_easy_0003__im4m.gif ok
+[217/229] confined_shelf_relocate_easy_0003__im4m_pnp.gif ok
+[218/229] confined_shelf_relocate_easy_0003__lazy_im4m_pnp.gif ok
+[219/229] stacking_retrieve_easy_0003__em4m.gif ok
+[220/229] stacking_retrieve_easy_0003__im4m.gif ok
+[221/229] confined_shelf_retrieve_easy_0003__m4m.gif ok
+[222/229] confined_shelf_retrieve_easy_0003__em4m.gif ok
+[223/229] confined_shelf_retrieve_easy_0003__dogar.gif ok
+[224/229] stacking_relocate_easy_0003__dogar.gif ok
+[225/229] confined_shelf_retrieve_easy_0003__im4m.gif ok
+[226/229] open_tabletop_retrieve_easy_0003__dogar.gif ok
+[227/229] confined_shelf_retrieve_easy_0003__im4m_pnp.gif ok
+[228/229] open_tabletop_retrieve_easy_0003__im4m_pnp.gif ok
+[229/229] confined_shelf_retrieve_easy_0003__lazy_im4m_pnp.gif ok
+2026-10-29 12:14:41 scripts/overnight2.py gifs 20261028-230621_overnight5 --out overnight5-nogrid --workers 10 --dataset overnight5-nogrid
+281 GIFs to render
+[1/281] confined_shelf_retrieve_easy_0001__m4m.gif ok
+[2/281] confined_shelf_retrieve_easy_0001__em4m.gif ok
+[3/281] confined_shelf_relocate_easy_0001__dogar.gif ok
+[4/281] confined_shelf_relocate_easy_0001__im4m.gif ok
+[5/281] confined_shelf_relocate_easy_0001__em4m.gif ok
+[6/281] confined_shelf_retrieve_easy_0001__im4m.gif ok
+[7/281] confined_shelf_retrieve_easy_0001__dogar.gif ok
+[8/281] confined_shelf_retrieve_easy_0001__im4m_pnp.gif ok
+[9/281] confined_shelf_retrieve_easy_0001__lazy_im4m_pnp.gif ok
+[10/281] confined_shelf_relocate_easy_0001__lazy_im4m_pnp.gif ok
+[11/281] confined_shelf_relocate_easy_0001__im4m_pnp.gif ok
+[12/281] confined_shelf_relocate_medium_0000__m4m.gif ok
+[13/281] confined_shelf_retrieve_medium_0000__m4m.gif ok
+[14/281] confined_shelf_relocate_medium_0000__im4m_pnp.gif ok
+[15/281] multi_level_shelf_relocate_easy_0004__em4m.gif ok
+[16/281] multi_level_shelf_relocate_easy_0004__m4m.gif ok
+[17/281] confined_shelf_relocate_medium_0000__lazy_im4m_pnp.gif ok
+[18/281] multi_level_shelf_relocate_easy_0004__im4m.gif ok
+[19/281] confined_shelf_retrieve_medium_0000__lazy_im4m_pnp.gif ok
+[20/281] multi_level_shelf_relocate_easy_0004__lazy_im4m_pnp.gif ok
+[21/281] multi_level_shelf_relocate_easy_0004__dogar.gif ok
+[22/281] confined_shelf_retrieve_medium_0000__im4m_pnp.gif ok
+[23/281] confined_shelf_retrieve_medium_0000__im4m.gif ok
+[24/281] confined_shelf_retrieve_medium_0000__em4m.gif ok
+[25/281] multi_level_shelf_retrieve_easy_0004__m4m.gif ok
+[26/281] multi_level_shelf_retrieve_easy_0004__em4m.gif ok
+[27/281] multi_level_shelf_retrieve_easy_0004__im4m.gif ok
+[28/281] multi_level_shelf_retrieve_easy_0004__im4m_pnp.gif ok
+[29/281] multi_level_shelf_relocate_easy_0004__im4m_pnp.gif ok
+[30/281] multi_level_shelf_retrieve_easy_0004__lazy_im4m_pnp.gif ok
+[31/281] multi_level_shelf_retrieve_easy_0004__dogar.gif ok
+[32/281] multi_level_shelf_relocate_medium_0002__im4m_pnp.gif ok
+[33/281] multi_level_shelf_retrieve_medium_0002__m4m.gif ok
+[34/281] open_tabletop_relocate_easy_0004__lazy_im4m_pnp.gif ok
+[35/281] open_tabletop_relocate_easy_0004__im4m_pnp.gif ok
+[36/281] multi_level_shelf_retrieve_hard_0000__dogar.gif ok
+[37/281] multi_level_shelf_retrieve_medium_0002__em4m.gif ok
+[38/281] open_tabletop_relocate_easy_0004__dogar.gif ok
+[39/281] multi_level_shelf_retrieve_medium_0002__im4m.gif ok
+[40/281] multi_level_shelf_retrieve_medium_0002__im4m_pnp.gif ok
+[41/281] open_tabletop_retrieve_easy_0004__im4m_pnp.gif ok
+[42/281] multi_level_shelf_retrieve_medium_0002__lazy_im4m_pnp.gif ok
+[43/281] open_tabletop_relocate_medium_0002__dogar.gif ok
+[44/281] stacking_relocate_easy_0004__em4m.gif ok
+[45/281] stacking_relocate_medium_0000__em4m.gif ok
+[46/281] stacking_retrieve_medium_0000__dogar.gif ok
+[47/281] stacking_relocate_medium_0000__im4m.gif ok
+[48/281] stacking_relocate_easy_0004__im4m.gif ok
+[49/281] stacking_retrieve_easy_0004__lazy_im4m_pnp.gif ok
+[50/281] stacking_retrieve_easy_0004__im4m_pnp.gif ok
+[51/281] stacking_relocate_medium_0000__m4m.gif ok
+[52/281] stacking_retrieve_easy_0004__em4m.gif ok
+[53/281] stacking_retrieve_easy_0004__im4m.gif ok
+[54/281] access19_relocate_easy_0002__dogar.gif ok
+[55/281] access19_retrieve_easy_0002__dogar.gif ok
+[56/281] stacking_retrieve_easy_0004__dogar.gif ok
+[57/281] stacking_relocate_medium_0000__lazy_im4m_pnp.gif ok
+[58/281] multi_level_shelf_relocate_easy_0002__m4m.gif ok
+[59/281] confined_shelf_relocate_hard_0001__m4m.gif ok
+[60/281] multi_level_shelf_relocate_easy_0002__em4m.gif ok
+[61/281] multi_level_shelf_relocate_easy_0002__im4m.gif ok
+[62/281] multi_level_shelf_relocate_easy_0002__im4m_pnp.gif ok
+[63/281] stacking_retrieve_medium_0000__im4m.gif ok
+[64/281] stacking_retrieve_hard_0000__dogar.gif ok
+[65/281] multi_level_shelf_relocate_easy_0002__lazy_im4m_pnp.gif ok
+[66/281] multi_level_shelf_relocate_easy_0002__dogar.gif ok
+[67/281] multi_level_shelf_retrieve_easy_0002__m4m.gif ok
+[68/281] multi_level_shelf_retrieve_easy_0002__im4m_pnp.gif ok
+[69/281] multi_level_shelf_retrieve_easy_0002__em4m.gif ok
+[70/281] multi_level_shelf_retrieve_easy_0002__lazy_im4m_pnp.gif ok
+[71/281] multi_level_shelf_retrieve_easy_0002__im4m.gif ok
+[72/281] multi_level_shelf_relocate_medium_0000__m4m.gif ok
+[73/281] multi_level_shelf_relocate_easy_0002__kpiece.gif ok
+[74/281] multi_level_shelf_relocate_medium_0000__im4m_pnp.gif ok
+[75/281] multi_level_shelf_retrieve_easy_0002__selsim.gif ok
+[76/281] multi_level_shelf_retrieve_easy_0002__dogar.gif ok
+[77/281] confined_shelf_relocate_hard_0001__im4m_pnp.gif ok
+[78/281] multi_level_shelf_relocate_medium_0000__im4m.gif ok
+[79/281] multi_level_shelf_retrieve_medium_0000__dogar.gif ok
+[80/281] multi_level_shelf_retrieve_hard_0001__im4m.gif ok
+[81/281] open_tabletop_retrieve_easy_0002__dogar.gif ok
+[82/281] open_tabletop_retrieve_easy_0002__lazy_im4m_pnp.gif ok
+[83/281] open_tabletop_retrieve_medium_0000__lazy_im4m_pnp.gif ok
+[84/281] multi_level_shelf_retrieve_medium_0000__em4m.gif ok
+[85/281] open_tabletop_relocate_easy_0002__im4m_pnp.gif ok
+[86/281] multi_level_shelf_retrieve_medium_0000__im4m.gif ok
+[87/281] stacking_relocate_easy_0002__im4m_pnp.gif ok
+[88/281] open_tabletop_relocate_easy_0002__lazy_im4m_pnp.gif ok
+[89/281] open_tabletop_relocate_easy_0002__dogar.gif ok
+[90/281] stacking_relocate_easy_0002__rrt.gif ok
+[91/281] stacking_relocate_easy_0002__dogar.gif ok
+[92/281] stacking_relocate_easy_0002__selsim.gif ok
+[93/281] stacking_relocate_easy_0002__em4m.gif ok
+[94/281] stacking_relocate_easy_0002__lazy_im4m_pnp.gif ok
+[95/281] stacking_relocate_medium_0002__im4m_pnp.gif ok
+[96/281] stacking_relocate_easy_0002__im4m.gif ok
+[97/281] stacking_relocate_medium_0002__em4m.gif ok
+[98/281] stacking_retrieve_easy_0002__em4m.gif ok
+[99/281] stacking_retrieve_easy_0002__dogar.gif ok
+[100/281] stacking_retrieve_easy_0002__im4m_pnp.gif ok
+[101/281] stacking_relocate_medium_0002__dogar.gif ok
+[102/281] stacking_relocate_medium_0002__im4m.gif ok
+[103/281] stacking_retrieve_easy_0002__im4m.gif ok
+[104/281] stacking_relocate_easy_0002__kpiece.gif ok
+[105/281] stacking_retrieve_easy_0002__lazy_im4m_pnp.gif ok
+[106/281] access19_retrieve_easy_0001__dogar.gif ok
+[107/281] access19_relocate_easy_0001__dogar.gif ok
+[108/281] stacking_retrieve_medium_0002__dogar.gif ok
+[109/281] stacking_retrieve_easy_0002__rrt.gif ok
+[110/281] stacking_retrieve_medium_0002__im4m.gif ok
+[111/281] stacking_retrieve_hard_0001__dogar.gif ok
+[112/281] stacking_relocate_hard_0001__dogar.gif ok
+[113/281] multi_level_shelf_relocate_easy_0001__em4m.gif ok
+[114/281] multi_level_shelf_relocate_easy_0001__im4m.gif ok
+[115/281] multi_level_shelf_relocate_easy_0001__im4m_pnp.gif ok
+[116/281] multi_level_shelf_retrieve_easy_0001__m4m.gif ok
+[117/281] multi_level_shelf_relocate_easy_0001__dogar.gif ok
+[118/281] multi_level_shelf_relocate_easy_0001__lazy_im4m_pnp.gif ok
+[119/281] multi_level_shelf_retrieve_easy_0001__em4m.gif ok
+[120/281] stacking_retrieve_easy_0002__kpiece.gif ok
+[121/281] multi_level_shelf_retrieve_easy_0001__dogar.gif ok
+[122/281] multi_level_shelf_retrieve_easy_0001__im4m.gif ok
+[123/281] multi_level_shelf_retrieve_easy_0001__lazy_im4m_pnp.gif ok
+[124/281] multi_level_shelf_relocate_medium_0001__lazy_im4m_pnp.gif ok
+[125/281] multi_level_shelf_retrieve_easy_0001__im4m_pnp.gif ok
+[126/281] multi_level_shelf_relocate_medium_0001__im4m.gif ok
+[127/281] multi_level_shelf_retrieve_medium_0001__dogar.gif ok
+[128/281] multi_level_shelf_retrieve_medium_0001__m4m.gif ok
+[129/281] multi_level_shelf_relocate_medium_0001__em4m.gif ok
+[130/281] multi_level_shelf_relocate_medium_0001__im4m_pnp.gif ok
+[131/281] open_tabletop_relocate_easy_0001__im4m_pnp.gif ok
+[132/281] open_tabletop_relocate_easy_0001__lazy_im4m_pnp.gif ok
+[133/281] multi_level_shelf_retrieve_medium_0001__im4m_pnp.gif ok
+[134/281] open_tabletop_relocate_easy_0001__rrt.gif ok
+[135/281] open_tabletop_relocate_hard_0001__rrt.gif ok
+[136/281] multi_level_shelf_retrieve_medium_0001__im4m.gif ok
+[137/281] multi_level_shelf_retrieve_medium_0001__em4m.gif ok
+[138/281] open_tabletop_retrieve_easy_0001__dogar.gif ok
+[139/281] open_tabletop_retrieve_easy_0001__lazy_im4m_pnp.gif ok
+[140/281] open_tabletop_retrieve_easy_0001__im4m_pnp.gif ok
+[141/281] open_tabletop_relocate_easy_0001__dogar.gif ok
+[142/281] open_tabletop_relocate_medium_0001__lazy_im4m_pnp.gif ok
+[143/281] stacking_relocate_easy_0001__im4m_pnp.gif ok
+[144/281] open_tabletop_relocate_hard_0001__kpiece.gif ok
+[145/281] stacking_relocate_easy_0001__em4m.gif ok
+[146/281] stacking_relocate_easy_0001__im4m.gif ok
+[147/281] stacking_relocate_easy_0001__lazy_im4m_pnp.gif ok
+[148/281] stacking_relocate_easy_0001__dogar.gif ok
+[149/281] stacking_relocate_easy_0001__m4m.gif ok
+[150/281] open_tabletop_relocate_easy_0001__kpiece.gif ok
+[151/281] stacking_retrieve_easy_0001__em4m.gif ok
+[152/281] stacking_relocate_medium_0001__im4m.gif ok
+[153/281] stacking_retrieve_easy_0001__im4m_pnp.gif ok
+[154/281] stacking_retrieve_easy_0001__lazy_im4m_pnp.gif ok
+[155/281] stacking_retrieve_easy_0001__dogar.gif ok
+[156/281] stacking_retrieve_easy_0001__im4m.gif ok
+[157/281] stacking_retrieve_easy_0001__m4m.gif ok
+[158/281] stacking_retrieve_medium_0001__lazy_im4m_pnp.gif ok
+[159/281] stacking_retrieve_medium_0001__dogar.gif ok
+[160/281] access19_relocate_easy_0000__dogar.gif ok
+[161/281] access19_relocate_easy_0000__im4m_pnp.gif ok
+[162/281] confined_shelf_relocate_medium_0001__dogar.gif ok
+[163/281] multi_level_shelf_relocate_easy_0000__m4m.gif ok
+[164/281] access19_relocate_easy_0000__lazy_im4m_pnp.gif ok
+[165/281] access19_retrieve_easy_0000__dogar.gif ok
+[166/281] multi_level_shelf_relocate_easy_0000__im4m_pnp.gif ok
+[167/281] multi_level_shelf_retrieve_easy_0000__m4m.gif ok
+[168/281] confined_shelf_retrieve_medium_0001__dogar.gif ok
+[169/281] multi_level_shelf_relocate_easy_0000__lazy_im4m_pnp.gif ok
+[170/281] multi_level_shelf_relocate_easy_0000__dogar.gif ok
+[171/281] multi_level_shelf_retrieve_easy_0000__dogar.gif ok
+[172/281] multi_level_shelf_retrieve_easy_0000__em4m.gif ok
+[173/281] multi_level_shelf_relocate_medium_0003__m4m.gif ok
+[174/281] multi_level_shelf_relocate_medium_0003__im4m_pnp.gif ok
+[175/281] multi_level_shelf_retrieve_easy_0000__im4m_pnp.gif ok
+[176/281] multi_level_shelf_retrieve_easy_0000__lazy_im4m_pnp.gif ok
+[177/281] multi_level_shelf_retrieve_easy_0000__im4m.gif ok
+[178/281] open_tabletop_retrieve_easy_0000__im4m_pnp.gif ok
+[179/281] multi_level_shelf_relocate_medium_0003__lazy_im4m_pnp.gif ok
+[180/281] stacking_relocate_easy_0000__m4m.gif ok
+[181/281] stacking_relocate_easy_0000__em4m.gif ok
+[182/281] stacking_relocate_easy_0000__im4m_pnp.gif ok
+[183/281] stacking_relocate_easy_0000__im4m.gif ok
+[184/281] confined_shelf_relocate_medium_0001__im4m_pnp.gif ok
+[185/281] stacking_relocate_easy_0000__dogar.gif ok
+[186/281] stacking_retrieve_easy_0000__em4m.gif ok
+[187/281] stacking_retrieve_easy_0000__im4m_pnp.gif ok
+[188/281] stacking_retrieve_easy_0000__im4m.gif ok
+[189/281] stacking_relocate_easy_0000__lazy_im4m_pnp.gif ok
+[190/281] confined_shelf_retrieve_easy_0002__m4m.gif ok
+[191/281] stacking_retrieve_easy_0000__selsim.gif ok
+[192/281] stacking_retrieve_easy_0000__lazy_im4m_pnp.gif ok
+[193/281] stacking_retrieve_easy_0000__dogar.gif ok
+[194/281] confined_shelf_retrieve_easy_0002__em4m.gif ok
+[195/281] confined_shelf_retrieve_easy_0002__im4m.gif ok
+[196/281] stacking_retrieve_easy_0000__m4m.gif ok
+[197/281] confined_shelf_relocate_easy_0002__dogar.gif ok
+[198/281] confined_shelf_retrieve_easy_0002__dogar.gif ok
+[199/281] stacking_retrieve_easy_0000__rrt.gif ok
+[200/281] stacking_retrieve_easy_0000__kpiece.gif ok
+[201/281] multi_level_shelf_relocate_easy_0005__m4m.gif ok
+[202/281] multi_level_shelf_relocate_easy_0005__dogar.gif ok
+[203/281] confined_shelf_retrieve_easy_0002__im4m_pnp.gif ok
+[204/281] confined_shelf_retrieve_easy_0002__lazy_im4m_pnp.gif ok
+[205/281] multi_level_shelf_relocate_easy_0005__em4m.gif ok
+[206/281] multi_level_shelf_relocate_easy_0005__im4m_pnp.gif ok
+[207/281] multi_level_shelf_relocate_easy_0005__lazy_im4m_pnp.gif ok
+[208/281] open_tabletop_retrieve_easy_0005__im4m_pnp.gif ok
+[209/281] multi_level_shelf_relocate_easy_0005__im4m.gif ok
+[210/281] multi_level_shelf_retrieve_easy_0005__em4m.gif ok
+[211/281] open_tabletop_retrieve_easy_0005__lazy_im4m_pnp.gif ok
+[212/281] open_tabletop_retrieve_easy_0005__dogar.gif ok
+[213/281] multi_level_shelf_retrieve_easy_0005__im4m.gif ok
+[214/281] multi_level_shelf_retrieve_easy_0005__im4m_pnp.gif ok
+[215/281] multi_level_shelf_retrieve_easy_0005__dogar.gif ok
+[216/281] multi_level_shelf_retrieve_easy_0005__lazy_im4m_pnp.gif ok
+[217/281] open_tabletop_relocate_easy_0005__dogar.gif ok
+[218/281] multi_level_shelf_retrieve_easy_0005__rrt.gif ok
+[219/281] stacking_relocate_easy_0005__rrt.gif ok
+[220/281] stacking_retrieve_easy_0005__em4m.gif ok
+[221/281] stacking_relocate_easy_0005__im4m.gif ok
+[222/281] stacking_retrieve_easy_0005__m4m.gif ok
+[223/281] stacking_retrieve_easy_0005__im4m.gif ok
+[224/281] stacking_retrieve_easy_0005__im4m_pnp.gif ok
+[225/281] stacking_retrieve_easy_0005__rrt.gif ok
+[226/281] stacking_relocate_easy_0005__kpiece.gif ok
+[227/281] stacking_relocate_easy_0005__dogar.gif ok
+[228/281] stacking_relocate_easy_0005__lazy_im4m_pnp.gif ok
+[229/281] confined_shelf_retrieve_easy_0000__em4m.gif ok
+[230/281] multi_level_shelf_retrieve_easy_0005__kpiece.gif ok
+[231/281] confined_shelf_relocate_easy_0000__im4m.gif ok
+[232/281] confined_shelf_retrieve_easy_0000__im4m.gif ok
+[233/281] confined_shelf_relocate_easy_0000__dogar.gif ok
+[234/281] confined_shelf_relocate_easy_0000__em4m.gif ok
+[235/281] stacking_retrieve_easy_0005__kpiece.gif ok
+[236/281] confined_shelf_retrieve_easy_0000__m4m.gif ok
+[237/281] confined_shelf_retrieve_easy_0000__im4m_pnp.gif ok
+[238/281] confined_shelf_retrieve_easy_0000__lazy_im4m_pnp.gif ok
+[239/281] stacking_retrieve_easy_0005__dogar.gif ok
+[240/281] multi_level_shelf_relocate_easy_0003__m4m.gif ok
+[241/281] confined_shelf_retrieve_easy_0000__dogar.gif ok
+[242/281] confined_shelf_relocate_easy_0000__lazy_im4m_pnp.gif ok
+[243/281] multi_level_shelf_relocate_easy_0003__dogar.gif ok
+[244/281] multi_level_shelf_relocate_easy_0003__im4m_pnp.gif ok
+[245/281] multi_level_shelf_relocate_easy_0003__em4m.gif ok
+[246/281] multi_level_shelf_retrieve_easy_0003__m4m.gif ok
+[247/281] multi_level_shelf_relocate_easy_0003__lazy_im4m_pnp.gif ok
+[248/281] multi_level_shelf_retrieve_easy_0003__em4m.gif ok
+[249/281] multi_level_shelf_relocate_easy_0003__im4m.gif ok
+[250/281] confined_shelf_relocate_easy_0000__im4m_pnp.gif ok
+[251/281] open_tabletop_relocate_easy_0003__m4m.gif ok
+[252/281] open_tabletop_relocate_easy_0003__em4m.gif ok
+[253/281] open_tabletop_relocate_easy_0003__im4m.gif ok
+[254/281] multi_level_shelf_retrieve_easy_0003__dogar.gif ok
+[255/281] open_tabletop_relocate_easy_0003__im4m_pnp.gif ok
+[256/281] multi_level_shelf_retrieve_easy_0003__im4m_pnp.gif ok
+[257/281] multi_level_shelf_retrieve_easy_0003__im4m.gif ok
+[258/281] open_tabletop_relocate_easy_0003__lazy_im4m_pnp.gif ok
+[259/281] multi_level_shelf_retrieve_easy_0003__lazy_im4m_pnp.gif ok
+[260/281] open_tabletop_relocate_easy_0003__dogar.gif ok
+[261/281] stacking_retrieve_easy_0003__m4m.gif ok
+[262/281] stacking_retrieve_easy_0003__im4m.gif ok
+[263/281] stacking_retrieve_easy_0003__em4m.gif ok
+[264/281] stacking_retrieve_easy_0003__lazy_im4m_pnp.gif ok
+[265/281] stacking_retrieve_easy_0003__dogar.gif ok
+[266/281] confined_shelf_relocate_easy_0003__m4m.gif ok
+[267/281] confined_shelf_relocate_easy_0003__em4m.gif ok
+[268/281] confined_shelf_relocate_easy_0003__im4m.gif ok
+[269/281] stacking_relocate_easy_0003__im4m.gif ok
+[270/281] confined_shelf_relocate_easy_0003__im4m_pnp.gif ok
+[271/281] confined_shelf_relocate_easy_0003__lazy_im4m_pnp.gif ok
+[272/281] stacking_relocate_easy_0003__em4m.gif ok
+[273/281] open_tabletop_retrieve_easy_0003__dogar.gif ok
+[274/281] confined_shelf_retrieve_easy_0003__m4m.gif ok
+[275/281] stacking_relocate_easy_0003__dogar.gif ok
+[276/281] confined_shelf_retrieve_easy_0003__em4m.gif ok
+[277/281] confined_shelf_retrieve_easy_0003__im4m.gif ok
+[278/281] open_tabletop_retrieve_easy_0003__im4m_pnp.gif ok
+[279/281] confined_shelf_retrieve_easy_0003__dogar.gif ok
+[280/281] confined_shelf_retrieve_easy_0003__im4m_pnp.gif ok
+[281/281] confined_shelf_retrieve_easy_0003__lazy_im4m_pnp.gif ok
+2026-10-29 12:24:02 scripts/overnight2.py dataset 20261028-230621_overnight5 --out overnight5-grid --workers 10 --dataset overnight5-grid
+100 dataset GIFs to render
+[1/100] confined_shelf_relocate_easy_0001.gif ok
+[2/100] confined_shelf_relocate_easy_0002.gif ok
+[3/100] confined_shelf_relocate_easy_0003.gif ok
+[4/100] access19_relocate_easy_0001.gif ok
+[5/100] access19_relocate_easy_0002.gif ok
+[6/100] access19_relocate_easy_0000.gif ok
+[7/100] access19_relocate_medium_0000.gif ok
+[8/100] access19_relocate_medium_0001.gif ok
+[9/100] access19_relocate_hard_0000.gif ok
+[10/100] confined_shelf_relocate_easy_0000.gif ok
+[11/100] confined_shelf_relocate_medium_0000.gif ok
+[12/100] access19_retrieve_easy_0001.gif ok
+[13/100] confined_shelf_relocate_medium_0001.gif ok
+[14/100] access19_retrieve_hard_0000.gif ok
+[15/100] access19_retrieve_easy_0000.gif ok
+[16/100] access19_retrieve_easy_0002.gif ok
+[17/100] confined_shelf_relocate_hard_0001.gif ok
+[18/100] access19_retrieve_medium_0001.gif ok
+[19/100] access19_retrieve_medium_0000.gif ok
+[20/100] confined_shelf_retrieve_easy_0001.gif ok
+[21/100] confined_shelf_retrieve_easy_0002.gif ok
+[22/100] confined_shelf_retrieve_easy_0003.gif ok
+[23/100] confined_shelf_retrieve_easy_0000.gif ok
+[24/100] confined_shelf_retrieve_hard_0000.gif ok
+[25/100] confined_shelf_retrieve_medium_0000.gif ok
+[26/100] confined_shelf_relocate_hard_0000.gif ok
+[27/100] confined_shelf_retrieve_medium_0001.gif ok
+[28/100] confined_shelf_retrieve_hard_0001.gif ok
+[29/100] multi_level_shelf_relocate_easy_0000.gif ok
+[30/100] multi_level_shelf_relocate_easy_0002.gif ok
+[31/100] multi_level_shelf_relocate_easy_0003.gif ok
+[32/100] multi_level_shelf_relocate_easy_0001.gif ok
+[33/100] multi_level_shelf_relocate_easy_0005.gif ok
+[34/100] multi_level_shelf_relocate_easy_0004.gif ok
+[35/100] multi_level_shelf_relocate_hard_0000.gif ok
+[36/100] multi_level_shelf_relocate_medium_0001.gif ok
+[37/100] multi_level_shelf_relocate_medium_0000.gif ok
+[38/100] multi_level_shelf_retrieve_easy_0000.gif ok
+[39/100] multi_level_shelf_relocate_medium_0002.gif ok
+[40/100] multi_level_shelf_retrieve_easy_0002.gif ok
+[41/100] multi_level_shelf_relocate_medium_0003.gif ok
+[42/100] multi_level_shelf_relocate_hard_0001.gif ok
+[43/100] multi_level_shelf_retrieve_easy_0003.gif ok
+[44/100] multi_level_shelf_retrieve_easy_0005.gif ok
+[45/100] multi_level_shelf_retrieve_easy_0004.gif ok
+[46/100] multi_level_shelf_retrieve_hard_0000.gif ok
+[47/100] multi_level_shelf_retrieve_hard_0001.gif ok
+[48/100] multi_level_shelf_retrieve_medium_0001.gif ok
+[49/100] multi_level_shelf_retrieve_medium_0002.gif ok
+[50/100] multi_level_shelf_retrieve_medium_0000.gif ok
+[51/100] open_tabletop_relocate_easy_0001.gif ok
+[52/100] open_tabletop_relocate_easy_0000.gif ok
+[53/100] open_tabletop_relocate_easy_0004.gif ok
+[54/100] multi_level_shelf_retrieve_easy_0001.gif ok
+[55/100] open_tabletop_relocate_hard_0002.gif ok
+[56/100] open_tabletop_relocate_easy_0002.gif ok
+[57/100] open_tabletop_relocate_easy_0003.gif ok
+[58/100] open_tabletop_relocate_easy_0005.gif ok
+[59/100] open_tabletop_relocate_hard_0001.gif ok
+[60/100] open_tabletop_relocate_hard_0000.gif ok
+[61/100] open_tabletop_relocate_medium_0000.gif ok
+[62/100] open_tabletop_retrieve_easy_0000.gif ok
+[63/100] open_tabletop_relocate_medium_0002.gif ok
+[64/100] open_tabletop_relocate_medium_0001.gif ok
+[65/100] open_tabletop_retrieve_easy_0001.gif ok
+[66/100] multi_level_shelf_retrieve_medium_0003.gif ok
+[67/100] open_tabletop_retrieve_easy_0002.gif ok
+[68/100] open_tabletop_retrieve_easy_0004.gif ok
+[69/100] open_tabletop_retrieve_easy_0003.gif ok
+[70/100] open_tabletop_retrieve_easy_0005.gif ok
+[71/100] open_tabletop_relocate_medium_0003.gif ok
+[72/100] open_tabletop_retrieve_hard_0001.gif ok
+[73/100] open_tabletop_retrieve_hard_0002.gif ok
+[74/100] open_tabletop_retrieve_medium_0002.gif ok
+[75/100] open_tabletop_retrieve_medium_0000.gif ok
+[76/100] open_tabletop_retrieve_hard_0000.gif ok
+[77/100] open_tabletop_retrieve_medium_0001.gif ok
+[78/100] open_tabletop_retrieve_medium_0003.gif ok
+[79/100] stacking_relocate_easy_0000.gif ok
+[80/100] stacking_relocate_easy_0002.gif ok
+[81/100] stacking_relocate_easy_0001.gif ok
+[82/100] stacking_relocate_easy_0005.gif ok
+[83/100] stacking_relocate_hard_0001.gif ok
+[84/100] stacking_relocate_easy_0004.gif ok
+[85/100] stacking_relocate_easy_0003.gif ok
+[86/100] stacking_relocate_medium_0000.gif ok
+[87/100] stacking_relocate_medium_0001.gif ok
+[88/100] stacking_relocate_hard_0000.gif ok
+[89/100] stacking_relocate_medium_0002.gif ok
+[90/100] stacking_retrieve_easy_0004.gif ok
+[91/100] stacking_retrieve_easy_0005.gif ok
+[92/100] stacking_retrieve_easy_0000.gif ok
+[93/100] stacking_retrieve_easy_0001.gif ok
+[94/100] stacking_retrieve_hard_0000.gif ok
+[95/100] stacking_retrieve_easy_0002.gif ok
+[96/100] stacking_retrieve_easy_0003.gif ok
+[97/100] stacking_retrieve_hard_0001.gif ok
+[98/100] stacking_retrieve_medium_0002.gif ok
+[99/100] stacking_retrieve_medium_0000.gif ok
+[100/100] stacking_retrieve_medium_0001.gif ok
+gallery D:\RRC\New folder\m4m_em4m_project\mamo\results\overnight5\overnight5-grid\dataset\index.html
+2026-10-29 12:26:02 scripts/overnight2.py dataset 20261028-230621_overnight5 --out overnight5-nogrid --workers 10 --dataset overnight5-nogrid
+100 dataset GIFs to render
+[1/100] confined_shelf_relocate_easy_0002.gif ok
+[2/100] confined_shelf_relocate_easy_0001.gif ok
+[3/100] confined_shelf_relocate_easy_0003.gif ok
+[4/100] access19_relocate_easy_0000.gif ok
+[5/100] access19_relocate_medium_0000.gif ok
+[6/100] access19_relocate_easy_0002.gif ok
+[7/100] confined_shelf_relocate_easy_0000.gif ok
+[8/100] access19_relocate_medium_0001.gif ok
+[9/100] access19_relocate_easy_0001.gif ok
+[10/100] confined_shelf_relocate_medium_0000.gif ok
+[11/100] confined_shelf_relocate_medium_0001.gif ok
+[12/100] confined_shelf_relocate_hard_0001.gif ok
+[13/100] access19_retrieve_easy_0001.gif ok
+[14/100] access19_retrieve_easy_0000.gif ok
+[15/100] access19_relocate_hard_0000.gif ok
+[16/100] access19_retrieve_easy_0002.gif ok
+[17/100] access19_retrieve_hard_0000.gif ok
+[18/100] access19_retrieve_medium_0001.gif ok
+[19/100] confined_shelf_retrieve_easy_0001.gif ok
+[20/100] confined_shelf_retrieve_easy_0002.gif ok
+[21/100] confined_shelf_retrieve_easy_0003.gif ok
+[22/100] confined_shelf_retrieve_easy_0000.gif ok
+[23/100] access19_retrieve_medium_0000.gif ok
+[24/100] confined_shelf_relocate_hard_0000.gif ok
+[25/100] confined_shelf_retrieve_hard_0000.gif ok
+[26/100] confined_shelf_retrieve_medium_0000.gif ok
+[27/100] confined_shelf_retrieve_medium_0001.gif ok
+[28/100] confined_shelf_retrieve_hard_0001.gif ok
+[29/100] multi_level_shelf_relocate_easy_0000.gif ok
+[30/100] multi_level_shelf_relocate_easy_0003.gif ok
+[31/100] multi_level_shelf_relocate_easy_0002.gif ok
+[32/100] multi_level_shelf_relocate_easy_0005.gif ok
+[33/100] multi_level_shelf_relocate_easy_0001.gif ok
+[34/100] multi_level_shelf_relocate_hard_0000.gif ok
+[35/100] multi_level_shelf_relocate_easy_0004.gif ok
+[36/100] multi_level_shelf_relocate_medium_0001.gif ok
+[37/100] multi_level_shelf_relocate_medium_0000.gif ok
+[38/100] multi_level_shelf_relocate_medium_0002.gif ok
+[39/100] multi_level_shelf_retrieve_easy_0000.gif ok
+[40/100] multi_level_shelf_retrieve_easy_0002.gif ok
+[41/100] multi_level_shelf_relocate_hard_0001.gif ok
+[42/100] multi_level_shelf_relocate_medium_0003.gif ok
+[43/100] multi_level_shelf_retrieve_easy_0003.gif ok
+[44/100] multi_level_shelf_retrieve_easy_0005.gif ok
+[45/100] multi_level_shelf_retrieve_easy_0004.gif ok
+[46/100] multi_level_shelf_retrieve_hard_0001.gif ok
+[47/100] multi_level_shelf_retrieve_hard_0000.gif ok
+[48/100] multi_level_shelf_retrieve_medium_0001.gif ok
+[49/100] multi_level_shelf_retrieve_medium_0000.gif ok
+[50/100] multi_level_shelf_retrieve_medium_0002.gif ok
+[51/100] open_tabletop_relocate_easy_0001.gif ok
+[52/100] open_tabletop_relocate_easy_0000.gif ok
+[53/100] multi_level_shelf_retrieve_easy_0001.gif ok
+[54/100] open_tabletop_relocate_easy_0004.gif ok
+[55/100] open_tabletop_relocate_easy_0002.gif ok
+[56/100] open_tabletop_relocate_easy_0005.gif ok
+[57/100] open_tabletop_relocate_hard_0002.gif ok
+[58/100] open_tabletop_relocate_easy_0003.gif ok
+[59/100] open_tabletop_relocate_hard_0001.gif ok
+[60/100] open_tabletop_relocate_hard_0000.gif ok
+[61/100] open_tabletop_relocate_medium_0001.gif ok
+[62/100] open_tabletop_relocate_medium_0000.gif ok
+[63/100] open_tabletop_retrieve_easy_0000.gif ok
+[64/100] open_tabletop_relocate_medium_0002.gif ok
+[65/100] open_tabletop_retrieve_easy_0001.gif ok
+[66/100] open_tabletop_retrieve_easy_0002.gif ok
+[67/100] open_tabletop_retrieve_easy_0004.gif ok
+[68/100] open_tabletop_retrieve_easy_0003.gif ok
+[69/100] multi_level_shelf_retrieve_medium_0003.gif ok
+[70/100] open_tabletop_retrieve_easy_0005.gif ok
+[71/100] open_tabletop_relocate_medium_0003.gif ok
+[72/100] open_tabletop_retrieve_hard_0001.gif ok
+[73/100] open_tabletop_retrieve_hard_0002.gif ok
+[74/100] open_tabletop_retrieve_hard_0000.gif ok
+[75/100] open_tabletop_retrieve_medium_0000.gif ok
+[76/100] open_tabletop_retrieve_medium_0001.gif ok
+[77/100] open_tabletop_retrieve_medium_0002.gif ok
+[78/100] open_tabletop_retrieve_medium_0003.gif ok
+[79/100] stacking_relocate_easy_0000.gif ok
+[80/100] stacking_relocate_easy_0001.gif ok
+[81/100] stacking_relocate_easy_0002.gif ok
+[82/100] stacking_relocate_easy_0004.gif ok
+[83/100] stacking_relocate_easy_0005.gif ok
+[84/100] stacking_relocate_easy_0003.gif ok
+[85/100] stacking_relocate_hard_0001.gif ok
+[86/100] stacking_relocate_medium_0000.gif ok
+[87/100] stacking_relocate_medium_0001.gif ok
+[88/100] stacking_relocate_medium_0002.gif ok
+[89/100] stacking_relocate_hard_0000.gif ok
+[90/100] stacking_retrieve_easy_0004.gif ok
+[91/100] stacking_retrieve_easy_0005.gif ok
+[92/100] stacking_retrieve_easy_0000.gif ok
+[93/100] stacking_retrieve_easy_0001.gif ok
+[94/100] stacking_retrieve_easy_0003.gif ok
+[95/100] stacking_retrieve_easy_0002.gif ok
+[96/100] stacking_retrieve_hard_0000.gif ok
+[97/100] stacking_retrieve_hard_0001.gif ok
+[98/100] stacking_retrieve_medium_0002.gif ok
+[99/100] stacking_retrieve_medium_0000.gif ok
+[100/100] stacking_retrieve_medium_0001.gif ok
+gallery D:\RRC\New folder\m4m_em4m_project\mamo\results\overnight5\overnight5-nogrid\dataset\index.html
+2026-10-29 12:28:03 scripts/overnight2.py report 20261028-230621_overnight5 --out overnight5-grid --dataset overnight5-grid
+# Overnight run 5: every baseline as in its paper, easier dataset, grid states
+
+Experiment `D:/RRC/New folder/m4m_em4m_project/mamo/workspace/experiments/20261028-230621_overnight5`; dataset `overnight5-grid` (100 problems); 9 methods, one seed, at most 300 s of planning per run, 900 runs. A run counts as solved only if its plan, replayed from the initial scene in MuJoCo, succeeds (the OoI is out of its shelf / every target is at its goal).
+
+**Most problems solved: DOGAR, 32 of 100.**
+
+![solved](solved_by_method.png)
+
+## Solved per method and task
+
+| Method | OoI retrieval | Pick-and-place | Total |
+|---|---|---|---|
+| DOGAR | 10/50 | 22/50 | **32/100** |
+| I-M4M-PnP | 8/50 | 13/50 | **21/100** |
+| E-M4M | 8/50 | 12/50 | **20/100** |
+| Lazy I-M4M-PnP | 5/50 | 15/50 | **20/100** |
+| I-M4M | 8/50 | 11/50 | **19/100** |
+| M4M | 5/50 | 4/50 | **9/100** |
+| RRT | 4/50 | 3/50 | **7/100** |
+| KPIECE | 3/50 | 3/50 | **6/100** |
+| SELSIM | 1/50 | 1/50 | **2/100** |
+
+
+## Solved per method and difficulty (both tasks)
+
+| Method | easy | medium | hard | Total |
+|---|---|---|---|---|
+| DOGAR | 28/50 | 2/30 | 2/20 | **32/100** |
+| I-M4M-PnP | 20/50 | 1/30 | 0/20 | **21/100** |
+| E-M4M | 18/50 | 2/30 | 0/20 | **20/100** |
+| Lazy I-M4M-PnP | 16/50 | 4/30 | 0/20 | **20/100** |
+| I-M4M | 18/50 | 1/30 | 0/20 | **19/100** |
+| M4M | 8/50 | 1/30 | 0/20 | **9/100** |
+| RRT | 7/50 | 0/30 | 0/20 | **7/100** |
+| KPIECE | 6/50 | 0/30 | 0/20 | **6/100** |
+| SELSIM | 2/50 | 0/30 | 0/20 | **2/100** |
+
+
+## OoI retrieval: per difficulty
+
+| Method | easy | medium | hard | Total |
+|---|---|---|---|---|
+| DOGAR | 9/25 | 0/15 | 1/10 | **10/50** |
+| I-M4M-PnP | 8/25 | 0/15 | 0/10 | **8/50** |
+| E-M4M | 8/25 | 0/15 | 0/10 | **8/50** |
+| Lazy I-M4M-PnP | 5/25 | 0/15 | 0/10 | **5/50** |
+| I-M4M | 8/25 | 0/15 | 0/10 | **8/50** |
+| M4M | 5/25 | 0/15 | 0/10 | **5/50** |
+| RRT | 4/25 | 0/15 | 0/10 | **4/50** |
+| KPIECE | 3/25 | 0/15 | 0/10 | **3/50** |
+| SELSIM | 1/25 | 0/15 | 0/10 | **1/50** |
+
+
+## Pick-and-place: per difficulty
+
+| Method | easy | medium | hard | Total |
+|---|---|---|---|---|
+| DOGAR | 19/25 | 2/15 | 1/10 | **22/50** |
+| I-M4M-PnP | 12/25 | 1/15 | 0/10 | **13/50** |
+| E-M4M | 10/25 | 2/15 | 0/10 | **12/50** |
+| Lazy I-M4M-PnP | 11/25 | 4/15 | 0/10 | **15/50** |
+| I-M4M | 10/25 | 1/15 | 0/10 | **11/50** |
+| M4M | 3/25 | 1/15 | 0/10 | **4/50** |
+| RRT | 3/25 | 0/15 | 0/10 | **3/50** |
+| KPIECE | 3/25 | 0/15 | 0/10 | **3/50** |
+| SELSIM | 1/25 | 0/15 | 0/10 | **1/50** |
+
+
+## Solved per environment (both tasks)
+
+| Method | confined_shelf | multi_level_shelf | open_tabletop | stacking | Total |
+|---|---|---|---|---|---|
+| DOGAR | 7/28 | 8/24 | 9/26 | 8/22 | **32/100** |
+| I-M4M-PnP | 6/28 | 4/24 | 7/26 | 4/22 | **21/100** |
+| E-M4M | 5/28 | 5/24 | 1/26 | 9/22 | **20/100** |
+| Lazy I-M4M-PnP | 6/28 | 4/24 | 6/26 | 4/22 | **20/100** |
+| I-M4M | 5/28 | 5/24 | 1/26 | 8/22 | **19/100** |
+| M4M | 6/28 | 2/24 | 1/26 | 0/22 | **9/100** |
+| RRT | 0/28 | 1/24 | 1/26 | 5/22 | **7/100** |
+| KPIECE | 0/28 | 0/24 | 1/26 | 5/22 | **6/100** |
+| SELSIM | 0/28 | 0/24 | 0/26 | 2/22 | **2/100** |
+
+
+## Planning time of the solved runs
+
+| Method | median (s) | mean (s) | solved within 60 s | within 120 s | within 300 s |
+|---|---|---|---|---|---|
+| DOGAR | 26.6 | 52.4 | 23 | 28 | 32 |
+| I-M4M-PnP | 20.4 | 65.8 | 13 | 16 | 21 |
+| E-M4M | 23.7 | 68.0 | 14 | 14 | 20 |
+| Lazy I-M4M-PnP | 46.2 | 59.2 | 11 | 17 | 20 |
+| I-M4M | 26.2 | 60.2 | 13 | 14 | 19 |
+| M4M | 9.2 | 35.9 | 7 | 8 | 9 |
+| RRT | 8.4 | 7.9 | 7 | 7 | 7 |
+| KPIECE | 7.5 | 11.9 | 6 | 6 | 6 |
+| SELSIM | 22.8 | 22.8 | 2 | 2 | 2 |
+
+![anytime](anytime.png)
+
+
+## Why runs failed
+
+| Method | reason | runs |
+|---|---|---|
+| DOGAR | budget exhausted | 42 |
+| DOGAR | budget exhausted  | 4 |
+| DOGAR | replay failed: push 1/1 invalid on replay: off the grid: object 10 turned 38 deg off  | 2 |
+| DOGAR | replay failed: push 1/2 invalid on replay: off the grid: object 11 turned 39 deg off  | 2 |
+| DOGAR | replay failed: push 1/1 invalid on replay: off the grid: object 6 turned 38 deg off t | 1 |
+| DOGAR | replay failed: push 1/1 invalid on replay: off the grid: object 10 turned 39 deg off  | 1 |
+| I-M4M-PnP | budget exhausted | 54 |
+| I-M4M-PnP | OPEN exhausted | 8 |
+| I-M4M-PnP | no retrieval trajectory without movables | 2 |
+| I-M4M-PnP | replay failed: push 1/5 invalid on replay: off the grid: object 11 turned 44 deg off  | 1 |
+| I-M4M-PnP | replay failed: push 1/1 invalid on replay: bodies forced into each other (x cm): sh | 1 |
+| I-M4M-PnP | replay failed: push 1/2 invalid on replay: off the grid: object 10 turned 44 deg off  | 1 |
+| E-M4M | OPEN exhausted | 36 |
+| E-M4M | budget exhausted | 30 |
+| E-M4M | no retrieval trajectory without movables | 2 |
+| E-M4M | replay failed: push 7/8 invalid on replay: off the grid: object 8 outside the grid's  | 1 |
+| E-M4M | replay failed: push 1/3 invalid on replay: off the grid: object 10 outside the grid's | 1 |
+| E-M4M | replay failed: push 1/2 invalid on replay: off the grid: object 10 turned 44 deg off  | 1 |
+| Lazy I-M4M-PnP | budget exhausted | 52 |
+| Lazy I-M4M-PnP | OPEN exhausted | 8 |
+| Lazy I-M4M-PnP | replay failed: push 1/1 invalid on replay: off the grid: object 6 outside the grid's  | 2 |
+| Lazy I-M4M-PnP | no retrieval trajectory without movables | 2 |
+| Lazy I-M4M-PnP | replay failed: push 1/1 invalid on replay: off the grid: object 6 turned 28 deg off t | 1 |
+| Lazy I-M4M-PnP | replay failed: push 1/1 invalid on replay: bodies forced into each other (x cm): sh | 1 |
+| I-M4M | OPEN exhausted | 37 |
+| I-M4M | budget exhausted | 27 |
+| I-M4M | no retrieval trajectory without movables | 2 |
+| I-M4M | replay failed: push 1/2 invalid on replay: off the grid: object 10 turned 35 deg off  | 1 |
+| I-M4M | replay failed: push 1/2 invalid on replay: off the grid: object 10 turned 34 deg off  | 1 |
+| I-M4M | replay failed: push 1/1 invalid on replay: off the grid: object 6 turned 34 deg off t | 1 |
+| M4M | budget exhausted | 53 |
+| M4M | no MAPF-suggested push left | 25 |
+| M4M | no retrieval trajectory without movables | 2 |
+| M4M | replay failed: push 2/2 invalid on replay: off the grid: object 7 outside the grid's  | 1 |
+| M4M | replay failed: push 1/2 invalid on replay: off the grid: object 10 turned 27 deg off  | 1 |
+| M4M | replay failed: push 1/2 invalid on replay: off the grid: object 10 outside the grid's | 1 |
+| RRT | budget exhausted | 91 |
+| RRT | no grasp for the OoI | 2 |
+| KPIECE | budget exhausted | 91 |
+| KPIECE | no grasp for the OoI | 2 |
+| KPIECE | replay failed: off the grid: object 10 turned 21 deg off the grid | 1 |
+| SELSIM | budget exhausted | 82 |
+| SELSIM | tracking failed, no irrelevant object to blame: robot hit shelf: sh | 6 |
+| SELSIM | tracking failed, no irrelevant object to blame: pick-and-place: gra | 3 |
+| SELSIM | tracking failed, no irrelevant object to blame: retrieval segment 'lift': object 6 tilted  | 2 |
+| SELSIM | no grasp for the OoI | 2 |
+| SELSIM | replay failed: retrieval segment 'reach': object 10 tilted 25 deg | 1 |
+
+## Feasibility of the problems
+
+From `scripts/feasibility.py` (`dataset/feasibility.csv`): **feasible** = some method (a baseline or the oracle witness search, `mamo/oracle`) found a plan that replays successfully with the current simulator; **infeasible** = a necessary condition fails (the target cannot be retrieved / picked and placed in simulation even with every movable removed, 20 seeds, or the free surface is too small); **unknown** = neither.
+
+| Task | Difficulty | feasible | infeasible | unknown |
+|---|---|---|---|---|
+| OoI retrieval | easy | 20 | 0 | 5 |
+| OoI retrieval | medium | 0 | 0 | 15 |
+| OoI retrieval | hard | 1 | 0 | 9 |
+| Pick-and-place | easy | 22 | 1 | 2 |
+| Pick-and-place | medium | 5 | 0 | 10 |
+| Pick-and-place | hard | 1 | 1 | 8 |
+
+Solved (replay-verified) of the 49 problems known to be feasible:
+
+| Method | solved | of feasible |
+|---|---|---|
+| DOGAR | 32 | 65% |
+| I-M4M-PnP | 21 | 43% |
+| E-M4M | 20 | 41% |
+| Lazy I-M4M-PnP | 20 | 41% |
+| I-M4M | 19 | 39% |
+| M4M | 9 | 18% |
+| RRT | 7 | 14% |
+| KPIECE | 6 | 12% |
+| SELSIM | 2 | 4% |
+
+## Files
+
+* `results.csv`: one row per run
+* `<baseline>/results.csv`, `<baseline>/solutions/<task>/*.pkl` (plans, `mamo.solution.Solution`), `<baseline>/gifs/<task>/*.gif` (every solved run replayed, iso and top view)
+* `dataset/`: the problems (scene files), `dataset/labels.csv` their labels, `dataset/index.html` a gallery of every problem (`dataset/gifs/<task>/<env>/<scene>.gif` and top views)
+
+2026-10-29 12:28:08 scripts/overnight2.py report 20261028-230621_overnight5 --out overnight5-nogrid --dataset overnight5-nogrid
+# Overnight run 5: every baseline as in its paper, easier dataset, continuous states
+
+Experiment `D:/RRC/New folder/m4m_em4m_project/mamo/workspace/experiments/20261028-230621_overnight5`; dataset `overnight5-nogrid` (100 problems); 9 methods, one seed, at most 300 s of planning per run, 900 runs. A run counts as solved only if its plan, replayed from the initial scene in MuJoCo, succeeds (the OoI is out of its shelf / every target is at its goal).
+
+**Most problems solved: DOGAR, 55 of 100.**
+
+![solved](solved_by_method.png)
+
+## Solved per method and task
+
+| Method | OoI retrieval | Pick-and-place | Total |
+|---|---|---|---|
+| DOGAR | 29/50 | 26/50 | **55/100** |
+| I-M4M-PnP | 21/50 | 25/50 | **46/100** |
+| Lazy I-M4M-PnP | 19/50 | 23/50 | **42/100** |
+| I-M4M | 19/50 | 20/50 | **39/100** |
+| E-M4M | 17/50 | 17/50 | **34/100** |
+| M4M | 14/50 | 14/50 | **28/100** |
+| KPIECE | 4/50 | 5/50 | **9/100** |
+| RRT | 4/50 | 4/50 | **8/100** |
+| SELSIM | 1/50 | 1/50 | **2/100** |
+
+
+## Solved per method and difficulty (both tasks)
+
+| Method | easy | medium | hard | Total |
+|---|---|---|---|---|
+| DOGAR | 44/50 | 7/30 | 4/20 | **55/100** |
+| I-M4M-PnP | 35/50 | 10/30 | 1/20 | **46/100** |
+| Lazy I-M4M-PnP | 34/50 | 8/30 | 0/20 | **42/100** |
+| I-M4M | 28/50 | 11/30 | 0/20 | **39/100** |
+| E-M4M | 27/50 | 7/30 | 0/20 | **34/100** |
+| M4M | 20/50 | 7/30 | 1/20 | **28/100** |
+| KPIECE | 8/50 | 0/30 | 1/20 | **9/100** |
+| RRT | 7/50 | 0/30 | 1/20 | **8/100** |
+| SELSIM | 2/50 | 0/30 | 0/20 | **2/100** |
+
+
+## OoI retrieval: per difficulty
+
+| Method | easy | medium | hard | Total |
+|---|---|---|---|---|
+| DOGAR | 22/25 | 4/15 | 3/10 | **29/50** |
+| I-M4M-PnP | 18/25 | 3/15 | 0/10 | **21/50** |
+| Lazy I-M4M-PnP | 16/25 | 3/15 | 0/10 | **19/50** |
+| I-M4M | 13/25 | 6/15 | 0/10 | **19/50** |
+| E-M4M | 13/25 | 4/15 | 0/10 | **17/50** |
+| M4M | 11/25 | 3/15 | 0/10 | **14/50** |
+| KPIECE | 4/25 | 0/15 | 0/10 | **4/50** |
+| RRT | 4/25 | 0/15 | 0/10 | **4/50** |
+| SELSIM | 1/25 | 0/15 | 0/10 | **1/50** |
+
+
+## Pick-and-place: per difficulty
+
+| Method | easy | medium | hard | Total |
+|---|---|---|---|---|
+| DOGAR | 22/25 | 3/15 | 1/10 | **26/50** |
+| I-M4M-PnP | 17/25 | 7/15 | 1/10 | **25/50** |
+| Lazy I-M4M-PnP | 18/25 | 5/15 | 0/10 | **23/50** |
+| I-M4M | 15/25 | 5/15 | 0/10 | **20/50** |
+| E-M4M | 14/25 | 3/15 | 0/10 | **17/50** |
+| M4M | 9/25 | 4/15 | 1/10 | **14/50** |
+| KPIECE | 4/25 | 0/15 | 1/10 | **5/50** |
+| RRT | 3/25 | 0/15 | 1/10 | **4/50** |
+| SELSIM | 1/25 | 0/15 | 0/10 | **1/50** |
+
+
+## Solved per environment (both tasks)
+
+| Method | confined_shelf | multi_level_shelf | open_tabletop | stacking | Total |
+|---|---|---|---|---|---|
+| DOGAR | 15/28 | 15/24 | 9/26 | 16/22 | **55/100** |
+| I-M4M-PnP | 12/28 | 17/24 | 8/26 | 9/22 | **46/100** |
+| Lazy I-M4M-PnP | 10/28 | 14/24 | 7/26 | 11/22 | **42/100** |
+| I-M4M | 6/28 | 15/24 | 1/26 | 17/22 | **39/100** |
+| E-M4M | 6/28 | 14/24 | 1/26 | 13/22 | **34/100** |
+| M4M | 8/28 | 12/24 | 1/26 | 7/22 | **28/100** |
+| KPIECE | 0/28 | 2/24 | 2/26 | 5/22 | **9/100** |
+| RRT | 0/28 | 1/24 | 2/26 | 5/22 | **8/100** |
+| SELSIM | 0/28 | 0/24 | 0/26 | 2/22 | **2/100** |
+
+
+## Planning time of the solved runs
+
+| Method | median (s) | mean (s) | solved within 60 s | within 120 s | within 300 s |
+|---|---|---|---|---|---|
+| DOGAR | 17.5 | 24.9 | 50 | 54 | 55 |
+| I-M4M-PnP | 23.0 | 48.1 | 33 | 39 | 46 |
+| Lazy I-M4M-PnP | 25.7 | 48.4 | 32 | 38 | 42 |
+| I-M4M | 27.4 | 64.2 | 26 | 31 | 39 |
+| E-M4M | 25.4 | 59.4 | 24 | 29 | 34 |
+| M4M | 48.1 | 74.2 | 15 | 21 | 28 |
+| KPIECE | 18.6 | 45.0 | 7 | 8 | 9 |
+| RRT | 8.2 | 10.1 | 8 | 8 | 8 |
+| SELSIM | 22.5 | 22.5 | 2 | 2 | 2 |
+
+![anytime](anytime.png)
+
+
+## Why runs failed
+
+| Method | reason | runs |
+|---|---|---|
+| DOGAR | budget exhausted | 42 |
+| DOGAR | replay failed: push 1/2 invalid on replay: object 7 tilted 25 deg | 1 |
+| DOGAR | replay failed: push 2/2 invalid on replay: immovable contact: obj / robot/right_fin | 1 |
+| DOGAR | replay failed: push 1/1 invalid on replay: immovable contact: obj / obj | 1 |
+| I-M4M-PnP | budget exhausted | 42 |
+| I-M4M-PnP | OPEN exhausted | 8 |
+| I-M4M-PnP | no retrieval trajectory without movables | 2 |
+| I-M4M-PnP | replay failed: grasp failed: the fingers do not both touch the OoI | 1 |
+| I-M4M-PnP | replay failed: push 1/1 invalid on replay: bodies forced into each other (x cm): sh | 1 |
+| Lazy I-M4M-PnP | budget exhausted | 45 |
+| Lazy I-M4M-PnP | OPEN exhausted | 8 |
+| Lazy I-M4M-PnP | no retrieval trajectory without movables | 2 |
+| Lazy I-M4M-PnP | replay failed: grasp failed: the fingers do not both touch the OoI | 1 |
+| Lazy I-M4M-PnP | replay failed: push 3/3 invalid on replay: simulation unstable (MuJoCo reset the stat | 1 |
+| Lazy I-M4M-PnP | replay failed: push 1/1 invalid on replay: bodies forced into each other (x cm): sh | 1 |
+| I-M4M | OPEN exhausted | 36 |
+| I-M4M | budget exhausted | 19 |
+| I-M4M | replay failed: grasp failed: the fingers do not both touch the OoI | 2 |
+| I-M4M | no retrieval trajectory without movables | 2 |
+| I-M4M | replay failed: push 1/1 invalid on replay: object 7 tilted 25 deg | 1 |
+| I-M4M | replay failed: push 2/2 invalid on replay: object 7 tilted 25 deg | 1 |
+| E-M4M | OPEN exhausted | 35 |
+| E-M4M | budget exhausted | 26 |
+| E-M4M | no retrieval trajectory without movables | 2 |
+| E-M4M | replay failed: grasp failed: the fingers do not both touch the OoI | 1 |
+| E-M4M | replay failed: push 1/2 invalid on replay: object 7 tilted 25 deg | 1 |
+| E-M4M | replay failed: push 2/2 invalid on replay: object 7 tilted 25 deg | 1 |
+| M4M | budget exhausted | 50 |
+| M4M | no MAPF-suggested push left | 18 |
+| M4M | no retrieval trajectory without movables | 2 |
+| M4M | replay failed: grasp failed: the fingers do not both touch the OoI | 2 |
+| KPIECE | budget exhausted | 89 |
+| KPIECE | no grasp for the OoI | 2 |
+| RRT | budget exhausted | 90 |
+| RRT | no grasp for the OoI | 2 |
+| SELSIM | budget exhausted | 82 |
+| SELSIM | tracking failed, no irrelevant object to blame: robot hit shelf: sh | 6 |
+| SELSIM | tracking failed, no irrelevant object to blame: pick-and-place: gra | 3 |
+| SELSIM | tracking failed, no irrelevant object to blame: retrieval segment 'lift': object 6 tilted  | 2 |
+| SELSIM | no grasp for the OoI | 2 |
+| SELSIM | replay failed: retrieval segment 'reach': object 10 tilted 25 deg | 1 |
+
+## Feasibility of the problems
+
+From `scripts/feasibility.py` (`dataset/feasibility.csv`): **feasible** = some method (a baseline or the oracle witness search, `mamo/oracle`) found a plan that replays successfully with the current simulator; **infeasible** = a necessary condition fails (the target cannot be retrieved / picked and placed in simulation even with every movable removed, 20 seeds, or the free surface is too small); **unknown** = neither.
+
+| Task | Difficulty | feasible | infeasible | unknown |
+|---|---|---|---|---|
+| OoI retrieval | easy | 24 | 0 | 1 |
+| OoI retrieval | medium | 8 | 0 | 7 |
+| OoI retrieval | hard | 3 | 0 | 7 |
+| Pick-and-place | easy | 24 | 1 | 0 |
+| Pick-and-place | medium | 11 | 0 | 4 |
+| Pick-and-place | hard | 3 | 1 | 6 |
+
+Solved (replay-verified) of the 73 problems known to be feasible:
+
+| Method | solved | of feasible |
+|---|---|---|
+| DOGAR | 55 | 75% |
+| I-M4M-PnP | 46 | 63% |
+| Lazy I-M4M-PnP | 42 | 58% |
+| I-M4M | 39 | 53% |
+| E-M4M | 34 | 47% |
+| M4M | 28 | 38% |
+| KPIECE | 9 | 12% |
+| RRT | 8 | 11% |
+| SELSIM | 2 | 3% |
+
+## Files
+
+* `results.csv`: one row per run
+* `<baseline>/results.csv`, `<baseline>/solutions/<task>/*.pkl` (plans, `mamo.solution.Solution`), `<baseline>/gifs/<task>/*.gif` (every solved run replayed, iso and top view)
+* `dataset/`: the problems (scene files), `dataset/labels.csv` their labels, `dataset/index.html` a gallery of every problem (`dataset/gifs/<task>/<env>/<scene>.gif` and top views)
+
+2026-10-29 12:28:11 all done
