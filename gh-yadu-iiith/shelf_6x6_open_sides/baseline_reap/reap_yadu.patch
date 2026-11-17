@@ -1,0 +1,83 @@
+diff --git a/reap/domains/checker_info.py b/reap/domains/checker_info.py
+index 8a79010..eef1cfd 100644
+--- a/reap/domains/checker_info.py
++++ b/reap/domains/checker_info.py
+@@ -26,7 +26,7 @@ from pathlib import Path
+ CONFINED_VAR = "CONFINED_CHECKER"
+ SHELF_VAR = "SHELF_ACCESS_CHECKER"
+ MLB_VAR = "MLB_CHECKER"
+-_ALLOWED = {CONFINED_VAR: ("honest",), SHELF_VAR: ("v2",), MLB_VAR: ("honest_grip",)}
++_ALLOWED = {CONFINED_VAR: ("honest", "yadu"), SHELF_VAR: ("v2",), MLB_VAR: ("honest_grip",)}
+ UNIFIED_DOMAIN = "reap-unified"
+ 
+ 
+@@ -108,7 +108,9 @@ def describe(domain_name: str) -> dict:
+     """Provenance of the checker the search filter would use for ``domain_name`` (raises for a shelf domain whose
+     checker is not selected explicitly)."""
+     lib = None
+-    if domain_name == "confined-shelf":
++    if domain_name == "confined-shelf" and require(CONFINED_VAR) == "yadu":
++        name = "yadu-shelf-no-overpass"     # our MuJoCo scene (reap_shelf/shelf_oracle.py), no library file
++    elif domain_name == "confined-shelf":
+         require(CONFINED_VAR)
+         from tampanda.symbolic.domains.confined_shelf.honest import DEFAULT_LIBRARY
+         lib = os.environ.get("CONFINED_LIBRARY") or str(DEFAULT_LIBRARY)
+diff --git a/reap/domains/confined_shelf.py b/reap/domains/confined_shelf.py
+index 99f18c0..181b725 100644
+--- a/reap/domains/confined_shelf.py
++++ b/reap/domains/confined_shelf.py
+@@ -32,7 +32,14 @@ class ConfinedShelfFeasibilityChecker:
+         # CONFINED_CHECKER must be set explicitly to "honest" (checker_info.require): the honest grasp library (real
+         # arm collision meshes, exact per-cell conflict sets; tampanda confined_shelf/honest.py; CONFINED_LIBRARY
+         # overrides the library file)
+-        checker_info.require(checker_info.CONFINED_VAR)
++        self._yadu = None
++        if checker_info.require(checker_info.CONFINED_VAR) == "yadu":
++            # our xArm7 confined shelf (codebase/baselines/reap_shelf): REAP_SHELF_DIR overrides its location
++            import sys
++            sys.path.insert(0, os.environ.get("REAP_SHELF_DIR", os.path.expanduser("~/codebase/baselines/reap_shelf")))
++            from yadu_reap_checker import YaduShelfChecker
++            self._yadu = YaduShelfChecker()
++            return
+         from tampanda.symbolic.domains.confined_shelf.honest import DEFAULT_LIBRARY, HonestLibrary
+         self._honest = HonestLibrary(os.environ.get("CONFINED_LIBRARY") or DEFAULT_LIBRARY)
+ 
+@@ -66,6 +73,13 @@ class ConfinedShelfFeasibilityChecker:
+ 
+     def check(self, state: xmi.XState, action: xmi.XAction) -> bool:
+         """Returns True if the action is INFEASIBLE (filter_action contract)."""
++        if self._yadu is not None:
++            # our 6x6 shelf: cached inside the oracle; _cache records the distinct queries for the mp_calls count
++            layout, held = self._state_to_layout_held(state)
++            key = (frozenset(layout.items()), held, self._action_to_tuple(action))
++            if key not in self._cache:
++                self._cache[key] = self._yadu.check(state, action)
++            return self._cache[key]
+         layout, held = self._state_to_layout_held(state)
+         action_tuple = self._action_to_tuple(action)
+         key = (frozenset(layout.items()), held, action_tuple)
+diff --git a/reap/eval/eval_protocol.py b/reap/eval/eval_protocol.py
+index e644558..89c8439 100644
+--- a/reap/eval/eval_protocol.py
++++ b/reap/eval/eval_protocol.py
+@@ -116,6 +116,11 @@ def _eval_one_problem(prob, embedder, *, domain, set_kind, label, domain_name,
+     """Run one problem through gbfs_value_eval and build its result row."""
+     gen = xmi.XSuccessorGenerator(prob)
+     embedder.clean()
++    # yadu: REAP's own value of the start state, V(s0) = max_a Q(s0, a) (the score of the AUC column); the same
++    # get_q_values call the search makes, computed before the timed search so it does not count in wall_time
++    v0_vals, _ = embedder.get_q_values([gen.initial_state])
++    v0 = float(max(float(v) for v in v0_vals)) if len(v0_vals) else float("nan")
++    embedder.clean()
+     sim.reset_filter_stats()
+     t0 = time.time()
+     expanded, plan, solved, reason, init_time = gbfs_value_eval(
+@@ -133,7 +138,7 @@ def _eval_one_problem(prob, embedder, *, domain, set_kind, label, domain_name,
+         "solved": int(solved), "expanded": expanded, "steps": len(plan),
+         "infeasible_steps": fstats["infeasible"], "mp_calls": mp_calls,
+         "total_filter_calls": fstats["calls"], "wall_time": round(wall, 3),
+-        "termination_reason": reason,
++        "termination_reason": reason, "v0": v0,
+         "plan": ";".join(str(a) for a in plan),
+     }
+ 
