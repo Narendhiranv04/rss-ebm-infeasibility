@@ -23,7 +23,7 @@ Everything below is on the V4 split of the 6x6 shelf dataset (`split_v4.json`, f
 ## Results of all models (V4 split, the same 370 test scenes)
 
 Models and where they live (all in this repository, folder `gh-yadu-iiith/shelf_6x6_open_sides/baseline_<name>/`): REAP (`yadu/REAP`),
-PIGINet (`yadu/PIGINet`), GRN (`yadu/GRN`). Split: `split_v4.json` (Narendhiran's V4 split from `naren/dataset-done`: 1,766 train / 364
+PIGINet (`yadu/PIGINet`), GRN (`yadu/GRN`), SceneCollisionNet (`yadu/SceneCollisionNet`). Split: `split_v4.json` (Narendhiran's V4 split from `naren/dataset-done`: 1,766 train / 364
 val / 370 test scenes). Mean ± standard deviation over seeds.
 
 ### Feasibility predictors, one metric set
@@ -45,6 +45,7 @@ validation). The PIGINet "no pose / size values" rows are one seed.
 | PIGINet, no image tokens, relocations as plan tokens | 3 | 0.987 ± 0.001 | 0.993 ± 0.001 | 0.984 ± 0.001 | 0.998 ± 0.001 | 0.773 ± 0.021 | 0.791 ± 0.003 | 0.899 ± 0.016 | 0.808 ± 0.009 |
 | PIGINet, no pose / size values, obstacles parked in the state | 1 | 0.934 | 0.927 | 0.876 | 0.947 | 0.473 | 0.511 | 0.763 | 0.620 |
 | PIGINet, no pose / size values, relocations as plan tokens | 1 | 0.934 | 0.927 | 0.876 | 0.972 | 0.481 | 0.595 | 0.884 | 0.689 |
+| SceneCollisionNet | 3 | 0.968 ± 0.003 | 0.979 ± 0.001 | 0.964 ± 0.004 | 0.996 ± 0.002 | 0.756 ± 0.003 | 0.764 ± 0.017 | 0.924 ± 0.017 | 0.250 ± 0.013 |
 
 ### The paper's table (a) columns
 
@@ -58,6 +59,7 @@ Time / Calls need a planner and are therefore empty for the predictors that have
 | PIGINet + TAMP, full (3 seeds) | 0.978 ± 0.021 | 68.9 ± 4.5 | 98.1 ± 0.2 | 26.9 ± 4.2 | 3.4 ± 0.4 |
 | PIGINet + TAMP, no image tokens (3 seeds) | 0.995 ± 0.004 | 69.1 ± 0.7 | 99.1 ± 0.1 | 24.4 ± 2.3 | 3.3 ± 0.1 |
 | GRN (feasibility predictor only, 3 seeds) | 0.975 ± 0.002 | – | – | – | – |
+| SceneCollisionNet (feasibility predictor only, 3 seeds) | 0.996 ± 0.002 | – | – | – | – |
 
 - REAP is run with the dataset teacher as feasibility oracle and every plan is replayed in MuJoCo. The trained row uses a precomputed
   conflict library as the checker (7-11 s per teacher check made online training impossible; the library agrees with the teacher on about
@@ -67,6 +69,7 @@ Time / Calls need a planner and are therefore empty for the predictors that have
   scene). PIGINet is given the scene file's parking cells as destinations, so its Task / Time / Calls are optimistic; Time was measured on a
   laptop with 10 workers, REAP's on servers.
 - GRN and PIGINet (as predictors) are never asked to choose placements; parking cells are given to the candidates.
+- SceneCollisionNet: NVlabs' architecture on a scene point cloud of the layout and the xArm7 hand cloud at each of the 32 grasp poses (over the target, and over the goal); a grasp works with probability (1 - p_pick)(1 - p_place), the state score is the best grasp. It has no obstruction output, so its blocker-mask F1 uses the score gain when one obstacle is parked alone (delta tuned on validation).
 <!-- all-models-results:end -->
 
 ## GRN in detail (3 seeds)
