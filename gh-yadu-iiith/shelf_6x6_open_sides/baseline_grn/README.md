@@ -19,20 +19,26 @@ pose and the goal enters as an extra marker node.
 Everything below is on the V4 split of the 6x6 shelf dataset (`split_v4.json`, from `naren/dataset-done`): 1,766 train / 364 val /
 370 test scenes, the same test scenes as the other baselines. Mean ± standard deviation over seeds.
 
-## Results
+<!-- all-models-results:start -->
+## Results of all models (V4 split, the same 370 test scenes)
 
-### 1. Every model, same split, same metrics
+Models and where they live (all in this repository, folder `gh-yadu-iiith/shelf_6x6_open_sides/baseline_<name>/`): REAP (`yadu/REAP`),
+PIGINet (`yadu/PIGINet`), GRN (`yadu/GRN`). Split: `split_v4.json` (Narendhiran's V4 split from `naren/dataset-done`: 1,766 train / 364
+val / 370 test scenes). Mean ± standard deviation over seeds.
 
-All rows are feasibility predictors scored on the same 370 test scenes. "T move" columns: can the target reach its goal in that state (AUROC
-over the stored queries of that kind). Scene-level columns enumerate candidate states / plans (the original scene and every set of 1-3
-obstacles sent to their first parking cell, 26 per scene on average); the PIGINet rows use its two input forms (relocations as plan
-tokens, or the obstacles already parked in the state, which is what GRN sees). `class acc`: NONE / K0-K3 (chance 0.28); `tau*` chosen on
-validation. `blocker set top-1`: the best-scoring candidate of the true size K is a verified minimal set. `blocker-mask F1`: PIGINet from its
-best-scoring set at tau 0.5, GRN from its own obstruction head (tau_go tuned on validation); the PIGINet "no value" row is one seed.
+### Feasibility predictors, one metric set
+
+"T move" columns: can the target reach its goal in that state (AUROC over the stored test queries of that kind: the original scene, the
+teacher's edited scenes with obstacles parked, and the rest of the teacher's T-only lattice, L). Scene-level columns enumerate
+candidate states / plans (the original scene and every set of 1-3 obstacles sent to their first parking cell, 26 per scene on average);
+PIGINet has two input forms (relocations as plan tokens, or the obstacles already parked in the state, which is what GRN sees).
+`class acc`: NONE / K0-K3 (chance 0.28), `tau*` chosen on validation. `blocker set top-1`: the best-scoring candidate of the true size K is a
+verified minimal set. `blocker-mask F1`: PIGINet from its best-scoring set at tau 0.5, GRN from its own obstruction head (tau_go tuned on
+validation). The PIGINet "no pose / size values" rows are one seed.
 
 | model | seeds | T move, original scene (AUROC) | T move, edited scene (AUROC) | T move, lattice L (AUROC) | solvable vs NONE (AUROC) | class acc, tau 0.5 | class acc, tau* | blocker set top-1 (given K) | blocker-mask F1 |
 |---|---|---|---|---|---|---|---|---|---|
-| **GRN** (this folder) | 3 | 0.958 ± 0.001 | 0.960 ± 0.000 | 0.881 ± 0.003 | 0.975 ± 0.002 | 0.574 ± 0.013 | 0.601 ± 0.011 | 0.788 ± 0.009 | 0.834 ± 0.003 |
+| GRN | 3 | 0.958 ± 0.001 | 0.960 ± 0.000 | 0.881 ± 0.003 | 0.975 ± 0.002 | 0.574 ± 0.013 | 0.601 ± 0.011 | 0.788 ± 0.009 | 0.834 ± 0.003 |
 | PIGINet, full (image + pose + text), obstacles parked in the state | 3 | 0.967 ± 0.006 | 0.980 ± 0.005 | 0.955 ± 0.007 | 0.998 ± 0.000 | 0.741 ± 0.030 | 0.753 ± 0.024 | 0.928 ± 0.017 | 0.829 ± 0.018 |
 | PIGINet, full (image + pose + text), relocations as plan tokens | 3 | 0.967 ± 0.006 | 0.980 ± 0.005 | 0.955 ± 0.007 | 0.977 ± 0.019 | 0.728 ± 0.013 | 0.728 ± 0.011 | 0.902 ± 0.016 | 0.825 ± 0.011 |
 | PIGINet, no image tokens, obstacles parked in the state | 3 | 0.987 ± 0.001 | 0.993 ± 0.001 | 0.984 ± 0.001 | 1.000 ± 0.000 | 0.844 ± 0.024 | 0.855 ± 0.010 | 0.963 ± 0.009 | 0.864 ± 0.011 |
@@ -40,21 +46,30 @@ best-scoring set at tau 0.5, GRN from its own obstruction head (tau_go tuned on 
 | PIGINet, no pose / size values, obstacles parked in the state | 1 | 0.934 | 0.927 | 0.876 | 0.947 | 0.473 | 0.511 | 0.763 | 0.620 |
 | PIGINet, no pose / size values, relocations as plan tokens | 1 | 0.934 | 0.927 | 0.876 | 0.972 | 0.481 | 0.595 | 0.884 | 0.689 |
 
-### 2. The same models in the columns of the paper's table (a)
+### The paper's table (a) columns
 
-AUC = scene solvable (K0-K3) vs NONE from the method's own score, computed with REAP's `metrics66.py`; Repair / Task / Time / Calls need a
-planner. REAP and "PIGINet + TAMP" are run with the dataset teacher as the motion planner (PIGINet is given the scene file's parking cells as
-destinations, so its Task / Time / Calls are optimistic; the solver code is not in this folder). GRN is a predictor only, so those columns
-are empty; its AUC is the solvable-vs-NONE AUROC above.
+AUC = scene solvable (K0-K3) vs NONE from the method's own score, computed with `metrics66.py` (REAP's script) for every row. Repair / Task /
+Time / Calls need a planner and are therefore empty for the predictors that have none.
 
 | method | AUC | Repair (%) | Task (%) | Time (s) | Calls |
 |---|---|---|---|---|---|
 | REAP, released weights, zero-shot (1 seed) | 0.984 | 55.0 | 73.0 | 168.1 | 46.0 |
+| REAP, trained from scratch on 600 V4 train scenes (1 seed) | 0.789 | 82.6 | 63.2 | 208 | 39.7 |
 | PIGINet + TAMP, full (3 seeds) | 0.978 ± 0.021 | 68.9 ± 4.5 | 98.1 ± 0.2 | 26.9 ± 4.2 | 3.4 ± 0.4 |
 | PIGINet + TAMP, no image tokens (3 seeds) | 0.995 ± 0.004 | 69.1 ± 0.7 | 99.1 ± 0.1 | 24.4 ± 2.3 | 3.3 ± 0.1 |
-| **GRN** (feasibility predictor only, 3 seeds) | 0.975 ± 0.002 | – | – | – | – |
+| GRN (feasibility predictor only, 3 seeds) | 0.975 ± 0.002 | – | – | – | – |
 
-### 3. GRN in detail (3 seeds)
+- REAP is run with the dataset teacher as feasibility oracle and every plan is replayed in MuJoCo. The trained row uses a precomputed
+  conflict library as the checker (7-11 s per teacher check made online training impossible; the library agrees with the teacher on about
+  77% of random moves), three restarted segments (about 3,600 updates), so it is handicapped; the object-count-only baseline reaches 0.976
+  AUC on this split, so AUC does not separate the methods well.
+- PIGINet + TAMP: candidate plans are scored, those below 0.5 dropped and the rest refined in score order by the teacher (300 s limit per
+  scene). PIGINet is given the scene file's parking cells as destinations, so its Task / Time / Calls are optimistic; Time was measured on a
+  laptop with 10 workers, REAP's on servers.
+- GRN and PIGINet (as predictors) are never asked to choose placements; parking cells are given to the candidates.
+<!-- all-models-results:end -->
+
+## GRN in detail (3 seeds)
 
 **A. Can the target reach its goal in this layout?** (all labelled test queries)
 
