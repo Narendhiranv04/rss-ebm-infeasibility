@@ -15,6 +15,8 @@ feasibility queries per scene.
 |---|---|---|---|---|---|
 | released confined weights, zero-shot (1 seed) | 0.984 | 55.0 | 73.0 | 168.1 | 46.0 |
 | trained from scratch on 600 V4 train scenes (1 seed) | 0.789 | 82.6 | 63.2 | 208 | 39.7 |
+| trained, batch 64, solvable scenes only, 6 h label (~14 h in total, 1 seed) | 0.707 | 70.1 | 77.0 | 166 | 63.4 |
+| same run, 12 h label (~20 h in total, 1 seed) | 0.793 | 66.4 | **81.9** | 157 | 42.2 |
 
 Per-class results, caveats (the trained run uses a precomputed conflict library as its checker) and the failure analysis are in `RESULTS.md`.
 

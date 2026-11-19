@@ -1,0 +1,21 @@
+{
+ "model": "REAP retrained on the 6x6 shelf (shelf66 V3 teacher as feasibility checker, CONFINED_CHECKER=yadu)",
+ "seed": 1,
+ "workers": 12,
+ "walltime": "15480s",
+ "run": "confined_s1_19-11_01-03-26_368380",
+ "copied": "2026-11-19T05:21:23.629017",
+ "train_data": "/home/projects/long-horizon/learned_reap/reap_shelf/trainv4_all_solvable (600 class-proportional roots of the train part of split_v4.json + 50 validation roots from its val part)",
+ "feasibility_in_training": "per-scene table of the teacher's own plans (shelf66_table.py, YADU_TABLE=1), teacher on a miss",
+ "split_sha256": "6e07dc1d8e96ca30",
+ "split_file": "split_v4.json",
+ "test_roots_never_used": 370,
+ "reap_commit": "d2ba23d",
+ "reap_patch": "reap_shelf/reap_yadu.patch",
+ "init": "/home/projects/long-horizon/learned_reap/models/reap_shelf66_scratch_v4_part3",
+ "checker_mode_in_training": "lib",
+ "extra_train_args": "--search_batching 64 --worker_time_limit_s 60 --env YADU_LIB_FREE=ignore --env YADU_LIB_TOL=0.02",
+ "train_filter_timeout_s": "20 (a check slower than this counts as infeasible in training; test uses 180)",
+ "note": "search_batching / worker_time_limit_s adapted to the slow teacher checker (REAP's defaults assume microsecond checks)",
+ "log": "/home/projects/long-horizon/learned_reap/logs/reap_shelf66_scratch_v4_s1_seg1.log"
+}

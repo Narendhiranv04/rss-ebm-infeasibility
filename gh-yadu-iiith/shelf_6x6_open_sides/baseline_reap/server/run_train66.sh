@@ -11,7 +11,7 @@ export DATASET66=$B/dataset66 SHELF66_V3_DIR=$B/bd_samples/shelf66_v3 REAP_SHELF
 export CONFINED_CHECKER=yadu MUJOCO_GL=egl REAP_DATA=$HERE REAP_OUT=$B/outputs WANDB_MODE=offline
 export OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 FILTER_TIMEOUT_S=180
 mkdir -p $B/logs $B/outputs
-NTRAIN=${NTRAIN:-600}; SPLIT=${SPLIT:-split_v4.json}; DATA=trainv4_n$NTRAIN
+NTRAIN=${NTRAIN:-600}; SPLIT=${SPLIT:-split_v4.json}; DATA=${DATA_NAME:-trainv4_n$NTRAIN}
 # CHECKER_MODE=lib (conflict library lib66, default) | table (per-scene teacher-plan table); MODEL_NAME: where the final
 # weights go (models/<MODEL_NAME>); WARMSTART_CKPT (env): start from these weights = fine-tuning, unset = from scratch
 CHECKER_MODE=${CHECKER_MODE:-lib}; MODEL_NAME=${MODEL_NAME:-reap_shelf66_scratch_s$SEED}
