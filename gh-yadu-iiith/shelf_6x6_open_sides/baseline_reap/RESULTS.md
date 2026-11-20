@@ -16,12 +16,16 @@ check, plus a replay of the found plan. Split: `split_v4.json` (Narendhiran's V4
 | Scratch, 24 h, batch 8, with unsolvable scenes (first run, above) | 0.789 | 82.6% | 63.2% | 208 | 39.7 |
 | 6 h batch 64, solvable scenes only (`results/scratch_v2_v4_s1`) | 0.679 | 78.1% | 66.2% | 196 | 47.0 |
 | v4 line, **6 h label** (`models/reap_shelf66_scratch_v4_s1_6h`) | 0.707 | 70.1% | 77.0% | 166 | 63.4 |
-| v4 line, **12 h label** (`models/reap_shelf66_scratch_v4_s1_12h`) | 0.793 | 66.4% | **81.9%** | 157 | 42.2 |
+| v4 line, **12 h label** (`models/reap_shelf66_scratch_v4_s1_12h`) | 0.793 | 66.4% | 81.9% | 157 | 42.2 |
+| v4 line, **24 h label** (`models/reap_shelf66_scratch_v4_s1_24h`) | 0.574 | 63.6% | **82.2%** | **150** | 51.1 |
 
 Solved % / Task % by class, 6 h label -> 12 h label (zero-shot solved % in brackets):
 K0 (97.0): 100 / 100 -> 100 / 100. K1 (92.5): 94.3 / 92.5 -> 94.3 / 92.5. K2 (81.4): 79.1 / 75.6 -> 83.7 / 77.9.
 K3 (42.2): 50.0 / 42.2 -> 59.8 / 56.9. NONE: 1.6 / 98.4 -> 0.0 / 100. Mean calls 63.4 -> 42.2; K3 time 239 s -> 216 s.
-Full per-class tables: `results/scratch_v4_{6h,12h}_v4_s1/metrics.txt`.
+24 h label, solved / Task % by class: K0 100 / 100, K1 94.3 / 90.6, K2 83.7 / 79.1, K3 63.7 / 57.8, NONE 0.0 / 100. Mean calls 51.1; K3 time 195 s.
+The curve flattens after 12 h (Task 77.0 -> 81.9 -> 82.2) while AUC moves 0.707 -> 0.793 -> 0.574; AUC stays below zero-shot (0.984), and the
+object-count baseline reaches 0.976. One run per label, so 12 h vs 24 h differences are within what a second seed could change.
+Full per-class tables: `results/scratch_v4_{6h,12h,24h}_v4_s1/metrics.txt`.
 
 What changed against the first scratch run (found by checking the setup against the authors' repo):
 * `--search_batching 64` and `--worker_time_limit_s 60` (the paper's values; the first run used 8 / 300, left over from teacher-based runs).
@@ -29,11 +33,11 @@ What changed against the first scratch run (found by checking the setup against 
   sets); validation = the V4 split's own solvable validation scenes (`make_train_v4_all_solvable.py`).
 * Supervised runner `server/drive_v4.sh`: 12 workers, auto-resume after memory-guard stops, labels by cumulative training time of the v4 line
   (which starts at 1.7 h; the model had already trained ~8 h before it in earlier restarts: the 6 h batch-64 run, a 1.4 h continuation, 0.6 h),
-  so the "6 h label" is ~14 h of training in total and the "12 h label" ~20 h.
+  so the "6 h label" is ~14 h of training in total and the "12 h label" ~20 h and the "24 h label" ~26 h.
 * The REAP validation score printed during training is a greedy rollout (no search); it stayed at 4/50 while the search-based test solved most easy
   scenes, so it was not used to choose checkpoints. Only the weights at each label are tested, once each.
 * Same caveats as above: library checker with 2 cm tolerance (~77% agreement with the teacher), restarts with fresh optimizer/buffers,
-  one run per label (no seeds). The 24 h label is still training.
+  one run per label (no seeds).
 
 Solved by class (zero-shot -> scratch): K0 97.0 -> 100, K1 92.5 -> 88.7, K2 81.4 -> 47.7, K3 42.2 -> 24.5, NONE 1.6 -> 0 (%).
 
