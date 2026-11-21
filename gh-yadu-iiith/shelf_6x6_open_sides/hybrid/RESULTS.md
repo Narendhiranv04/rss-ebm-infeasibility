@@ -1,53 +1,17 @@
 # Results: design changes to the learned relocation planner, and what they do to the workflow
 
-**In one line:** we changed parts of the team's learned planner and tested each change in physics simulation. A per-step success model gave the biggest gain. Every result here is exploratory.
-
 **Period:** 2026-11-20 to 21. **Machine:** laptop CPU (8 cores).
 
 **Ground truth:** the dataset's own physics teacher (`BD3DS66_TEACHER_V2`: xArm7, RRT-Connect with 5,000 iterations, MuJoCo, moves chained).
-- xArm7: the robot arm.
-- RRT-Connect: the motion planner that finds arm paths.
-- MuJoCo: the physics simulator.
-- "Moves chained": each move starts from the scene the previous move left behind.
 
 **Scenes:**
 - All results use Approach-B **VAL** roots: 90 placement contexts and 160 roots with verified K ≥ 1 (53 K1, 67 K2, 40 K3).
 - **TEST was never read.**
 - These VAL roots were reused for about 25 comparisons, so **every result here is exploratory.** See §7 and the per-experiment log in [docs/EXPERIMENT_LOG.md](docs/EXPERIMENT_LOG.md).
 
-### Plain-language key
-
-- **Root:** one starting scene to solve (a shelf with objects, and a target to get out).
-- **K:** how many objects must be moved to free the target. K1 = one, K2 = two, K3 = three.
-- **VAL / TEST / TRAIN:** data splits. TRAIN is for fitting models. VAL is for choosing and checking. TEST is kept untouched for a final check.
-- **Plan:** a list of moves (put object A in cell X, then ...) followed by taking out the target.
-- **First try:** the first plan the planner picks is executed, and it works.
-- **Within 5 tries:** if a plan fails, the planner may try another one, up to 5 plans. This assumes the simulator can be reset after a failure.
-- **cVAE:** a model that suggests where to put an object. Here it is "goal-blind": it does not know where the target is.
-- **Boltzmann X/Y model:** the team's success model. It predicts two yes/no outcomes per plan: X = the moves work, Y = the target gets out.
-- **p11:** the Boltzmann model's probability that both X and Y happen, i.e. the whole plan works.
-- **Ranker:** a model that keeps the 4 most promising cells for an object.
-- **AUROC:** how well a score separates plans that work from plans that fail. 0.5 = coin flip, 1 = perfect.
-- **Brier score:** average squared error of predicted probabilities. Lower is better.
-- **ECE:** how far predicted probabilities are from real success rates, on average. Lower is better.
-- **Calibration:** whether "90% sure" really means it works about 90% of the time.
-- **Optimizer's curse:** if you pick the highest of many noisy scores, the winner's score is usually too high, because it includes a lucky error.
-- **Lazy retries:** do not check plans in advance. Run the best plan, and only after it fails, throw away the plans that would fail the same way.
-- **Sign test (wins vs losses):** on the roots where two methods differ, count how often each one wins. The p-value says how likely such a split is by chance. Small = unlikely to be chance.
-- **Holm correction:** an adjustment of p-values when many comparisons are made, so lucky results do not look significant. "n.s." = not significant.
-- **Abstain:** the planner declines to act when it is not confident enough.
-
 ---
 
 ## 1. Headline
-
-**Takeaway:** a per-step success model beats the team pipeline in simulation. But after fixing the baseline (E10), most of the first-try gain disappears. The retry edge remains.
-
-> **Update (E10, 2026-11-21): the table below compares against a team baseline WITHOUT Algorithm 1's length penalty.**
-> - With the penalty at α* = 0.2 (tuned on these roots), the team pipeline works first try on **119/160**. Per-step gets 124 and the outcome-only model 120, and these can't be told apart (per-step vs team 29–24).
-> - Within 5 verified tries, the per-step *planner* keeps an edge: **154 vs 141** (18–5, uncorrected p = 0.011). That edge comes mainly from searching all free cells: the same scorer on the team's 4 proposals gets 143.
-> - So most of the first-try gain (19 of 24 roots) was the missing length penalty. Step-level labels add only about 4.
-> - The retry edge is the claim being tested on fresh scenes (pre-registered E9v2 in [docs/EXPERIMENT_LOG.md](docs/EXPERIMENT_LOG.md)).
 
 | | Team pipeline (baseline) | Best change: per-step success model | Difference |
 |---|---|---|---|
@@ -61,15 +25,11 @@
 **The three findings that drive everything else:**
 1. **Placement has to be goal-aware.** The goal-blind cVAE is the weakest component in every test.
 2. **Predicting *which step* fails is the most valuable missing information.** A per-step model beats the two-variable X/Y Boltzmann model as a plan scorer.
-3. **Every learned scorer is overconfident on the plans the search picks** (it says 95–99%; reality is 55–78%). This is the optimizer's curse.
-   - Recalibration plus a cost-based threshold fixes the decision.
-   - It works only for scorers that still rank the plans they pick (per-step and factor; not the Boltzmann model).
+3. **Every learned scorer is overconfident on the plans the search picks** (it says 95–99%; reality is 55–78%). This is the optimizer's curse. Recalibration plus a cost-based threshold fixes the decision, but only for scorers that still rank the plans they pick (per-step and factor; not the Boltzmann model).
 
 ---
 
 ## 2. The baseline: the team's current design (what we started from)
-
-**Takeaway:** the team's design proposes placements without knowing the goal, and scores plans with only two yes/no outcomes. It gets no feedback from failures.
 
 ```
 OFFLINE
@@ -81,15 +41,10 @@ ONLINE (Algorithm 1)
         ─► cost C = −log p11 + α|r| + βD + γĴ ─► best plan with p11 ≥ η, else ABSTAIN ─► execute once ─► verify
 ```
 
-How to read it: the cVAE proposes cells, the Ranker keeps 4, the search builds plans, and p11 scores them. The cost adds penalties: α for plan length |r|, plus the β and γ terms. The plan runs only if p11 ≥ η (the confidence threshold).
-
 **Properties of this design that matter for the results:**
 - **The cVAE never sees the goal and never sees a failure.** It only learns "where do placements usually succeed".
 - **The cVAE's latent is near-collapsed.** Report 09 found 0–2 of its 8 latent units active, so it behaves like a plain 36-cell classifier. E7 confirms this: removing the latent changed nothing.
-- **The Boltzmann model sees two bits per plan.** Did the moves work (X)? Did the target get out (Y)?
-  - Its labels come from a slightly different protocol than deployment.
-  - X adds a return-to-ready connector.
-  - Y teleports objects and starts the target from the ready pose.
+- **The Boltzmann model sees two bits per plan.** Did the moves work (X)? Did the target get out (Y)? Its labels come from a slightly different protocol than deployment: X adds a return-to-ready connector, and Y teleports objects and starts the target from the ready pose.
 - **There is no feedback.** Failures, the failing step, and the Boltzmann model's goal knowledge never reach the proposal model.
 - **η, α, β and γ have no recorded selection procedure.** They were not found on any branch.
 
@@ -100,8 +55,6 @@ How to read it: the cVAE proposes cells, the Ranker keeps 4, the search builds p
 Each change lists: **what changed → why (the evidence that motivated it) → effect on the workflow → result.**
 
 ### D1. Make placement goal-aware
-
-**Takeaway:** goal-aware placement is far better for single placements. It does not by itself improve whole plans.
 
 - **Why:** wherever the goal-blind cVAE chooses cells, it fails on hard scenes.
 
@@ -136,23 +89,21 @@ Each change lists: **what changed → why (the evidence that motivated it) → e
 
 - **Workflow change:**
   - The proposal model now depends on a trained success model (a teacher) and on the goal.
-  - A distillation step is added after the success model is trained. (Distillation: training a model to copy a bigger or better one.)
+  - A distillation step is added after the success model is trained.
   - This **breaks the team's "goal-blind sampler" contract**, so it must be agreed before adoption.
   - Placement-level gains do not carry over to whole plans, so on its own D1(b) is **not** the main lever.
 
 ### D2. Replace the two-bit X/Y outcome with a per-step success model (the main gain)
 
-**Takeaway:** predicting success for each move separately works better than two yes/no bits. This is the main gain, on K1 and K2 roots.
-
 - **Why:**
   - **Failure analysis:** of the Boltzmann planner's first-try failures, 50 of 72 fail at **move 1** ("the arm has no feasible grasp or path"), not at the target.
   - **Data audit:** the dataset already records **which step failed and why** for every executed plan (`labels.B[*].failed_step`). The X/Y model throws this away.
-  - **Literature:** process (step-level) verifiers beat outcome verifiers as plans get longer (Lightman et al., ICLR 2024). Discrete-time hazard models give the loss directly (Gensheimer & Narasimhan 2019). (A hazard model predicts at which step something fails.)
+  - **Literature:** process (step-level) verifiers beat outcome verifiers as plans get longer (Lightman et al., ICLR 2024). Discrete-time hazard models give the loss directly (Gensheimer & Narasimhan 2019).
 
 - **What** ([src/hazard.py](src/hazard.py)):
   - `p(plan) = Π_k P(move k ok | scene before move k) · P(target ok | final scene)`.
   - **Encoder:** the team's SceneEncoder, applied to the scene before and after each step.
-  - **Loss:** plain BCE, so the per-step probabilities stay calibrated enough to multiply. (BCE: the standard yes/no training loss.)
+  - **Loss:** plain BCE, so the per-step probabilities stay calibrated enough to multiply.
   - **Data:** trained on TRAIN executed records only.
 
     | Step | Positives / negatives |
@@ -187,10 +138,8 @@ Each change lists: **what changed → why (the evidence that motivated it) → e
 
 ### D3. Factor graph: per-step chain + per-object blocker variables + X/Y-style coupling
 
-**Takeaway:** the factor graph scores best offline and explains which objects block. But it does not give better first-try plans than per-step.
-
 - **Why:**
-  - Choosing which obstacles to clear is a minimum-set-cover / minimum-constraint-removal problem (Hauser 2014; Kaznachey & Jagota 1997). (Find the smallest set of objects whose removal frees the target.)
+  - Choosing which obstacles to clear is a minimum-set-cover / minimum-constraint-removal problem (Hauser 2014; Kaznachey & Jagota 1997).
   - The team's notes ask for factor graphs.
   - Per-object "is it in the way?" variables make the target factor interpretable.
 
@@ -215,8 +164,6 @@ Each change lists: **what changed → why (the evidence that motivated it) → e
   - Better offline scores did **not** turn into better first-try plans. Offline metrics alone are not enough to choose a planner.
 
 ### D4. Lazy verified retries (use the physics oracle sparingly)
-
-**Takeaway:** retrying smartly after a failure lifts success within 5 tries. Per-step is best on every column. The retry numbers are simulation-optimistic.
 
 - **Why:**
   - REAP (Ayush, 24 h) reaches 82.2% using about 51 teacher checks per scene.
@@ -247,8 +194,6 @@ Each change lists: **what changed → why (the evidence that motivated it) → e
 
 ### D5. Calibration and a cost-based abstain threshold (instead of an arbitrary η)
 
-**Takeaway:** the scores are overconfident. Per-step and factor scores can still be fixed by recalibrating. The Boltzmann score cannot.
-
 - **Why:** every planner states 95–99% confidence in the plan it picks, but succeeds 55–78% of the time.
   - **Cause:** the search takes the maximum over thousands of noisy scores, so the winner's score includes a lucky upward error. This is the optimizer's curse (Smith & Winkler 2006).
   - **Simulation** with a fair model (error ±0.1): picking the best of 10 plans overstates success by 11 points; the best of 5,000 overstates it by 32 points.
@@ -266,8 +211,8 @@ Each change lists: **what changed → why (the evidence that motivated it) → e
 
 - **What** ([src/threshold.py](src/threshold.py)):
   - Utility per root: +1 for a success, −λ for a failed attempt, 0 for abstaining. λ is the cost of a failed attempt.
-  - Choose η by 5-fold cross-validation over roots. (Cross-validation: tune on part of the roots, test on the rest.)
-  - **Or**, with no tuning: recalibrate the score with isotonic regression, then act iff `p_cal ≥ λ/(1+λ)`. (Isotonic regression: a fit that maps raw scores to real success rates while keeping the order.)
+  - Choose η by 5-fold cross-validation over roots.
+  - **Or**, with no tuning: recalibrate the score with isotonic regression, then act iff `p_cal ≥ λ/(1+λ)`.
 
 - **Results** (utility; acts on N of 160):
 
@@ -301,8 +246,6 @@ Each change lists: **what changed → why (the evidence that motivated it) → e
 
 ## 4. The workflow, before and after
 
-**Takeaway:** the proposed workflow trains on real executed records, scores each step, uses a calibrated threshold, and retries lazily.
-
 | Stage | Before (team pipeline) | After (proposed from these results) |
 |---|---|---|
 | Success-model labels | Sidecar X/Y (two bits per plan; replay/teleport protocol) | **Executed, chained records with the failing step** (`labels.B`): the same protocol as deployment |
@@ -318,50 +261,15 @@ Each change lists: **what changed → why (the evidence that motivated it) → e
 
 ## 5. Time and scaling
 
-**Takeaway:** every learned planner decides in under ~1 s, and planning time grows roughly linearly. Physics dominates real time. A hard limit of 8 objects blocks larger scenes.
-
 ### Planning time
 
-Mean seconds per scene for the beam search, width 16, 1 CPU thread, with no physics running. (Beam search: keep only the best 16 partial plans at each depth.) Depths 4–5 go beyond the trained plan lengths, so they measure speed only.
+Mean seconds per scene for the beam search, width 16, 1 CPU thread, with no physics running. Depths 4–5 go beyond the trained plan lengths, so they measure speed only.
 
-**By search depth** (42 sampled roots, 5–6 per object count; [src/scaling.py](src/scaling.py) → `runs/PHASE4/scaling.json`):
-
-| Depth (max moves) | Plans scored | Boltzmann | Per-step | Factor graph | Team pipeline (cVAE + Ranker proposals) |
-|---|---|---|---|---|---|
-| 1 | 115 | 0.016 s | 0.011 s | 0.017 s | 0.007 s (16 plans) |
-| 2 | 1,470 | 0.24 s | 0.23 s | 0.24 s | 0.07 s (195 plans) |
-| 3 (used in all experiments) | 2,421 | 0.46 s | **0.27 s** | 0.42 s | 0.12 s (330 plans) |
-| 4 | 3,044 | 0.71 s | **0.39 s** | 0.54 s | n/a |
-| 5 | 3,411 | 0.84 s | **0.38 s** | 0.54 s | n/a |
-
-**By number of movable objects** (depth 3, seconds per scene):
-
-| Objects | 1 | 2 | 3 | 4 | 5 | 6 | 7 |
-|---|---|---|---|---|---|---|---|
-| Boltzmann | 0.006 | 0.07 | 0.23 | 0.41 | 0.61 | 0.88 | 1.07 |
-| **Per-step** | 0.004 | 0.07 | 0.16 | 0.27 | 0.37 | 0.48 | **0.58** |
-| Factor graph | 0.005 | 0.09 | 0.25 | 0.39 | 0.57 | 0.81 | 0.90 |
-| Team pipeline | 0.004 | 0.02 | 0.07 | 0.11 | 0.17 | 0.22 | 0.28 |
-
-**Reading:**
-- **Planning time grows roughly linearly** with the number of objects, and flattens with depth: the beam caps the work, and fewer objects remain to move.
-- **The per-step model is the cheapest scorer**, about 2× faster than Boltzmann at 7 objects.
-- **Every learned planner decides in under ~1 s**, even at 7 objects and depth 5.
-
-**Hard limit found:** the team's scene encoding (`MAXOBJ = 8` in `approachb_3d_learning/src/data3d.py`) caps a scene at 8 objects including the target.
-- **32 of 91 fresh V4 scenes cannot be scored at all.** These are NONE and K4 scenes with 8–11 movable objects.
-- The cap applies to every model here, including the team's cVAE.
-- **Scaling past 7 movable objects needs a new feature encoding and retraining**, not just more data.
+SCALING_TABLE
 
 ### Physics time
 
-The physics teacher dominates real time. Mean seconds per attempt, measured until success or the first failure:
-
-| Steps in plan (moves + target) | 2 | 3 | 4 | 5 |
-|---|---|---|---|---|
-| Physics s per attempt | 11.6 (n = 759) | 22.5 (n = 1,053) | 35.6 (n = 1,757) | 28.4 (n = 78) |
-
-The 5-step mean is lower because most of those attempts stop early on a failure.
+The physics teacher dominates. One attempt takes about 18–33 s, and it grows with the number of steps (PHYSICS_BY_STEPS).
 
 ### Per scene, end to end
 
@@ -380,10 +288,7 @@ The 5-step mean is lower because most of those attempts stop early on a failure.
   - The per-step model's cost per plan is linear in plan length, and shared prefixes are scored once.
   - The measured times above follow this.
   - Exact or analytical planners face an NP-hard problem (Wilfong 1991; Hauser 2014). REAP's time already grows with K (K3: 195 s).
-- **Quality at larger D is unknown.**
-  - The training data has almost no plans longer than 3 moves (10 four-move plans in VAL).
-  - Per-step failure labels for move 2 and later are thin (125 negatives in TRAIN).
-  - Errors compound multiplicatively over steps, so long plans need more labelled data, not a different model.
+- **Quality at larger D is unknown.** The training data has almost no plans longer than 3 moves (10 four-move plans in VAL). Per-step failure labels for move 2 and later are thin (125 negatives in TRAIN). Errors compound multiplicatively over steps, so long plans need more labelled data, not a different model.
 - **A bigger grid or other shelves:** the scene features are normalised to the 6×6 grid (row/5, col/5) and the cell sets are fixed at 36. A different grid needs retraining and feature changes. The models themselves are set-based, so object count can change freely.
 - **Physics dominates real time.** Fewer wasted attempts (1.5 vs 2.0 plans per scene) matters more than model speed.
 
@@ -406,7 +311,7 @@ Full lists, all verified, are in [docs/LIT_BRIEF_2026-11-20.md](docs/LIT_BRIEF_2
 1. **Exploratory only.**
    - The same VAL roots carry about 25 comparisons.
    - Only per-step vs team pipeline (first try and ≤ 5 tries) and per-step vs Boltzmann survive multiple-comparison correction.
-   - Confirmation needs a **pre-registered** run on fresh scenes or TEST, agreed with the team: TEST is shared and can be used once. (Pre-registered: the test and the success rule are written down before the results are seen.)
+   - Confirmation needs a **pre-registered** run on fresh scenes or TEST, agreed with the team: TEST is shared and can be used once.
 2. **Selection on VAL.** Both the per-step model and the Boltzmann model were early-stopped on these VAL roots, so neither is clean. The goal-aware cVAE's β was chosen on TRAIN.
 3. **Retries assume a simulator reset.** About 50% of failed attempts happen after a move was executed. Use first-try numbers for real-robot claims.
 4. **The REAP and E-M4M comparisons are indicative.** They are on different scenes (V4 TEST), and their "checks" are cheaper feasibility queries, while ours are full executions.
@@ -418,7 +323,7 @@ Full lists, all verified, are in [docs/LIT_BRIEF_2026-11-20.md](docs/LIT_BRIEF_2
 
 ## 8. Next steps (in priority order)
 
-1. **A pre-registered confirmation** on fresh scenes: E9v2 (written 2026-11-21). Primary: per-step vs team α*, success within 5 tries. Secondary: first try. Fresh roots are being generated (`hx1`). Agree the plan with Naren and Ayush before the results are read.
+1. **A pre-registered confirmation** of per-step vs team pipeline, first try, on fresh or TEST scenes. Write a one-page plan with hypothesis, metric, sample size and analysis, and agree it with Naren and Ayush.
 2. **A feedback loop on TRAIN scenes:** search → physics-check the chosen plans → retrain on confident failures → fit calibration. This targets the overconfidence at its source and makes η = λ/(1+λ) usable.
 3. **Closed-loop re-planning** from the actual post-failure state, for honest real-robot retry numbers.
 4. **The K3 gap:** neither the learned planners nor REAP do well on 3-move scenes. More long-plan training data is needed there.

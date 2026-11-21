@@ -19,7 +19,8 @@ import harness_config as HC  # noqa: E402
 
 ROLE = "devils_advocate_reviewer_agent.md"
 SKIP_DIRS = {"__pycache__", ".claude", ".git", "node_modules", ".venv", "venv"}
-META = ("<task-notification", "[SYSTEM NOTIFICATION", "Another Claude session sent a message", "<system-reminder", "<command-")
+META = ("<task-notification", "[SYSTEM NOTIFICATION", "Another Claude session sent a message", "<system-reminder", "<command-",
+        "<agent-message", "Stop hook feedback", "[Subagent hand-back]")  # not new user turns: agent reports and this hook's own feedback
 
 
 def ts(e):

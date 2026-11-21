@@ -188,6 +188,37 @@ Setup: physics; lazy retries, at most 5 plans per root; `runs/PHASE4/summary.jso
   - Files: `runs/PHASE4/summary_E10_three_way.json`, `summary_E10_outcomeB_teamlen02.json`, `summary_E10_steprops_rankerfilter.json`.
 - **No significance claims from E10.** It is development data; E9v2 carries the confirmatory test.
 
+## E11: Does averaging the three success models pick better plans? (development, VAL; written 2026-11-21 before any E11 physics)
+
+- **What we ask:** averaging models often ranks better than any one model, because their mistakes partly cancel out. Does an equal-weight average of `hazard`, `factor` and `outcome_B` (as the search scorer) beat `hazard` alone?
+- **Setup:** identical to the `hazard` arm (all free cells, beam search, lazy retries ≤ 5). Only the scorer changes ([src/e11_ensemble.py](../src/e11_ensemble.py)).
+- **Read-out:** first try and within 5 tries vs `hazard` (paired W–L, exact sign test), plus motion queries per root.
+- **Status:** VAL development only, one more comparison on reused roots, so the result is a lead at most. It does **not** change E9v2's frozen arms.
+- **Result (160 roots):**
+
+  | Planner | First try | Within 5 | Motion queries / root |
+  |---|---|---|---|
+  | **`ens3` (average of 3 models)** | **130** | **158** | 4.1 |
+  | `hazard` | 124 | 154 | 4.1 |
+  | `outcome_B` | 120 | 151 | 4.6 |
+  | `team_len_a0.2` | 119 | 141 | 5.5 |
+  | `factor` | 110 | 150 | 4.7 |
+
+  | ens3 vs | First try W–L (p) | Within 5 W–L (p) |
+  |---|---|---|
+  | hazard | 21–15 (0.41) | 6–2 (0.29) |
+  | team α* | 29–18 (0.14) | 17–0 (< 0.001) |
+  | outcome_B | 26–16 (0.16) | 8–1 (0.039) |
+  | factor | 28–8 (0.001) | 10–2 (0.039) |
+
+  - **Reading:**
+    - `ens3` has the highest point estimates, but there is **no detectable difference from `hazard`** (21–15, 6–2). It is clearly ahead only of the weaker arms (team α*, outcome_B, factor).
+    - Most of its retry gain is on K2/K3 (within 5: K2 100%, K3 97.5%).
+    - Motion queries are the same as `hazard` (4.1), so there is no efficiency gain. Mean plans tried fell slightly, 1.48 → 1.38.
+    - Predicted vs real on first picks: 0.97 vs 0.81. Still overconfident, but the gap (0.16) is the smallest of the arms (others ≥ 0.19).
+  - **Disclosure:** all three component models were early-stopped on these VAL roots, as every learned arm was. The ensemble was chosen after seeing E10, with equal weights fixed in advance and no weight search. The `hazard` row is the existing Phase-4 run (shared physics cache), not a re-run.
+  - Uncorrected p-values on reused VAL roots, so this is a lead. To test it properly it would need its own pre-registered fresh-scene test (it is not an E9v2 arm). File: `runs/PHASE4/summary_E11_ens3.json`.
+
 ## E9v2: confirmatory test on fresh scenes (PRE-REGISTERED 2026-11-21, before any fresh scene was scored by any arm)
 
 **What we asked / what we found:** On brand-new scenes, does the hazard planner beat the team pipeline (with length penalty) in success within 5 tries? No result is recorded in this log; this entry is the plan.

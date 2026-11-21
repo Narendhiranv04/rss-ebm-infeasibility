@@ -99,11 +99,15 @@ Last updated: 2026-11-21 ~10:50 IST. Keep this file current: the harness PreComp
 ## E9v2 PRE-REGISTERED (2026-11-21, docs/EXPERIMENT_LOG.md)
 - H1 primary: hazard vs team_len_a0.2, success within 5 tries, exact McNemar, α=.05, Newcombe CI. H2 first try (fixed sequence). Freeze hashes: docs/E9v2_FREEZE.sha256. Usable-root list hashed before scoring; stop at quota or 2026-11-24 00:00 IST; min n=150. Only allowed code change: root source (hx1). Prereg FIXED per DA (H1 = hazard PLANNER; endpoint switch disclosed; runner w/ per-root seed before freeze; quota on QC-usable, floor 210, no deadline; no-reset within-5 + step_team_props descriptive; exclusion/decision rules). Freeze: 60 hashes, all OK.
 
-## In flight now (2026-11-21 ~17:10)
-- Global harness INSTALLED by user (~/.claude/research-harness; local hooks removed).
-- READMEs, RESULTS, EXPERIMENT_LOG rewritten + number-checked (OK); ONE Sonnet DA meaning-check running. Lit docs agent still rewriting in plain language (RESULTS, EXPERIMENT_LOG, READMEs, lit docs); backups in scratchpad/docs_before; verify with scratchpad/numcheck.py (no lost numbers), then ONE Sonnet DA review of the docs, then commit hybrid/ to new branch `nav/hybrid-xy` and push (user asked). src/ NOT refactored (frozen by E9v2 hashes). Never commit READMe.md; no server IP in files (checked clean).
-- 1 Sonnet agent: ARS quick brief on factor graphs / search heuristics -> docs/LIT_FACTOR_GRAPHS_HEURISTICS_2026-11-21.md.
-- Server: generation STOPPED (STOP file, workers killed). Do not restart without user go-ahead + power cap.
+## Done 2026-11-21 ~17:30
+- Docs rewritten in plain language (number-checked, one Sonnet meaning review: no CRITICAL, glossary fixes applied).
+- Committed ffef09d7b6 on branch `nav/hybrid-xy`, pushed (HTTPS via gh; SSH key not accepted). This commit is the E9v2 prereg's git record.
+- ARS brief: docs/LIT_FACTOR_GRAPHS_HEURISTICS_2026-11-21.md. Top idea: recalibrate scores on search-picked plans (cross-fitted isotonic), then value-of-information retry order. Toussaint/M4M/GRN citations unverified.
+- Q2 (Blackwell) = 2D planar dataset, Blackwell share never ran -> no usable 3D scenes there. Local raw 3D roots: Approach-B cohort already covers all QC-eligible ones.
+- gvlab2 (long-horizon@gvlab2, host cstar) = shared lab account. Naren OK'd use (2026-11-21). Not used.
+- E11 DONE: ens3 (equal-weight avg of hazard+factor+outcome_B) = highest point estimates, NOT distinguishable from hazard: 130/160 first try, 158 within 5, 4.1 queries. vs hazard 21-15 / 6-2 (n.s.), vs team α* 29-18 / 17-0. VAL dev lead only; would need its own prereg'd fresh test. DA review done (no CRITICAL; wording toned down, VAL-early-stopping disclosed).
+- gvlab (nav@gvlab.iiit.ac.in; key = id_ed25519 via ssh-agent): user said DO NOT generate anything on gvlab. ~/rss_gen/code there is an unused copy of the generator (no venv); remove if user wants. approachb_final_gen/d3 = variants of existing roots, not fresh.
+- Server: generation STOPPED. Restart only with user go-ahead + power cap.
 
 ## Next steps
 1. Finish the hooks, then build the experiment harness and the E9v2 pre-registration:
