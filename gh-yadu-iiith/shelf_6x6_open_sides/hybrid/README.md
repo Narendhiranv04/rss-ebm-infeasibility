@@ -30,9 +30,10 @@ hybrid/
 ├── README.md               this file
 ├── RESULTS.md              design changes, workflow, results, caveats
 ├── docs/
+│   ├── README.md           what each file in docs/ is, in one line each
 │   ├── EXPERIMENT_LOG.md   every experiment: hypothesis → design → result (pre-registered entries marked)
-│   ├── LIT_BRIEF_2026-11-20.md        literature brief (ARS quick mode, ~40 verified papers)
-│   └── THREE_WAY_SCAN_2026-11-20.md   WHY/HOW/WHAT scan of the team's reading list (M4M family, recourse, EBM planner)
+│   ├── HZ_V34_*, E9v2_*    pre-registrations and their frozen file hashes (names fixed: the frozen record points to them)
+│   └── literature/         related-work notes
 ├── src/                    all code (one flat folder: the scripts import each other by name)
 └── archive/
     └── phase3c_piginet.py  PIGINet plug-in, dropped from the comparison (model only partly trained)

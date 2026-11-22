@@ -1,0 +1,153 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 570" font-family="Helvetica, Arial, sans-serif">
+<!-- New pipeline: the team's V3.4 pipeline with the plan scorer replaced by per-step scoring. Style follows Naren's V3.4 figure. -->
+<defs>
+  <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#5a5d63"/></marker>
+  <marker id="arb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#2a78d6"/></marker>
+  <style>
+    .panel { fill: #ffffff; stroke: #c9ccd1; stroke-width: 1.5 }
+    .title { font-size: 15px; font-weight: 700; fill: #1b1c1e }
+    .t { font-size: 12px; fill: #1b1c1e }
+    .s { font-size: 11px; fill: #5a5d63 }
+    .chip { fill: #f1f2f4; stroke: #d6d8dc; stroke-width: 1 }
+    .line { stroke: #5a5d63; stroke-width: 1.5; fill: none }
+    .cell { fill: #ffffff; stroke: #d6d8dc; stroke-width: 1 }
+    .blk { fill: #9aa0a6; stroke: #6f747a; stroke-width: 1 }
+    .tgt { fill: #eb6834; stroke: #b8441a; stroke-width: 1 }
+    .lab { font-size: 11px; font-weight: 700; fill: #ffffff; text-anchor: middle }
+    .step { fill: #eaf2fc; stroke: #2a78d6; stroke-width: 1.5 }
+    .c { text-anchor: middle }
+  </style>
+</defs>
+
+<!-- 1. Initial scene -->
+<rect class="panel" x="10" y="10" width="230" height="250" rx="12"/>
+<text class="title" x="24" y="34">Initial scene</text>
+<g id="grid">
+  <g class="s c"><text x="65" y="47">a</text><text x="89" y="47">b</text><text x="113" y="47">c</text><text x="137" y="47">d</text><text x="161" y="47">e</text><text x="185" y="47">f</text></g>
+  <g class="s" text-anchor="end"><text x="48" y="68">1</text><text x="48" y="92">2</text><text x="48" y="116">3</text><text x="48" y="140">4</text><text x="48" y="164">5</text><text x="48" y="188">6</text></g>
+</g>
+<g transform="translate(53,52)">
+  <rect class="cell" x="0" y="0" width="144" height="144"/>
+  <path d="M24,0V144M48,0V144M72,0V144M96,0V144M120,0V144M0,24H144M0,48H144M0,72H144M0,96H144M0,120H144" stroke="#d6d8dc" stroke-width="1"/>
+  <rect class="tgt" x="51" y="27" width="18" height="18" rx="3"/><text class="lab" x="60" y="40">T</text>
+  <rect class="blk" x="27" y="27" width="18" height="18" rx="3"/><text class="lab" x="36" y="40">C</text>
+  <rect class="blk" x="51" y="75" width="18" height="18" rx="3"/><text class="lab" x="60" y="88">A</text>
+  <rect class="blk" x="51" y="99" width="18" height="18" rx="3"/><text class="lab" x="60" y="112">B</text>
+</g>
+<path class="line" d="M113,220 V200" marker-end="url(#ar)"/>
+<text class="s c" x="125" y="233">robot reaches in from the front</text>
+<rect class="blk" x="30" y="242" width="10" height="10" rx="2"/><text class="s" x="45" y="251">blocker</text>
+<rect class="tgt" x="100" y="242" width="10" height="10" rx="2"/><text class="s" x="115" y="251">target (blocked)</text>
+
+<path class="line" d="M240,135 H253" marker-end="url(#ar)"/>
+
+<!-- 2. Task-conditioned cVAE -->
+<rect class="panel" x="255" y="10" width="235" height="250" rx="12"/>
+<text class="title" x="269" y="34">Task-conditioned cVAE</text>
+<rect class="chip" x="270" y="48" width="205" height="30" rx="6"/>
+<text class="t c" x="372" y="67">scene + target + blocker to move</text>
+<path d="M280,100 L325,112 L325,148 L280,160 z" fill="#e9eaed" stroke="#8a8f96"/>
+<text class="t c" x="302" y="134">enc</text>
+<circle cx="372" cy="130" r="20" fill="#ffffff" stroke="#8a8f96"/>
+<text class="t c" x="372" y="134" font-style="italic">z</text>
+<path d="M420,112 L465,100 L465,160 L420,148 z" fill="#e9eaed" stroke="#8a8f96"/>
+<text class="t c" x="442" y="134">dec</text>
+<path class="line" d="M302,78 V98" marker-end="url(#ar)"/>
+<path class="line" d="M442,78 V98" stroke-dasharray="4 3" marker-end="url(#ar)"/>
+<path class="line" d="M325,130 H350" marker-end="url(#ar)"/>
+<path class="line" d="M392,130 H418" marker-end="url(#ar)"/>
+<text class="s c" x="302" y="176">training only</text>
+<text class="s c" x="372" y="166">z ~ N(0, I)</text>
+<path class="line" d="M442,160 V198" marker-end="url(#ar)"/>
+<rect class="chip" x="270" y="200" width="205" height="30" rx="6"/>
+<text class="t c" x="372" y="219">4 destination cells per blocker</text>
+<text class="s c" x="372" y="249">unchanged from the team's V3.4</text>
+
+<path class="line" d="M490,135 H503" marker-end="url(#ar)"/>
+
+<!-- 3. Proposed moves -->
+<rect class="panel" x="505" y="10" width="235" height="250" rx="12"/>
+<text class="title" x="519" y="34">Proposed moves</text>
+<g class="t">
+  <rect class="chip" x="520" y="46" width="205" height="24" rx="6"/><text x="532" y="62">move A → e4</text>
+  <rect class="chip" x="520" y="74" width="205" height="24" rx="6"/><text x="532" y="90">move A → a6</text>
+  <rect class="chip" x="520" y="102" width="205" height="24" rx="6"/><text x="532" y="118">move B → e5</text>
+  <rect class="chip" x="520" y="130" width="205" height="24" rx="6"/><text x="532" y="146">move B → f3</text>
+  <rect class="chip" x="520" y="158" width="205" height="24" rx="6"/><text x="532" y="174">move C → a1</text>
+  <rect class="chip" x="520" y="186" width="205" height="24" rx="6"/><text x="532" y="202">…</text>
+</g>
+<text class="s c" x="622" y="240">4 per blocker</text>
+
+<path class="line" d="M740,135 H753" marker-end="url(#ar)"/>
+
+<!-- 4. Candidate plans -->
+<rect class="panel" x="755" y="10" width="235" height="250" rx="12"/>
+<text class="title" x="769" y="34">Candidate plans</text>
+<text class="s" x="770" y="52">every plan of 1 to 3 moves</text>
+<g class="t">
+  <rect class="chip" x="770" y="60" width="205" height="24" rx="6"/><text x="782" y="76">A → e4</text>
+  <rect class="chip" x="770" y="88" width="205" height="24" rx="6"/><text x="782" y="104">B → e5</text>
+  <rect class="chip" x="770" y="116" width="205" height="24" rx="6"/><text x="782" y="132">A → e4, B → e5</text>
+  <rect class="chip" x="770" y="144" width="205" height="24" rx="6"/><text x="782" y="160">B → f3, A → a6</text>
+  <rect class="chip" x="770" y="172" width="205" height="24" rx="6"/><text x="782" y="188">A → e4, B → e5, C → a1</text>
+  <rect class="chip" x="770" y="200" width="205" height="24" rx="6"/><text x="782" y="216">… about 1,300 per scene</text>
+</g>
+<text class="s" x="770" y="246">+ the empty plan (move nothing)</text>
+
+<!-- connector down to scoring -->
+<path class="line" d="M872,260 V274 H320 V288" marker-end="url(#ar)"/>
+
+<!-- 5. Per-step scoring (new) -->
+<rect class="panel" x="10" y="290" width="630" height="270" rx="12" style="stroke:#2a78d6;stroke-width:2.5"/>
+<text class="title" x="24" y="314" style="fill:#2a78d6">Per-step scoring (new)</text>
+<text class="s" x="626" y="314" text-anchor="end">replaces XYNet, which gives one score per whole plan</text>
+<text class="t" x="30" y="338">Example plan: move A → e4, then B → e5</text>
+<g>
+  <rect class="step" x="30" y="350" width="125" height="50" rx="8"/>
+  <text class="t c" x="92" y="371" font-weight="700">Move A → e4</text><text class="s c" x="92" y="388">step 1</text>
+  <rect class="step" x="182" y="350" width="125" height="50" rx="8"/>
+  <text class="t c" x="244" y="371" font-weight="700">Move B → e5</text><text class="s c" x="244" y="388">step 2</text>
+  <rect class="step" x="334" y="350" width="125" height="50" rx="8"/>
+  <text class="t c" x="396" y="371" font-weight="700">Reach target</text><text class="s c" x="396" y="388">is the way clear now?</text>
+  <rect class="step" x="486" y="350" width="125" height="50" rx="8"/>
+  <text class="t c" x="548" y="371" font-weight="700">Pick target</text><text class="s c" x="548" y="388">and take it out</text>
+</g>
+<path d="M155,375 H180" stroke="#2a78d6" stroke-width="1.5" marker-end="url(#arb)"/>
+<path d="M307,375 H332" stroke="#2a78d6" stroke-width="1.5" marker-end="url(#arb)"/>
+<path d="M459,375 H484" stroke="#2a78d6" stroke-width="1.5" marker-end="url(#arb)"/>
+<g class="line" marker-end="url(#ar)"><path d="M92,400 V423"/><path d="M244,400 V423"/><path d="M396,400 V423"/><path d="M548,400 V423"/></g>
+<rect class="chip" x="30" y="425" width="581" height="34" rx="6"/>
+<text class="t c" x="320" y="446">One shared step network: sees the shelf just before the step, and the step itself</text>
+<g class="line" marker-end="url(#ar)"><path d="M92,459 V476"/><path d="M244,459 V476"/><path d="M396,459 V476"/><path d="M548,459 V476"/></g>
+<g class="t c"><text x="92" y="492">p₁ = 0.97</text><text x="244" y="492">p₂ = 0.93</text><text x="396" y="492">p₃ = 0.90</text><text x="548" y="492">p₄ = 0.94</text></g>
+<text class="t c" x="320" y="522" font-size="13px"><tspan font-weight="700">Plan score p11</tspan> = p₁ × p₂ × p₃ × p₄ = 0.76</text>
+<text class="s c" x="320" y="546">Trained on which step failed in simulation. One bad step sinks the whole plan.</text>
+
+<path class="line" d="M640,425 H653" marker-end="url(#ar)"/>
+
+<!-- 6. Decision -->
+<rect class="panel" x="655" y="290" width="335" height="270" rx="12"/>
+<text class="title" x="669" y="314">Decision</text>
+<rect class="chip" x="670" y="322" width="200" height="38" rx="6"/>
+<text class="t c" x="770" y="338">Nothing to move?</text><text class="s c" x="770" y="353">empty-plan score ≥ 0.5</text>
+<path class="line" d="M870,341 H888" marker-end="url(#ar)"/><text class="s c" x="879" y="335">yes</text>
+<rect x="890" y="329" width="88" height="24" rx="6" fill="#f1f2f4" stroke="#9aa0a6"/><text class="t c" x="934" y="345">Do nothing</text>
+<path class="line" d="M770,360 V374" marker-end="url(#ar)"/><text class="s" x="776" y="371">no</text>
+<text class="t" x="680" y="391" font-weight="700">Rank plans by p11</text>
+<g class="s">
+  <text x="680" y="408">A → e4, B → e5</text><rect x="790" y="399" width="114" height="11" rx="2" fill="#2a78d6"/><text x="910" y="408">0.76</text>
+  <text x="680" y="424">A → e4</text><rect x="790" y="415" width="62" height="11" rx="2" fill="#2a78d6" opacity="0.6"/><text x="858" y="424">0.41</text>
+  <text x="680" y="440">B → f3, A → a6</text><rect x="790" y="431" width="27" height="11" rx="2" fill="#2a78d6" opacity="0.4"/><text x="823" y="440">0.18</text>
+</g>
+<path class="line" d="M770,446 V460" marker-end="url(#ar)"/>
+<rect class="chip" x="670" y="462" width="200" height="30" rx="6"/>
+<text class="t c" x="770" y="481">Best p11 ≥ η = 0.3 ?</text>
+<path class="line" d="M730,492 V508" marker-end="url(#ar)"/><text class="s" x="736" y="504">yes</text>
+<path class="line" d="M870,477 H917 V508" marker-end="url(#ar)"/><text class="s" x="890" y="471">no</text>
+<rect x="670" y="510" width="180" height="30" rx="6" fill="#e3f6ee" stroke="#1baf7a"/>
+<text class="t c" x="760" y="529" style="fill:#11704e;font-weight:700">Repair: run the best plan</text>
+<rect x="860" y="510" width="115" height="30" rx="6" fill="#fbe9e9" stroke="#d64545"/>
+<text class="t c" x="917" y="529" style="fill:#a02c2c;font-weight:700">Abstain</text>
+</svg>

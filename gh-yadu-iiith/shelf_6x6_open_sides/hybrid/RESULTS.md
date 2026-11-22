@@ -296,7 +296,7 @@ The physics teacher dominates. One attempt takes about 18–33 s, and it grows w
 
 ## 6. Literature this builds on
 
-Full lists, all verified, are in [docs/LIT_BRIEF_2026-11-20.md](docs/LIT_BRIEF_2026-11-20.md) and [docs/THREE_WAY_SCAN_2026-11-20.md](docs/THREE_WAY_SCAN_2026-11-20.md). The ones used here:
+Full lists, all verified, are in [docs/literature/related_work_brief.md](docs/literature/related_work_brief.md) and [docs/literature/three_way_scan.md](docs/literature/three_way_scan.md). The ones used here:
 
 - **Per-step verification:** Lightman et al. 2024; Gensheimer & Narasimhan 2019; STAP (Agia et al. 2023); Wells et al. 2019.
 - **Goal-aware generator from a success model:** CbAS (Brookes et al. 2019); AWR (Peng et al. 2019); Kim et al. 2022.
