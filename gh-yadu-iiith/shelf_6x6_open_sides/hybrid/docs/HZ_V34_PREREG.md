@@ -4,7 +4,7 @@ Status: APPROVED by nav on 2026-11-22, with margin M = 10 kept as written. It wa
 written after VAL and before any TEST access by us. It becomes binding when this file, `hybrid/src/{hz_eval,twod_hazard}.py` and
 `docs/HZ_V34_FREEZE.sha256` are committed to git. That commit hash is then written below, and only after that does any TEST step run.
 
-Freeze commit: `<to be filled at commit>`
+Freeze commit: `8e18429cb404cc846ca40899d2ed3a09da4489db` (this line is the only change after it).
 
 ## What is compared
 - **Ours ("hazard"):** the per-step hazard scorer (`twod_hazard.py`, HZ_MODE=v34). It scores V3.4's IDENTICAL candidate pools, which are
