@@ -1,117 +1,51 @@
-# CONTEXT: working state for the hybrid study (read this first after a compaction)
+# CONTEXT: working state for the hybrid study (read this first)
 
-Last updated: 2026-11-21 ~10:50 IST. Keep this file current: the harness PreCompact hook reminds you to update it, and the SessionStart hook loads it after compaction.
+Last updated: 2026-11-21 ~20:30 IST. Keep under ~9,000 chars (SessionStart hook truncates there).
 
 ## Who / what
-- **User:** nav (new to the project, wants plain explanations). Teammates: Naren (Approach B code + dataset), Ayush (baselines: REAP, PIGINet, GRN, SceneCollisionNet).
-- **Task:** robot obstacle relocation on a 6×6 shelf. Choose which blockers to move, in what order and where, so the target t0 reaches its goal. Ground truth is the physics teacher BD3DS66_TEACHER_V2 (MuJoCo, RRT-Connect 5,000 iterations, chained moves).
-- **Team method:** "Algorithm 1: Learned Energy-Guided Corrective Search".
-  - Goal-blind cVAE proposes cells → Ranker → coupled Boltzmann X/Y model, with p11 = σ(b)σ(a+w).
-  - Cost: −log p11 + α|r| + βD + γĴ; abstain if p11 < η.
-  - α/β/γ/η values are not on any branch; ask Naren.
-- **Branch:** `naren/approachb-3d-learning`, HEAD 4d2d3dbf89 (the same as GitHub; verified 2026-11-21).
-- **Nothing is committed.** The user has an unrelated `M READMe.md`; keep it out of any commit. Suggested branch: `nav/hybrid-xy`.
-- **Never touch TEST.** All results are on Approach-B VAL (exploratory). Don't use the team GPU server without Naren's OK.
+- **User:** nav (new; wants plain explanations; keep Claude usage low; time is fine). Teammates: Naren (Approach B + datasets), Ayush/Yadu (3D baselines), Abhinav (2D analytical baselines).
+- **Task:** robot obstacle relocation (3D 6x6 shelf, xArm7; 2D 8x8 grid, 3R arm): which blockers to move, order, where; physics teacher verifies.
+- **Git:** our branch `nav/hybrid-xy` (HEAD 8b9982a, pushed via HTTPS/gh). Keep the user's unrelated `M READMe.md` out of commits.
+- **Main study = 3D** (all baselines); 2D = ablations / sanity (user 2026-11-21).
 
 ## Standing rules (also in memory)
-1. **Check before any destructive/move action** on the user's machines (contents, mtimes, symlinks, rc files).
-   - On 2026-11-21 I wrongly deleted pre-existing uv installs on the home server. They were restored: Python 3.12, huggingface-hub<1.0 tool, uv, env.
-2. **After finishing any work unit,** run the ARS Devil's Advocate reviewer on it and adjudicate its CRITICAL issues before reporting.
-3. **Explain simply;** no jargon without a definition.
+1. Never touch TEST without a pre-registration; VAL first. Label results exploratory/confirmatory + split.
+2. Look before any delete/move/overwrite (I once deleted the user's uv installs). Nothing deleted this session.
+3. One ARS Devil's Advocate review per substantial work unit; don't re-review the reviewer's own fixes.
+4. Explain simply. Max 5 of 8 Mac cores; check AC power before long jobs.
+5. Never generate/run jobs on gvlab (user). gvlab2: Naren OK'd; we only COPY from it. Home server generation STOPPED (UPS incident 2026-11-21); restart only with user go-ahead + RAPL cap <= 130 W.
+6. Safety guard: no `$VAR` paths in rm/cp/redirects (use literals); large Write calls can time out (split files).
 
-## Files (all under gh-yadu-iiith/shelf_6x6_open_sides/hybrid/)
-- `README.md` (map, commands) and `RESULTS.md` (full write-up, corrected after the ARS review).
-- `docs/EXPERIMENT_LOG.md`: every experiment with pre-registrations (E1–E10, E9 rejected).
-- `docs/LIT_BRIEF_2026-11-20.md` and `docs/THREE_WAY_SCAN_2026-11-20.md`.
-- `src/`, flat:
-  - `physics.py` (teacher), `phase3.py` / `phase3b.py` / `phase4.py` (planners + lazy retries; ALL, ALPHAS, ONLY, TRIES);
-  - models: `hazard.py`, `factor.py`, `outcome_b.py`, `gcvae.py`, `gcvae_abl.py`, `sidecar_from_b.py`;
-  - analysis: `e7_physics.py`, `threshold.py`, `scaling.py`;
-  - `cpu_run.py`: runs the team's GPU scripts on CPU; `XY_SEED` env sets extra seeds.
-- **Harness is now generic (2026-11-21):** hooks read `.claude/research_harness.json` (this project's is at repo root: context file, watch_dir=hybrid, review areas src/docs/RESULTS/README, remote_ok rss_gen, reviewed-scripts path). `harness/install.sh` (USER must run: guard blocks writes to ~/.claude) installs to ~/.claude/research-harness, global settings hooks, appends `harness/research_CLAUDE.md` (plain-language + research rules) to ~/.claude/CLAUDE.md, removes the local hook copies. New projects: `init_project.py`.
-- `harness/hooks/`: `guard_destructive.py` (PreToolUse ask-guard) and `require_da_review.py` (Stop hook). Both are being installed into `.claude/settings.local.json`.
-- `gen/`: scene-generation kit (an agent is writing `README_homeserver.md` and `qc_new_roots.py`).
-- **Results (gitignored):** `../approachb_3d_learning/runs/`, i.e. PHASE2/3/3B/4, GCVAE*, HAZARD, FACTOR, OUTCOME_B, XY3D_B, GEN_PILOT, PIGINET.
-  - Physics results are cached by (root, plan) across phases.
+## Earlier 3D work (VAL, exploratory; details in RESULTS.md / docs/EXPERIMENT_LOG.md)
+- 160 Approach-B VAL roots (OLD team pipeline, not V3.4): per-step hazard 124 first try / 154 within 5; team + length penalty 119/141; ens3 130/158 (n.s. vs hazard). Within-5 hazard vs team 18-5 p=0.011. Gain = missing alpha + label source; real edge in retries.
+- Overconfidence: models say 95-99%, reality 55-78%. E9v2 confirmatory prereg FROZEN (docs/E9v2_FREEZE.sha256, commit ffef09d7b6) but blocked: needs ~210 fresh QC'd roots, have 10 (home server hx1).
+- These 3D numbers are NOT comparable with V3.4's (different cohort, pipeline, metric).
 
-## Key results (VAL, exploratory)
-- **Placement, #1 cell works of 90:**
+## Current team numbers (Approach B V3.4; latent-causal-tamp `naren/k3-ablation-gvlab2-20261120`)
+- Task success K1-K3, FULL s0: historical TEST 2D 52.9, 3D 82.2; VAL 57.1 / 78.2; fresh cohort 51.8 / 76.6. Historical TEST was consulted by the team earlier (not pristine) but is unseen by us.
+- 2D analytical baselines (Abhinav, historical TEST, 300 CPU-s): E-M4M 61.7, MO-SeGMan 30.7, MS-MCTS 27.0. V2 (old) 25.6.
+- V3 gains came from: task-trained cVAE sampler + M=4 pools, uncapped exhaustive K1-K3 search, expanded TRAIN labels (`abf_v32_fb0eef4f5ff433ee`). Frozen rule noop_gate 0.5, eta 0.3, alpha=beta=gamma=0. Their ablation: order-invariant G loses 5-19 pts; DIRECT loses 11-13 under the frozen rule.
+- Flag for Naren: 3 2D NONE test scenes (w0248-s004, w0167-s011, w0166-s021) have checker-verified repairs; root files show NONE = "no fix among 3-7 tried edits, target query UNKNOWN_PLANNER", not certified. Naren says verified; re-check with the teacher once it runs.
 
-  | Model | Works |
-  |---|---|
-  | Boltzmann (3-seed mean) | 78 |
-  | goal-aware cVAE | 73 (anchored variant 81) |
-  | team pipeline | 71 |
-  | DIRECT-GEO | 68 |
-  | random | 54 |
-  | Ranker | 51 |
-  | old cVAE | 47 |
-
-- **Plans, first try of 160:**
-
-  | Planner | First try | Within 5 lazy tries |
-  |---|---|---|
-  | per-step hazard | 124 | 154 |
-  | factor | 110 | 150 |
-  | goal-aware pipeline | 103 | 137 |
-  | team pipeline (no α) | 100 | 137 |
-  | Boltzmann mean | 88 | 131 |
-  | cautious (min of seeds) | 83 | 130 |
-  | DIRECT-GEO | 73 | — |
-  | Boltzmann objects + cVAE cells | 48 | — |
-  | random | 40 | — |
-
-  - Per-step vs team: 44 wins / 20 losses. Raw p = 0.004; Holm over 15 pairs = 0.044; over all tests ≈ 0.08.
-- **ARS review (2026-11-21), Major Revision, two seats.** Numbers reproduce. Problems found:
-  - a post-hoc Holm family;
-  - the baseline lacks the length penalty α;
-  - per-step ALSO changes the label source;
-  - novelty overstated (STAP, Wells, PIGINet);
-  - unequal reset bias (team 90% vs per-step 51% of failures after a move).
-- **Overconfidence:** every model says 95–99% for its chosen plans; reality is 55–78%. AUROC among the chosen plans: Boltzmann 0.50, per-step 0.78, factor 0.79. The threshold analysis gives η = λ/(1+λ) after calibration.
-- **Scale limit:** `MAXOBJ = 8` in `data3d.py`. 32 of 91 fresh roots can't be encoded. Planning takes < 1 s/scene; physics ~12–36 s per attempt.
-- **Label-source control (E10):** `boltz_B` cannot be trained (X0Y0 = 0 by construction; the team gate refuses). `outcome_B` (same data and network, whole-plan labels only): AUROC 0.928 vs hazard 0.926 vs Boltzmann 0.796. So offline, the gain comes mostly from executed-record labels, not step labels. Physics pending.
-
-## E10 finding (2026-11-21)
-- Team pipeline + length penalty: 119/160 first try at **α* = 0.2 (frozen)** vs 100 without; per-step 124. Gap +15 -> ~+5.
-- Per-step scorer on the TEAM's proposals: 122/160 try1, 143 within 5; Boltzmann+Ranker filter: 107 / 145 (try1 39-24 p=0.077; within5 13-15). The scorer drives first-try gains; retries equalise. Copy: `runs/PHASE4/summary_E10_steprops_rankerfilter.json`.
-- E10 DONE (VAL, 160 roots; first try / within 5 lazy tries): per-step hazard 124/154; outcome_B (whole-plan labels, same net) 120/151; team+α0.2 119/141. Try1 all n.s. (hazard-outcome_B 19-15, hazard-team 29-24). Within-5: hazard vs team 18-5 p=0.011, outcome_B vs team 17-7 p=0.064. Reading: first-try gap is mostly α (over-planning) + label source; step decomposition adds ~4; real remaining edge is in retries. `runs/PHASE4/summary_E10_three_way.json`, `summary_E10_outcomeB_teamlen02.json`. Written into EXPERIMENT_LOG (E10) + RESULTS headline note.
-
-## In flight (check status first)
-- **E10 physics** (background task; `phase4.py` driver with TRIES/ONLY):
-  - team_len_a{0.05, 0.1, 0.2, 0.5, 1.0}: first tries only;
-  - step_team_props and boltz_ranker_filter: full lazy retries;
-  - then queue: outcome_B (plans ready, `runs/PHASE4/plans_outcome_B.json`), and α* retries.
-  - Pick α* = best first-try success (ties → smaller α) and freeze it for E9v2.
-- **Home server generation RUNNING (started 2026-11-21 10:43 IST):** `~/Documents/RRC/rss_gen/runs/hx1`, `--name hx1`, 14 workers,
-  QUOTA K1/K2/K3 = 115 each (NONE/K0/K4 = 0). Launcher `hybrid/gen/launch_hx1.sh` (copied to rss_gen/; re-run = resume).
-  - Monitor: `cat runs/hx1/PROGRESS.json`, `grep '^root ' runs/hx1/run.log`. Clean stop: `touch runs/hx1/STOP`.
-  - Still TODO: copy the QC kit (`qc_new_roots.py`, `obj_pickable3.py`, 2 selftest roots) to the server, or QC on the laptop after rsync back (README_homeserver.md §6-7). Fill README §8 time estimate once the rate is known.
-  - Server GPU: `nvidia-smi` says driver/library mismatch (the killed apt upgrade updated NVIDIA libs; a reboot fixes it). GPU is NOT used; do not reboot while hx1 runs.
-- **Hooks LIVE in `/Users/nav/Documents/RRC_Work/RSS_2027/.claude/settings.local.json`:** PreToolUse `Bash|Write|Edit|MultiEdit|NotebookEdit` → `guard_destructive.py` (DENY outside-project/remote destructive ops); Stop → `require_da_review.py`; SessionStart → `context_inject.py` (cap 9,000 chars).
-  - v7 after 6 DA reviews: comments stripped quote-aware before lexing; remote cmds checked per ssh segment; remote scripts need sha in REVIEWED_REMOTE_SCRIPTS.txt (launch_hx1.sh 3867fb7f...); uploads only into Documents/RRC/rss_gen; quoted-# and option-value bugs fixed; fewer false positives. v8: per-tool scp/rsync option sets + upload/download direction rule. Round 8 (no CRITICAL; MAJOR fixed with its suggested both-direction check). Selftest 109 deny / 59 allow (needs python>=3.11). Known gaps: `# x <<EOF` heredoc-in-comment, rsync `host::module`. Limit: guard doesn't protect its own files.
-- **Server power (must stay on UPS) — INCIDENT 2026-11-21:** uncapped 14-worker load crashed the UPS -> server down 11:30-16:43. At 16:46 I resumed hx1 seconds before the user said "don't resume" and with NO power cap (reboot resets it); touched STOP and asked the user to `pkill -f run_shelf66_full.py` (guard blocks remote pkill). **Do NOT restart generation until the user says so.** launch_hx1.sh now refuses if the RAPL cap > 130 W. hx1 has 10 accepted roots (6 K1, 3 K2, 0 K3); QUOTA set 105/132/80, MAX_RUNNING 8.
-- **Tooling survey** (for experiment harness): pinned K-Dense skills (statistical-power/analysis, experimental-design, critical-thinking), MLflow+SQLite, Hydra, DVC, statsmodels. Avoid W&B cloud/Sacred. Installs need user OK.
-- **Harness work (user asked for it):**
-  - (a) Safety hooks: DONE (see above).
-  - (b) Experiment harness: generate → QC → freeze/hash prereg → run arms → stats with declared family → DA review → report. It must use ARS (prereg template, reviewer, DA) plus other research skills; an agent is surveying them online. Don't install third-party plugins without the user's OK.
-
-## E9v2 PRE-REGISTERED (2026-11-21, docs/EXPERIMENT_LOG.md)
-- H1 primary: hazard vs team_len_a0.2, success within 5 tries, exact McNemar, α=.05, Newcombe CI. H2 first try (fixed sequence). Freeze hashes: docs/E9v2_FREEZE.sha256. Usable-root list hashed before scoring; stop at quota or 2026-11-24 00:00 IST; min n=150. Only allowed code change: root source (hx1). Prereg FIXED per DA (H1 = hazard PLANNER; endpoint switch disclosed; runner w/ per-root seed before freeze; quota on QC-usable, floor 210, no deadline; no-reset within-5 + step_team_props descriptive; exclusion/decision rules). Freeze: 60 hashes, all OK.
-
-## Done 2026-11-21 ~17:30
-- Docs rewritten in plain language (number-checked, one Sonnet meaning review: no CRITICAL, glossary fixes applied).
-- Committed ffef09d7b6 on branch `nav/hybrid-xy`, pushed (HTTPS via gh; SSH key not accepted). This commit is the E9v2 prereg's git record.
-- ARS brief: docs/LIT_FACTOR_GRAPHS_HEURISTICS_2026-11-21.md. Top idea: recalibrate scores on search-picked plans (cross-fitted isotonic), then value-of-information retry order. Toussaint/M4M/GRN citations unverified.
-- Q2 (Blackwell) = 2D planar dataset, Blackwell share never ran -> no usable 3D scenes there. Local raw 3D roots: Approach-B cohort already covers all QC-eligible ones.
-- gvlab2 (long-horizon@gvlab2, host cstar) = shared lab account. Naren OK'd use (2026-11-21). Not used.
-- E11 DONE: ens3 (equal-weight avg of hazard+factor+outcome_B) = highest point estimates, NOT distinguishable from hazard: 130/160 first try, 158 within 5, 4.1 queries. vs hazard 21-15 / 6-2 (n.s.), vs team α* 29-18 / 17-0. VAL dev lead only; would need its own prereg'd fresh test. DA review done (no CRITICAL; wording toned down, VAL-early-stopping disclosed).
-- gvlab (nav@gvlab.iiit.ac.in; key = id_ed25519 via ssh-agent): user said DO NOT generate anything on gvlab. ~/rss_gen/code there is an unused copy of the generator (no venv); remove if user wants. approachb_final_gen/d3 = variants of existing roots, not fresh.
-- Server: generation STOPPED. Restart only with user go-ahead + power cap.
+## 2D/3D per-step arm on V3.4 (IN PROGRESS)
+- Runs agreed: (A) "ours alone" = per-step scorer in the V2 pipeline/data (2D) vs V2; (B) per-step as a new scorer arm on V3.4's IDENTICAL pools (from sealed FULL_s0 predictions, pool hash checked), trained on abf_v32; report frozen rule AND VAL-tuned (gate, eta). 2D + 3D. VAL -> prereg + freeze -> TEST once.
+- Data on Mac (gitignored, `approachb_3d_learning/runs/`): `K3ABL/` (gvlab2 k3abl: bundle, public/private indexes, predictions of all 30 arms, verifier_cache = their physics results), `ABF3/` (link-free ABF root: snapshots abf_9de + abf_v32, data, mirror, teacher2d_wt, `code_v34` = latent-causal-tamp@4aee7989), `ABF2D/` (gvlab V2 copy, 2D).
+- gvlab2 access: user's 8 h ssh ControlMaster `ssh -o ControlPath=~/.ssh/cm-gvlab2 long-horizon@gvlab2.iiit.ac.in` (ssh needs sandbox off).
+- Code: `hybrid/src/twod_hazard.py` (HZ_MODE v2|v34; `train DOM SEED`, `pool DOM SPLIT SEED [i/k]`, `search`, `selftest DOM`; HZ_THREADS) and `hybrid/src/hz_eval.py` (`teach DOM SPLIT SEED W`, `metrics DOM SPLIT SEED`; their cache read-only, ours `ABF3/runs/hz/verify_{dom}.jsonl`). Selftests pass. With alpha=beta=gamma=0 all rules pick the same top repair -> <= 1 teacher query per root.
+- Trained s0 2D + 3D -> `ABF3/runs/hz/model_{dom}_s0.pt` (+ train_*.json/log). NEXT: pool VAL 2d/3d, then teach + metrics; then prereg; then TEST pools.
+- Teacher envs READY. 2D: `ABF3/env2d/bin/python3.14` (NOT `env2d/bin/python` = leftover 3.15); numpy 2.4.0, scipy 1.16.3, psutil 7.1.3, torch 2.15.0, pillow 12.0.0, matplotlib 3.11.2; MPLBACKEND=Agg. 3D: `ABF3/env3d/bin/python` (MacPorts py3.13.7; mujoco 3.16.0, numpy 2.2.6 = their gvlab2 abf_v2/env3d pins, + torch/scipy/psutil); fin3d code+src copied from gvlab2 `approachb_final_gen/final3d_v4` to `ABF3/fin3d` (shelf_scene_6x6 link recreated -> ../../../scene); hz_eval sets FIN3D_* env. pip needs sandbox off (SSL).
+- PARITY PASSED (Mac teacher = their cache): 2D original 2/2, fastgeom1 2/2; 3D 2/2 (both K1 only).
+- 2D VAL DONE (exploratory, VAL, s0, 751 roots / 413 task): hazard frozen rule task 74.6 / noop 96.3 / abstain 70.7 vs FULL_s0 57.1 / 96.8 / 95.3. Paired task: ours-only wins 108, FULL-only 36, sign p=1.5e-9. Tuned rule (idx 18: gate 0.5, eta 0.5): 74.6 / 96.3 / 85.3 -> `chosen_rule_2d.json`. Task range over 37 rules 72.2-76.5. Ours fails Y less (65 vs 110) and X less (28 vs 57).
+- 3D VAL DONE (exploratory, VAL, s0, 364 roots / 220 task; 175 Mac-teacher queries): hazard frozen task 92.3 / noop 92.9 / abstain 98.3 vs FULL_s0 78.2 / 84.7 / 79.3. Tuned (idx 10: gate 0.4, eta 0.3) 91.8 / 94.1 / 98.3 -> chosen_rule_3d.json. Task range over rules 90.5-93.2; unknown 0.
+- CROSSCHECK DONE (Mac teacher on FULL_s0's own VAL repair picks): 2D 416/416 agree (deterministic), FULL task on Mac labels 57.1 = gvlab 57.1. 3D 225/235 agree (4.3% flips, symmetric: 4 to success, 5 to fail; grasp/connector/execution statuses -> 3D teacher not bit-reproducible across machines), FULL task on Mac labels 77.7 vs gvlab 78.2. => teacher asymmetry explains <= ~0.5 pt, not the gain.
+- 3 SEEDS DONE (VAL, frozen rule, task/noop/abstain). 2D ours s0/s1/s2 74.6/74.8/77.5, noop 96.3/95.7/98.4, abstain 70.7/88.0/89.3; FULL 57.1/56.2/54.0, 96.8/95.7/97.9, 95.3/82.7/96.0. 3D ours 92.3/91.4/88.6, 90.6-92.9, 98.3/89.7/96.6; FULL 78.2/79.1/78.2, 84.7/84.7/82.4, 79.3/75.9/81.0. `hz_eval confirm DOM val` (3-seed paired bootstrap): 2D +19.9 [15.9, 23.7], 3D +12.3 [8.3, 16.4]. FULL s0/s1/s2 share pools (VAL + TEST hashes equal). FULL checkpoint = best VAL NLL epoch (xy.py fit; 2D s0 epoch 48) = same exposure as ours.
+- PREREG DRAFT `hybrid/docs/HZ_V34_PREREG.md`, revised after DA review 2 (all adopted): primary = task LB>0 AND noop/abstain non-inferior (LB > -M, M=10 pts, PENDING USER), world-cluster bootstrap (`_cluster`), mandatory sensitivities (Mac-only labels both arms via extended `crosscheck` -> "teacher-sensitive"; UNKNOWN as fail), ours() dup assert, tighter deviation rule, freeze incl. FULL TEST result files (hashed unread) + caches + pip freezes. hz_eval backup before this rewrite: scratchpad/hz_eval_pre_da2.py. VAL DRY RUN DONE (2026-11-22; fixed confirm bug: ours used L=None in primary): crosscheck now covers FULL s0-2 + ours: 2D 1212/1212 agree, 3D 638/657. 3D SUPPORTED (task +12.3 lb 8.3; noop +7.5 lb 3.2; abstain +16.1 lb 7.2; Mac-only task +13.2 lb 9.2). 2D NOT supported: task +19.9 lb 15.9 but abstain -8.7 lb -12.1 < -10 (noop 0.0 lb -1.9). DA review 3 (confirm code): no CRITICAL; adopted all (FULL REPAIR picks relabelled from same table as ours = 0 diffs on VAL; cluster assert; excl>2% flag; list bootstrap; prereg wording). VAL numbers unchanged. Decision for user: keep M=10 (2D likely fails guard on TEST) or change before freeze. Then: hash freeze list (scratchpad freeze_list.txt, 289 files) -> `docs/HZ_V34_FREEZE.sha256`; USER must approve + commit before any TEST step. Team TEST result files NOT read.
+- (older) queue was: `ABF3/runs/hz/after3d.sh` (log after3d.log): `hz_eval crosscheck 2d|3d val 4` (Mac teacher on FULL_s0's own REPAIR picks -> crosscheck_{dom}_val.json: agreement vs gvlab cache + FULL task on Mac labels; separate file, never merged), then seeds 1, 2 (train, pool 4 parts, teach, metrics; NO tune).
+- DA review (2D VAL, 2026-11-22): no leak/pool/index bug (same n_scored all 751 roots; VAL shares 0 families with TRAIN/TEST; FULL VAL s0/s1/s2 = 57.1/56.2/54.0, other arms <= 60). Gain is selection: both REPAIR on 392 task roots, FULL ok 227 vs ours 302. CRITICAL 1 (ADOPTED): 377/396 of our differing picks judged by Mac teacher vs theirs by gvlab -> crosscheck queued. CRITICAL 2 (ADOPTED for prereg): headline = FROZEN rule; tuned rule secondary (FULL not grid-tuned; their preds keep only frozen decision). MAJOR: early stop on VAL NLL; check FULL's XY_PATIENCE (xy.py:685 default 10 vs matched arms 60 fixed) and match it for TEST (or fixed epochs chosen on VAL); 3 seeds (queued); prereg: unknown excluded from task denominator, cache merged read-only, hash snapshot+models, load_rows assert must change for TEST. Moved stray pool_2d_val_s0.part0of150.jsonl to hz/stale/ (dup of 4 roots, identical decisions).
+- DA reviews: twod_hazard v1 (fixed: SceneEncoder occ, conflicting labels, caching). v34 + hz_eval: no CRITICAL; fixed: `hz_eval tune DOM SEED` (VAL only -> chosen_rule_{dom}.json; criterion fixed BEFORE VAL physics: max mean(task,noop,abstain), ties higher task, lower index), TEST restricted to frozen + chosen rule, part-file merge + coverage assert, safe cache merge, cache keyed by Root object.
+- Trained s0: 2D val NLL 0.234 (55k steps), 3D 0.129 (30k). VAL pool scoring DONE (pool_{dom}_val_s0*.jsonl). Physics needed: 2D 497 queries (24 already in their cache), 3D 175 (67 cached); ours mostly picks different repairs than FULL. No-physics early read (VAL, frozen rule): 2D noop 96.3 vs FULL 96.8, abstain 70.7 vs 95.3 (ours overconfident on NONE); 3D noop 92.9 vs 84.7, abstain 98.3 vs 79.3; both propose a fix on ~all task roots. Then: `hz_eval teach` (after env2d), `metrics DOM val 0`, `tune`. Prereg notes: ours has no travel head (J=0; frozen rule gamma=0 anyway); early stop on VAL like theirs.
 
 ## Next steps
-1. Finish the hooks, then build the experiment harness and the E9v2 pre-registration:
-   - ~200–300 fresh QC'd K1–K3 roots, primary H1 per-step vs the best team arm (α*), CI, decision rule;
-   - H2 abstention gated on H1, with calibration fitted on TRAIN search picks.
-2. Run the generation on the home server; QC and filter (≤ 7 movable objects); run the confirmatory physics.
-3. A DA review after each unit; update RESULTS.md, EXPERIMENT_LOG.md and this file.
+1. Finish B on VAL (2D, 3D), pick tuned rule on VAL, write prereg + freeze hashes, run TEST once; run A (V2) on valsub then TEST.
+2. Seeds 1, 2 if time. Update RESULTS.md / EXPERIMENT_LOG.md; DA review of results.
+3. 3D E9v2 still blocked on fresh roots (user decision).
