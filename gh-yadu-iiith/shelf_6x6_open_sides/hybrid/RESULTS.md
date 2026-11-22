@@ -1,4 +1,86 @@
-# Results: design changes to the learned relocation planner, and what they do to the workflow
+# Results
+
+This file covers two phases:
+- **Phase 2 (current, 22 Nov 2026):** a per-step plan scorer inside the team's V3.4 pipeline, with a pre-registered TEST result. See section 0. The full report is [reports/plan_scorer_report_2026-11-22.pdf](reports/plan_scorer_report_2026-11-22.pdf).
+- **Phase 1 (20–21 Nov 2026):** design changes to the older Approach B pipeline, on VAL only, all exploratory. Sections 1–9 are kept as written then. Phase 2 supersedes their headline.
+
+---
+
+## 0. Phase 2: per-step scorer in the V3.4 pipeline (22 Nov 2026)
+
+**What changed.** V3.4 works like this:
+1. The task-conditioned cVAE proposes 4 spots per blocker.
+2. Every plan of 1 to 3 moves is listed.
+3. A scorer rates each plan.
+4. A rule picks one: do nothing if the empty plan scores at least 0.5; otherwise run the best plan if it scores at least eta = 0.3; otherwise give up.
+
+Only the scorer in step 3 was replaced. XYNet, which scores the whole plan at once, became a per-step model, `src/twod_hazard.py`. That model scores each move, then "reach target" and "pick target", and multiplies the step scores. The candidate plans are V3.4's own, so every difference comes from re-scoring the same plans. Related work that also multiplies per-step success: STAP, Text2Motion. Related work that scores whole plans jointly: PIGINet.
+
+**Confirmatory result** (pre-registration [docs/HZ_V34_PREREG.md](docs/HZ_V34_PREREG.md), frozen in commit 8e18429; outputs in [results_hz_v34_test/](results_hz_v34_test/)). Pass rule: task lower bound > 0, and do nothing / give up lower bounds > −10. Bounds are one-sided 97.5%, world-cluster bootstrap. Values are 3-seed means.
+
+| TEST | Task | Do nothing | Give up | Verdict |
+|---|---|---|---|---|
+| 3D, ours vs XYNet | 90.5 vs 80.8 (lb +5.9) | 93.5 vs 86.1 (lb +0.5) | 90.3 vs 86.0 (lb −4.2) | **Supported** |
+| 2D, ours vs XYNet | 74.4 vs 51.8 (lb +18.9) | 95.0 vs 91.1 (lb +0.6) | 84.2 vs 92.0 (lb −12.0) | **Not supported** (give up) |
+
+The laptop and lab-server physics checks agree on 680 of 701 3D TEST runs (97%) and on all 1,184 in 2D.
+
+**Where the gain comes from** (3D VAL, exploratory; 3-seed means unless marked):
+
+| Version | Task | Do nothing | Give up |
+|---|---|---|---|
+| Ours (per-step, our encoder, step labels) | 90.8 | 91.4 | 94.9 |
+| Same, without "which step failed" labels | 90.9 | 86.3 | 96.6 |
+| Same, with XYNet's encoder | 87.0 | 88.2 | 89.7 |
+| XYNet (team) | 78.5 | 83.9 | 78.7 |
+| PIGINet-style whole-plan transformer (our reimplementation; seed 0, seeds 1–2 running) | 71.8 | 84.7 | 60.3 |
+
+Reading:
+- Scoring per step, instead of the whole plan, gives the task gain.
+- About two-thirds of that gain remains with XYNet's encoder (87.0 vs 78.5); about a third needs our encoder.
+- The step labels do not change task success. They add about 5 points on "do nothing", and they are ahead on all three seeds.
+- XYNet's seeds differ by about 1 point on task.
+
+**Exploratory follow-ups** (post-hoc; the TEST ones reuse the already-scored TEST set):
+- **Equal give-up rate** (`explore/curves.py`). At equal give-up accuracy, ours solves about 10 more task points in 3D and about 25 in 2D.
+- **E-M4M on 3D TEST** (team code, 300 CPU-s limit; our re-run matched the team's plans on 6/6 VAL check scenes; `explore/vs_classical.py ... test`):
+
+  | | Task | Do nothing | Give up |
+  |---|---|---|---|
+  | Ours vs E-M4M | 90.5 vs 70.1 | 93.5 vs 97.0 | 90.3 vs 100 |
+  | Difference (lb) | +20.3 (+13.6) | −3.5 (−11.1) | −9.7 (−16.1) |
+
+  With VAL-chosen thresholds, ours gives 87.8 / 95.5 / 98.9. Median time per scene: E-M4M 109 s; ours about 0.1 s for scoring only, measured on a different machine.
+- **Never-seen worlds.** 134 of 188 TEST worlds also appear in training. On the 55 task scenes from never-seen worlds, the lead is +5.5 (lb −2.5, not significant), against +10.9 on seen worlds. TEST shows new arrangements of mostly seen worlds.
+- **Replays of the chosen TEST plans** (`../hardware/robust/`):
+
+  | Setting | Ours | XYNet |
+  |---|---|---|
+  | G2 gripper | 91.5 | 83.1 |
+  | Straight-in approach only | 9.7 | 10.4 |
+  | Objects shifted 5 mm | 90.0 | 79.5 |
+  | Objects shifted 10 mm | 83.0 | 75.5 |
+  | Board 10 cm lower | 48.5 | 42.4 |
+
+  About 90% of shift failures are "no feasible side grasp".
+- **Calibration error** on 3D TEST: 6.4 vs 9.8 points (no confidence interval).
+- **4 to 6 moves:** 1 of 15 scenes solved. The claim is limited to up to 3 moves.
+
+**Caveats:**
+- No real-robot result.
+- Thresholds tuned after TEST was used are exploratory.
+- Timings come from different machines.
+- Several checks are single-seed or single-run.
+- The full weak-points table is in the report.
+
+**Where things are:**
+- Analysis scripts: `explore/`, with outputs in `../approachb_3d_learning/runs/explore/`.
+- Hardware checks: `../hardware/`.
+- Running 22–23 Nov: noise-aware training labels (`explore/noise_labels/`), grasp check before acting (`explore/robust_grasp_check/`), a position-noise curve.
+
+---
+
+# Phase 1: design changes to the learned relocation planner, and what they do to the workflow
 
 **Period:** 2026-11-20 to 21. **Machine:** laptop CPU (8 cores).
 

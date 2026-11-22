@@ -48,6 +48,36 @@ Each term is explained once, here.
 | ablation | Removing or swapping one part to see what it was contributing. |
 | winner's curse | A setting chosen because it won on some data tends to look better there than it really is. |
 
+## HZ V3.4: per-step scorer vs XYNet inside the team's V3.4 pipeline (PRE-REGISTERED 2026-11-22; newest entries first)
+
+- **Hypothesis:** on V3.4's own candidate pools (4 cVAE spots per blocker, all plans of 1–3 moves) and the team's rule (noop gate 0.5, eta 0.3), a per-step scorer (`src/twod_hazard.py`) beats XYNet on task. It also stays within 10 points on do nothing and give up.
+- **Design:** pre-registration [HZ_V34_PREREG.md](HZ_V34_PREREG.md), frozen in commit 8e18429 before TEST was scored. Seeds 0–2. World-cluster bootstrap, B = 10,000, one-sided 97.5% lower bounds. Pass rule: task lb > 0, and do nothing / give up lb > −10.
+- **Result** (`results_hz_v34_test/`):
+
+  | | Task, ours vs XYNet (lb) | Do nothing (lb) | Give up (lb) | Verdict |
+  |---|---|---|---|---|
+  | 3D TEST | 90.5 vs 80.8 (+5.9) | 93.5 vs 86.1 (+0.5) | 90.3 vs 86.0 (−4.2) | supported |
+  | 2D TEST | 74.4 vs 51.8 (+18.9) | 95.0 vs 91.1 (+0.6) | 84.2 vs 92.0 (−12.0) | not supported |
+
+- **Interpretation:** the 3D claim holds. The 2D failure sits on give up, at the default threshold. Laptop and lab-server physics checks agree on 97% of 3D runs.
+- **Exploratory follow-ups, 22 Nov** (post-hoc; scripts in `explore/`, numbers in [RESULTS.md](../RESULTS.md) section 0):
+  - threshold curves at equal give-up rate (+10 3D, +25 2D);
+  - encoder and step-label ablations, 3 seeds: the task gain comes from per-step scoring, about a third of it needs our encoder, and step labels add ~5 points on do nothing only;
+  - XYNet 3 seeds;
+  - PIGINet-style reimplementation (seed 0);
+  - E-M4M on 3D TEST: +20.3 task (lb +13.6), −3.5 do nothing (lb −11.1), −9.7 give up (lb −16.1);
+  - never-seen worlds: +5.5, lb −2.5;
+  - calibration;
+  - replays under G2, straight-in grasps, object shifts and a lower board;
+  - failure anatomy under shifts (~90% "no feasible side grasp");
+  - 4–6 moves (1 of 15);
+  - top-down table-level check (`../hardware/topdown_check/`).
+- **Running 22–23 Nov:**
+  - position-noise curve (2–20 mm);
+  - grasp check before acting (VAL);
+  - noise-aware training labels with a no-noise control C, 3 seeds (VAL; the code was reviewed and fixed before launch);
+  - PIGINet-style seeds 1–2.
+
 ## Done (exploratory, VAL)
 
 **What we asked / what we found:** Do the team's models pick good placements and plans? A simple Boltzmann scorer beat the cVAE and random picks. The team pipeline scored higher on plans (100 vs 88 of 160), but not significantly.

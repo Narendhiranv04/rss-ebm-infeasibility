@@ -1,6 +1,8 @@
 # hybrid/: learned planners for shelf obstacle relocation (exploratory study)
 
 **What this is:** a test of changes to the team's Approach B planner on the 6×6 shelf. The planner decides which objects to move out of the way so a target can be picked.
+
+**Current work (22 Nov 2026):** a per-step plan scorer replaces XYNet inside the team's V3.4 pipeline, with a pre-registered TEST result (3D supported, 2D not). Start with section 0 of [RESULTS.md](RESULTS.md) and the report [reports/plan_scorer_report_2026-11-22.pdf](reports/plan_scorer_report_2026-11-22.pdf). The rest of this README describes the earlier phase (20–21 Nov), whose code is still used.
 **What you'll do:** read RESULTS.md first, then use this map to find code, and the Setup section to re-run things.
 
 - Every plan is checked with the dataset's own physics teacher (`BD3DS66_TEACHER_V2`, MuJoCo, chained execution).
@@ -21,7 +23,7 @@
 | Goal-blind / goal-aware | Whether the model knows which object is the target. |
 | Root | One starting shelf scene. |
 | Cached | Saved results; re-running only does the missing work. |
-| VAL / TEST | Two data splits. We only used VAL. |
+| VAL / TEST | Two data splits. Phase 1 used VAL only. Phase 2 scored TEST once, under a pre-registration; later TEST analyses are labelled exploratory. |
 
 ## Layout
 
@@ -34,7 +36,11 @@ hybrid/
 │   ├── EXPERIMENT_LOG.md   every experiment: hypothesis → design → result (pre-registered entries marked)
 │   ├── HZ_V34_*, E9v2_*    pre-registrations and their frozen file hashes (names fixed: the frozen record points to them)
 │   └── literature/         related-work notes
-├── src/                    all code (one flat folder: the scripts import each other by name)
+├── src/                    all code (one flat folder: the scripts import each other by name); twod_hazard.py + hz_eval.py = Phase 2 scorer and evaluation
+├── explore/                Phase 2 exploratory analyses (curves, calibration, classical comparison, encoders, PIGINet-style arm, robustness, noise labels)
+├── results_hz_v34_test/    Phase 2 confirmatory TEST outputs, as produced
+├── reports/                the report PDF, its HTML source, and figures/
+├── harness/                research-harness hooks and the list of reviewed server scripts
 └── archive/
     └── phase3c_piginet.py  PIGINet plug-in, dropped from the comparison (model only partly trained)
 ```

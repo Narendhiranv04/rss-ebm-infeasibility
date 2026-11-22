@@ -1,0 +1,338 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Per-Step Plan Scorer Report</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one readable column, charts full column width, plain sections like a lab report */
+:root {
+  --bg: #fcfcfb; --fg: #1b1c1e; --muted: #5a5d63; --rule: #e3e4e6; --panel: #f3f4f5;
+  --ours: #2a78d6; --xy: #eb6834; --cls: #1baf7a;
+  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #1a1a19; --fg: #f0efec; --muted: #b9b8b0; --rule: #34342f; --panel: #232321;
+  --ours: #3987e5; --xy: #d95926; --cls: #199e70; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #1a1a19; --fg: #f0efec; --muted: #b9b8b0; --rule: #34342f; --panel: #232321;
+  --ours: #3987e5; --xy: #d95926; --cls: #199e70; color-scheme: dark }
+body { background: var(--bg); color: var(--fg); font: 16px/1.6 var(--body); }
+main { max-width: 760px; margin: 0 auto; padding-block: 32px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1 { font-size: 1.9rem; line-height: 1.2; margin: 0 0 6px; text-wrap: balance; font-weight: 600; }
+h2 { font-size: 1.25rem; margin: 40px 0 8px; padding-top: 16px; border-top: 1px solid var(--rule); font-weight: 600; text-wrap: balance; }
+h3 { font-size: 1rem; margin: 20px 0 4px; font-weight: 600; }
+p, li { max-width: 68ch; }
+.sub { color: var(--muted); margin: 0 0 20px; }
+.tag { font: 500 0.72rem/1 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; padding: 3px 6px; border-radius: 3px;
+  background: var(--panel); color: var(--muted); vertical-align: 2px; }
+.box { background: var(--panel); border-radius: 6px; padding: 14px 18px; margin: 16px 0; }
+.box ul { margin: 6px 0; padding-left: 20px; }
+table { border-collapse: collapse; width: 100%; font-size: 0.92rem; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-weight: 600; color: var(--muted); font-size: 0.82rem; }
+td.n, th.n { text-align: right; }
+.wrap { overflow-x: auto; }
+figure { margin: 18px 0 6px; }
+figcaption { color: var(--muted); font-size: 0.85rem; margin-top: 4px; }
+.legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 0.85rem; color: var(--muted); margin-bottom: 4px; }
+.legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; background: var(--c); }
+svg { width: 100%; height: auto; display: block; }
+svg text { fill: var(--muted); font: 12px var(--body); }
+svg .val { fill: var(--fg); font: 500 11px var(--mono); }
+svg .grid { stroke: var(--rule); stroke-width: 1; }
+code { font: 0.88em var(--mono); background: var(--panel); padding: 1px 4px; border-radius: 3px; }
+
+@media print { :root, :root[data-theme] { --bg:#ffffff; --fg:#1b1c1e; --muted:#4f5257; --rule:#dcdde0; --panel:#f1f2f4;
+  --ours:#2a78d6; --xy:#eb6834; --cls:#1baf7a; color-scheme: light }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact }
+  main { max-width: none; padding: 0 }
+  figure, table, .box { break-inside: avoid }
+  h2 { break-after: avoid } }
+@page { size: A4; margin: 16mm 15mm }
+</style></head><body>
+
+<main>
+<h1>Per-step plan scorer: what we changed and what we found</h1>
+<p class="sub">Robot obstacle relocation, shelf scenes (xArm7, side grasps). Status as of 22 Nov 2026, 9 pm. Some runs are still going; they are marked.</p>
+
+<div class="box">
+<strong>Summary</strong>
+<ul>
+<li>One part of the team's V3.4 pipeline was replaced: the model that scores candidate plans. The candidate plans are V3.4's own, so every difference comes from re-scoring the same plans.</li>
+<li>Pre-registered test, run once. On 3D TEST the new scorer solves <strong>90.5%</strong> of task scenes, against <strong>80.8%</strong> for the current scorer (XYNet), and passes the pre-set bar. In 2D it is far ahead on task but <strong>failed</strong> the bar on "give up".</li>
+<li>Compared at the same give-up rate, the new scorer solves about 10 more task points in 3D and about 25 more in 2D. So the 2D miss comes from the default threshold, not a weaker model (exploratory).</li>
+<li>Where the gain comes from (3D VAL): scoring each step separately, instead of the whole plan, gives the task gain; about a third of it needs our encoder. The "which step failed" labels do not change task success; they add about 5 points on "do nothing".</li>
+<li>Against the classical planner E-M4M on 3D TEST (exploratory): +20.3 points on task, but 3.5 points worse on "do nothing" and 9.7 worse on "give up". About 0.1 s per scene against 109 s.</li>
+<li>TEST scenes are new arrangements of mostly seen worlds. On never-seen worlds the lead over XYNet is smaller (+5.5) and not significant.</li>
+<li>Limits: simulation only, up to 3 moves, the chosen plans need angled approaches (with straight-in grasps only about 9% still work), and a new setup needs a short recalibration.</li>
+</ul>
+</div>
+
+<h2>1. The problem in one paragraph</h2>
+<p>The robot has to pick a target object from a crowded 6×6 shelf grid. Other objects are in the way. It can only grasp from the side, because there is a shelf above. So it has to decide which blockers to move, in what order, and where to put them. Sometimes nothing needs to move. Sometimes the task is impossible and the right answer is to give up. A physics simulator (the "teacher") checks whether a plan actually works.</p>
+
+<h2>2. What we changed, and why</h2>
+<p>The team's pipeline has four parts:</p>
+<ol>
+<li><strong>cVAE</strong> suggests a few places to put each blocker (4 per object).</li>
+<li><strong>Enumeration</strong> lists every plan of 1 to 3 moves from those suggestions.</li>
+<li><strong>Scorer</strong> gives each plan a probability of success.</li>
+<li><strong>Rule</strong> picks: do the best plan, do nothing, or give up (thresholds: noop gate 0.5, eta 0.3).</li>
+</ol>
+<p>Only part 3 was replaced. Multiplying per-step success is not new on its own (STAP, Text2Motion), and scoring whole plans jointly is the PIGINet approach. What is tested here is the difference between the two on identical candidate plans, with per-step training labels from the physics teacher.</p>
+<figure>
+<img src="file:///Users/nav/Documents/RRC_Work/RSS_2027/gh-yadu-iiith/shelf_6x6_open_sides/hybrid/reports/figures/pipeline_flowchart.svg" alt="Pipeline flowchart: scene, cVAE proposals, candidate plans, per-step scoring, decision" style="width:100%;display:block">
+<figcaption>The new pipeline. The top row is the team's V3.4 pipeline, unchanged. The blue box is the new part: each plan is split into steps, one shared network scores each step, and the plan score is the product of the step scores. The empty plan has only the "pick target" step; its score decides "do nothing". The decision rule and its thresholds are the team's. All numbers in the figure are illustrative.</figcaption>
+</figure>
+<table>
+<tr><th>Old scorer: XYNet</th><th>New scorer: per-step hazard model</th></tr>
+<tr><td>Looks at the whole plan at once and outputs one number.</td><td>Scores each step on its own ("will this move work, given the shelf right now?") and multiplies the steps together.</td></tr>
+<tr><td>Trained on "did the whole plan work, yes or no".</td><td>Also trained on <em>which</em> step failed, which the teacher already tells us.</td></tr>
+</table>
+<p><strong>Why per-step scoring helps.</strong> If move 1 is impossible, the plan fails however good moves 2 and 3 are. Multiplying step scores makes one bad step pull the whole plan down. A single whole-plan score can miss this.</p>
+
+<h2>3. Main result <span class="tag">confirmatory · 3D TEST</span></h2>
+<p>Written down before we looked at TEST: hypothesis, metric, statistics and pass/fail rule, frozen with code hashes in git. TEST was then scored once.</p>
+<figure>
+<div class="legend"><span style="--c:var(--ours)">New scorer</span><span style="--c:var(--xy)">XYNet</span></div>
+<svg id="c1" viewBox="0 0 720 230" role="img" aria-label="3D TEST success rates, new scorer vs XYNet"></svg>
+<figcaption>3D TEST, 3 seeds. Task = scenes that need moves. Do nothing = scenes where nothing should move. Give up = impossible scenes. Pass rule: task better, and the other two no more than 10 points worse (97.5% lower bounds, bootstrap over scene families).</figcaption>
+</figure>
+<table>
+<tr><th></th><th class="n">New</th><th class="n">XYNet</th><th class="n">Difference</th><th class="n">Lower bound</th><th>Verdict</th></tr>
+<tr><td>3D task</td><td class="n">90.5</td><td class="n">80.8</td><td class="n">+9.7</td><td class="n">+5.9</td><td rowspan="3"><strong>Supported</strong></td></tr>
+<tr><td>3D do nothing</td><td class="n">93.5</td><td class="n">86.1</td><td class="n">+7.5</td><td class="n">+0.5</td></tr>
+<tr><td>3D give up</td><td class="n">90.3</td><td class="n">86.0</td><td class="n">+4.3</td><td class="n">−4.2</td></tr>
+<tr><td>2D task</td><td class="n">74.4</td><td class="n">51.8</td><td class="n">+22.6</td><td class="n">+18.9</td><td rowspan="3"><strong>Not supported</strong> (give up missed the bar)</td></tr>
+<tr><td>2D do nothing</td><td class="n">95.0</td><td class="n">91.1</td><td class="n">+3.9</td><td class="n">+0.6</td></tr>
+<tr><td>2D give up</td><td class="n">84.2</td><td class="n">92.0</td><td class="n">−7.8</td><td class="n">−12.0</td></tr>
+</table>
+<p><strong>The bar.</strong> Fixed before TEST was scored, the new scorer passes only if both hold:</p>
+<ul>
+<li><strong>Task:</strong> it is better than XYNet. Formally, the lower bound of the difference is above 0.</li>
+<li><strong>Do nothing and give up:</strong> it is not more than 10 points worse than XYNet. Formally, the lower bound of each difference is above −10.</li>
+</ul>
+<p>The <em>lower bound</em> is the most pessimistic difference still consistent with the data (97.5% one-sided). It comes from resampling whole scene families 10,000 times, so related scenes are not counted as independent evidence. Task gets a strict bar because it is the main claim. The other two only need to show no serious loss.</p>
+<p><strong>Why 2D failed.</strong> Only one check missed: give up. On impossible 2D scenes the new scorer gave up 84.2% of the time against XYNet's 92.0%, a gap of −7.8 points. Allowing for chance, the lower bound was −12.0, just past the −10 allowance. The cause is the default give-up threshold (eta 0.3). On some impossible 2D scenes the new scorer rates a plan just above 0.3, so it tries the plan instead of giving up. At a higher eta it gives up as often as XYNet and still solves far more task scenes (section 5). That fix was found after TEST was used, so it is exploratory and does not change the pre-registered verdict.</p>
+<p>3D is the main study and 2D was for ablations.</p>
+
+<h2>4. Why it works <span class="tag">exploratory</span></h2>
+<h3>It avoids plans whose first move is impossible</h3>
+<p>On 3D TEST (723 runs each), XYNet picked a plan where the first object could not be grasped <strong>47 times</strong>. The new scorer did it <strong>8 times</strong>. Total physics failures: 51 for the new scorer, 107 for XYNet.</p>
+<h3>Where the gain comes from</h3>
+<p><strong>Concern:</strong> the gain could come from a better scene encoder rather than from per-step scoring. <strong>Check:</strong> the per-step training was kept and the encoder swapped for several others, including XYNet's own (3D VAL, seed 0).</p>
+<figure>
+<svg id="c2" viewBox="0 0 720 220" role="img" aria-label="Task, do nothing and give up success by encoder"></svg>
+<figcaption>3D VAL, seed 0, axis from 50%. Every version of the per-step training beats XYNet on task. With XYNet's own encoder most of the task gain remains (over 3 seeds, about two-thirds), so most comes from per-step scoring and about a third from the encoder. A bigger encoder (transformer) adds nothing. Give up has only 58 scenes, so one scene is 1.7 points; single-seed differences of 3 points or less are noise.</figcaption>
+</figure>
+<p>Three seeds (3D VAL, average):</p>
+<table>
+<tr><th></th><th class="n">Task</th><th class="n">Do nothing</th><th class="n">Give up</th></tr>
+<tr><td>Our scorer</td><td class="n">90.8</td><td class="n">91.4</td><td class="n">94.9</td></tr>
+<tr><td>No step labels</td><td class="n">90.9</td><td class="n">86.3</td><td class="n">96.6</td></tr>
+<tr><td>Our training, XYNet's encoder</td><td class="n">87.0</td><td class="n">88.2</td><td class="n">89.7</td></tr>
+<tr><td>XYNet (team)</td><td class="n">78.5</td><td class="n">83.9</td><td class="n">78.7</td></tr>
+<tr><td>PIGINet-style whole-plan transformer (our reimplementation, seed 0)</td><td class="n">71.8</td><td class="n">84.7</td><td class="n">60.3</td></tr>
+</table>
+<p>Without the "which step failed" labels, task success is the same, but "do nothing" drops by 5.1 points, and it is lower on all three seeds (−9.4, −3.5, −2.4). "Give up" moves in both directions across seeds. The step labels mainly help on scenes where nothing should be moved.</p>
+<p>Reading the table: scoring each step separately gives the task gain; about a third of it needs our encoder; the step labels add about 5 points on "do nothing" only. XYNet's three seeds differ by about 1 point on task (78.2 to 79.1). The PIGINet-style model is our own reimplementation, trained with the same data and budget as ours, and may be under-tuned.</p>
+
+<h2>5. Threshold choice <span class="tag">exploratory · TEST</span></h2>
+<p><strong>Concern:</strong> the gain could come from better-placed thresholds rather than a better model. <strong>Check:</strong> the give-up threshold (eta) was swept over its full range for both models, and task success plotted against give-up accuracy. Up and to the right is better.</p>
+<figure>
+<div class="legend"><span style="--c:var(--ours)">New scorer</span><span style="--c:var(--xy)">XYNet</span></div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px">
+<div style="min-width:0"><svg id="c3a" viewBox="0 0 360 260" role="img" aria-label="3D trade-off curve"></svg></div>
+<div style="min-width:0"><svg id="c3b" viewBox="0 0 360 260" role="img" aria-label="2D trade-off curve"></svg></div>
+</div>
+<figcaption>Each point is one eta value (0.30 to 0.90). Left 3D TEST, right 2D TEST. The new scorer is above XYNet everywhere: at the same give-up accuracy it solves about 10 more points of task scenes in 3D and about 25 more in 2D.</figcaption>
+</figure>
+<p>The 2D miss comes from where the default threshold sits, not from a weaker model: at equal give-up accuracy, the new scorer solves about 25 points more task scenes. With eta chosen on VAL, both 2D and 3D pass the bar on TEST. This is exploratory, since TEST had already been used.</p>
+<p><strong>Calibration.</strong> When the model says "80% chance", the plan should work about 80% of the time. Average gap on 3D TEST: 6.4 points for the new scorer, 9.8 for XYNet (2D: 18 vs 29). No confidence interval was computed for these gaps. A cutoff chosen to keep the failure rate under 10% (95% upper bound) also kept it under 10% on TEST, and the new scorer still acts on 98.6% of scenes. For XYNet no cutoff meets that bound.</p>
+<p><strong>Concern:</strong> tuned thresholds may be overfitted to these scenes. <strong>Check:</strong> a threshold tuned on 3D and applied to 2D gave 27% failures instead of 10%, so thresholds do not transfer between setups. The headline result uses the team's default rule, and a new setup gets recalibrated on a small labelled set.</p>
+
+<h2>6. Against classical planners <span class="tag">exploratory · 3D VAL and TEST</span></h2>
+<figure>
+<svg id="c4" viewBox="0 0 720 230" role="img" aria-label="Task success vs classical planners"></svg>
+<figcaption>Task success on 3D VAL, same scenes and scoring. Classical planners get 300 CPU-seconds per scene (the team's runs). Paired over scenes, the new scorer beats E-M4M by +23.5 (lower bound +16.8).</figcaption>
+</figure>
+<p>Classical planners search and only act when the simulation says the plan works, so they rarely act when they should not. E-M4M was re-run on 3D TEST with the team's code and settings (it chose the same plans as the team's own run on 6 of 6 check scenes):</p>
+<table>
+<tr><th>3D TEST</th><th class="n">New</th><th class="n">E-M4M</th><th class="n">Difference</th><th class="n">Lower bound</th></tr>
+<tr><td>Task</td><td class="n">90.5</td><td class="n">70.1</td><td class="n">+20.3</td><td class="n">+13.6</td></tr>
+<tr><td>Do nothing</td><td class="n">93.5</td><td class="n">97.0</td><td class="n">−3.5</td><td class="n">−11.1</td></tr>
+<tr><td>Give up</td><td class="n">90.3</td><td class="n">100</td><td class="n">−9.7</td><td class="n">−16.1</td></tr>
+</table>
+<p>The task gain is large and clear. On "do nothing" and "give up" the new scorer is worse, and both lower bounds are past −10, so it would fail the bar used against XYNet. With the thresholds chosen on VAL (exploratory) the new scorer reaches 87.8 / 95.5 / 98.9, which is within 1.5 points of E-M4M on both while keeping a 17.7-point task lead. E-M4M's 300 CPU-second limit was hit on many scenes (90th percentile 300 s); how it does with shorter or longer limits is not tested yet.</p>
+
+<h2>7. Planning time <span class="tag">3D, per scene</span></h2>
+<figure>
+<svg id="c6" viewBox="0 0 720 230" role="img" aria-label="Planning time per scene, log scale"></svg>
+<figcaption>Median planning time per scene on 3D VAL, log scale. New scorer: wall time on one laptop CPU thread to score every candidate plan (median 1,173 plans per scene). XYNet: the team's runs on an RTX 5090 GPU, proposals plus scoring. Classical planners: the team's runs, CPU time for search plus simulation checks, capped at 300 CPU-seconds per scene.</figcaption>
+</figure>
+<table>
+<tr><th>Method</th><th>What is timed</th><th class="n">Median (s)</th><th class="n">90th pct (s)</th><th class="n">Task success (%)</th></tr>
+<tr><td>New scorer</td><td>scoring, 1 CPU thread</td><td class="n">0.11</td><td class="n">1.3</td><td class="n">90.8</td></tr>
+<tr><td>XYNet</td><td>proposals + scoring, GPU</td><td class="n">0.14</td><td class="n">0.9</td><td class="n">78.5</td></tr>
+<tr><td>MS-MCTS</td><td>search + simulation, CPU</td><td class="n">109</td><td class="n">300 (cap)</td><td class="n">45.5</td></tr>
+<tr><td>E-M4M</td><td>search + simulation, CPU</td><td class="n">152</td><td class="n">300 (cap)</td><td class="n">67.3</td></tr>
+<tr><td>MO-SeGMan</td><td>search + simulation, CPU</td><td class="n">182</td><td class="n">300 (cap)</td><td class="n">39.1</td></tr>
+</table>
+<p>All rows are 3D VAL. The new scorer is roughly 1,000 to 1,700 times faster than the classical planners and solves more task scenes. Two differences favour it and are worth stating: its time covers scoring only (the cVAE proposals took a median 0.01 s on the team's GPU), while the classical planners also check plans in simulation; and the machines differ. Neither comes close to explaining a gap of three orders of magnitude. On 3D TEST, E-M4M's median was 109 s. It runs at about the same speed as XYNet. A timing of both on one computer has not been done yet.</p>
+
+<h2>8. Robustness <span class="tag">exploratory · 3D TEST plans</span></h2>
+<p>Both models' chosen plans were re-checked in the simulator with small changes, as a stand-in for the real world being slightly different.</p>
+<figure>
+<div class="legend"><span style="--c:var(--ours)">New scorer</span><span style="--c:var(--xy)">XYNet</span></div>
+<svg id="c5" viewBox="0 0 720 300" role="img" aria-label="Plan success under perturbations"></svg>
+<figcaption>Share of chosen plans that still work, on the 229 scenes where both models chose to act. Unchanged: 92.8% vs 85.7% (all chosen plans). One run per setting: 1 to 2 points is noise.</figcaption>
+</figure>
+<ul>
+<li>Friction and mass changes barely matter. One run per setting, so gaps of 1 to 2 points are noise.</li>
+<li>About 90% of the plans that fail under position shifts fail with "no feasible side grasp": a shifted neighbour closes the gap the fingers need. Failures grow with plan length.</li>
+<li>With the G2 gripper model, 91.5% vs 83.1% of all chosen plans still work (from 92.8% vs 85.7%).</li>
+<li>With straight-in grasps only, about 9 to 10% still work for both models: the plans rely on angled approaches. A rig limited to straight-in grasps needs new scenes.</li>
+<li>Objects 10 mm off cost both models about 10 points, and 5 mm costs only 3 (ours), so a rough estimate is that the cameras need to be accurate to about 5 mm.</li>
+<li>Moving the board 10 cm lower halves success for both. Neither model sees the board height, so neither can adapt. A short calibration in each new setup is needed; giving the model the geometry as input is future work.</li>
+</ul>
+
+<h2>9. Weak points</h2>
+<table>
+<tr><th>Weak point</th><th>Evidence</th><th>What would fix it</th></tr>
+<tr><td>2D pre-registered test not supported</td><td>Give-up lower bound −12.0, below the −10 bar, at the default threshold</td><td>Explained by threshold placement (section 5), but only a new pre-registered test can turn this into a confirmed result</td></tr>
+<tr><td>Tuned thresholds are not confirmed</td><td>Chosen after TEST had been used; thresholds tuned on 3D fail on 2D</td><td>Fresh pre-registered test set, with thresholds fixed beforehand</td></tr>
+<tr><td>Worse than classical planners on "do nothing" and "give up"</td><td>3D TEST: −3.5 (lower bound −11.1) and −9.7 (−16.1) against E-M4M</td><td>VAL-chosen thresholds close it to about 1.5 points (exploratory); needs a fresh test to confirm</td></tr>
+<tr><td>Classical planner limits not explored</td><td>E-M4M used the team's 300 CPU-second limit; many scenes hit it</td><td>Run E-M4M with shorter and longer limits</td></tr>
+<tr><td>Per-step scoring is not new on its own</td><td>STAP (ICRA 2023) and Text2Motion also multiply per-step success. About a third of our task gain comes from the encoder, not the per-step training</td><td>Narrower claim: trained on "which step failed" labels, same-pool comparison with a whole-plan scorer, calibrated give-up. The PIGINet-style baseline is our reimplementation and may be under-tuned</td></tr>
+<tr><td>Limited by the cVAE's suggestions</td><td>Only 4 suggested spots per blocker. If none of them works, no plan can succeed, however good the scorer is</td><td>More spots per blocker (4, 6, 8 tested tonight)</td></tr>
+<tr><td>Only up to 3 moves</td><td>4 to 6 moves: 1 of 15 scenes solved. Those scenes have 15 to 19 objects, far more than training</td><td>Training scenes with more clutter</td></tr>
+<tr><td>Does not see geometry</td><td>Board 10 cm lower: success halves</td><td>Per-setup calibration now; geometry input later</td></tr>
+<tr><td>Sensitive to object position error</td><td>10 mm error: −10 points</td><td>Camera accuracy of about 5 mm (estimate, not tested)</td></tr>
+<tr><td>No real-robot result</td><td>Simulation only</td><td>Real-robot study (RSS Stage-2 Extension Charter)</td></tr>
+<tr><td>Most TEST scenes come from worlds also used in training</td><td>134 of 188 TEST worlds appear in training (team's split; the TEST scenes themselves are new arrangements, and XYNet had the same training data). On the 55 task scenes from unseen worlds: ours 89.7 vs XYNet 84.2, a lead of +5.5 that is not significant (lower bound −2.5), against +10.9 on seen worlds. Unseen worlds have no "do nothing" or "give up" scenes. Our own success does not drop on unseen worlds</td><td>Fresh test set from new worlds</td></tr>
+<tr><td>Physics checker differs slightly between machines</td><td>The laptop and lab-server checks agree on 680 of 701 3D TEST runs (97%)</td><td>Use one machine for final numbers</td></tr>
+<tr><td>Not faster than XYNet</td><td>About the same time per scene</td><td>None needed; the speed claim is against classical planners</td></tr>
+<tr><td>Some checks are small</td><td>Encoder comparison: graph, CNN and transformer have one seed each; PIGINet-style one seed (seeds 1–2 running). Robustness: one run per setting. Timing: different machines</td><td>More seeds; time the new scorer and E-M4M on one computer</td></tr>
+</table>
+
+<h2>10. Still running, and next</h2>
+<table>
+<tr><th>Run</th><th>When</th></tr>
+<tr><td>"Verify the top few plans" check, and more cVAE samples per object</td><td>tonight</td></tr>
+<tr><td>PIGINet-style seeds 1–2</td><td>tonight</td></tr>
+<tr><td>Robustness: position-noise curve (2 to 20 mm), grasp check before acting, training with noise-aware labels</td><td>tonight and overnight</td></tr>
+<tr><td>E-M4M with other time limits; timing on one computer</td><td>next</td></tr>
+<tr><td>Hardware setup and a fresh pre-registered test set from it</td><td>setup not decided yet</td></tr>
+<tr><td>Real-robot study</td><td>RSS Stage 2</td></tr>
+</table>
+<p><strong>For RSS 2027 (two-stage):</strong> Stage 1 is a 5-page extended abstract due 4 Dec 2026. It is judged on hypothesis and method, and results can be preliminary. The real-robot study and a fresh test set fit the Stage-2 Extension Charter.</p>
+</main>
+
+<script>
+(function () {
+  const NS = "http://www.w3.org/2000/svg";
+  const el = (n, a, p) => { const e = document.createElementNS(NS, n); for (const k in a) e.setAttribute(k, a[k]); if (p) p.appendChild(e); return e; };
+  const tip = (e, s) => { const t = el("title", {}, e); t.textContent = s; };
+  const C = { ours: "var(--ours)", xy: "var(--xy)", cls: "var(--cls)" };
+
+  // grouped horizontal bars: rows [{label, vals:[{k,v,c,name}]}], x 0..100
+  function hbars(id, rows, opts) {
+    const svg = document.getElementById(id), W = 720, L = opts.left || 150, R = 46, top = 10;
+    const bh = opts.bh || 14, gap = 2, groupGap = 14, x = v => L + (W - L - R) * v / 100;
+    let y = top;
+    for (const t of [0, 25, 50, 75, 100]) { el("line", { x1: x(t), x2: x(t), y1: top, y2: 1000, class: "grid" }, svg); }
+    rows.forEach(r => {
+      const gh = r.vals.length * (bh + gap) - gap;
+      const lab = el("text", { x: L - 10, y: y + gh / 2 + 4, "text-anchor": "end" }, svg); lab.textContent = r.label;
+      r.vals.forEach((d, i) => {
+        const yy = y + i * (bh + gap), w = Math.max(x(d.v) - L, 1);
+        const b = el("path", { d: `M${L},${yy}h${w - 3}a3,3 0 0 1 3,3v${bh - 6}a3,3 0 0 1 -3,3h${-(w - 3)}z`, fill: d.c }, svg);
+        tip(b, `${d.name}: ${d.v}%`);
+        const t = el("text", { x: x(d.v) + 5, y: yy + bh - 3, class: "val" }, svg); t.textContent = d.v.toFixed(1);
+      });
+      y += gh + groupGap;
+    });
+    for (const t of [0, 25, 50, 75, 100]) { const a = el("text", { x: x(t), y: y + 8, "text-anchor": "middle" }, svg); a.textContent = t + "%"; }
+    svg.setAttribute("viewBox", `0 0 ${W} ${y + 14}`);
+    svg.querySelectorAll("line.grid").forEach(l => l.setAttribute("y2", y - groupGap + 4));
+  }
+  const pair = (label, o, xy) => ({ label, vals: [{ v: o, c: C.ours, name: "New scorer" }, { v: xy, c: C.xy, name: "XYNet" }] });
+
+  hbars("c1", [pair("Task", 90.5, 80.8), pair("Do nothing", 93.5, 86.1), pair("Give up", 90.3, 86.0)], { left: 110 });
+
+  const one = (label, v, c, name) => ({ label, vals: [{ v, c, name: name || label }] });
+  // small multiples: task / do nothing / give up, one panel each, same rows (seed 0, 3D VAL)
+  (function () {
+    const svg = document.getElementById("c2"), rows = [
+      ["Our encoder (attention)", 92.3, 92.9, 98.3, C.ours], ["Transformer", 92.3, 92.9, 100, C.ours], ["No step labels", 93.2, 83.5, 98.3, C.ours],
+      ["Graph network", 88.6, 92.9, 82.8, C.ours], ["XYNet's encoder", 86.4, 89.4, 89.7, C.ours], ["CNN on grid", 85.5, 90.6, 93.1, C.ours],
+      ["XYNet (team)", 78.2, 84.7, 79.3, C.xy]];
+    const L = 160, PW = 170, PG = 34, top = 26, bh = 16, gap = 8, lo = 50;
+    const bottom = top + rows.length * (bh + gap) - gap;
+    ["Task", "Do nothing", "Give up"].forEach((title, j) => {
+      const x0 = L + j * (PW + PG), x = v => x0 + PW * (v - lo) / (100 - lo);
+      const tt = el("text", { x: x0, y: 14, style: "font-weight:600;fill:var(--fg)" }, svg); tt.textContent = title;
+      [50, 75, 100].forEach(t => { el("line", { x1: x(t), x2: x(t), y1: top - 4, y2: bottom + 4, class: "grid" }, svg);
+        const a = el("text", { x: x(t), y: bottom + 18, "text-anchor": "middle" }, svg); a.textContent = t; });
+      rows.forEach((r, i) => {
+        const y = top + i * (bh + gap), v = r[1 + j], w = Math.max(x(v) - x0, 1);
+        if (j === 0) { const lab = el("text", { x: L - 10, y: y + bh - 3, "text-anchor": "end" }, svg); lab.textContent = r[0]; }
+        const b = el("path", { d: `M${x0},${y}h${w - 3}a3,3 0 0 1 3,3v${bh - 6}a3,3 0 0 1 -3,3h${-(w - 3)}z`, fill: r[4] }, svg);
+        tip(b, `${r[0]}, ${title}: ${v}%`);
+        const inside = x(v) + 32 > x0 + PW;   // no room to the right: label inside the bar end, white
+        const t = el("text", { x: inside ? x(v) - 4 : x(v) + 4, y: y + bh - 4, class: "val", "text-anchor": inside ? "end" : "start",
+          style: inside ? "fill:#fff" : "" }, svg); t.textContent = v.toFixed(1);
+      });
+    });
+    svg.setAttribute("viewBox", `0 0 ${L + 3 * PW + 2 * PG + 16} ${bottom + 26}`);
+  })();
+
+  hbars("c4", [one("New scorer", 90.8, C.ours), one("XYNet (team)", 78.5, C.xy), one("E-M4M", 67.3, C.cls),
+    one("MS-MCTS", 45.5, C.cls), one("MO-SeGMan", 39.1, C.cls)], { left: 130, bh: 16 });
+
+  hbars("c5", [pair("Objects off by 5 mm", 90.0, 79.5), pair("Objects off by 10 mm", 83.0, 75.5), pair("Friction ×0.7", 93.9, 84.7),
+    pair("Mass ×1.5", 94.8, 85.2), pair("Board 10 cm lower", 48.5, 42.4)], { left: 170 });
+
+  // log-scale bars: median seconds per scene, axis 0.01 .. 1000 s
+  (function () {
+    const svg = document.getElementById("c6"), W = 720, L = 130, R = 60, top = 10, bh = 16, gap = 14;
+    const x = v => L + (W - L - R) * (Math.log10(v) + 2) / 5;
+    const rows = [["New scorer", 0.11, C.ours], ["XYNet (team)", 0.14, C.xy], ["E-M4M", 152, C.cls], ["MS-MCTS", 109, C.cls], ["MO-SeGMan", 182, C.cls]];
+    const bottom = top + rows.length * (bh + gap) - gap;
+    [0.01, 0.1, 1, 10, 100, 1000].forEach(t => {
+      el("line", { x1: x(t), x2: x(t), y1: top, y2: bottom + 4, class: "grid" }, svg);
+      const a = el("text", { x: x(t), y: bottom + 20, "text-anchor": "middle" }, svg); a.textContent = t >= 1 ? t + " s" : t + " s";
+    });
+    rows.forEach(([name, v, c], i) => {
+      const y = top + i * (bh + gap), w = x(v) - L;
+      const lab = el("text", { x: L - 10, y: y + bh - 3, "text-anchor": "end" }, svg); lab.textContent = name;
+      const b = el("path", { d: `M${L},${y}h${w - 3}a3,3 0 0 1 3,3v${bh - 6}a3,3 0 0 1 -3,3h${-(w - 3)}z`, fill: c }, svg);
+      tip(b, `${name}: median ${v} s per scene`);
+      const t = el("text", { x: x(v) + 5, y: y + bh - 3, class: "val" }, svg); t.textContent = v < 1 ? v.toFixed(2) + " s" : v + " s";
+    });
+    svg.setAttribute("viewBox", `0 0 ${W} ${bottom + 30}`);
+  })();
+
+  // trade-off curve: x = give-up accuracy, y = task success
+  function curve(id, title, data, ymin) {
+    const svg = document.getElementById(id), W = 360, H = 260, L = 44, R = 12, T = 26, B = 36;
+    const xs = v => L + (W - L - R) * (v - 80) / 20, ys = v => T + (H - T - B) * (100 - v) / (100 - ymin);
+    const tt = el("text", { x: L, y: 14, style: "font-weight:600;fill:var(--fg)" }, svg); tt.textContent = title;
+    for (let v = ymin; v <= 100; v += 10) { el("line", { x1: L, x2: W - R, y1: ys(v), y2: ys(v), class: "grid" }, svg); const a = el("text", { x: L - 6, y: ys(v) + 4, "text-anchor": "end" }, svg); a.textContent = v; }
+    for (let v = 80; v <= 100; v += 5) { const a = el("text", { x: xs(v), y: H - B + 16, "text-anchor": "middle" }, svg); a.textContent = v; }
+    const xl = el("text", { x: (L + W - R) / 2, y: H - 4, "text-anchor": "middle" }, svg); xl.textContent = "Give-up accuracy (%)";
+    const yl = el("text", { x: 12, y: (T + H - B) / 2, transform: `rotate(-90 12 ${(T + H - B) / 2})`, "text-anchor": "middle" }, svg); yl.textContent = "Task success (%)";
+    [["ours", 0, 1, "New scorer"], ["xy", 2, 3, "XYNet"]].forEach(([k, ti, ai, name]) => {
+      const P = data.map(d => ({ eta: d[0], task: d[1 + ti], ab: d[1 + ai] }));
+      el("polyline", { points: P.map(p => `${xs(p.ab)},${ys(p.task)}`).join(" "), fill: "none", stroke: C[k], "stroke-width": 2 }, svg);
+      P.forEach(p => { const c = el("circle", { cx: xs(p.ab), cy: ys(p.task), r: 4, fill: C[k], stroke: "var(--bg)", "stroke-width": 2 }, svg); tip(c, `${name}, eta ${p.eta}: task ${p.task}%, give-up ${p.ab}%`); });
+    });
+  }
+  const d3 = [[0.3,90.46,90.32,80.77,86.02],[0.35,90.46,91.94,80.64,89.78],[0.4,90.46,92.47,80.64,91.94],[0.45,90.46,93.55,80.5,94.09],[0.5,90.46,94.09,80.22,95.7],[0.55,90.46,94.62,80.22,96.24],[0.6,90.46,95.7,79.94,97.31],[0.65,90.46,95.7,79.53,98.92],[0.7,90.46,95.7,79.11,98.92],[0.75,90.46,97.85,78.01,99.46],[0.8,90.46,98.92,75.93,99.46],[0.85,90.32,99.46,72.34,99.46],[0.9,89.76,99.46,65.98,100]];
+  const d2 = [[0.3,74.35,84.22,51.78,92],[0.35,74.35,87.56,51.54,93.78],[0.4,74.27,89.78,51.38,94.44],[0.45,74.19,91.78,51.21,95.78],[0.5,74.19,92.67,51.05,95.78],[0.55,74.11,93.56,50.49,96.22],[0.6,74.11,94.67,50.32,96.44],[0.65,73.79,95.33,49.6,96.44],[0.7,73.06,95.78,48.14,96.44],[0.75,72.65,96.22,46.6,96.44],[0.8,72.17,96.44,44.01,96.44],[0.85,70.95,96.44,41.5,96.44],[0.9,67.15,96.67,35.6,96.44]];
+  curve("c3a", "3D TEST", d3, 60);
+  curve("c3b", "2D TEST", d2, 30);
+})();
+</script>
+
+</body></html>
