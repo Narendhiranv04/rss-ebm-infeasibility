@@ -53,7 +53,7 @@ code { font: 0.88em var(--mono); background: var(--panel); padding: 1px 4px; bor
 
 <main>
 <h1>Per-step plan scorer: what we changed and what we found</h1>
-<p class="sub">Robot obstacle relocation, shelf scenes (xArm7, side grasps). Status as of 22 Nov 2026, 9 pm. Some runs are still going; they are marked.</p>
+<p class="sub">Robot obstacle relocation, shelf scenes (xArm7, side grasps). Status as of 23 Nov 2026. A fresh test set is being generated; its runs are marked.</p>
 
 <div class="box">
 <strong>Summary</strong>
@@ -62,8 +62,8 @@ code { font: 0.88em var(--mono); background: var(--panel); padding: 1px 4px; bor
 <li>Pre-registered test, run once. On 3D TEST the new scorer solves <strong>90.5%</strong> of task scenes, against <strong>80.8%</strong> for the current scorer (XYNet), and passes the pre-set bar. In 2D it is far ahead on task but <strong>failed</strong> the bar on "give up".</li>
 <li>Compared at the same give-up rate, the new scorer solves about 10 more task points in 3D and about 25 more in 2D. So the 2D miss comes from the default threshold, not a weaker model (exploratory).</li>
 <li>Where the gain comes from (3D VAL): scoring each step separately, instead of the whole plan, gives the task gain; about a third of it needs our encoder. The "which step failed" labels do not change task success; they add about 5 points on "do nothing".</li>
-<li>Against the classical planner E-M4M on 3D TEST (exploratory): +20.3 points on task, but 3.5 points worse on "do nothing" and 9.7 worse on "give up". About 0.1 s per scene against 109 s.</li>
-<li>TEST scenes are new arrangements of mostly seen worlds. On never-seen worlds the lead over XYNet is smaller (+5.5) and not significant.</li>
+<li>Against the classical planner E-M4M on 3D TEST (exploratory): +20.3 points on task at E-M4M's 300 CPU-second limit and +14.5 at 600 s, but 3.5 points worse on "do nothing" and 9.7 worse on "give up". About 0.1 s per scene against a median 109 CPU-seconds. Timed on one computer, the new scorer takes about as long as XYNet.</li>
+<li>Position noise in what the planner sees (sigma 5 to 20 mm) costs the new scorer 1 to 3 task points, and the lead over XYNet stays (3D VAL). Retraining on noisy labels shows no detectable gain.</li>
 <li>Limits: simulation only, up to 3 moves, the chosen plans need angled approaches (with straight-in grasps only about 9% still work), and a new setup needs a short recalibration.</li>
 </ul>
 </div>
@@ -132,10 +132,26 @@ code { font: 0.88em var(--mono); background: var(--panel); padding: 1px 4px; bor
 <tr><td>No step labels</td><td class="n">90.9</td><td class="n">86.3</td><td class="n">96.6</td></tr>
 <tr><td>Our training, XYNet's encoder</td><td class="n">87.0</td><td class="n">88.2</td><td class="n">89.7</td></tr>
 <tr><td>XYNet (team)</td><td class="n">78.5</td><td class="n">83.9</td><td class="n">78.7</td></tr>
-<tr><td>PIGINet-style whole-plan transformer (our reimplementation, seed 0)</td><td class="n">71.8</td><td class="n">84.7</td><td class="n">60.3</td></tr>
+<tr><td>Our training, transformer encoder</td><td class="n">91.5</td><td class="n">93.7</td><td class="n">98.3</td></tr>
+<tr><td>Our training, graph encoder</td><td class="n">90.4</td><td class="n">91.4</td><td class="n">92.6</td></tr>
+<tr><td>Our training, CNN encoder</td><td class="n">87.4</td><td class="n">87.9</td><td class="n">90.2</td></tr>
+<tr><td>PIGINet-style whole-plan transformer (our reimplementation)</td><td class="n">70.5</td><td class="n">84.7</td><td class="n">44.2</td></tr>
 </table>
+<p>Every row with per-step training has a 3-seed mean task success between 87 and 92 (single seeds 85.5 to 93.2). The whole-plan PIGINet-style model is about 20 points lower, and its "give up" swings from 10 to 62 across seeds.</p>
+<p><strong>Concern:</strong> the PIGINet-style model may only look weak because its thresholds were never tuned. <strong>Check:</strong> both models were given the same threshold tuning on VAL (37 candidate rules, same selection criterion). Tuned, PIGINet-style reaches 67 to 71 on task against 88 to 92 for ours, so tuning does not close the gap. Both were tuned and scored on VAL, so both numbers are optimistic by the same amount.</p>
 <p>Without the "which step failed" labels, task success is the same, but "do nothing" drops by 5.1 points, and it is lower on all three seeds (−9.4, −3.5, −2.4). "Give up" moves in both directions across seeds. The step labels mainly help on scenes where nothing should be moved.</p>
-<p>Reading the table: scoring each step separately gives the task gain; about a third of it needs our encoder; the step labels add about 5 points on "do nothing" only. XYNet's three seeds differ by about 1 point on task (78.2 to 79.1). The PIGINet-style model is our own reimplementation, trained with the same data and budget as ours, and may be under-tuned.</p>
+<p>Reading the table: scoring each step separately gives the task gain; about a third of it needs our encoder; the step labels add about 5 points on "do nothing" only. XYNet's three seeds differ by about 1 point on task (78.2 to 79.1). The PIGINet-style model is our own reimplementation, trained with the same data and budget as ours.</p>
+<h3>How good the ranking is, and whether more candidates help</h3>
+<p><strong>Concern:</strong> success could be limited by the candidate plans rather than by the scorer. <strong>Check 1:</strong> on task scenes, always act on the top-ranked plan (no thresholds) and see how often a working plan sits near the top.</p>
+<table>
+<tr><th>3D task scenes</th><th class="n">Top plan works</th><th class="n">A working plan in the top 3</th></tr>
+<tr><td>New scorer, VAL</td><td class="n">95.9</td><td class="n">99.1</td></tr>
+<tr><td>XYNet, VAL</td><td class="n">81.8</td><td class="n">90.0</td></tr>
+<tr><td>New scorer, TEST</td><td class="n">92.5</td><td class="n">99.6</td></tr>
+<tr><td>XYNet, TEST</td><td class="n">85.5</td><td class="n">93.4</td></tr>
+</table>
+<p>A working plan is almost always among the new scorer's top 3. This is an upper bound for "check the top 3 plans in simulation before acting": it assumes the check agrees with the physics teacher every time, covers task scenes only, and each check costs about 15 s (TEST is post-hoc here).</p>
+<p><strong>Check 2:</strong> give the cVAE 6 or 8 suggested spots per blocker instead of 4 (3D VAL). Thresholds stay at their 4-spot values, and all three use fresh CPU candidate pools. Task success does not rise (new scorer 92.3, 91.4, 90.0 for 4, 6, 8 spots; XYNet 77.7, 77.7, 78.6), and "give up" falls for the new scorer (98.3, 96.6, 91.4). A likely reason, not tested, is that more candidates give more chances to rate a bad plan highly. With these thresholds, more spots do not help.</p>
 
 <h2>5. Threshold choice <span class="tag">exploratory · TEST</span></h2>
 <p><strong>Concern:</strong> the gain could come from better-placed thresholds rather than a better model. <strong>Check:</strong> the give-up threshold (eta) was swept over its full range for both models, and task success plotted against give-up accuracy. Up and to the right is better.</p>
@@ -148,6 +164,7 @@ code { font: 0.88em var(--mono); background: var(--panel); padding: 1px 4px; bor
 <figcaption>Each point is one eta value (0.30 to 0.90). Left 3D TEST, right 2D TEST. The new scorer is above XYNet everywhere: at the same give-up accuracy it solves about 10 more points of task scenes in 3D and about 25 more in 2D.</figcaption>
 </figure>
 <p>The 2D miss comes from where the default threshold sits, not from a weaker model: at equal give-up accuracy, the new scorer solves about 25 points more task scenes. With eta chosen on VAL, both 2D and 3D pass the bar on TEST. This is exploratory, since TEST had already been used.</p>
+<p>In 2D, the default rule (eta 0.3) acts on 65 of 450 impossible-scene runs on TEST (3 seeds pooled). Raising eta to 0.5 cuts that to 27 while losing only 2 of 919 task successes; VAL shows the same pattern (73 to 39, and 937 to 936). The eta sweep on VAL picks 0.6, and at that value 2D TEST gives task 74.1 against XYNet 50.5 and give up 94.7 against 96.2 (lower bound −2.9).</p>
 <p><strong>Calibration.</strong> When the model says "80% chance", the plan should work about 80% of the time. Average gap on 3D TEST: 6.4 points for the new scorer, 9.8 for XYNet (2D: 18 vs 29). No confidence interval was computed for these gaps. A cutoff chosen to keep the failure rate under 10% (95% upper bound) also kept it under 10% on TEST, and the new scorer still acts on 98.6% of scenes. For XYNet no cutoff meets that bound.</p>
 <p><strong>Concern:</strong> tuned thresholds may be overfitted to these scenes. <strong>Check:</strong> a threshold tuned on 3D and applied to 2D gave 27% failures instead of 10%, so thresholds do not transfer between setups. The headline result uses the team's default rule, and a new setup gets recalibrated on a small labelled set.</p>
 
@@ -163,7 +180,15 @@ code { font: 0.88em var(--mono); background: var(--panel); padding: 1px 4px; bor
 <tr><td>Do nothing</td><td class="n">93.5</td><td class="n">97.0</td><td class="n">−3.5</td><td class="n">−11.1</td></tr>
 <tr><td>Give up</td><td class="n">90.3</td><td class="n">100</td><td class="n">−9.7</td><td class="n">−16.1</td></tr>
 </table>
-<p>The task gain is large and clear. On "do nothing" and "give up" the new scorer is worse, and both lower bounds are past −10, so it would fail the bar used against XYNet. With the thresholds chosen on VAL (exploratory) the new scorer reaches 87.8 / 95.5 / 98.9, which is within 1.5 points of E-M4M on both while keeping a 17.7-point task lead. E-M4M's 300 CPU-second limit was hit on many scenes (90th percentile 300 s); how it does with shorter or longer limits is not tested yet.</p>
+<p>The task gain is large and clear. On "do nothing" and "give up" the new scorer is worse, and both lower bounds are past −10, so it would fail the bar used against XYNet. With the thresholds chosen on VAL (exploratory) the new scorer reaches 87.8 / 95.5 / 98.9, which is within 1.5 points of E-M4M on both while keeping a 17.7-point task lead. </p>
+<p><strong>Concern:</strong> E-M4M may just need more time. <strong>Check:</strong> E-M4M on 3D TEST at shorter and longer limits (30, 100 and 300 s apply the team's cut rule to the 300 s run: a decision taken after the limit counts as giving up; 600 s is a separate run on the same server).</p>
+<table>
+<tr><th>E-M4M CPU-second limit</th><th class="n">30</th><th class="n">100</th><th class="n">300</th><th class="n">600</th><th class="n">New scorer</th></tr>
+<tr><td>Task</td><td class="n">5.0</td><td class="n">47.3</td><td class="n">70.1</td><td class="n">75.9</td><td class="n">90.5</td></tr>
+<tr><td>Do nothing</td><td class="n">97.0</td><td class="n">97.0</td><td class="n">97.0</td><td class="n">97.0</td><td class="n">93.5</td></tr>
+<tr><td>Give up</td><td class="n">100</td><td class="n">100</td><td class="n">100</td><td class="n">100</td><td class="n">90.3</td></tr>
+</table>
+<p>Doubling the limit from 300 to 600 s adds 5.8 task points, and 118 of 370 scenes (32%) still hit the 600 s limit, so it may still be rising. Seed 0 only. Paired over scenes at 600 s, the new scorer still leads by +14.5 (lower bound +8.2); "do nothing" −3.5 (−11.1) and "give up" −9.7 (−16.1) are unchanged. E-M4M never acted wrongly: all 183 plans it chose worked.</p>
 
 <h2>7. Planning time <span class="tag">3D, per scene</span></h2>
 <figure>
@@ -178,7 +203,14 @@ code { font: 0.88em var(--mono); background: var(--panel); padding: 1px 4px; bor
 <tr><td>E-M4M</td><td>search + simulation, CPU</td><td class="n">152</td><td class="n">300 (cap)</td><td class="n">67.3</td></tr>
 <tr><td>MO-SeGMan</td><td>search + simulation, CPU</td><td class="n">182</td><td class="n">300 (cap)</td><td class="n">39.1</td></tr>
 </table>
-<p>All rows are 3D VAL. The new scorer is roughly 1,000 to 1,700 times faster than the classical planners and solves more task scenes. Two differences favour it and are worth stating: its time covers scoring only (the cVAE proposals took a median 0.01 s on the team's GPU), while the classical planners also check plans in simulation; and the machines differ. Neither comes close to explaining a gap of three orders of magnitude. On 3D TEST, E-M4M's median was 109 s. It runs at about the same speed as XYNet. A timing of both on one computer has not been done yet.</p>
+<p>All rows are 3D VAL. The new scorer is roughly 1,000 to 1,700 times faster than the classical planners and solves more task scenes. Two differences favour it and are worth stating: its time covers scoring only (the cVAE proposals took a median 0.01 s on the team's GPU), while the classical planners also check plans in simulation; and the machines differ. Neither comes close to explaining a gap of three orders of magnitude. On 3D TEST, E-M4M's median was 109 s.</p>
+<p><strong>Concern:</strong> the comparison with XYNet mixes a laptop CPU and a GPU. <strong>Check:</strong> both timed on one lab-server CPU thread, on all 370 3D TEST scenes, cVAE proposals included (CPU time per scene):</p>
+<table>
+<tr><th>Same computer, 3D TEST</th><th class="n">Median (s)</th><th class="n">Mean (s)</th><th class="n">90th pct (s)</th><th class="n">Slowest (s)</th></tr>
+<tr><td>New scorer</td><td class="n">0.099</td><td class="n">0.40</td><td class="n">1.15</td><td class="n">5.0</td></tr>
+<tr><td>XYNet</td><td class="n">0.071</td><td class="n">0.44</td><td class="n">1.12</td><td class="n">7.7</td></tr>
+</table>
+<p>The two take about the same time. The timed run chose the same plan as the recorded run on all but 1 scene per model. The candidate set differed on 17 scenes, because CPU and GPU cVAE draws differ on near-ties.</p>
 
 <h2>8. Robustness <span class="tag">exploratory · 3D TEST plans</span></h2>
 <p>Both models' chosen plans were re-checked in the simulator with small changes, as a stand-in for the real world being slightly different.</p>
@@ -192,7 +224,18 @@ code { font: 0.88em var(--mono); background: var(--panel); padding: 1px 4px; bor
 <li>About 90% of the plans that fail under position shifts fail with "no feasible side grasp": a shifted neighbour closes the gap the fingers need. Failures grow with plan length.</li>
 <li>With the G2 gripper model, 91.5% vs 83.1% of all chosen plans still work (from 92.8% vs 85.7%).</li>
 <li>With straight-in grasps only, about 9 to 10% still work for both models: the plans rely on angled approaches. A rig limited to straight-in grasps needs new scenes.</li>
-<li>Objects 10 mm off cost both models about 10 points, and 5 mm costs only 3 (ours), so a rough estimate is that the cameras need to be accurate to about 5 mm.</li>
+<li>Objects shifted in the simulator after the plan is chosen (229 scenes where both act, 3D TEST):</li>
+</ul>
+<table>
+<tr><th>Shift (mm)</th><th class="n">0</th><th class="n">2</th><th class="n">5</th><th class="n">7</th><th class="n">10</th><th class="n">15</th><th class="n">20</th></tr>
+<tr><td>New scorer, plans that still work (%)</td><td class="n">92.6</td><td class="n">91.7</td><td class="n">90.0</td><td class="n">84.3</td><td class="n">83.0</td><td class="n">76.0</td><td class="n">64.2</td></tr>
+<tr><td>XYNet (%)</td><td class="n">85.6</td><td class="n">83.8</td><td class="n">79.5</td><td class="n">78.2</td><td class="n">75.5</td><td class="n">65.1</td><td class="n">56.8</td></tr>
+</table>
+<ul>
+<li>One run per shift (hardware/robust/runs_server.jsonl). The new scorer stays 6 to 11 points ahead at every shift. Up to 5 mm it loses under 3 points and XYNet about 6; at 10 mm both lose about 10. Cameras accurate to about 5 mm look sufficient (estimate, simulation only).</li>
+<li><strong>Grasp check before acting</strong> (3D VAL): before moving, check in the simulator that each object of the top plan can still be grasped, and fall back to the next of the top 5 plans if not. With 5 mm shifts success rises from 88.1% to 93.2%, with 10 mm from 84.9% to 90.4%, and no plan that worked was lost; on 10 (5 mm) and 18 (10 mm) of 219 scenes none of the 5 plans passed. Each check takes about 15 s. The check runs in the same simulator, on the shifted scene, as the success test, so it assumes the robot sees the true positions; seed 0 only.</li>
+<li><strong>The planner sees wrong positions</strong> (3D VAL): positions given to the models get Gaussian noise (sigma 5, 10, 20 mm, kept inside the object's cell), while the physics check uses the true scene. Task success: new scorer 92.3, 91.4, 90.5, 89.5 at sigma 0, 5, 10, 20 mm; XYNet 77.7, 79.1, 78.6, 75.9. "Do nothing" and "give up" barely move. Seed 0 only. The new scorer loses 1 to 3 points; XYNet is flat within noise.</li>
+<li><strong>Training on noisy labels</strong> (3D VAL): three retrained versions (labels from shifted scenes only, shifted plus normal, and a control with the same step information but no shifts), three seeds each. Under 5 and 10 mm shifts none differs from the current model by more than 1.6 points, and every 95% interval includes zero. No gain is detectable; gains up to about 3 points cannot be ruled out.</li>
 <li>Moving the board 10 cm lower halves success for both. Neither model sees the board height, so neither can adapt. A short calibration in each new setup is needed; giving the model the geometry as input is future work.</li>
 </ul>
 
@@ -201,27 +244,23 @@ code { font: 0.88em var(--mono); background: var(--panel); padding: 1px 4px; bor
 <tr><th>Weak point</th><th>Evidence</th><th>What would fix it</th></tr>
 <tr><td>2D pre-registered test not supported</td><td>Give-up lower bound −12.0, below the −10 bar, at the default threshold</td><td>Explained by threshold placement (section 5), but only a new pre-registered test can turn this into a confirmed result</td></tr>
 <tr><td>Tuned thresholds are not confirmed</td><td>Chosen after TEST had been used; thresholds tuned on 3D fail on 2D</td><td>Fresh pre-registered test set, with thresholds fixed beforehand</td></tr>
-<tr><td>Worse than classical planners on "do nothing" and "give up"</td><td>3D TEST: −3.5 (lower bound −11.1) and −9.7 (−16.1) against E-M4M</td><td>VAL-chosen thresholds close it to about 1.5 points (exploratory); needs a fresh test to confirm</td></tr>
-<tr><td>Classical planner limits not explored</td><td>E-M4M used the team's 300 CPU-second limit; many scenes hit it</td><td>Run E-M4M with shorter and longer limits</td></tr>
+<tr><td>Worse than classical planners on "do nothing" and "give up"</td><td>3D TEST: −3.5 (lower bound −11.1) and −9.7 (−16.1) against E-M4M, at 300 and at 600 s. E-M4M acts only after its own simulation check, so it never acts wrongly</td><td>VAL-chosen thresholds close it to about 1.5 points (exploratory); the fresh test set will confirm or reject this</td></tr>
 <tr><td>Per-step scoring is not new on its own</td><td>STAP (ICRA 2023) and Text2Motion also multiply per-step success. About a third of our task gain comes from the encoder, not the per-step training</td><td>Narrower claim: trained on "which step failed" labels, same-pool comparison with a whole-plan scorer, calibrated give-up. The PIGINet-style baseline is our reimplementation and may be under-tuned</td></tr>
-<tr><td>Limited by the cVAE's suggestions</td><td>Only 4 suggested spots per blocker. If none of them works, no plan can succeed, however good the scorer is</td><td>More spots per blocker (4, 6, 8 tested tonight)</td></tr>
+
 <tr><td>Only up to 3 moves</td><td>4 to 6 moves: 1 of 15 scenes solved. Those scenes have 15 to 19 objects, far more than training</td><td>Training scenes with more clutter</td></tr>
 <tr><td>Does not see geometry</td><td>Board 10 cm lower: success halves</td><td>Per-setup calibration now; geometry input later</td></tr>
-<tr><td>Sensitive to object position error</td><td>10 mm error: −10 points</td><td>Camera accuracy of about 5 mm (estimate, not tested)</td></tr>
+<tr><td>Sensitive to objects moving after planning</td><td>10 mm shift: about −10 points for both models</td><td>Camera accuracy of about 5 mm; a grasp check before acting recovers about 5 points (VAL)</td></tr>
 <tr><td>No real-robot result</td><td>Simulation only</td><td>Real-robot study (RSS Stage-2 Extension Charter)</td></tr>
-<tr><td>Most TEST scenes come from worlds also used in training</td><td>134 of 188 TEST worlds appear in training (team's split; the TEST scenes themselves are new arrangements, and XYNet had the same training data). On the 55 task scenes from unseen worlds: ours 89.7 vs XYNet 84.2, a lead of +5.5 that is not significant (lower bound −2.5), against +10.9 on seen worlds. Unseen worlds have no "do nothing" or "give up" scenes. Our own success does not drop on unseen worlds</td><td>Fresh test set from new worlds</td></tr>
+<tr><td>TEST was used once already</td><td>All exploratory TEST numbers here are post-hoc. A "world" in the team's split is a generation batch of 24 scenes, each with its own random seed. Checked: no 3D TEST scene shares a scene id, construction seed or object layout with any TRAIN or VAL scene (370 against 1,766 and 364). An earlier "unseen worlds" subset turned out to be almost all hard-order 3-move variants (50 of 55 scenes), so it said nothing about new worlds and is dropped</td><td>Fresh test set of 250 scenes from new generator runs, scored once under a new pre-registration (generation running)</td></tr>
 <tr><td>Physics checker differs slightly between machines</td><td>The laptop and lab-server checks agree on 680 of 701 3D TEST runs (97%)</td><td>Use one machine for final numbers</td></tr>
-<tr><td>Not faster than XYNet</td><td>About the same time per scene</td><td>None needed; the speed claim is against classical planners</td></tr>
-<tr><td>Some checks are small</td><td>Encoder comparison: graph, CNN and transformer have one seed each; PIGINet-style one seed (seeds 1–2 running). Robustness: one run per setting. Timing: different machines</td><td>More seeds; time the new scorer and E-M4M on one computer</td></tr>
+<tr><td>Not faster than XYNet</td><td>Same computer: median 0.099 s against 0.071 s, mean 0.40 against 0.44</td><td>None needed; the speed claim is against classical planners</td></tr>
+<tr><td>Some checks are small</td><td>Robustness: one run per setting. E-M4M: seed 0 only. Encoder and PIGINet-style comparisons: VAL only</td><td>More runs per setting</td></tr>
 </table>
 
 <h2>10. Still running, and next</h2>
 <table>
 <tr><th>Run</th><th>When</th></tr>
-<tr><td>"Verify the top few plans" check, and more cVAE samples per object</td><td>tonight</td></tr>
-<tr><td>PIGINet-style seeds 1–2</td><td>tonight</td></tr>
-<tr><td>Robustness: position-noise curve (2 to 20 mm), grasp check before acting, training with noise-aware labels</td><td>tonight and overnight</td></tr>
-<tr><td>E-M4M with other time limits; timing on one computer</td><td>next</td></tr>
+<tr><td>Fresh 3D test set (250 scenes, new generator runs, checked disjoint from TRAIN/VAL/TEST)</td><td>generation finishes about 23 Nov night; scored once after its pre-registration is committed</td></tr>
 <tr><td>Hardware setup and a fresh pre-registered test set from it</td><td>setup not decided yet</td></tr>
 <tr><td>Real-robot study</td><td>RSS Stage 2</td></tr>
 </table>
