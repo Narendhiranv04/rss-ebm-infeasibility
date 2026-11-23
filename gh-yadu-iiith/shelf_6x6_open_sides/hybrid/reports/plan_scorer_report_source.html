@@ -64,6 +64,7 @@ code { font: 0.88em var(--mono); background: var(--panel); padding: 1px 4px; bor
 <li>Where the gain comes from (3D VAL): scoring each step separately, instead of the whole plan, gives the task gain; about a third of it needs our encoder. The "which step failed" labels do not change task success; they add about 5 points on "do nothing".</li>
 <li>Against the classical planner E-M4M on 3D TEST (exploratory): +20.3 points on task at E-M4M's 300 CPU-second limit and +14.5 at 600 s, but 3.5 points worse on "do nothing" and 9.7 worse on "give up". About 0.1 s per scene against a median 109 CPU-seconds. Timed on one computer, the new scorer takes about as long as XYNet.</li>
 <li>Position noise in what the planner sees (sigma 5 to 20 mm) costs the new scorer 1 to 3 task points, and the lead over XYNet stays (3D VAL). Retraining on noisy labels shows no detectable gain.</li>
+<li>Trained without 3-move examples, both scorers lose a lot on 3-move scenes and the new scorer stays ahead; the step-number input is not needed (3D VAL, exploratory).</li>
 <li>Limits: simulation only, up to 3 moves, the chosen plans need angled approaches (with straight-in grasps only about 9% still work), and a new setup needs a short recalibration.</li>
 </ul>
 </div>
@@ -239,7 +240,30 @@ code { font: 0.88em var(--mono); background: var(--panel); padding: 1px 4px; bor
 <li>Moving the board 10 cm lower halves success for both. Neither model sees the board height, so neither can adapt. A short calibration in each new setup is needed; giving the model the geometry as input is future work.</li>
 </ul>
 
-<h2>9. Weak points</h2>
+<h2>9. Longer plans <span class="tag">exploratory · 3D VAL</span></h2>
+<p><strong>Concern:</strong> the new scorer may win only because it saw 3-move plans in training, and may not handle plans longer than those it learned from. <strong>Check:</strong> both scorers were retrained without long examples, 3 seeds each, on the same candidate plans and with the same fixed thresholds. Two versions: no 3-move scenes in training (shorter scenes keep their 3-move plan labels), and no 3-move plans at all (stricter). A third and fourth run remove the new scorer's step-number input.</p>
+<table>
+<tr><th>Training data</th><th>Model</th><th class="n">Task, 1 move</th><th class="n">2 moves</th><th class="n">3 moves</th><th class="n">Task, all</th><th class="n">Do nothing</th><th class="n">Give up</th></tr>
+<tr><td>Full</td><td>New scorer</td><td class="n">85.5</td><td class="n">93.8</td><td class="n">90.5</td><td class="n">90.8</td><td class="n">91.4</td><td class="n">94.9</td></tr>
+<tr><td>Full</td><td>XYNet</td><td class="n">71.1</td><td class="n">83.9</td><td class="n">76.7</td><td class="n">78.5</td><td class="n">83.9</td><td class="n">78.7</td></tr>
+<tr><td>Full</td><td>New scorer, no step number</td><td class="n">86.8</td><td class="n">92.1</td><td class="n">88.6</td><td class="n">89.7</td><td class="n">92.1</td><td class="n">94.8</td></tr>
+<tr><td>No 3-move scenes</td><td>New scorer</td><td class="n">72.4</td><td class="n">79.1</td><td class="n">63.8</td><td class="n">72.6</td><td class="n">85.5</td><td class="n">97.7</td></tr>
+<tr><td>No 3-move scenes</td><td>XYNet</td><td class="n">49.1</td><td class="n">69.1</td><td class="n">40.5</td><td class="n">55.2</td><td class="n">82.4</td><td class="n">84.5</td></tr>
+<tr><td>No 3-move plans</td><td>New scorer</td><td class="n">74.9</td><td class="n">75.9</td><td class="n">61.0</td><td class="n">70.9</td><td class="n">85.1</td><td class="n">59.2</td></tr>
+<tr><td>No 3-move plans</td><td>XYNet</td><td class="n">56.6</td><td class="n">68.7</td><td class="n">47.2</td><td class="n">59.0</td><td class="n">83.6</td><td class="n">3.4</td></tr>
+<tr><td>No 3-move plans</td><td>New scorer, no step number</td><td class="n">73.6</td><td class="n">77.7</td><td class="n">62.4</td><td class="n">71.8</td><td class="n">85.9</td><td class="n">82.2</td></tr>
+</table>
+<p class="sub">Percent correct, mean of 3 seeds. 3D VAL: 53 / 97 / 70 task scenes with 1 / 2 / 3 moves, 85 "do nothing" scenes, 58 impossible scenes. A give-up on a solvable scene counts as a task failure.</p>
+<ul>
+<li><strong>With full data the lead does not grow with plan length.</strong> New scorer minus XYNet: +14.5 [6.4, 22.9] on 1-move, +10.0 [4.7, 15.8] on 2-move and +13.8 [6.3, 21.6] on 3-move scenes. On TEST (post-hoc) it does not grow either: +4.4 (lower bound −3.0), +13.2, +9.5.</li>
+<li><strong>Without long examples both scorers lose a lot on 3-move scenes, and the new scorer stays ahead.</strong> 3-move lead: +23.3 [11.9, 34.7] with no 3-move scenes, and +13.8 [2.5, 24.8] with no 3-move plans. The lead is positive in every seed (+31, +3, +36 and +13, +21, +7). The second lower bound is close to zero and would not survive a correction for the roughly 48 comparisons in this section, so treat it as suggestive.</li>
+<li><strong>Concern:</strong> the drop may come from less training data, not from missing long plans. <strong>Check:</strong> removing 3-move scenes also removes 440 of 1,766 training scenes (25%), and the new scorer also loses 11 to 18 points on 1- and 2-move scenes. Only the extra loss on 3-move scenes, about 12 points, is specific to plan length. A size-matched control (remove 440 random shorter scenes instead) would separate the two; it has not been run.</li>
+<li><strong>Give up.</strong> With no 3-move plans, XYNet almost never gives up at the fixed thresholds (3.4%; seeds 1.7, 1.7, 6.9). Those thresholds were set for the full-data models, so this can be a shift in its probability scale rather than an inability to give up.</li>
+<li><strong>The step-number input is not needed.</strong> On full data, removing it changes nothing detectable: task −1.1 [−3.1, 0.9], "do nothing" +0.8, give-up 0.0; differences up to about 3 points are not ruled out. With no 3-move plans, removing it raises give-up by 23.0 points [14.8, 32.8] (seeds 82.8, 79.3, 84.5 against 62.1, 46.6, 69.0) with task unchanged (+0.9 [−1.5, 3.4]). A likely reason: without 3-move plans in training, the step value of a third move is never seen, so the model extrapolates on it. Only the step-number column was zeroed; the model may still infer the step from other inputs.</li>
+<li>Method: early stopping used a VAL set without 3-move scenes. Intervals are 95%, from resampling scenes grouped by world on 3-seed means; they leave out seed-to-seed variation (XYNet's 3-move score ranges from 23 to 60 across seeds) and are not corrected for multiple comparisons. "Full data" rows are the original training runs; the retrained rows used a new script with the same training code and data. Code in hybrid/explore/short_long/, numbers in runs/explore/short_long/ci.json.</li>
+</ul>
+
+<h2>10. Weak points</h2>
 <table>
 <tr><th>Weak point</th><th>Evidence</th><th>What would fix it</th></tr>
 <tr><td>2D pre-registered test not supported</td><td>Give-up lower bound −12.0, below the −10 bar, at the default threshold</td><td>Explained by threshold placement (section 5), but only a new pre-registered test can turn this into a confirmed result</td></tr>
@@ -247,6 +271,7 @@ code { font: 0.88em var(--mono); background: var(--panel); padding: 1px 4px; bor
 <tr><td>Worse than classical planners on "do nothing" and "give up"</td><td>3D TEST: −3.5 (lower bound −11.1) and −9.7 (−16.1) against E-M4M, at 300 and at 600 s. E-M4M acts only after its own simulation check, so it never acts wrongly</td><td>VAL-chosen thresholds close it to about 1.5 points (exploratory); the fresh test set will confirm or reject this</td></tr>
 <tr><td>Per-step scoring is not new on its own</td><td>STAP (ICRA 2023) and Text2Motion also multiply per-step success. About a third of our task gain comes from the encoder, not the per-step training</td><td>Narrower claim: trained on "which step failed" labels, same-pool comparison with a whole-plan scorer, calibrated give-up. The PIGINet-style baseline is our reimplementation and may be under-tuned</td></tr>
 
+<tr><td>The longer-plan test mixes two effects</td><td>Removing 3-move scenes also removes 25% of the training data; the new scorer loses 11 to 18 points on shorter plans too (section 9)</td><td>Size-matched control: remove 440 random shorter scenes instead</td></tr>
 <tr><td>Only up to 3 moves</td><td>4 to 6 moves: 1 of 15 scenes solved. Those scenes have 15 to 19 objects, far more than training</td><td>Training scenes with more clutter</td></tr>
 <tr><td>Does not see geometry</td><td>Board 10 cm lower: success halves</td><td>Per-setup calibration now; geometry input later</td></tr>
 <tr><td>Sensitive to objects moving after planning</td><td>10 mm shift: about −10 points for both models</td><td>Camera accuracy of about 5 mm; a grasp check before acting recovers about 5 points (VAL)</td></tr>
@@ -257,10 +282,10 @@ code { font: 0.88em var(--mono); background: var(--panel); padding: 1px 4px; bor
 <tr><td>Some checks are small</td><td>Robustness: one run per setting. E-M4M: seed 0 only. Encoder and PIGINet-style comparisons: VAL only</td><td>More runs per setting</td></tr>
 </table>
 
-<h2>10. Still running, and next</h2>
+<h2>11. Still running, and next</h2>
 <table>
 <tr><th>Run</th><th>When</th></tr>
-<tr><td>Fresh 3D test set (250 scenes, new generator runs, checked disjoint from TRAIN/VAL/TEST)</td><td>generation finishes about 23 Nov night; scored once after its pre-registration is committed</td></tr>
+<tr><td>Fresh 3D test set (250 scenes, new generator runs, checked disjoint from TRAIN/VAL/TEST)</td><td>generation finishes about 24 Nov morning (3-move scenes are slow to make); scored once after its pre-registration is committed</td></tr>
 <tr><td>Hardware setup and a fresh pre-registered test set from it</td><td>setup not decided yet</td></tr>
 <tr><td>Real-robot study</td><td>RSS Stage 2</td></tr>
 </table>
